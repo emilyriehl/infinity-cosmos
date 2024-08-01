@@ -64,7 +64,7 @@ project name.
 - [`Project`](Project): Rename the folder to match your actual project name.
 - [`Project/Example.lean`](Project/Example.lean): Remove it and replace it with your actual
 project code.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md): Customise the guidelines for contributing to the project.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): Customize the guidelines for contributing to the project.
 - [`lakefile.lean`](lakefile.lean): Find and replace `Project` with your actual project name.
 - [`Project.lean`](Project.lean): Rename the main file and the imports
 to match your actual project name.
