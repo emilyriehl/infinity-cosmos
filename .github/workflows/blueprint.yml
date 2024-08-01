@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main # Trigger on pushes to the default branch
-      - fix-homepage
   workflow_dispatch:        # Allow manual triggering of the workflow from the GitHub Actions interface
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
