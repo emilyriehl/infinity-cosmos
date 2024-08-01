@@ -22,10 +22,10 @@ title: InfinityCosmos
 #email: your-email@example.com
 description: by emilyriehl
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://emilyriehl.github.io/InfinityCosmos" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://emilyriehl.github.io/infinity-cosmos" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username:
 github_username: emilyriehl
-repository: emilyriehl/InfinityCosmos
+repository: emilyriehl/infinity-cosmos
 
 # Build settings
 remote_theme: pages-themes/cayman@v0.2.0
