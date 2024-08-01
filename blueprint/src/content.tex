@@ -6,4 +6,128 @@
 % the current file can be a simple sequence of \input. Otherwise It
 % can start with a \section or \chapter for instance.
 
+\section{Overview}
+
+Following \cite{RiehlVerity:2022eo}, from which this document was excerpted, we aim to develop the basic theory of $\infty$-categories in a model independent fashion using a common axiomatic framework that is satisfied by a variety of models. In contrast with prior ``analytic'' treatments of the theory of $\infty$-categories {\textendash} in which the central categorical notions are defined in reference to the coordinates of a particular model {\textendash} our approach is ``synthetic,'' proceeding from definitions that can be interpreted simultaneously in many models to which our proofs then apply.
+
+To achieve this, our strategy is not to axiomatize what infinite-dimensional categories \emph{are}, but rather to axiomatize the categorical ``universe'' in which they \emph{live}. This motivates the notion of an $\infty$-\emph{cosmos},
+which axiomatizes the universe in which $\infty$-categories live as objects.\footnote{Metaphorical allusions aside, our $\infty$-cosmoi resemble the fibrational cosmoi of Street \cite{Street:1974ec}.} So that theorem statement about $\infty$-cosmoi suggest their natural interpretation, we recast $\infty$-\emph{category} as a technical term, to mean an object in some (typically fixed) $\infty$-cosmos. Several common models of $(\infty,1)$-cat\-e\-go\-ries\footnote{Quasi-categories, complete Segal spaces, Segal categories, and 1-complicial sets (naturally marked quasi-categories) all define the \texorpdfstring{$\infty$}{infinity}-categories in an \texorpdfstring{$\infty$}{infinity}-cosmos.} are $\infty$-categories in this sense, but our $\infty$-categories also include certain models of $(\infty,n)$-categories\footnote{$n$-quasi-categories, $\Theta_n$-spaces, iterated complete Segal spaces, and $n$-complicial sets also define the \texorpdfstring{$\infty$}{infinity}-categories in an \texorpdfstring{$\infty$}{infinity}-cosmos, as do saturated (n\'{e}e weak) complicial sets, a model for \texorpdfstring{$(\infty,\infty)$}{(infinity,infinity)}-categories.} as well as fibered versions of all of the above. Thus each of these objects are $\infty$-cat\-e\-go\-ries in our sense and our theorems apply to all of them.\footnote{There is a sense, however, in which many of our definitions are optimized for those \texorpdfstring{$\infty$}{infinity}-cosmoi whose objects are \texorpdfstring{$(\infty,1)$}{(infinity,1)}-categories. A good illustration  is provided by the notion of \emph{discrete \texorpdfstring{$\infty$}{infinity}-category}. % introduced in Definition \ref{defn:discrete}.
+ In the \texorpdfstring{$\infty$}{infinity}-cosmoi of \texorpdfstring{$(\infty,1)$}{(infinity,1)}-categories, the discrete \texorpdfstring{$\infty$}{infinity}-categories are the \texorpdfstring{$\infty$}{infinity}-groupoids, but this is not true for the \texorpdfstring{$\infty$}{infinity}-cosmoi of \texorpdfstring{$(\infty,n)$}{(infinity,n)}-categories.} This usage of the term ``$\infty$-categories'' is meant to interpolate between the classical one, which refers to any variety of weak infinite-dimensional categories, and the common one, which is often taken to mean quasi-categories or complete Segal spaces.
+
+ Much of the development of the theory of $\infty$-categories takes place not in the full $\infty$-cosmos but in a quotient that we call the \emph{homotopy 2-category}, the name chosen because an $\infty$-cosmos is something like a category of fibrant objects in an enriched model category and the homotopy 2-category is then a categorification of its homotopy category. The homotopy 2-category is a strict 2-category {\textendash} like the 2-category of categories, functors, and natural transformations\footnote{In fact this is another special case: there is an \texorpdfstring{$\infty$}{infinity}-cosmos whose objects are ordinary categories and its homotopy 2-category is the usual category of categories, functors, and natural transformations. This 2-category is as old as category theory itself, introduced in Eilenberg and Mac Lane's foundational paper \cite{EilenbergMaclane:1945gt}.} {\textendash} and in this way the foundational proofs in the theory of $\infty$-categories closely resemble the classical foundations of ordinary category theory except that the universal properties they characterize, e.g., when a functor between $\infty$-categories defines a cartesian fibration, are slightly weaker than in the familiar case of strict 1-categories.
+
+ There are many alternate choices we could have made in selecting the axioms of an $\infty$-cosmos. One of our guiding principles, admittedly somewhat contrary to the setting of homotopical higher category theory, was to allow us to work as strictly as possible, with the aim of shortening and simplifying proofs. As a consequence of these choices, the $\infty$-categories in an $\infty$-cosmos and the functors and natural transformations between them assemble into a 2-category rather than a bicategory. To help us achieve this counterintuitive strictness, each $\infty$-cosmos comes with a specified class of maps between $\infty$-categories called \emph{isofibrations}. The isofibrations have no homotopy-theoretic meaning, as any functor between $\infty$-categories is equivalent to an isofibration with the same codomain. However, isofibrations permit us to consider strictly commutative diagrams between $\infty$-cat\-e\-go\-ries and allow us to require that the limits of such diagrams satisfy a universal property up to simplicially enriched isomorphism. Neither feature is essential for the development of $\infty$-category theory. Similar proofs carry through to a weaker setting, at the cost of more time spent considering coherence of higher cells.
+
+ An $\infty$-cosmos is a particular sort of \emph{simplicially enriched category} with certain \emph{simplicially enriched limits}. While the notion of simplicially enriched category currently exists in Mathlib, simplicially enriched limits do not, so in \S\ref{sec:enriched-limits} we first introduce the prerequisite notions of simplicially enriched limits that will be required to state the definition of an $\infty$-cosmos in \S\ref{sec:cosmos}.
+
+ \subsection*{Acknowledgments}
+
+ The authors of this blueprint are particularly indebted to:
+ \begin{itemize}
+ \item Mario Carnerio, who contributed greatly to the original Lean formalization of $\infty$-cosmoi and prerequisite results about the homotopy category functor;
+ \item Johan Commelin, who suggested restructuring this as a blueprint project
+ \item  Pietro Monticone, who created a template for blueprint-driven formalization projects in Lean, from which this repository was forked.
+ \end{itemize}
+
+\section{Enriched limits}\label{sec:enriched-limits}
+
+A simplicially enriched category---commonly called a ``simplicial category'' for short---is a category that is enriched over the cartesian monoidal category of simplicial sets. We recall the definition, which already exists in Mathlib.
+
+\begin{defn}[simplicial categories as enriched categories]\label{defn:simplicial-category}
+  The data of a \textbf{simplicial category} is a \textbf{simplicially enriched category} with a set of objects and a simplicial set $\cA(x,y)$ of morphisms between each ordered pair of objects. Each endo-hom space contains a distinguished 0-simplex $\id_x \in \cA(x,y)_0$, and composition is required to define a simplicial map
+  \[
+  \begin{tikzcd}
+  \cA(y,z) \times \cA(x,y) \arrow[r, "\circ"] & \cA(x,z)
+  \end{tikzcd}
+  \] The composition is required to be associative and unital, in a sense expressed by the commutative diagrams of simplicial sets
+  \[
+  \begin{tikzcd}[column sep=small]
+  \cA(y,z) \times \cA(x,y) \times \cA(w,x) \arrow[d, "\id \times \circ"'] \arrow[r, "\circ \times \id"] & \cA(x,z) \times \cA(w,x) \arrow[d, "\circ"]  \\ \cA(y,z) \times \cA(w,y) \arrow[r, "\circ"'] & \cA(w,z)
+  \end{tikzcd}
+  \begin{tikzcd} \cA(x,y) \arrow[r, "\id_y \times \id"] \arrow[dr, "\id"] \arrow[d, "\id \times \id_x"']  & \cA(y,y) \times \cA(x,y) \arrow[d, "\circ"] \\ \cA(x,y) \times \cA(x,x) \arrow[r, "\circ"'] & \cA(x,y)
+  \end{tikzcd}
+  \]
+\end{defn}
+
+For each $n \geq 0$, an $n$-simplex in $\cA(x,y)$ is referred to as an $n$-\textbf{arrow} from $x$ to $y$. The $n$-arrows assemble into the arrows of an ordinary category $\cA_n$ with the same set of objects as $\cA$.
+
+In particular:
+
+\begin{defn}\label{defn:underlying-cat}
+the category $\cA_0$ of 0-arrows is the \textbf{underlying category} of the simplicial category $\cA$, which forgets the higher dimensional simplicial structure.
+\end{defn}
+
+There is alternate presentation of the data of a simplicial category as a simplicial object in the category of categories and identity-on-objects functors.\footnote{The phrase ``simplicial object in $\Cat$'' is reserved for the more general yet less common notion of a diagram $\Del\op\to\Cat$ that is not necessarily comprised of identity-on-objects functors.}
+
+
+\begin{dig}[simplicial categories as simplicial objects]\label{dig:simplicial-cat}
+  A \textbf{simplicial category} $\cA$ is equivalently given by categories $\cA_n$, with a common set of objects and whose arrows are called $n$-\textbf{arrows}, that assemble into a diagram $\Del\op \to \Cat$ of identity-on-objects functors
+  \begin{equation}\label{eq:simplicial-cat}
+  \begin{tikzcd}[column sep=large]
+  \cdots \cA_3 \arrow[r, shift right=2.25em, "\cdot\face^0" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^2" description, pos=.35] \arrow[r, shift left=2.25em, "\cdot\face^3" description, pos=.35]& \cA_2  \arrow[l, "\cdot\degen^1" description, pos=.35] \arrow[l, shift left=1.5em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=1.5em, "\cdot\degen^2" description, pos=.35] \arrow[r, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=1.5em, "\cdot\face^2" description, pos=.35] \arrow[r, shift right=1.5em, "\cdot\face^0" description, pos=.35]  & \cA_1 \arrow[l, shift left=.75em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=.75em, "\cdot\degen^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^0" description, pos=.35] & \cA_0 \arrow[l, "\cdot\degen^0" description, pos=.35]
+  \end{tikzcd}\eqcolon\cA
+  \end{equation}
+\end{dig}
+
+By contrast, the notion of simplicially enriched limit remains to be formalized. Fortunately, we do not (immediately) require the general notion of \emph{weighted limits}, as the notion of an $\infty$-cosmos only requires two special cases: \emph{cotensors} and \emph{conical limits}.
+
+\begin{defn}[simplicial cotensors]\label{defn:simplicial-cotensor}
+  Let $\cA$ be a simplicial category. The \textbf{cotensor} of an object $A \in \cA$ by a simplicial set $U$ is characterized by a natural isomorphism of simplicial sets
+  \begin{equation}\label{eq:cotensor-defn}
+   \cA(X,A^U) \cong \cA(X,A)^U
+   \end{equation}
+\end{defn}
+
+\begin{lem}\label{lem:cotensor-bifunctor}
+  Assuming such objects exist, the simplicial cotensor defines a bifunctor
+  \[
+  \begin{tikzcd}[row sep=tiny] \sSet\op \times \cA \arrow[r] & \cA \\
+  (U,A) \arrow[r, maps to] & A^U
+  \end{tikzcd}\] in a unique way making the isomorphism \eqref{eq:cotensor-defn} natural in $U$ and $A$ as well.
+\end{lem}
+
+The other simplicial limit notions postulated by axiom \ref{defn:cosmos}\ref{itm:cosmos-limits} are \textbf{conical}, which is the term used for ordinary 1-categorical limit shapes that satisfy an enriched analog of the usual universal property.   Such limits also define limits in the underlying category, but the usual universal property is strengthened.
+
+\begin{defn}[simplicial conical limits]\label{defn:simplicial-conical-limit}
+  Consider a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in the underlying category $\cA_0$ of a simplicially-enriched category $\cA$.  By applying the covariant rep\-re\-sentable functor $\cA(X,-) \colon \cA_0 \to \sSet$ to a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in $\cA_0$, we obtain a natural comparison map
+  \begin{equation}\label{eq:simplicial-limit-map} \cA(X,\lim_{j \in J}A_j) \xto{\mkern40mu} \lim_{j \in J}\cA(X,A_j).
+  \end{equation}
+  We say that $\lim_{j\in J}A_j$ defines a \textbf{simplicially enriched limit} if and only if \eqref{eq:simplicial-limit-map} is an isomorphism of simplicial sets for all $X \in \cA$.
+\end{defn}
+
+\begin{rmk}
+  The notion of cotensors and conical limits could be introduced for categories enriched over arbitrary cartesian monoidal categories or more generally for categories enriched over symmetric monoidal categories. This might be worth doing as a service to the broader Mathlib.
+\end{rmk}
+
 \section{\texorpdfstring{$\infty$}{Infinity}-Cosmoi}\label{sec:cosmos}
+
+There are a variety of models of infinite-dimensional categories for which the category of ``$\infty$-categories,'' as we call them, and ``$\infty$-functors'' between them is enriched over quasi-categories and admits classes of isofibrations, equivalences, and trivial fibrations satisfying certain
+properties that are familiar from abstract homotopy theory, forming a \emph{category of fibrant objects} \`{a} la Brown \cite{Brown:1973ah}. In particular, the use of isofibrations in diagrams guarantees that their strict limits are equivalence invariant, so we can take advantage of up-to-isomorphism universal properties and strict functoriality of these constructions while still working ``homotopically.'' This motivates the following axiomatization:
+
+\begin{defn}[$\infty$-cosmos]\label{defn:cosmos} An $\infty$-\textbf{cosmos} $\cK$ is a category that is enriched over quasi-categories,\footnote{This is to say $\cK$ is a simplicially enriched category (see Definition \ref{defn:simplicial-category}) whose hom spaces are all quasi-categories.} meaning in particular that\begin{itemize}
+  \item its morphisms $f \colon A \to B$ define the vertices of a quasi-category denoted $\Fun(A,B)$ and referred to as a \textbf{functor space},
+  \end{itemize}
+  that is also equipped with a specified collection of maps that we call \textbf{isofibrations} and denote by ``$\fib$'' satisfying the following two axioms:
+  \begin{enumerate}
+  \item\label{itm:cosmos-limits} (completeness) The quasi-categorically enriched category $\cK$ pos\-sess\-es a terminal object, small products, pullbacks of isofibrations, limits of countable towers of isofibrations, and cotensors with simplicial sets, each of these limit notions satisfying a universal property that is enriched over simplicial sets.\footnote{This is to say, these are simplicially enriched limit notions, in the sense described in Definitions \ref{defn:simplicial-cotensor} and \ref{defn:simplicial-conical-limit}.}
+  \item\label{itm:cosmos-isofib} (isofibrations) The isofibrations contain all isomorphisms and any map whose codomain is the terminal object; are closed under composition, product, pullback, forming inverse limits of towers, and Leibniz cotensors with monomorphisms of simplicial sets; and have the property that if $f \colon A \fib B$ is an isofibration and $X$ is any object then $\Fun(X,A) \fib \Fun(X,B)$ is an isofibration of quasi-categories.
+  \end{enumerate}
+\end{defn}
+
+For ease of reference, we refer to the simplicially enriched limits of diagrams of isofibrations enumerated in \ref{itm:cosmos-limits} as the \textbf{cosmological limit notions}.
+
+\begin{defn}\label{defn:cosmos-classes} In an $\infty$-cosmos $\cK$, a morphism $f\colon A \to B$ is
+\begin{itemize}
+\item an \textbf{equivalence} just when the induced map $f_* \colon\Fun(X,A) \we \Fun(X,B)$ on functor spaces  is an equivalence of quasi-categories for all $X \in \cK$, and
+\item a \textbf{trivial fibration} just when $f$ is both an isofibration and an equivalence.
+\end{itemize}
+These classes are denoted by ``$\we$''  and ``$\trvfib$'', respectively.
+\end{defn}
+
+Put more concisely, one might say that an $\infty$-cosmos is a ``quasi-cat\-e\-go\-ri\-cal\-ly enriched category of fibrant objects.'' %(see Definition \ref{defn:cat-of-fib-obj} and Example \ref{ex:cosmos-as-cat-of-fib-obj}).
+
+\begin{con}[$\infty$-category, as a technical term]Henceforth, we recast $\infty$-\textbf{category} as a technical term to refer to an object in an arbitrary ambient $\infty$-cosmos. Similarly, we use the term $\infty$-\textbf{functor} {\textendash} or more commonly the elision ``\textbf{functor}'' {\textendash} to refer to a morphism $f \colon A \to B$ in an $\infty$-cosmos. This explains why we refer to the quasi-category $\Fun(A,B)$ between two $\infty$-categories in an $\infty$-cosmos as a ``functor space'': its vertices are the ($\infty$-)functors from $A$ to $B$.
+\end{con}
+
+\begin{rmk} The underlying category $\cK_0$ of an $\infty$-cosmos $\cK$ is the category whose objects are the $\infty$-categories in $\cK$ and whose morphisms are the $0$-arrows, i.e., the vertices in the functor spaces. In all of the examples to appear in what follows, this recovers the expected category of $\infty$-categories in a particular model and functors between them.
+\end{rmk}
