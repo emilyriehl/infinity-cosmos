@@ -18,9 +18,9 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: infin;-Cosmos
+title: ∞-Cosmos
 #email: your-email@example.com
-description: A project to formalize infin;-cosmoi in Lean.
+description: A project to formalize ∞-cosmoi in Lean.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://emilyriehl.github.io/infinity-cosmos" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username:
