@@ -1,6 +1,8 @@
 SimplexCategory.smallCategory
 SSet
 SSet.largeCategory
+SSet.hasLimits
+SSet.hasColimits
 SSet.Quasicategory
 SSet.KanComplex
 CategoryTheory.nerve
@@ -9,5 +11,8 @@ CategoryTheory.Nerve.cosk2Iso
 CategoryTheory.SSet.hoCat
 CategoryTheory.nerveCounit_isIso
 CategoryTheory.nerveAdjunction
+CategoryTheory.SimplicialCategory
 CategoryTheory.SimplicialCategory.HasCotensors
+CategoryTheory.SimplicialCategory.cotensor_bifunctoriality
 CategoryTheory.InfinityCosmos
+CategoryTheory.LaxMonoidalFunctor
