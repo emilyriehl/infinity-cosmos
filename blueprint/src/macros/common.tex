@@ -27,11 +27,6 @@
 \newtheorem{ntn}[theorem]{Notation}
 \newtheorem{con}[theorem]{Convention}
 
-% Number equations in sections
-\makeatletter
-\let\c@equation\c@theorem
-\numberwithin{equation}{section}
-\makeatother
 
 \renewcommand{\theenumi}{\roman{enumi}}
 
@@ -61,36 +56,6 @@
 \newcommand{\core}{\qop{core}}%not cosmological
 \newcommand{\coreop}[1]{{{#1}^\simeq}}%for core as an operator
 
-\newcommand{\catfour}{{\Bbbfour}}%texdoc unimath-symbols.pdf
-\newcommand{\catthree}{{\Bbbthree}}%texdoc unimath-symbols.pdf
-\newcommand{\cattwo}{{\Bbbtwo}}
-\newcommand{\catone}{{\Bbbone}}
-\newcommand{\catn}{{\mathbb{n}}}
-\newcommand{\catnone}{{\catn\!+\!\catone}}
-\newcommand{\catntwo}{{\catn\!+\!\cattwo}}
-\newcommand{\iso}{{\BbbI}}
-
-%arrows; cheap version of \we and \trvfib
-\makeatletter
-\def\makeslashed#1#2#3#4#5{#1{\mathpalette{\sla@{#2}{#3}{#4}}{#5}}}
-
-\def\@mathlower#1#2#3{\setbox0=\hbox{$\m@th#2#3$}\lower#1\ht0\box0}
-\def\mathlower#1#2{\mathpalette{\@mathlower{#1}}{#2}}
-\makeatother
-
-\newcommand\dhxrightarrow[2][]{%
-  \mathrel{\ooalign{$\xrightarrow[#1\mkern4mu]{#2\mkern4mu}$\cr%
-  \hidewidth$\rightarrow\mkern4mu$}}
-}
-
-% New style, simpler, inline arrows.
-\let\xto=\xrightarrow
-\newcommand{\fib}{\twoheadrightarrow}
-\newcommand{\we}{\xrightarrow{{\smash{\mathlower{0.8}{\sim}}}}}
-\newcommand{\trvfib}{\dhxrightarrow{{\smash{\mathlower{0.8}{\sim}}}}}
-\newcommand{\To}{\Rightarrow}%2-cells
-\newcommand{\isoto}{\xrightarrow{{\smash{\mathlower{0.8}{\cong}}}}}
-\newcommand{\inc}{\hookrightarrow}
 
 %1-cells induced from 2-cells
 \newcommand{\name}[1]{{\ulcorner{#1}\urcorner}}
