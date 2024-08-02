@@ -47,6 +47,7 @@ Before introducing an axiomatic framework that allows us to develop $\infty$-cat
 \end{tikzcd}
 \]
 whose images, respectively, omit and double up on the element $i \in [n]$. Every morphism in $\Del$ factors uniquely as an epimorphism followed by a monomorphism; these epimorphisms, the \textbf{degeneracy operators}, decompose as composites of elementary degeneracy operators, while the monomorphisms, the \textbf{face operators}, decompose as composites of elementary face operators.
+\end{definition}
 
 \begin{definition}[the category of simplicial sets]\label{defn:sset-category}
   \lean{SSet.largeCategory}
@@ -63,7 +64,6 @@ Given a simplicial set $X$, it is conventional to write $X_n$ for the set of $n$
 \Delta[n-1] \arrow[r, "\face^i"] & \Delta[n] \arrow[r, "x"] & X.
 \end{tikzcd}
 \] The right action of the face operator defines a map $X_n \xrightarrow{\cdot\face^i} X_{n-1}$. Geometrically, $x\cdot \face^i$ is the ``face opposite the vertex $i$'' in the $n$-simplex $x$.
-\end{definition}
 
 The category of simplicial sets, as a presheaf category, is very well-behaved: it is cartesian closed and has all small limits and colimits. Instances of these facts currently appear in Mathlib. The definition of a quasi-category can be found there as well.
 
@@ -168,6 +168,7 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
 
    \begin{proposition}\label{prop:ho-nerve-adjunction}
     \uses{defn:nerve}
+    \uses{defn:sset-category}
     The nerve embedding admits a left adjoint, namely the functor which sends a simplicial set to its homotopy category:
    \[
    \begin{tikzcd}[column sep=huge]
@@ -351,6 +352,9 @@ There is alternate presentation of the data of a simplicial category as a simpli
 By contrast, the notion of simplicially enriched limit remains to be formalized. Fortunately, we do not (immediately) require the general notion of \emph{weighted limits}, as the notion of an $\infty$-cosmos only requires two special cases: \emph{cotensors} and \emph{conical limits}.
 
 \begin{definition}[simplicial cotensors]\label{defn:simplicial-cotensor}
+\lean{CategoryTheory.SimplicialCategory.HasCotensors}
+\leanok
+
   Let $\cA$ be a simplicial category. The \textbf{cotensor} of an object $A \in \cA$ by a simplicial set $U$ is characterized by a natural isomorphism of simplicial sets
   \begin{equation}\label{eq:cotensor-defn}
   \cA(X,A^U) \cong \cA(X,A)^U
@@ -358,6 +362,7 @@ By contrast, the notion of simplicially enriched limit remains to be formalized.
 \end{definition}
 
 \begin{lemma}\label{lem:cotensor-bifunctor}
+  \label{CategoryTheory.SimplicialCategory.cotensor_bifunctoriality}
   Assuming such objects exist, the simplicial cotensor defines a bifunctor
   \[
   \begin{tikzcd}[row sep=tiny] \sSet\op \times \cA \arrow[r] & \cA \\
@@ -368,6 +373,7 @@ By contrast, the notion of simplicially enriched limit remains to be formalized.
 The other simplicial limit notions postulated by axiom \ref{defn:cosmos}\ref{itm:cosmos-limits} are \textbf{conical}, which is the term used for ordinary 1-categorical limit shapes that satisfy an enriched analog of the usual universal property.   Such limits also define limits in the underlying category, but the usual universal property is strengthened.
 
 \begin{definition}[simplicial conical limits]\label{defn:simplicial-conical-limit}
+
   Consider a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in the underlying category $\cA_0$ of a simplicially-enriched category $\cA$.  By applying the covariant rep\-re\-sentable functor $\cA(X,-) \colon \cA_0 \to \sSet$ to a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in $\cA_0$, we obtain a natural comparison map
   \begin{equation}\label{eq:simplicial-limit-map} \cA(X,\lim_{j \in J}A_j) \xto{\mkern40mu} \lim_{j \in J}\cA(X,A_j).
   \end{equation}
@@ -384,7 +390,12 @@ There are a variety of models of infinite-dimensional categories for which the c
 properties that are familiar from abstract homotopy theory, forming a \emph{category of fibrant objects} \`{a} la Brown \cite{Brown:1973ah}. In particular, the use of isofibrations in diagrams guarantees that their strict limits are equivalence invariant, so we can take advantage of up-to-isomorphism universal properties and strict functoriality of these constructions while still working ``homotopically.'' This motivates the following axiomatization:
 
 
-\begin{definition}[$\infty$-cosmos]\label{defn:cosmos} An $\infty$-\textbf{cosmos} $\cK$ is a category that is enriched over quasi-categories,\footnote{This is to say $\cK$ is a simplicially enriched category (see Definition \ref{defn:simplicial-category}) whose hom spaces are all quasi-categories.} meaning in particular that\begin{itemize}
+\begin{definition}[$\infty$-cosmos]\label{defn:cosmos}
+ \lean{CategoryTheory.InfinityCosmos}
+\uses{defn:simplicial-cotensor}
+\uses{defn:simplicial-conical-limit}
+\uses{lem:cotensor-bifunctor}
+  An $\infty$-\textbf{cosmos} $\cK$ is a category that is enriched over quasi-categories,\footnote{This is to say $\cK$ is a simplicially enriched category (see Definition \ref{defn:simplicial-category}) whose hom spaces are all quasi-categories.} meaning in particular that\begin{itemize}
   \item its morphisms $f \colon A \to B$ define the vertices of a quasi-category denoted $\Fun(A,B)$ and referred to as a \textbf{functor space},
   \end{itemize}
   that is also equipped with a specified collection of maps that we call \textbf{isofibrations} and denote by ``$\fib$'' satisfying the following two axioms:
@@ -890,7 +901,9 @@ We elaborate on the connection between data in the homotopy 2-category and data 
 
   We conclude this chapter with a final definition that can be extracted from the homotopy 2-category of an $\infty$-cosmos. The 1- and 2-cells in the homotopy 2-category from the terminal $\infty$-category $1 \in \cK$ to a generic $\infty$-category $A \in \cK$ define the objects and morphisms in the homotopy category of the $\infty$-category $A$.
 
-  \begin{definition}[homotopy category of an $\infty$-category]\label{defn:htpy-cat-of-infinity-cat} The \textbf{homotopy category} of an $\infty$-category $A$ in an $\infty$-cosmos $\cK$ is defined to be the homotopy category of its underlying quasi-category, that is:
+  \begin{definition}[homotopy category of an $\infty$-category]\label{defn:htpy-cat-of-infinity-cat}
+  \notready
+    The \textbf{homotopy category} of an $\infty$-category $A$ in an $\infty$-cosmos $\cK$ is defined to be the homotopy category of its underlying quasi-category, that is:
   \[ \ho A \coloneq \hFun(1,A) \coloneq \ho(\Fun(1,A)).\]
   \end{definition}
 
