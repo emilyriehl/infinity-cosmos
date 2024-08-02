@@ -1,3 +1,8 @@
 SimplexCategory.smallCategory
+SSet
 SSet.largeCategory
+SSet.Quasicategory
+SSet.KanComplex
 CategoryTheory.nerve
+CategoryTheory.SimplicialCategory.HasCotensors
+CategoryTheory.InfinityCosmos

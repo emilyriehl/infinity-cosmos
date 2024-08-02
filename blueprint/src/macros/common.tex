@@ -27,6 +27,14 @@
 \newtheorem{ntn}[theorem]{Notation}
 \newtheorem{con}[theorem]{Convention}
 
+% Number equations in sections
+\makeatletter
+\let\c@equation\c@theorem
+\numberwithin{equation}{section}
+\makeatother
+
+\renewcommand\thesection{\thechapter.\arabic{section}}
+
 
 \renewcommand{\theenumi}{\roman{enumi}}
 

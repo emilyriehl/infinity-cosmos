@@ -20,8 +20,7 @@ which axiomatizes the universe in which $\infty$-categories live as objects.\foo
 
  There are many alternate choices we could have made in selecting the axioms of an $\infty$-cosmos. One of our guiding principles, admittedly somewhat contrary to the setting of homotopical higher category theory, was to allow us to work as strictly as possible, with the aim of shortening and simplifying proofs. As a consequence of these choices, the $\infty$-categories in an $\infty$-cosmos and the functors and natural transformations between them assemble into a 2-category rather than a bicategory. To help us achieve this counterintuitive strictness, each $\infty$-cosmos comes with a specified class of maps between $\infty$-categories called \emph{isofibrations}. The isofibrations have no homotopy-theoretic meaning, as any functor between $\infty$-categories is equivalent to an isofibration with the same codomain. However, isofibrations permit us to consider strictly commutative diagrams between $\infty$-cat\-e\-go\-ries and allow us to require that the limits of such diagrams satisfy a universal property up to simplicially enriched isomorphism. Neither feature is essential for the development of $\infty$-category theory. Similar proofs carry through to a weaker setting, at the cost of more time spent considering coherence of higher cells.
 
- An $\infty$-cosmos is a particular sort of \emph{simplicially enriched category} with certain \emph{simplicially enriched limits}. While the notion of simplicially enriched category currently exists in Mathlib, simplicially enriched limits do not, so in \S\ref{sec:enriched-limits} we first introduce the prerequisite notions of simplicially enriched limits that will be required to state the definition of an $\infty$-cosmos in \S\ref{sec:cosmos}.
-
+ An $\infty$-cosmos is a particular sort of \emph{simplicially enriched category} with certain \emph{simplicially enriched limits}. In \S\ref{sec:simplicial-sets}, we first review some prerequisites from the theory of simplicial sets, most of which are either currently in Mathlib or on their way. While the notion of simplicially enriched category currently exists in Mathlib, simplicially enriched limits do not, so in \S\ref{sec:enriched-limits} we first introduce the prerequisite notions of simplicially enriched limits that will be required to state the definition of an $\infty$-cosmos in \S\ref{sec:cosmos}. The homotopy 2-category of an $\infty$-cosmos is then obtained by applying the general theory of change-of-base from enriched category, which is also currently missing from Mathlib. This theory is described in \S\ref{sec:change-of-base} and then used to define the homotopy 2-category in \S\ref{sec:htpy-2-cat}.
 
  The authors of this blueprint are particularly indebted to:
  \begin{itemize}
@@ -49,9 +48,17 @@ Before introducing an axiomatic framework that allows us to develop $\infty$-cat
 whose images, respectively, omit and double up on the element $i \in [n]$. Every morphism in $\Del$ factors uniquely as an epimorphism followed by a monomorphism; these epimorphisms, the \textbf{degeneracy operators}, decompose as composites of elementary degeneracy operators, while the monomorphisms, the \textbf{face operators}, decompose as composites of elementary face operators.
 \end{definition}
 
+\begin{defn}[simplicial set]\label{defn:simplicial-set}
+  \lean{SSet}
+  \leanok
+  \uses{defn:simplex-category}
+  A \textbf{simplicial set} is a presheaf on the simplex category.
+\end{defn}
+
 \begin{definition}[the category of simplicial sets]\label{defn:sset-category}
   \lean{SSet.largeCategory}
  \leanok
+ \uses{defn:simplicial-set}
  \uses{defn:simplex-category}
 The category of \textbf{simplicial sets} is the category $\sSet \coloneq \Set^{\Del\op}$ of pre\-sheaves on the simplex category.
 \end{definition}
@@ -67,7 +74,11 @@ Given a simplicial set $X$, it is conventional to write $X_n$ for the set of $n$
 
 The category of simplicial sets, as a presheaf category, is very well-behaved: it is cartesian closed and has all small limits and colimits. Instances of these facts currently appear in Mathlib. The definition of a quasi-category can be found there as well.
 
-\begin{definition}[quasi-category]\label{defn:quasi-category} A \textbf{quasi-category} is a simplicial set $A$ in which any \textbf{inner horn} can be extended to a simplex, solving the displayed lifting problem:
+\begin{definition}[quasi-category]\label{defn:quasi-category}
+\lean{SSet.Quasicategory}
+\leanok
+\uses{defn:simplicial-set}
+   A \textbf{quasi-category} is a simplicial set $A$ in which any \textbf{inner horn} can be extended to a simplex, solving the displayed lifting problem:
   \begin{equation}\label{eq:qcat-defn}
   \begin{tikzcd}
   \Lambda^k[n] \arrow[r] \arrow[d, hook] & A  \\ \Delta[n] \arrow[ur, dashed]
@@ -75,7 +86,16 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
   \end{equation}
   \end{definition}
 
-  Quasi-categories were first introduced by Boardman and Vogt \cite{BoardmanVogt:1973hi} under the name ``weak Kan complexes,'' a \textbf{Kan complex} being a simplicial set admitting extensions as in \eqref{eq:qcat-defn} along all horn inclusions $n \geq 1, 0 \leq k \leq n$. Since any topological space can be encoded as a Kan complex,\footnote{The total singular complex construction defines a functor from topological spaces to simplicial sets that is an equivalence on their respective homotopy categories --- weak homotopy types of spaces correspond to homotopy equivalence classes of Kan complexes \cite[\S II.2]{Quillen:1967ha}. The left adjoint %constructed by Exercise \ref{exc:nerve-constructions}
+  Quasi-categories were first introduced by Boardman and Vogt \cite{BoardmanVogt:1973hi} under the name ``weak Kan complexes,'' as they generalize the following notion:
+
+  \begin{definition}[Kan complex]\label{defn:Kan-complex}
+    \lean{SSet.KanComplex}
+    \leanok
+    \uses{defn:simplicial-set}
+  A \textbf{Kan complex} is a simplicial set admitting extensions as in \eqref{eq:qcat-defn} along all horn inclusions $n \geq 1, 0 \leq k \leq n$.
+  \end{definition}
+
+  Since any topological space can be encoded as a Kan complex,\footnote{The total singular complex construction defines a functor from topological spaces to simplicial sets that is an equivalence on their respective homotopy categories --- weak homotopy types of spaces correspond to homotopy equivalence classes of Kan complexes \cite[\S II.2]{Quillen:1967ha}. The left adjoint %constructed by Exercise \ref{exc:nerve-constructions}
     ``geometrically realizes'' a simplicial set as a topological space.}
  in this way spaces provide examples of quasi-categories.
 
@@ -84,6 +104,7 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
  \begin{definition}[nerve]\label{defn:nerve}
   \lean{CategoryTheory.nerve}
   \leanok
+  \uses{defn:simplicial-set}
   The category $\Cat$ of 1-categories embeds fully faithfully into the category of simplicial sets via the \textbf{nerve} functor. An $n$-simplex in the nerve of a 1-category $C$ is a sequence of $n$ composable arrows in $C$, or equally a functor $\Bbbn +\catone \to C$ from the ordinal category $\Bbbn +\catone \coloneq [n]$ with objects $0,\ldots, n$ and a unique arrow $i \to j$ just when $i \leq j$.
  \end{definition}
 
@@ -391,7 +412,7 @@ properties that are familiar from abstract homotopy theory, forming a \emph{cate
 
 
 \begin{definition}[$\infty$-cosmos]\label{defn:cosmos}
- \lean{CategoryTheory.InfinityCosmos}
+\lean{CategoryTheory.InfinityCosmos}
 \uses{defn:simplicial-cotensor}
 \uses{defn:simplicial-conical-limit}
 \uses{lem:cotensor-bifunctor}
