@@ -88,10 +88,11 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
 
  The map $[n] \mapsto \Bbbn +\catone$ defines a fully faithful embedding $\Del\inc\Cat$. From this point of view, the nerve functor can be described as a ``restricted Yoneda embedding'' which carries a category $C$ to the restriction of the representable functor $\hom(-,C)$ to the image of this inclusion. This is an instance of a more general family of ``nerve-type constructions.'' %are described in Exercise \ref{exc:nerve-constructions}.
 
- \begin{obs}\label{obs:nerve-2-coskeletal}
+ \begin{proposition}\label{prop:nerve-2-coskeletal}
+  \uses{defn:nerve}
  The nerve of a category $C$ is \textbf{2-coskeletal} as a simplicial set, meaning that every sphere $\partial\Delta[n] \to C$ with $n \geq 3$ is filled uniquely by an $n$-simplex in $C$, or equivalently that the nerve is canonically isomorphic to the right Kan extension of its restriction to 2-truncated simplicial sets.\footnote{The equivalence between these two perspectives is non-obvious and makes use of Reedy category theory (see \cite[\S C.4-5]{RiehlVerity:2022eo}), which does not currently exist in Mathlib.}% (see Definition \ref{defn:sk-cosk}).
   Note a sphere $\partial\Delta[2] \to C$ extends to a 2-simplex if and only if that arrow along its diagonal edge is the composite of the arrows along the edges in the inner horn $\Lambda^1[2] \subset \partial\Delta[2] \to C$. The simplices in dimension 3 and above witness the associativity of the composition of the path of composable arrows found along their  \textbf{spine}, the 1-skeletal simplicial subset formed by the edges connecting adjacent vertices. In fact, as suggested by the proof of Proposition \ref{prop:nerve-qcat}, any simplicial set in which inner horns admit \emph{unique} fillers is isomorphic to the nerve of a 1-category.% (see Exercise \ref{exc:nerve-characterization}).
- \end{obs}
+ \end{proposition}
 
  We decline to introduce explicit notation for the nerve functor, preferring instead to identify 1-categories with their nerves. As we shall discover the theory of 1-categories extends to $\infty$-categories modeled as quasi-categories in such a way that the restriction of each $\infty$-categorical concept along the nerve embedding recovers the corresponding 1-categorical concept. For instance, the standard simplex $\Delta[n]$ is isomorphic to the nerve of the ordinal category $\Bbbn +1$, and we frequently adopt the latter notation --- writing $\catone \coloneq \Delta[0]$, $\cattwo \coloneq \Delta[1]$, $\catthree \coloneq \Delta[2]$, and so on --- to suggest the correct categorical intuition.
 
@@ -100,7 +101,7 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
  \begin{proposition}[nerves are quasi-categories]\label{prop:nerve-qcat} Nerves of categories are quasi-categories.
  \end{proposition}
  \begin{proof}
- Via the isomorphism $C \cong \cosk_2C$ from Observation \ref{obs:nerve-2-coskeletal} and the associated adjunction $\sk_2 \dashv \cosk_2$ of,   %\ref{defn:sk-cosk},
+ Via the isomorphism $C \cong \cosk_2C$ from Proposition \ref{prop:nerve-2-coskeletal} and the associated adjunction $\sk_2 \dashv \cosk_2$ of,   %\ref{defn:sk-cosk},
   the required lifting problem displayed below-left transposes to the one displayed below-right:
  \[
  \begin{tikzcd}
@@ -164,7 +165,9 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
 
    The homotopy category of the nerve of a 1-category is isomorphic to the original category, as the 2-simplices in the nerve witness all of the composition relations satisfied by the arrows in the underlying reflexive directed graph. Indeed, the natural isomorphism $\ho{C} \cong C$ forms the counit of an adjunction, embedding $\Cat$ as a reflective subcategory of $\sSet$.
 
-   \begin{proposition}\label{prop:ho-nerve-adjunction} The nerve embedding admits a left adjoint, namely the functor which sends a simplicial set to its homotopy category:
+   \begin{proposition}\label{prop:ho-nerve-adjunction}
+    \uses{defn:nerve}
+    The nerve embedding admits a left adjoint, namely the functor which sends a simplicial set to its homotopy category:
    \[
    \begin{tikzcd}[column sep=huge]
      \Cat \arrow[r, start anchor=353, end anchor=190, bend right, hook'] \arrow[r, phantom, "\bot"] & \sSet \arrow[l, start anchor=170, end anchor=7, bend right, "\ho"' pos=.48]
@@ -175,7 +178,8 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
    The adjunction of Proposition \ref{prop:ho-nerve-adjunction} exists for formal reasons, via results which have already been formalized in Mathlib, %(see Exercise \ref{exc:nerve-constructions}),
    once the category $\Cat$ is known to be cocomplete. A proof of this fact does not currently exist in Mathlib, however, and in fact the adjunction between the homotopy category and the nerve can be used to construct colimits of categories, as it embeds $\Cat$ as a reflective subcategory of a cocomplete category (see \cite[4.5.16]{Riehl:2016cc}). Thus, the approach that is currently being formalized instead gives a direct proof.
 
-   \begin{proof}
+   \begin{proof}\proves{prop:ho-nerve-adjunction}
+    \uses{prop:nerve-2-coskeletal}
    For any simplicial set $X$, there is a natural map from $X$ to the nerve of its homotopy category $\ho{X}$; since nerves are 2-coskeletal, it suffices to define the map $\sk_2X \to \ho{X}$, and this is given immediately by the construction of Definition \ref{defn:homotopy-cat}. Note that the quotient map $X \to \ho{X}$ becomes an isomorphism upon applying the homotopy category functor and is already an isomorphism whenever $X$ is the nerve of a category. Thus the adjointness follows %from Lemma \ref{lem:RARI-construction} or
     by direct verification of the triangle equalities.
    \end{proof}
