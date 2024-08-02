@@ -58,8 +58,7 @@ whose images, respectively, omit and double up on the element $i \in [n]$. Every
 \begin{definition}[the category of simplicial sets]\label{defn:sset-category}
   \lean{SSet.largeCategory}
  \leanok
- \uses{defn:simplicial-set}
- \uses{defn:simplex-category}
+ \uses{defn:simplicial-set, defn:simplex-category}
 The category of \textbf{simplicial sets} is the category $\sSet \coloneq \Set^{\Del\op}$ of pre\-sheaves on the simplex category.
 \end{definition}
 
@@ -108,9 +107,17 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
   The category $\Cat$ of 1-categories embeds fully faithfully into the category of simplicial sets via the \textbf{nerve} functor. An $n$-simplex in the nerve of a 1-category $C$ is a sequence of $n$ composable arrows in $C$, or equally a functor $\Bbbn +\catone \to C$ from the ordinal category $\Bbbn +\catone \coloneq [n]$ with objects $0,\ldots, n$ and a unique arrow $i \to j$ just when $i \leq j$.
  \end{definition}
 
- The map $[n] \mapsto \Bbbn +\catone$ defines a fully faithful embedding $\Del\inc\Cat$. From this point of view, the nerve functor can be described as a ``restricted Yoneda embedding'' which carries a category $C$ to the restriction of the representable functor $\hom(-,C)$ to the image of this inclusion. This is an instance of a more general family of ``nerve-type constructions.'' %are described in Exercise \ref{exc:nerve-constructions}.
+
+\begin{definition}[nerve functor]\label{defn:nerve-functor}
+  \lean{CategoryTheory.nerveFunctor}
+  \leanok
+  \uses{defn:nerve}
+ The map $[n] \mapsto \catnone$ defines a fully faithful embedding $\Del\inc\Cat$. From this point of view, the nerve functor can be described as a ``restricted Yoneda embedding'' which carries a category $C$ to the restriction of the representable functor $\hom(-,C)$ to the image of this inclusion.
+\end{definition}
+ This is an instance of a more general family of ``nerve-type constructions.'' %are described in Exercise \ref{exc:nerve-constructions}.
 
  \begin{proposition}\label{prop:nerve-2-coskeletal}
+  \lean{CategoryTheory.Nerve.cosk2Iso}
   \uses{defn:nerve}
  The nerve of a category $C$ is \textbf{2-coskeletal} as a simplicial set, meaning that every sphere $\partial\Delta[n] \to C$ with $n \geq 3$ is filled uniquely by an $n$-simplex in $C$, or equivalently that the nerve is canonically isomorphic to the right Kan extension of its restriction to 2-truncated simplicial sets.\footnote{The equivalence between these two perspectives is non-obvious and makes use of Reedy category theory (see \cite[\S C.4-5]{RiehlVerity:2022eo}), which does not currently exist in Mathlib.}% (see Definition \ref{defn:sk-cosk}).
   Note a sphere $\partial\Delta[2] \to C$ extends to a 2-simplex if and only if that arrow along its diagonal edge is the composite of the arrows along the edges in the inner horn $\Lambda^1[2] \subset \partial\Delta[2] \to C$. The simplices in dimension 3 and above witness the associativity of the composition of the path of composable arrows found along their  \textbf{spine}, the 1-skeletal simplicial subset formed by the edges connecting adjacent vertices. In fact, as suggested by the proof of Proposition \ref{prop:nerve-qcat}, any simplicial set in which inner horns admit \emph{unique} fillers is isomorphic to the nerve of a 1-category.% (see Exercise \ref{exc:nerve-characterization}).
@@ -120,9 +127,12 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
 
  To begin down this path, we must first verify the implicit assertion that has just been made. A proof of the following result will appear in Mathlib soon.
 
- \begin{proposition}[nerves are quasi-categories]\label{prop:nerve-qcat} Nerves of categories are quasi-categories.
+ \begin{proposition}[nerves are quasi-categories]\label{prop:nerve-qcat}
+  \uses{defn:nerve, defn:quasi-category}
+  Nerves of categories are quasi-categories.
  \end{proposition}
  \begin{proof}
+  \uses{prop:nerve-2-coskeletal}
  Via the isomorphism $C \cong \cosk_2C$ from Proposition \ref{prop:nerve-2-coskeletal} and the associated adjunction $\sk_2 \dashv \cosk_2$ of,   %\ref{defn:sk-cosk},
   the required lifting problem displayed below-left transposes to the one displayed below-right:
  \[
@@ -151,7 +161,8 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
 
  We now turn to the homotopy category functor. The following definitions and results are not currently in Mathlib but will appear there soon.
 
- \begin{definition}[homotopy relation on 1-simplices]
+ \begin{definition}[homotopy relation on 1-simplices]\label{defn:1-simplex-htpy}
+  \uses{defn:simplicial-set}
    A parallel pair of 1-sim\-plices $f,g$ in a simplicial set $X$ are \textbf{homotopic} if there exists a 2-simplex whose boundary takes either of the following forms\footnote{The symbol ``$\!\!\!\!\!\begin{tikzcd}[ampersand replacement=\&, sep=small] ~\arrow[r, equals] \& ~ \end{tikzcd}\!\!\!\!\!$'' is used in diagrams to denote a degenerate simplex or an identity arrow.}
    \begin{equation}\label{eq:1-simp-htpy}
    \begin{tikzcd}[row sep=small, column sep=small]
@@ -163,13 +174,18 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
 
    In a quasi-category, the relation witnessed by either of the types of 2-simplex on display in \eqref{eq:1-simp-htpy} is an equivalence relation and these equivalence relations coincide.
 
-   \begin{lemma}[homotopic 1-simplices in a quasi-category]\label{lem:1-simp-htpy} Parallel 1-sim\-plices $f$ and $g$ in a quasi-category are homotopic if and only if there exists a 2-simplex of any or equivalently all of the forms displayed in \eqref{eq:1-simp-htpy}.
+   \begin{lemma}[homotopic 1-simplices in a quasi-category]\label{lem:qcat-1-simplex-htpy}
+    \uses{defn:1-simplex-homotopy}
+    Parallel 1-sim\-plices $f$ and $g$ in a quasi-category are homotopic if and only if there exists a 2-simplex of any or equivalently all of the forms displayed in \eqref{eq:1-simp-htpy}.
    \end{lemma}
- %  \begin{proof}
- %  Exercise \ref{exc:1-simp-htpy}.
- %  \end{proof}
+ \begin{proof}
+  \uses{defn:quasi-category} A lengthy exercise in low-dimensional horn filling.
+   \end{proof}
 
    \begin{definition}[{the homotopy category \cite[\S2.4]{GabrielZisman:1967cf}}]\label{defn:homotopy-cat}
+    \lean{CategoryTheory.SSet.hoCat}
+    \leanok
+    \uses{defn:simplicial-set}
    By 1-truncating, any simplicial set $X$ has an underlying reflexive directed graph with the 0-simplices of $X$ defining the objects and the 1-simplices defining the arrows:
    \[
    \begin{tikzcd}
@@ -185,11 +201,16 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
    This relation implies in particular that homotopic 1-simplices represent the same arrow in the homotopy category.
    \end{definition}
 
-   The homotopy category of the nerve of a 1-category is isomorphic to the original category, as the 2-simplices in the nerve witness all of the composition relations satisfied by the arrows in the underlying reflexive directed graph. Indeed, the natural isomorphism $\ho{C} \cong C$ forms the counit of an adjunction, embedding $\Cat$ as a reflective subcategory of $\sSet$.
+   \begin{proposition}\label{prop:nerve-reflective}
+    \lean{CategoryTheory.nerveCounit_isIso}
+   The homotopy category of the nerve of a 1-category is isomorphic to the original category, as the 2-simplices in the nerve witness all of the composition relations satisfied by the arrows in the underlying reflexive directed graph.
+   \end{proposition}
+
+   Indeed, the natural isomorphism $\ho{C} \cong C$ forms the counit of an adjunction, embedding $\Cat$ as a reflective subcategory of $\sSet$.
 
    \begin{proposition}\label{prop:ho-nerve-adjunction}
-    \uses{defn:nerve}
-    \uses{defn:sset-category}
+    \uses{defn:nerve-functor, defn:homotopy-cat, defn:sset-category}
+    \lean{CategoryTheory.nerveAdjunction}
     The nerve embedding admits a left adjoint, namely the functor which sends a simplicial set to its homotopy category:
    \[
    \begin{tikzcd}[column sep=huge]
@@ -222,11 +243,13 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
    \]
    \end{itemize}
    \end{lemma}
- %  \begin{proof}
- %  Exercise \ref{exc:htpy-cat-of-qcat}.
- %  \end{proof}
+ \begin{proof}
+  \uses{lem:qcat-1-simplex-htpy}
+  Another lengthy exercise in low-dimensional horn filling.
+ \end{proof}
 
-   \begin{definition}[isomorphism in a quasi-category]\label{defn:isomorphism} A 1-simplex in a quasi-category is an \textbf{isomorphism}\footnote{Joyal refers to these maps as ``isomorphisms'' while Lurie refers to them as ``equivalences.'' We prefer, wherever possible, to use the same term for $\infty$-categorical concepts as for the analogous 1-categorical ones.} just when it represents an isomorphism in the homotopy category. By Lemma \ref{lem:htpy-cat-of-qcat} this means that $f \colon a \to b$ is an isomorphism if and only if there exists a 1-simplex $f^{-1} \colon b \to a$ together with a pair of 2-simplices
+   \begin{definition}[isomorphism in a quasi-category]\label{defn:isomorphism}
+    \uses{defn:simplicial-set} A 1-simplex in a quasi-category is an \textbf{isomorphism}\footnote{Joyal refers to these maps as ``isomorphisms'' while Lurie refers to them as ``equivalences.'' We prefer, wherever possible, to use the same term for $\infty$-categorical concepts as for the analogous 1-categorical ones.} just when it represents an isomorphism in the homotopy category. By Lemma \ref{lem:htpy-cat-of-qcat} this means that $f \colon a \to b$ is an isomorphism if and only if there exists a 1-simplex $f^{-1} \colon b \to a$ together with a pair of 2-simplices
    \[
    \begin{tikzcd}[row sep=small, column sep=small]
    & b \arrow[dr, "f^{-1}", dashed] & & & & a \arrow[dr, "f"] \\ a \arrow[ur, "f"] \arrow[rr, equals] & & a & & b \arrow[ur, "f^{-1}", dashed] \arrow[rr, equals] & & b
@@ -268,15 +291,21 @@ The category of simplicial sets, as a presheaf category, is very well-behaved: i
 
   % A quasi-category contains $A$ a canonical \textbf{maximal sub Kan complex}$\coreop{A}$, the simplicial subset spanned by those 1-simplices that are isomorphisms.
 
-  Just as the arrows in a quasi-category $A$ are represented by simplicial maps $ \cattwo \to A$ whose domain is the nerve of the free-living arrow, the isomorphisms in a quasi-category can be  represented by diagrams $\iso \to A$ whose domain, called the \textbf{homotopy coherent isomorphism}, is the nerve of the free-living isomorphism:
+  \begin{definition}\label{defn:coherent-isomorphism}
+    \uses{defn:nerve}
+    The \textbf{homotopy coherent isomorphism} $\iso$, is the nerve of the free-living isomorphism.
+  \end{definition}
 
+  Just as the arrows in a quasi-category $A$ are represented by simplicial maps $ \cattwo \to A$ whose domain is the nerve of the free-living arrow, the isomorphisms in a quasi-category can be represented by diagrams $\iso \to A$ whose domain is the homotopy coherent isomorphism:
 
-   \begin{cor}\label{cor:coherent-iso} An arrow $f$ in a quasi-category $A$ is an isomorphism if and only if it extends to a homotopy coherent isomorphism
+   \begin{proposition}\label{prop:coherent-iso}
+    \uses{defn:isomorphism, defn:quasi-category, defn:coherent-isomorphism}
+    An arrow $f$ in a quasi-category $A$ is an isomorphism if and only if it extends to a homotopy coherent isomorphism
    \[
    \begin{tikzcd} \cattwo \arrow[r, "f"] \arrow[d, hook] & A \\ \iso \arrow[ur, dashed]
    \end{tikzcd}
    \]
-   \end{cor}
+   \end{proposition}
 %   \begin{proof}
 %   If $f$ is an isomorphism, the map $f \colon \cattwo \to A$ lands in the maximal sub Kan complex contained in $A$:
 %   \[
@@ -293,7 +322,9 @@ If this result proves too annoying to formalize without the general theory of ``
 
  Quasi-categories define the fibrant objects in a model structure due to Joyal. We use the term \emph{isofibration} to refer to the fibrations between fibrant objects in this model structure, which admit the following concrete description.
 
- \begin{definition}[isofibration]\label{defn:qcat-isofibration} A simplicial map $f \colon A \to B$ between quasi-categories is an \textbf{isofibration} if it lifts against the inner horn inclusions, as displayed below-left, and also against the inclusion of either vertex into the free-living isomorphism $\iso$.\footnote{The free-living isomorphism is the 0-coskeletal simplicial set on two vertices, or equally the nerve of the free-living isomorphism of categories.}
+ \begin{definition}[isofibration]\label{defn:qcat-isofibration}
+  \uses{defn:coherent-isomorphism}
+  A simplicial map $f \colon A \to B$ between quasi-categories is an \textbf{isofibration} if it lifts against the inner horn inclusions, as displayed below-left, and also against the inclusion of either vertex into the free-living isomorphism $\iso$.
   \[
   \begin{tikzcd}
   \Lambda^k[n] \arrow[d, hook] \arrow[r] &  A \arrow[d, two heads, "f"] & &  \catone \arrow[d, hook] \arrow[r] & A \arrow[d, two heads, "f"] \\ \Delta[n] \arrow[ur, dashed] \arrow[r] & B & &  \iso \arrow[ur, dashed] \arrow[r] & B
@@ -304,7 +335,9 @@ If this result proves too annoying to formalize without the general theory of ``
 
 We now introduce the weak equivalences and trivial fibrations between fibrant objects in the Joyal model structure.
 
-\begin{definition}[equivalences of quasi-categories]\label{defn:qcat-equiv} A map $f \colon A \to B$ between quasi-categories is an \textbf{equivalence} if it extends to the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the interval: that is, if there exist maps $g \colon B \to A$,
+\begin{definition}[equivalences of quasi-categories]\label{defn:qcat-equivalence}
+  \uses{defn:quasi-category, defn:coherent-isomorphism}
+  A map $f \colon A \to B$ between quasi-categories is an \textbf{equivalence} if it extends to the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the interval: that is, if there exist maps $g \colon B \to A$,
   \[
   \begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso  \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] & \text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] \\ & A & &  & B
   \end{tikzcd}
@@ -312,12 +345,14 @@ We now introduce the weak equivalences and trivial fibrations between fibrant ob
   We write ``$\we$'' to decorate equivalences and $A \simeq B$ to indicate the presence of an equivalence $A \we B$.
   \end{definition}
 
-  \begin{rmk}\label{rmk:qcat-htpy-cat-equiv} If $f \colon A \to B$ is an equivalence of quasi-categories, then the functor $\ho{f} \colon \ho{A} \to \ho{B}$ is an equivalence of categories, where the data displayed above defines an equivalence inverse $\ho{g} \colon \ho{B} \to \ho{A}$ and natural isomorphisms encoded by the composite\footnote{Note that $\ho(A^\iso) \ncong (\ho{A})^\iso$ in general. Objects in the latter are homotopy classes of isomorphisms in $A$, while objects in the former are homotopy coherent isomorphisms, given by a specified 1-simplex in $A$, a specified inverse 1-simplex, together with an infinite tower of coherence data indexed by the nondegenerate simplices in $\iso$.} functors
+  \begin{lemma}\label{lem:qcat-htpy-cat-equiv}
+    \uses{defn:qcat-equivalence, defn:homotopy-cat}
+    If $f \colon A \to B$ is an equivalence of quasi-categories, then the functor $\ho{f} \colon \ho{A} \to \ho{B}$ is an equivalence of categories, where the data displayed above defines an equivalence inverse $\ho{g} \colon \ho{B} \to \ho{A}$ and natural isomorphisms encoded by the composite\footnote{Note that $\ho(A^\iso) \ncong (\ho{A})^\iso$ in general. Objects in the latter are homotopy classes of isomorphisms in $A$, while objects in the former are homotopy coherent isomorphisms, given by a specified 1-simplex in $A$, a specified inverse 1-simplex, together with an infinite tower of coherence data indexed by the nondegenerate simplices in $\iso$.} functors
   \[ \begin{tikzcd} \ho{A} \arrow[r, "\ho{\alpha}"] & \ho(A^\iso) \arrow[r] & (\ho{A})^\iso & \ho{B} \arrow[r, "\ho{\beta}"] & \ho(B^\iso) \arrow[r] & (\ho{B})^\iso \end{tikzcd}
   \]
-  \end{rmk}
+  \end{lemma}
 
-  \begin{definition}\label{defn:qcat-trivial-fib} A map $f \colon X \to Y$ between simplicial sets is a \textbf{trivial fibration} if it admits lifts against the boundary inclusions for all simplices
+  \begin{definition}\label{defn:qcat-trivial-fibration} A map $f \colon X \to Y$ between simplicial sets is a \textbf{trivial fibration} if it admits lifts against the boundary inclusions for all simplices
   \begin{equation}\label{eq:qcat-trivial-fib}
   \begin{tikzcd}\partial\Delta[n] \arrow[r] \arrow[d, hook] & X \arrow[d, two heads, "\sim"', "f"]  \\ \Delta[n] \arrow[r] \arrow[ur, dashed] & Y
   \end{tikzcd} \qquad \text{for}\ \ n \geq 0
@@ -479,7 +514,7 @@ which transposes to the lifting problem above-right, which we can solve by hand.
 We define the components of $\gamma$ by cases. If an object $v \in \ho{V}$ is equal to $i(u)$ for some $u \in \ho{U}$ define $\gamma_{i(u)} \coloneq \alpha_u$; otherwise, use the fact that $f$ is an isofibration to define $\gamma_v$ to be any lift of the isomorphism $\beta_v$ to an isomorphism in $A$ with domain $s(v)$. The data of the map $\gamma \colon \ho{V} \times \iso \to A$ also entails the specification of the functor $\ho{V} \to A$ that is the codomain of the natural isomorphism $\gamma$. On objects, this functor is given by $v \mapsto \cod(\gamma_v)$. On morphisms, this functor defined in the unique way that makes $\gamma$ into a natural transformation:
 \[  (k \colon v \to v') \mapsto  \gamma_{v'} \circ s(k) \circ \gamma_v^{-1}.\]
 
-This completes the proof that $\Cat$ defines an $\infty$-cosmos. Since the nerve of a functor category, such as $A^\iso$, is isomorphic to the exponential between their nerves, the equivalences of categories coincide with the equivalences of Definition \ref{defn:qcat-equiv}. It follows that the equivalences in the $\infty$-cosmos of categories coincide with equivalences of categories, and since the surjective equivalences are the intersection of the equivalences and the isofibrations, this completes the proof.
+This completes the proof that $\Cat$ defines an $\infty$-cosmos. Since the nerve of a functor category, such as $A^\iso$, is isomorphic to the exponential between their nerves, the equivalences of categories coincide with the equivalences of Definition \ref{defn:qcat-equivalence}. It follows that the equivalences in the $\infty$-cosmos of categories coincide with equivalences of categories, and since the surjective equivalences are the intersection of the equivalences and the isofibrations, this completes the proof.
 \end{proof}
 
 Similarly:
@@ -489,7 +524,7 @@ Similarly:
 
 Several consequences of the $\infty$-cosmos axioms are mentioned in \cite[\S 1.2]{RiehlVerity:2022eo}. For now, we focus on just one.
 
-By a Yoneda-style argument, the ``homotopy equivalence'' characterization of the equivalences in the $\infty$-cosmos of quasi-categories of Definition \ref{defn:qcat-equiv} extends to an analogous characterization of the equivalences in any $\infty$-cosmos:
+By a Yoneda-style argument, the ``homotopy equivalence'' characterization of the equivalences in the $\infty$-cosmos of quasi-categories of Definition \ref{defn:qcat-equivalence} extends to an analogous characterization of the equivalences in any $\infty$-cosmos:
 
 \begin{lemma}[equivalences are homotopy equivalences]\label{lem:equiv-htpy-equiv}
 A map $f \colon A \to B$ between $\infty$-categories in an $\infty$-cosmos $\cK$ is an equivalence if and only if it extends to the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the interval: that is, if there exist maps $g \colon B \to A$
@@ -500,11 +535,11 @@ A map $f \colon A \to B$ between $\infty$-categories in an $\infty$-cosmos $\cK$
 in the $\infty$-cosmos.
 \end{lemma}
 \begin{proof}
-By hypothesis, if $f \colon A \to B$ defines an equivalence in the $\infty$-cosmos $\cK$ then the induced map on post-composition $f_* \colon \Fun(B,A) \we \Fun(B,B)$ is an equivalence of quasi-categories in the sense of Definition \ref{defn:qcat-equiv}. Evaluating the inverse equivalence $\tilde{g} \colon \Fun(B,B) \we \Fun(B,A)$ and homotopy $\tilde{\beta} \colon \Fun(B,B) \to \Fun(B,B)^\iso$ at the 0-arrow $\id_B \in \Fun(B,B)$, we obtain a 0-arrow $g \colon B \to A$ together with an isomorphism $\beta \colon \iso\to\Fun(B,B)$ from the composite $fg$ to $\id_B$. By the defining universal property of the cotensor \eqref{eq:cotensor-defn}, this isomorphism internalizes to define the map $\beta \colon B \to B^\iso$ in $\cK$ displayed on the right of \eqref{eq:htpy-equiv}.
+By hypothesis, if $f \colon A \to B$ defines an equivalence in the $\infty$-cosmos $\cK$ then the induced map on post-composition $f_* \colon \Fun(B,A) \we \Fun(B,B)$ is an equivalence of quasi-categories in the sense of Definition \ref{defn:qcat-equivalence}. Evaluating the inverse equivalence $\tilde{g} \colon \Fun(B,B) \we \Fun(B,A)$ and homotopy $\tilde{\beta} \colon \Fun(B,B) \to \Fun(B,B)^\iso$ at the 0-arrow $\id_B \in \Fun(B,B)$, we obtain a 0-arrow $g \colon B \to A$ together with an isomorphism $\beta \colon \iso\to\Fun(B,B)$ from the composite $fg$ to $\id_B$. By the defining universal property of the cotensor \eqref{eq:cotensor-defn}, this isomorphism internalizes to define the map $\beta \colon B \to B^\iso$ in $\cK$ displayed on the right of \eqref{eq:htpy-equiv}.
 
-Now the hypothesis that $f$ is an equivalence also provides an equivalence of quasi-categories $f_* \colon \Fun(A,A) \we \Fun(A,B)$, and the map $\beta f \colon A \to B^\iso$ represents an isomorphism in $\Fun(A,B)$ from $fgf$ to $f$. Since $f_*$ is an equivalence, we conclude from Remark \ref{rmk:qcat-htpy-cat-equiv} that $\id_A$ and $gf$ are isomorphic in the quasi-category $\Fun(A,A)$: explicitly, such an isomorphism may be defined by applying the inverse equivalence $\tilde{h} \colon \Fun(A,B) \to \Fun(A,A)$ and composing with the components at $\id_A, gf \in \Fun(A,A)$ of the isomorphism $\tilde{\alpha} \colon \Fun(A,A) \to \Fun(A,A)^\iso$ from $\id_{\Fun(A,A)}$ to $\tilde{h}f_*$. Now by Corollary \ref{cor:coherent-iso} this isomorphism is represented by a map $\iso \to \Fun(A,A)$ from $\id_A$ to $gf$, which internalizes to a map $\alpha \colon A \to A^\iso$ in $\cK$ displayed on the left of \eqref{eq:htpy-equiv}.
+Now the hypothesis that $f$ is an equivalence also provides an equivalence of quasi-categories $f_* \colon \Fun(A,A) \we \Fun(A,B)$, and the map $\beta f \colon A \to B^\iso$ represents an isomorphism in $\Fun(A,B)$ from $fgf$ to $f$. Since $f_*$ is an equivalence, we conclude from Lemma \ref{lem:qcat-htpy-cat-equiv} that $\id_A$ and $gf$ are isomorphic in the quasi-category $\Fun(A,A)$: explicitly, such an isomorphism may be defined by applying the inverse equivalence $\tilde{h} \colon \Fun(A,B) \to \Fun(A,A)$ and composing with the components at $\id_A, gf \in \Fun(A,A)$ of the isomorphism $\tilde{\alpha} \colon \Fun(A,A) \to \Fun(A,A)^\iso$ from $\id_{\Fun(A,A)}$ to $\tilde{h}f_*$. Now by Proposition \ref{prop:coherent-iso} this isomorphism is represented by a map $\iso \to \Fun(A,A)$ from $\id_A$ to $gf$, which internalizes to a map $\alpha \colon A \to A^\iso$ in $\cK$ displayed on the left of \eqref{eq:htpy-equiv}.
 
-The converse is easy: the simplicial cotensor construction commutes with $\Fun(X,-)$, so a homotopy equivalence \eqref{eq:htpy-equiv} induces a  homotopy equivalence of quasi-categories as in Definition \ref{defn:qcat-equiv}.
+The converse is easy: the simplicial cotensor construction commutes with $\Fun(X,-)$, so a homotopy equivalence \eqref{eq:htpy-equiv} induces a  homotopy equivalence of quasi-categories as in Definition \ref{defn:qcat-equivalence}.
 \end{proof}
 
 
@@ -801,10 +836,10 @@ We elaborate on the connection between data in the homotopy 2-category and data 
   \end{enumerate}
   \end{lemma}
 
-  The notion of homotopic 1-simplices referenced here is defined in Lemma \ref{lem:1-simp-htpy}. Since the 2-cells in the homotopy 2-category are referred to as $\infty$-natural transformations, we refer to the invertible 2-cells in the homotopy 2-category as \textbf{$\infty$-natural isomorphisms}.
+  The notion of homotopic 1-simplices referenced here is defined in Lemma \ref{lem:qcat-1-simplex-htpy}. Since the 2-cells in the homotopy 2-category are referred to as $\infty$-natural transformations, we refer to the invertible 2-cells in the homotopy 2-category as \textbf{$\infty$-natural isomorphisms}.
 
   \begin{proof}
-  The statement \ref{itm:2-cell-as-functor} records the definition of the 2-cells in the homotopy 2-category and the universal property \eqref{eq:cotensor-defn} of the simplicial cotensor.  For \ref{itm:2-iso-as-functor}, a 2-cell in the homotopy 2-category is \textbf{invertible} if and only if it defines an isomorphism in the appropriate hom-category $\hFun(A,B)$. By  Corollary \ref{cor:coherent-iso} it follows that each invertible 2-cell $\alpha$ is represented by a homotopy coherent isomorphism ${\alpha} \colon \iso \to \Fun(A,B)$, which similarly internalizes to define a functor $\name{\alpha} \colon A \to B^\iso$.
+  The statement \ref{itm:2-cell-as-functor} records the definition of the 2-cells in the homotopy 2-category and the universal property \eqref{eq:cotensor-defn} of the simplicial cotensor.  For \ref{itm:2-iso-as-functor}, a 2-cell in the homotopy 2-category is \textbf{invertible} if and only if it defines an isomorphism in the appropriate hom-category $\hFun(A,B)$. By Proposition \ref{prop:coherent-iso} it follows that each invertible 2-cell $\alpha$ is represented by a homotopy coherent isomorphism ${\alpha} \colon \iso \to \Fun(A,B)$, which similarly internalizes to define a functor $\name{\alpha} \colon A \to B^\iso$.
   \end{proof}
 
   %Change of base is an operation that applies to enriched functors as well as enriched categories, as can be directly verified in the case of greatest interest.
@@ -878,11 +913,11 @@ We elaborate on the connection between data in the homotopy 2-category and data 
 
   As an illustrative comparison of 2-categorical and quasi-categorical techniques, rather than appealing to Lemma \ref{lem:equiv-htpy-equiv} to prove \ref{itm:rep-equiv}$\Leftrightarrow$\ref{itm:htpy-equiv}, we re-prove it.
   \begin{proof}
-    For \ref{itm:rep-equiv}$\To$\ref{itm:2cat-equiv}, if the induced map $f_* \colon \Fun(X,A) \we \Fun(X,B)$  defines an equivalence of quasi-categories then the functor $f_* \colon \hFun(X,A) \we \hFun(X,B)$ defines an equivalence of categories, by Remark \ref{rmk:qcat-htpy-cat-equiv}. In particular, the equialence $f_* \colon \hFun(B,A) \we \hFun(B,B)$ is essentially surjective so there exists $g \in \hFun(B,A)$ and an isomorphism $\beta \colon fg \cong \id_B \in \hFun(B,B)$. Now since $f_* \colon \hFun(A,A) \we \hFun(A,B)$ is fully faithful, the isomorphism $\beta f \colon fgf \cong f \in \hFun(A,B)$ can be lifted to define an isomorphism $\alpha^{-1} \colon gf \cong \id_A \in \hFun(A,A)$. This defines the data of a 2-categorical equivalence in Definition \ref{defn:2-cat-equiv}.
+    For \ref{itm:rep-equiv}$\To$\ref{itm:2cat-equiv}, if the induced map $f_* \colon \Fun(X,A) \we \Fun(X,B)$  defines an equivalence of quasi-categories then the functor $f_* \colon \hFun(X,A) \we \hFun(X,B)$ defines an equivalence of categories, by Lemma \ref{lem:qcat-htpy-cat-equiv}. In particular, the equialence $f_* \colon \hFun(B,A) \we \hFun(B,B)$ is essentially surjective so there exists $g \in \hFun(B,A)$ and an isomorphism $\beta \colon fg \cong \id_B \in \hFun(B,B)$. Now since $f_* \colon \hFun(A,A) \we \hFun(A,B)$ is fully faithful, the isomorphism $\beta f \colon fgf \cong f \in \hFun(A,B)$ can be lifted to define an isomorphism $\alpha^{-1} \colon gf \cong \id_A \in \hFun(A,A)$. This defines the data of a 2-categorical equivalence in Definition \ref{defn:2-cat-equiv}.
 
   To see that \ref{itm:2cat-equiv}$\To$\ref{itm:htpy-equiv} recall from Lemma \ref{lem:invertible-2-cell} that the natural isomorphisms $\alpha \colon \id_A \cong gf$ and $\beta \colon fg \cong \id_B$ in $\h\cK$ are represented by maps $\alpha \colon A \to A^\iso$ and $\beta \colon B \to B^\iso$ in $\cK$ as in \eqref{eq:htpy-equiv}.
 
-  Finally, \ref{itm:htpy-equiv}$\To$\ref{itm:rep-equiv} since $\Fun(X,-)$ carries the data of \ref{itm:htpy-equiv} to the data of an equivalence of quasi-categories as in  Definition \ref{defn:qcat-equiv}.
+  Finally, \ref{itm:htpy-equiv}$\To$\ref{itm:rep-equiv} since $\Fun(X,-)$ carries the data of \ref{itm:htpy-equiv} to the data of an equivalence of quasi-categories as in  Definition \ref{defn:qcat-equivalence}.
   \end{proof}
 
   It is hard to overstate the importance of Theorem \ref{thm:equiv-are-equiv} for the work that follows. The categorical constructions that we introduce for $\infty$-categories, $\infty$-func\-tors, and $\infty$-natural transformations are invariant under 2-cat\-e\-go\-ri\-cal equivalence in the homotopy 2-category and the universal properties we develop similarly characterize 2-categorical equivalence classes of $\infty$-cat\-e\-go\-ries. Theorem \ref{thm:equiv-are-equiv} then asserts that such constructions are ``homotopically correct'': both invariant under equivalence in the $\infty$-cosmos and precisely identifying equivalence classes of objects.
@@ -908,7 +943,7 @@ We elaborate on the connection between data in the homotopy 2-category and data 
   \end{proposition}
   \begin{proof} The universal property of the statement says that the functor \[p_* \colon \hFun(X,E) \fib \hFun(X,B)\] is an isofibration of categories in the sense defined in Proposition \ref{prop:cat-cosmos}. By axiom \ref{defn:cosmos}\ref{itm:cosmos-isofib}, since $p \colon E \fib B$ is an isofibration in $\cK$, the induced map $p_* \colon \Fun(X,E) \fib \Fun(X,B)$ is an isofibration of quasi-categories. So it suffices to show that the functor $\ho \colon \qCat\to \Cat$ carries isofibrations of quasi-categories to isofibrations of categories.
 
-  So let us now consider an isofibration $p \colon E \fib B$ between quasi-categories. By Corollary \ref{cor:coherent-iso}, every isomorphism $\beta$ in the homotopy category $\ho{B}$ of the quasi-category $B$ is represented by a simplicial map $\beta \colon \iso \to B$. By Definition \ref{defn:qcat-isofibration}, the lifting problem
+  So let us now consider an isofibration $p \colon E \fib B$ between quasi-categories. By Proposition \ref{prop:coherent-iso}, every isomorphism $\beta$ in the homotopy category $\ho{B}$ of the quasi-category $B$ is represented by a simplicial map $\beta \colon \iso \to B$. By Definition \ref{defn:qcat-isofibration}, the lifting problem
   \[
   \begin{tikzcd}
   \catone \arrow[r, "e"] \arrow[d, hook] & E \arrow[d, two heads, "p"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "\beta"'] & B

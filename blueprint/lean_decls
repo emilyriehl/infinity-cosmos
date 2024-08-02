@@ -4,5 +4,10 @@ SSet.largeCategory
 SSet.Quasicategory
 SSet.KanComplex
 CategoryTheory.nerve
+CategoryTheory.nerveFunctor
+CategoryTheory.Nerve.cosk2Iso
+CategoryTheory.SSet.hoCat
+CategoryTheory.nerveCounit_isIso
+CategoryTheory.nerveAdjunction
 CategoryTheory.SimplicialCategory.HasCotensors
 CategoryTheory.InfinityCosmos
