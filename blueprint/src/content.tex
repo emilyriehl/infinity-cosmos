@@ -307,594 +307,590 @@ We now introduce the weak equivalences and trivial fibrations between fibrant ob
 
   The notation ``$\trvfib$'' is suggestive: the trivial fibrations between quasi-cat\-e\-go\-ries are exactly those maps that are both isofibrations and equivalences. This can be proven by a relatively standard although rather technical argument in simplicial homotopy theory \cite[D.5.6]{RiehlVerity:2022eo}.
 
-\begin{comment}
+\section{Enriched limits}\label{sec:enriched-limits}
 
-  \section{Enriched limits}\label{sec:enriched-limits}
+A simplicially enriched category---commonly called a ``simplicial category'' for short---is a category that is enriched over the cartesian monoidal category of simplicial sets. We recall the definition, which already exists in Mathlib.
 
-  A simplicially enriched category---commonly called a ``simplicial category'' for short---is a category that is enriched over the cartesian monoidal category of simplicial sets. We recall the definition, which already exists in Mathlib.
-
-  \begin{definition}[simplicial categories as enriched categories]\label{defn:simplicial-category}
-    The data of a \textbf{simplicial category} is a \textbf{simplicially enriched category} with a set of objects and a simplicial set $\cA(x,y)$ of morphisms between each ordered pair of objects. Each endo-hom space contains a distinguished 0-simplex $\id_x \in \cA(x,y)_0$, and composition is required to define a simplicial map
-    \[
-    \begin{tikzcd}
-    \cA(y,z) \times \cA(x,y) \arrow[r, "\circ"] & \cA(x,z)
-    \end{tikzcd}
-    \] The composition is required to be associative and unital, in a sense expressed by the commutative diagrams of simplicial sets
-    \[
-    \begin{tikzcd}[column sep=small]
-    \cA(y,z) \times \cA(x,y) \times \cA(w,x) \arrow[d, "\id \times \circ"'] \arrow[r, "\circ \times \id"] & \cA(x,z) \times \cA(w,x) \arrow[d, "\circ"]  \\ \cA(y,z) \times \cA(w,y) \arrow[r, "\circ"'] & \cA(w,z)
-    \end{tikzcd}
-    \begin{tikzcd} \cA(x,y) \arrow[r, "\id_y \times \id"] \arrow[dr, "\id"] \arrow[d, "\id \times \id_x"']  & \cA(y,y) \times \cA(x,y) \arrow[d, "\circ"] \\ \cA(x,y) \times \cA(x,x) \arrow[r, "\circ"'] & \cA(x,y)
-    \end{tikzcd}
-    \]
-  \end{definition}
-
-  For each $n \geq 0$, an $n$-simplex in $\cA(x,y)$ is referred to as an $n$-\textbf{arrow} from $x$ to $y$. The $n$-arrows assemble into the arrows of an ordinary category $\cA_n$ with the same set of objects as $\cA$.
-
-  In particular:
-
-  \begin{definition}\label{defn:underlying-cat}
-  the category $\cA_0$ of 0-arrows is the \textbf{underlying category} of the simplicial category $\cA$, which forgets the higher dimensional simplicial structure.
-  \end{definition}
-
-  There is alternate presentation of the data of a simplicial category as a simplicial object in the category of categories and identity-on-objects functors.\footnote{The phrase ``simplicial object in $\Cat$'' is reserved for the more general yet less common notion of a diagram $\Del\op\to\Cat$ that is not necessarily comprised of identity-on-objects functors.}
-
-
-  \begin{dig}[simplicial categories as simplicial objects]\label{dig:simplicial-cat}
-    A \textbf{simplicial category} $\cA$ is equivalently given by categories $\cA_n$, with a common set of objects and whose arrows are called $n$-\textbf{arrows}, that assemble into a diagram $\Del\op \to \Cat$ of identity-on-objects functors
-    \begin{equation}\label{eq:simplicial-cat}
-    \begin{tikzcd}[column sep=large]
-    \cdots \cA_3 \arrow[r, shift right=2.25em, "\cdot\face^0" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^2" description, pos=.35] \arrow[r, shift left=2.25em, "\cdot\face^3" description, pos=.35]& \cA_2  \arrow[l, "\cdot\degen^1" description, pos=.35] \arrow[l, shift left=1.5em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=1.5em, "\cdot\degen^2" description, pos=.35] \arrow[r, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=1.5em, "\cdot\face^2" description, pos=.35] \arrow[r, shift right=1.5em, "\cdot\face^0" description, pos=.35]  & \cA_1 \arrow[l, shift left=.75em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=.75em, "\cdot\degen^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^0" description, pos=.35] & \cA_0 \arrow[l, "\cdot\degen^0" description, pos=.35]
-    \end{tikzcd}\eqcolon\cA
-    \end{equation}
-  \end{dig}
-
-  By contrast, the notion of simplicially enriched limit remains to be formalized. Fortunately, we do not (immediately) require the general notion of \emph{weighted limits}, as the notion of an $\infty$-cosmos only requires two special cases: \emph{cotensors} and \emph{conical limits}.
-
-  \begin{definition}[simplicial cotensors]\label{defn:simplicial-cotensor}
-    Let $\cA$ be a simplicial category. The \textbf{cotensor} of an object $A \in \cA$ by a simplicial set $U$ is characterized by a natural isomorphism of simplicial sets
-    \begin{equation}\label{eq:cotensor-defn}
-    \cA(X,A^U) \cong \cA(X,A)^U
-    \end{equation}
-  \end{definition}
-
-  \begin{lemma}\label{lem:cotensor-bifunctor}
-    Assuming such objects exist, the simplicial cotensor defines a bifunctor
-    \[
-    \begin{tikzcd}[row sep=tiny] \sSet\op \times \cA \arrow[r] & \cA \\
-    (U,A) \arrow[r, maps to] & A^U
-    \end{tikzcd}\] in a unique way making the isomorphism \eqref{eq:cotensor-defn} natural in $U$ and $A$ as well.
-  \end{lemma}
-
-  The other simplicial limit notions postulated by axiom \ref{defn:cosmos}\ref{itm:cosmos-limits} are \textbf{conical}, which is the term used for ordinary 1-categorical limit shapes that satisfy an enriched analog of the usual universal property.   Such limits also define limits in the underlying category, but the usual universal property is strengthened.
-
-  \begin{definition}[simplicial conical limits]\label{defn:simplicial-conical-limit}
-    Consider a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in the underlying category $\cA_0$ of a simplicially-enriched category $\cA$.  By applying the covariant rep\-re\-sentable functor $\cA(X,-) \colon \cA_0 \to \sSet$ to a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in $\cA_0$, we obtain a natural comparison map
-    \begin{equation}\label{eq:simplicial-limit-map} \cA(X,\lim_{j \in J}A_j) \xto{\mkern40mu} \lim_{j \in J}\cA(X,A_j).
-    \end{equation}
-    We say that $\lim_{j\in J}A_j$ defines a \textbf{simplicially enriched limit} if and only if \eqref{eq:simplicial-limit-map} is an isomorphism of simplicial sets for all $X \in \cA$.
-  \end{definition}
-
-  \begin{rmk}
-    The notion of cotensors and conical limits could be introduced for categories enriched over arbitrary cartesian monoidal categories or more generally for categories enriched over symmetric monoidal categories. This might be worth doing as a service to the broader Mathlib.
-  \end{rmk}
-
-  \section{\texorpdfstring{$\infty$}{Infinity}-Cosmoi}\label{sec:cosmos}
-
-  There are a variety of models of infinite-dimensional categories for which the category of ``$\infty$-categories,'' as we call them, and ``$\infty$-functors'' between them is enriched over quasi-categories and admits classes of isofibrations, equivalences, and trivial fibrations satisfying certain
-  properties that are familiar from abstract homotopy theory, forming a \emph{category of fibrant objects} \`{a} la Brown \cite{Brown:1973ah}. In particular, the use of isofibrations in diagrams guarantees that their strict limits are equivalence invariant, so we can take advantage of up-to-isomorphism universal properties and strict functoriality of these constructions while still working ``homotopically.'' This motivates the following axiomatization:
-
-
-  \begin{definition}[$\infty$-cosmos]\label{defn:cosmos} An $\infty$-\textbf{cosmos} $\cK$ is a category that is enriched over quasi-categories,\footnote{This is to say $\cK$ is a simplicially enriched category (see Definition \ref{defn:simplicial-category}) whose hom spaces are all quasi-categories.} meaning in particular that\begin{itemize}
-    \item its morphisms $f \colon A \to B$ define the vertices of a quasi-category denoted $\Fun(A,B)$ and referred to as a \textbf{functor space},
-    \end{itemize}
-    that is also equipped with a specified collection of maps that we call \textbf{isofibrations} and denote by ``$\fib$'' satisfying the following two axioms:
-    \begin{enumerate}
-    \item\label{itm:cosmos-limits} (completeness) The quasi-categorically enriched category $\cK$ pos\-sess\-es a terminal object, small products, pullbacks of isofibrations, limits of countable towers of isofibrations, and cotensors with simplicial sets, each of these limit notions satisfying a universal property that is enriched over simplicial sets.\footnote{This is to say, these are simplicially enriched limit notions, in the sense described in Definitions \ref{defn:simplicial-cotensor} and \ref{defn:simplicial-conical-limit}.}
-    \item\label{itm:cosmos-isofib} (isofibrations) The isofibrations contain all isomorphisms and any map whose codomain is the terminal object; are closed under composition, product, pullback, forming inverse limits of towers, and Leibniz cotensors with monomorphisms of simplicial sets; and have the property that if $f \colon A \fib B$ is an isofibration and $X$ is any object then $\Fun(X,A) \fib \Fun(X,B)$ is an isofibration of quasi-categories.
-    \end{enumerate}
-  \end{definition}
-
-  For ease of reference, we refer to the simplicially enriched limits of diagrams of isofibrations enumerated in \ref{itm:cosmos-limits} as the \textbf{cosmological limit notions}.
-
-  \begin{definition}\label{defn:cosmos-classes} In an $\infty$-cosmos $\cK$, a morphism $f\colon A \to B$ is
-  \begin{itemize}
-  \item an \textbf{equivalence} just when the induced map $f_* \colon\Fun(X,A) \we \Fun(X,B)$ on functor spaces  is an equivalence of quasi-categories for all $X \in \cK$, and
-  \item a \textbf{trivial fibration} just when $f$ is both an isofibration and an equivalence.
-  \end{itemize}
-  These classes are denoted by ``$\we$''  and ``$\trvfib$'', respectively.
-  \end{definition}
-
-  Put more concisely, one might say that an $\infty$-cosmos is a ``quasi-cat\-e\-go\-ri\-cal\-ly enriched category of fibrant objects.'' %(see Definition \ref{defn:cat-of-fib-obj} and Example \ref{ex:cosmos-as-cat-of-fib-obj}).
-
-  \begin{con}[$\infty$-category, as a technical term]Henceforth, we recast $\infty$-\textbf{category} as a technical term to refer to an object in an arbitrary ambient $\infty$-cosmos. Similarly, we use the term $\infty$-\textbf{functor} --- or more commonly the elision ``\textbf{functor}'' --- to refer to a morphism $f \colon A \to B$ in an $\infty$-cosmos. This explains why we refer to the quasi-category $\Fun(A,B)$ between two $\infty$-categories in an $\infty$-cosmos as a ``functor space'': its vertices are the ($\infty$-)functors from $A$ to $B$.
-  \end{con}
-
-  \begin{rmk} The underlying category $\cK_0$ of an $\infty$-cosmos $\cK$ is the category whose objects are the $\infty$-categories in $\cK$ and whose morphisms are the $0$-arrows, i.e., the vertices in the functor spaces. In all of the examples to appear in what follows, this recovers the expected category of $\infty$-categories in a particular model and functors between them.
-  \end{rmk}
-
-  The following theorem should be quite difficult to formalize:
-
-  \begin{proposition}[the $\infty$-cosmos of quasi-categories]\label{prop:qcat-cosmos} The full subcategory $\qCat\subset\sSet$ of quasi-categories defines an $\infty$-cosmos in which the isofibrations, equivalences, and trivial fibrations coincide with the classes  already bearing these names.
-  \end{proposition}
-
-
-  Two further examples fit into a common paradigm: both arise as full subcategories of the $\infty$-cosmos of quasi-categories and inherit their $\infty$-cosmos structures from this inclusion (see Lemma \cite[6.1.4]{RiehlVerity:2022eo}), but it is also instructive, and ultimately takes less work, to describe the resulting $\infty$-cosmos structures directly.
-
-  \begin{proposition}[the $\infty$-cosmos of categories]\label{prop:cat-cosmos}
-  The category $\Cat$ of 1-cat\-e\-go\-ri\-es defines an $\infty$-cosmos whose isofibrations are the \textbf{isofibrations}: functors satisfying the displayed right lifting property:
+\begin{definition}[simplicial categories as enriched categories]\label{defn:simplicial-category}
+  The data of a \textbf{simplicial category} is a \textbf{simplicially enriched category} with a set of objects and a simplicial set $\cA(x,y)$ of morphisms between each ordered pair of objects. Each endo-hom space contains a distinguished 0-simplex $\id_x \in \cA(x,y)_0$, and composition is required to define a simplicial map
   \[
   \begin{tikzcd}
-  \catone \arrow[d, hook] \arrow[r] & A \arrow[d, "f", two heads] \\ \iso \arrow[r] \arrow[ur, dashed] & B
+  \cA(y,z) \times \cA(x,y) \arrow[r, "\circ"] & \cA(x,z)
   \end{tikzcd}
-  \]
-  The equivalences are the equivalences of categories and the trivial fibrations are \textbf{surjective equivalences}: equivalences of categories that are also surjective on objects.
-  \end{proposition}
-  \begin{proof}
-  It is well-known that the 2-category of categories is complete (and in fact also cocomplete) as a $\Cat$-enriched category (see %Definition \ref{defn:enriched-completeness} or
-    \cite{Kelly:1989eo}). The categorically enriched category of categories becomes a quasi-categorically enriched category by applying the nerve functor to the hom-categories (see \S\ref{sec:change-of-base}). Since the nerve functor is a right adjoint, it follows formally that these 2-categorical limits become simplicially enriched limits. In particular, as proscribed in Proposition \ref{prop:cob-adjunction}, the cotensor of a category $A$ by a simplicial set $U$ is defined to be the functor category $A^{\ho{U}}$. This completes the verification of axiom \ref{itm:cosmos-limits}.
-
-  Since the class of isofibrations is characterized by a right lifting property, %Lemma \ref{lem:fib-closure} implies that
-    the isofibrations are closed under all of the limit constructions of  \ref{defn:cosmos}\ref{itm:cosmos-isofib} except for the last two. %and by Exercise \ref{exc:degenerate-leibniz},
-    For these, the Leibniz closure subsumes the closure under exponentiation.
-
-  To verify that isofibrations of categories $f \colon A \fib B$ are stable under forming Leibniz cotensors with monomorphisms of simplicial sets $i \colon U \inc V$, we must solve the lifting problem below-left
+  \] The composition is required to be associative and unital, in a sense expressed by the commutative diagrams of simplicial sets
   \[
-  \begin{tikzcd} \catone \arrow[r, "s"] \arrow[d, hook, "j"'] & A^{\ho{V}} \arrow[d, "{\ho{i}\leib\pwr f}"] \arrow[dr, phantom, "\leftrightsquigarrow"] & \ho{U} \times \iso \cup_{\ho{U}} \ho{V} \arrow[r, "{\langle \alpha, s\rangle}"] \arrow[d, hook, "\ho{i} \leib\times j"'] & A \arrow[d, two heads, "f"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "{\langle \beta, \alpha \rangle}"'] & B^{\ho V} \times_{B^{\ho U}} A^{\ho U} & \ho{V} \times \iso \arrow[r, "\beta"'] \arrow[ur, dashed, "\gamma"'] & B
+  \begin{tikzcd}[column sep=small]
+  \cA(y,z) \times \cA(x,y) \times \cA(w,x) \arrow[d, "\id \times \circ"'] \arrow[r, "\circ \times \id"] & \cA(x,z) \times \cA(w,x) \arrow[d, "\circ"]  \\ \cA(y,z) \times \cA(w,y) \arrow[r, "\circ"'] & \cA(w,z)
+  \end{tikzcd}
+  \begin{tikzcd} \cA(x,y) \arrow[r, "\id_y \times \id"] \arrow[dr, "\id"] \arrow[d, "\id \times \id_x"']  & \cA(y,y) \times \cA(x,y) \arrow[d, "\circ"] \\ \cA(x,y) \times \cA(x,x) \arrow[r, "\circ"'] & \cA(x,y)
   \end{tikzcd}
   \]
-  which transposes to the lifting problem above-right, which we can solve by hand. Here the map $\beta$ defines a natural isomorphism between $fs \colon \ho{V} \to B$ and a second functor. Our task is to lift this to a natural isomorphism $\gamma$ from $s$ to another functor that extends the natural isomorphism $\alpha$ along $\ho{i} \colon \ho{U} \to \ho{V}$. Note this functor $\ho{i}$ need not be an inclusion, but it is injective on objects, which is enough.
+\end{definition}
 
-  We define the components of $\gamma$ by cases. If an object $v \in \ho{V}$ is equal to $i(u)$ for some $u \in \ho{U}$ define $\gamma_{i(u)} \coloneq \alpha_u$; otherwise, use the fact that $f$ is an isofibration to define $\gamma_v$ to be any lift of the isomorphism $\beta_v$ to an isomorphism in $A$ with domain $s(v)$. The data of the map $\gamma \colon \ho{V} \times \iso \to A$ also entails the specification of the functor $\ho{V} \to A$ that is the codomain of the natural isomorphism $\gamma$. On objects, this functor is given by $v \mapsto \cod(\gamma_v)$. On morphisms, this functor defined in the unique way that makes $\gamma$ into a natural transformation:
-  \[  (k \colon v \to v') \mapsto  \gamma_{v'} \circ s(k) \circ \gamma_v^{-1}.\]
+For each $n \geq 0$, an $n$-simplex in $\cA(x,y)$ is referred to as an $n$-\textbf{arrow} from $x$ to $y$. The $n$-arrows assemble into the arrows of an ordinary category $\cA_n$ with the same set of objects as $\cA$.
 
-  This completes the proof that $\Cat$ defines an $\infty$-cosmos. Since the nerve of a functor category, such as $A^\iso$, is isomorphic to the exponential between their nerves, the equivalences of categories coincide with the equivalences of Definition \ref{defn:qcat-equiv}. It follows that the equivalences in the $\infty$-cosmos of categories coincide with equivalences of categories, and since the surjective equivalences are the intersection of the equivalences and the isofibrations, this completes the proof.
-  \end{proof}
+In particular:
 
-  Similarly:
+\begin{definition}\label{defn:underlying-cat}
+the category $\cA_0$ of 0-arrows is the \textbf{underlying category} of the simplicial category $\cA$, which forgets the higher dimensional simplicial structure.
+\end{definition}
 
-  \begin{proposition}[the $\infty$-cosmos of Kan complexes]\label{prop:kan-cosmos} The category $\Kan$ of Kan complexes defines an $\infty$-cosmos whose isofibrations are the \textbf{Kan fibrations}: maps that lift against all horn inclusions $\Lambda^k[n] \inc \Delta[n]$ for $n \geq 1$ and $0 \leq k \leq n$.
-  \end{proposition}
+There is alternate presentation of the data of a simplicial category as a simplicial object in the category of categories and identity-on-objects functors.\footnote{The phrase ``simplicial object in $\Cat$'' is reserved for the more general yet less common notion of a diagram $\Del\op\to\Cat$ that is not necessarily comprised of identity-on-objects functors.}
 
-  Several consequences of the $\infty$-cosmos axioms are mentioned in \cite[\S 1.2]{RiehlVerity:2022eo}. For now, we focus on just one.
 
-  By a Yoneda-style argument, the ``homotopy equivalence'' characterization of the equivalences in the $\infty$-cosmos of quasi-categories of Definition \ref{defn:qcat-equiv} extends to an analogous characterization of the equivalences in any $\infty$-cosmos:
-
-  \begin{lemma}[equivalences are homotopy equivalences]\label{lem:equiv-htpy-equiv}
-  A map $f \colon A \to B$ between $\infty$-categories in an $\infty$-cosmos $\cK$ is an equivalence if and only if it extends to the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the interval: that is, if there exist maps $g \colon B \to A$
-  \begin{equation}\label{eq:htpy-equiv}
-  \begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso   \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"',  "\ev_1"] & \text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso  \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] \\ & A & &  & B
-  \end{tikzcd}
+\begin{dig}[simplicial categories as simplicial objects]\label{dig:simplicial-cat}
+  A \textbf{simplicial category} $\cA$ is equivalently given by categories $\cA_n$, with a common set of objects and whose arrows are called $n$-\textbf{arrows}, that assemble into a diagram $\Del\op \to \Cat$ of identity-on-objects functors
+  \begin{equation}\label{eq:simplicial-cat}
+  \begin{tikzcd}[column sep=large]
+  \cdots \cA_3 \arrow[r, shift right=2.25em, "\cdot\face^0" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^2" description, pos=.35] \arrow[r, shift left=2.25em, "\cdot\face^3" description, pos=.35]& \cA_2  \arrow[l, "\cdot\degen^1" description, pos=.35] \arrow[l, shift left=1.5em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=1.5em, "\cdot\degen^2" description, pos=.35] \arrow[r, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=1.5em, "\cdot\face^2" description, pos=.35] \arrow[r, shift right=1.5em, "\cdot\face^0" description, pos=.35]  & \cA_1 \arrow[l, shift left=.75em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=.75em, "\cdot\degen^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^0" description, pos=.35] & \cA_0 \arrow[l, "\cdot\degen^0" description, pos=.35]
+  \end{tikzcd}\eqcolon\cA
   \end{equation}
-  in the $\infty$-cosmos.
+\end{dig}
+
+By contrast, the notion of simplicially enriched limit remains to be formalized. Fortunately, we do not (immediately) require the general notion of \emph{weighted limits}, as the notion of an $\infty$-cosmos only requires two special cases: \emph{cotensors} and \emph{conical limits}.
+
+\begin{definition}[simplicial cotensors]\label{defn:simplicial-cotensor}
+  Let $\cA$ be a simplicial category. The \textbf{cotensor} of an object $A \in \cA$ by a simplicial set $U$ is characterized by a natural isomorphism of simplicial sets
+  \begin{equation}\label{eq:cotensor-defn}
+  \cA(X,A^U) \cong \cA(X,A)^U
+  \end{equation}
+\end{definition}
+
+\begin{lemma}\label{lem:cotensor-bifunctor}
+  Assuming such objects exist, the simplicial cotensor defines a bifunctor
+  \[
+  \begin{tikzcd}[row sep=tiny] \sSet\op \times \cA \arrow[r] & \cA \\
+  (U,A) \arrow[r, maps to] & A^U
+  \end{tikzcd}\] in a unique way making the isomorphism \eqref{eq:cotensor-defn} natural in $U$ and $A$ as well.
+\end{lemma}
+
+The other simplicial limit notions postulated by axiom \ref{defn:cosmos}\ref{itm:cosmos-limits} are \textbf{conical}, which is the term used for ordinary 1-categorical limit shapes that satisfy an enriched analog of the usual universal property.   Such limits also define limits in the underlying category, but the usual universal property is strengthened.
+
+\begin{definition}[simplicial conical limits]\label{defn:simplicial-conical-limit}
+  Consider a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in the underlying category $\cA_0$ of a simplicially-enriched category $\cA$.  By applying the covariant rep\-re\-sentable functor $\cA(X,-) \colon \cA_0 \to \sSet$ to a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in $\cA_0$, we obtain a natural comparison map
+  \begin{equation}\label{eq:simplicial-limit-map} \cA(X,\lim_{j \in J}A_j) \xto{\mkern40mu} \lim_{j \in J}\cA(X,A_j).
+  \end{equation}
+  We say that $\lim_{j\in J}A_j$ defines a \textbf{simplicially enriched limit} if and only if \eqref{eq:simplicial-limit-map} is an isomorphism of simplicial sets for all $X \in \cA$.
+\end{definition}
+
+\begin{rmk}
+  The notion of cotensors and conical limits could be introduced for categories enriched over arbitrary cartesian monoidal categories or more generally for categories enriched over symmetric monoidal categories. This might be worth doing as a service to the broader Mathlib.
+\end{rmk}
+
+\section{\texorpdfstring{$\infty$}{Infinity}-Cosmoi}\label{sec:cosmos}
+
+There are a variety of models of infinite-dimensional categories for which the category of ``$\infty$-categories,'' as we call them, and ``$\infty$-functors'' between them is enriched over quasi-categories and admits classes of isofibrations, equivalences, and trivial fibrations satisfying certain
+properties that are familiar from abstract homotopy theory, forming a \emph{category of fibrant objects} \`{a} la Brown \cite{Brown:1973ah}. In particular, the use of isofibrations in diagrams guarantees that their strict limits are equivalence invariant, so we can take advantage of up-to-isomorphism universal properties and strict functoriality of these constructions while still working ``homotopically.'' This motivates the following axiomatization:
+
+
+\begin{definition}[$\infty$-cosmos]\label{defn:cosmos} An $\infty$-\textbf{cosmos} $\cK$ is a category that is enriched over quasi-categories,\footnote{This is to say $\cK$ is a simplicially enriched category (see Definition \ref{defn:simplicial-category}) whose hom spaces are all quasi-categories.} meaning in particular that\begin{itemize}
+  \item its morphisms $f \colon A \to B$ define the vertices of a quasi-category denoted $\Fun(A,B)$ and referred to as a \textbf{functor space},
+  \end{itemize}
+  that is also equipped with a specified collection of maps that we call \textbf{isofibrations} and denote by ``$\fib$'' satisfying the following two axioms:
+  \begin{enumerate}
+  \item\label{itm:cosmos-limits} (completeness) The quasi-categorically enriched category $\cK$ pos\-sess\-es a terminal object, small products, pullbacks of isofibrations, limits of countable towers of isofibrations, and cotensors with simplicial sets, each of these limit notions satisfying a universal property that is enriched over simplicial sets.\footnote{This is to say, these are simplicially enriched limit notions, in the sense described in Definitions \ref{defn:simplicial-cotensor} and \ref{defn:simplicial-conical-limit}.}
+  \item\label{itm:cosmos-isofib} (isofibrations) The isofibrations contain all isomorphisms and any map whose codomain is the terminal object; are closed under composition, product, pullback, forming inverse limits of towers, and Leibniz cotensors with monomorphisms of simplicial sets; and have the property that if $f \colon A \fib B$ is an isofibration and $X$ is any object then $\Fun(X,A) \fib \Fun(X,B)$ is an isofibration of quasi-categories.
+  \end{enumerate}
+\end{definition}
+
+For ease of reference, we refer to the simplicially enriched limits of diagrams of isofibrations enumerated in \ref{itm:cosmos-limits} as the \textbf{cosmological limit notions}.
+
+\begin{definition}\label{defn:cosmos-classes} In an $\infty$-cosmos $\cK$, a morphism $f\colon A \to B$ is
+\begin{itemize}
+\item an \textbf{equivalence} just when the induced map $f_* \colon\Fun(X,A) \we \Fun(X,B)$ on functor spaces  is an equivalence of quasi-categories for all $X \in \cK$, and
+\item a \textbf{trivial fibration} just when $f$ is both an isofibration and an equivalence.
+\end{itemize}
+These classes are denoted by ``$\we$''  and ``$\trvfib$'', respectively.
+\end{definition}
+
+Put more concisely, one might say that an $\infty$-cosmos is a ``quasi-cat\-e\-go\-ri\-cal\-ly enriched category of fibrant objects.'' %(see Definition \ref{defn:cat-of-fib-obj} and Example \ref{ex:cosmos-as-cat-of-fib-obj}).
+
+\begin{con}[$\infty$-category, as a technical term]Henceforth, we recast $\infty$-\textbf{category} as a technical term to refer to an object in an arbitrary ambient $\infty$-cosmos. Similarly, we use the term $\infty$-\textbf{functor} --- or more commonly the elision ``\textbf{functor}'' --- to refer to a morphism $f \colon A \to B$ in an $\infty$-cosmos. This explains why we refer to the quasi-category $\Fun(A,B)$ between two $\infty$-categories in an $\infty$-cosmos as a ``functor space'': its vertices are the ($\infty$-)functors from $A$ to $B$.
+\end{con}
+
+\begin{rmk} The underlying category $\cK_0$ of an $\infty$-cosmos $\cK$ is the category whose objects are the $\infty$-categories in $\cK$ and whose morphisms are the $0$-arrows, i.e., the vertices in the functor spaces. In all of the examples to appear in what follows, this recovers the expected category of $\infty$-categories in a particular model and functors between them.
+\end{rmk}
+
+The following theorem should be quite difficult to formalize:
+
+\begin{proposition}[the $\infty$-cosmos of quasi-categories]\label{prop:qcat-cosmos} The full subcategory $\qCat\subset\sSet$ of quasi-categories defines an $\infty$-cosmos in which the isofibrations, equivalences, and trivial fibrations coincide with the classes  already bearing these names.
+\end{proposition}
+
+
+Two further examples fit into a common paradigm: both arise as full subcategories of the $\infty$-cosmos of quasi-categories and inherit their $\infty$-cosmos structures from this inclusion (see Lemma \cite[6.1.4]{RiehlVerity:2022eo}), but it is also instructive, and ultimately takes less work, to describe the resulting $\infty$-cosmos structures directly.
+
+\begin{proposition}[the $\infty$-cosmos of categories]\label{prop:cat-cosmos}
+The category $\Cat$ of 1-cat\-e\-go\-ri\-es defines an $\infty$-cosmos whose isofibrations are the \textbf{isofibrations}: functors satisfying the displayed right lifting property:
+\[
+\begin{tikzcd}
+\catone \arrow[d, hook] \arrow[r] & A \arrow[d, "f", two heads] \\ \iso \arrow[r] \arrow[ur, dashed] & B
+\end{tikzcd}
+\]
+The equivalences are the equivalences of categories and the trivial fibrations are \textbf{surjective equivalences}: equivalences of categories that are also surjective on objects.
+\end{proposition}
+\begin{proof}
+It is well-known that the 2-category of categories is complete (and in fact also cocomplete) as a $\Cat$-enriched category (see %Definition \ref{defn:enriched-completeness} or
+  \cite{Kelly:1989eo}). The categorically enriched category of categories becomes a quasi-categorically enriched category by applying the nerve functor to the hom-categories (see \S\ref{sec:change-of-base}). Since the nerve functor is a right adjoint, it follows formally that these 2-categorical limits become simplicially enriched limits. In particular, as proscribed in Proposition \ref{prop:cob-adjunction}, the cotensor of a category $A$ by a simplicial set $U$ is defined to be the functor category $A^{\ho{U}}$. This completes the verification of axiom \ref{itm:cosmos-limits}.
+
+Since the class of isofibrations is characterized by a right lifting property, %Lemma \ref{lem:fib-closure} implies that
+  the isofibrations are closed under all of the limit constructions of  \ref{defn:cosmos}\ref{itm:cosmos-isofib} except for the last two. %and by Exercise \ref{exc:degenerate-leibniz},
+  For these, the Leibniz closure subsumes the closure under exponentiation.
+
+To verify that isofibrations of categories $f \colon A \fib B$ are stable under forming Leibniz cotensors with monomorphisms of simplicial sets $i \colon U \inc V$, we must solve the lifting problem below-left
+\[
+\begin{tikzcd} \catone \arrow[r, "s"] \arrow[d, hook, "j"'] & A^{\ho{V}} \arrow[d, "{\ho{i}\leib\pwr f}"] \arrow[dr, phantom, "\leftrightsquigarrow"] & \ho{U} \times \iso \cup_{\ho{U}} \ho{V} \arrow[r, "{\langle \alpha, s\rangle}"] \arrow[d, hook, "\ho{i} \leib\times j"'] & A \arrow[d, two heads, "f"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "{\langle \beta, \alpha \rangle}"'] & B^{\ho V} \times_{B^{\ho U}} A^{\ho U} & \ho{V} \times \iso \arrow[r, "\beta"'] \arrow[ur, dashed, "\gamma"'] & B
+\end{tikzcd}
+\]
+which transposes to the lifting problem above-right, which we can solve by hand. Here the map $\beta$ defines a natural isomorphism between $fs \colon \ho{V} \to B$ and a second functor. Our task is to lift this to a natural isomorphism $\gamma$ from $s$ to another functor that extends the natural isomorphism $\alpha$ along $\ho{i} \colon \ho{U} \to \ho{V}$. Note this functor $\ho{i}$ need not be an inclusion, but it is injective on objects, which is enough.
+
+We define the components of $\gamma$ by cases. If an object $v \in \ho{V}$ is equal to $i(u)$ for some $u \in \ho{U}$ define $\gamma_{i(u)} \coloneq \alpha_u$; otherwise, use the fact that $f$ is an isofibration to define $\gamma_v$ to be any lift of the isomorphism $\beta_v$ to an isomorphism in $A$ with domain $s(v)$. The data of the map $\gamma \colon \ho{V} \times \iso \to A$ also entails the specification of the functor $\ho{V} \to A$ that is the codomain of the natural isomorphism $\gamma$. On objects, this functor is given by $v \mapsto \cod(\gamma_v)$. On morphisms, this functor defined in the unique way that makes $\gamma$ into a natural transformation:
+\[  (k \colon v \to v') \mapsto  \gamma_{v'} \circ s(k) \circ \gamma_v^{-1}.\]
+
+This completes the proof that $\Cat$ defines an $\infty$-cosmos. Since the nerve of a functor category, such as $A^\iso$, is isomorphic to the exponential between their nerves, the equivalences of categories coincide with the equivalences of Definition \ref{defn:qcat-equiv}. It follows that the equivalences in the $\infty$-cosmos of categories coincide with equivalences of categories, and since the surjective equivalences are the intersection of the equivalences and the isofibrations, this completes the proof.
+\end{proof}
+
+Similarly:
+
+\begin{proposition}[the $\infty$-cosmos of Kan complexes]\label{prop:kan-cosmos} The category $\Kan$ of Kan complexes defines an $\infty$-cosmos whose isofibrations are the \textbf{Kan fibrations}: maps that lift against all horn inclusions $\Lambda^k[n] \inc \Delta[n]$ for $n \geq 1$ and $0 \leq k \leq n$.
+\end{proposition}
+
+Several consequences of the $\infty$-cosmos axioms are mentioned in \cite[\S 1.2]{RiehlVerity:2022eo}. For now, we focus on just one.
+
+By a Yoneda-style argument, the ``homotopy equivalence'' characterization of the equivalences in the $\infty$-cosmos of quasi-categories of Definition \ref{defn:qcat-equiv} extends to an analogous characterization of the equivalences in any $\infty$-cosmos:
+
+\begin{lemma}[equivalences are homotopy equivalences]\label{lem:equiv-htpy-equiv}
+A map $f \colon A \to B$ between $\infty$-categories in an $\infty$-cosmos $\cK$ is an equivalence if and only if it extends to the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the interval: that is, if there exist maps $g \colon B \to A$
+\begin{equation}\label{eq:htpy-equiv}
+\begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso   \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"',  "\ev_1"] & \text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso  \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] \\ & A & &  & B
+\end{tikzcd}
+\end{equation}
+in the $\infty$-cosmos.
+\end{lemma}
+\begin{proof}
+By hypothesis, if $f \colon A \to B$ defines an equivalence in the $\infty$-cosmos $\cK$ then the induced map on post-composition $f_* \colon \Fun(B,A) \we \Fun(B,B)$ is an equivalence of quasi-categories in the sense of Definition \ref{defn:qcat-equiv}. Evaluating the inverse equivalence $\tilde{g} \colon \Fun(B,B) \we \Fun(B,A)$ and homotopy $\tilde{\beta} \colon \Fun(B,B) \to \Fun(B,B)^\iso$ at the 0-arrow $\id_B \in \Fun(B,B)$, we obtain a 0-arrow $g \colon B \to A$ together with an isomorphism $\beta \colon \iso\to\Fun(B,B)$ from the composite $fg$ to $\id_B$. By the defining universal property of the cotensor \eqref{eq:cotensor-defn}, this isomorphism internalizes to define the map $\beta \colon B \to B^\iso$ in $\cK$ displayed on the right of \eqref{eq:htpy-equiv}.
+
+Now the hypothesis that $f$ is an equivalence also provides an equivalence of quasi-categories $f_* \colon \Fun(A,A) \we \Fun(A,B)$, and the map $\beta f \colon A \to B^\iso$ represents an isomorphism in $\Fun(A,B)$ from $fgf$ to $f$. Since $f_*$ is an equivalence, we conclude from Remark \ref{rmk:qcat-htpy-cat-equiv} that $\id_A$ and $gf$ are isomorphic in the quasi-category $\Fun(A,A)$: explicitly, such an isomorphism may be defined by applying the inverse equivalence $\tilde{h} \colon \Fun(A,B) \to \Fun(A,A)$ and composing with the components at $\id_A, gf \in \Fun(A,A)$ of the isomorphism $\tilde{\alpha} \colon \Fun(A,A) \to \Fun(A,A)^\iso$ from $\id_{\Fun(A,A)}$ to $\tilde{h}f_*$. Now by Corollary \ref{cor:coherent-iso} this isomorphism is represented by a map $\iso \to \Fun(A,A)$ from $\id_A$ to $gf$, which internalizes to a map $\alpha \colon A \to A^\iso$ in $\cK$ displayed on the left of \eqref{eq:htpy-equiv}.
+
+The converse is easy: the simplicial cotensor construction commutes with $\Fun(X,-)$, so a homotopy equivalence \eqref{eq:htpy-equiv} induces a  homotopy equivalence of quasi-categories as in Definition \ref{defn:qcat-equiv}.
+\end{proof}
+
+
+Many, though not all, of the $\infty$-cosmoi we encounter ``in the wild'' satisfy an additional axiom:
+
+\begin{definition}[cartesian closed $\infty$-cosmoi]\label{defn:closed-cosmos} An $\infty$-cosmos $\cK$ is \textbf{cartesian closed} if the product bifunctor
+$- \times -\colon \cK \times \cK \to \cK$ extends to a simplicially enriched two-variable adjunction
+\[ \Fun(A \times B,C) \cong \Fun(A,C^B) \cong \Fun(B,C^A)\]
+in which the right adjoints $(-)^A \colon \cK \to \cK$ preserve isofibrations for all $A \in \cK$.
+\end{definition}
+
+For instance, the $\infty$-cosmos of quasi-categories is cartesian closed, with the exponentials defined as (special cases of) simplicial cotensors. This is one of the reasons that we use the same notation for cotensor and for exponential. Note in this case the functor spaces and the exponentials coincide. The same is true for the cartesian closed $\infty$-cosmoi of categories and of Kan complexes. In general, the functor space from $A$ to $B$ is the ``underlying quasi-category'' of the exponential $B^A$ whenever it exists. % (see Remark \ref{rmk:underlying-internal-hom}).
+
+\section{Change of base}\label{sec:change-of-base}
+
+``Change of base,'' first considered by Eilenberg and Kelly in \cite{EilenbergKelly:1966cc}, refers to a systematic procedure by which enrichment over one category $\cV$ is converted into enrichment over another category $\cW$.  This will be applied in \S\ref{sec:htpy-2-cat} to convert an $\infty$-cosmos into a simpler structure.
+%Corollary \ref{cor:V-cat-2-cat} notes that
+For a cartesian closed category $\cV$, there is a 2-category $\eCat{\cV}$ of $\cV$-categories, $\cV$-functors, and $\cV$-natural transformations. The first main result, appearing as Proposition \ref{prop:change-of-base}, gives conditions under which a functor $T \colon \cV \to \cW$ between cartesian closed categories induces a change-of-base 2-functor $T_* \colon \eCat{\cV} \to \eCat{\cW}$.
+
+As the context we are working in here is less general than the one considered by Eilenberg and Kelly --- our base categories are cartesian closed while theirs are closed symmetric monoidal --- we take a shortcut which covers all of our examples and is easier to explain.  In general, all that is needed to produce a change of base 2-functor is a \emph{lax monoidal} functor between symmetric monoidal categories, but the lax monoidal functors we encounter between cartesian closed categories are in fact finite-product-preserving, so we content ourselves with explicating the results in that case instead.
+
+However, lax monoidal functors exist in Mathlib already, so we briefly recall the definition.
+
+\begin{definition}\label{defn:lax-monoidal} A \textbf{(lax) monoidal functor} between cartesian closed categories $\cV$ and $\cW$ is a functor $T \colon \cV \to \cW$ equipped with natural transformations
+\[
+\begin{tikzcd} \cV \times \cV \arrow[r, "T\times T"] \arrow[dr, phantom, "\scriptstyle\Downarrow\phi"] \arrow[d, "\times"'] & \cW \times \cW \arrow[d, "\times"] & \catone \arrow[r, "1"] \arrow[dr, "1"'] & \cV \arrow[d, "T"] \\ \cV \arrow[r, "T"'] & \cW  &\arrow[ur, phantom, "\scriptstyle\Uparrow\phi_0" pos=.85] & \cW
+\end{tikzcd}
+\]
+so that the evident associativity and unit diagrams commute.
+\end{definition}
+
+\begin{definition} A \textbf{(lax) monoidal natural transformation} between monoidal functors between cartesian closed categories $T,U \colon \cV \to \cW$ is given by a natural transformation $\theta \colon T \To U$ so that the pasting diagrams commute
+\[
+\begin{tikzcd}[row sep=large, column sep=2.3em] \cV \times \cV \arrow[r, "T\times T", bend left] \arrow[r, "U \times U"', bend right] \arrow[r, phantom, "\scriptstyle\Downarrow\theta\times\theta"] \arrow[dr, phantom, "\scriptstyle\Downarrow\phi\quad" pos=.7] \arrow[d, "\times"'] & \cW \times \cW \arrow[d, "\times"] \arrow[dr, phantom, "="] & \cV \times \cV \arrow[r, "T\times T"] \arrow[dr, phantom, "\scriptstyle\quad\Downarrow\phi" pos=.3] \arrow[d, "\times"'] & \cW \times \cW \arrow[d, "\times"] & \catone \arrow[r, "1"] \arrow[dr, bend right, "1"'] & \cV \arrow[d, bend right, "T"'] \arrow[d, bend left, "U"] \arrow[d, phantom, "\scriptstyle\To" pos=.6, "\scriptstyle\theta" pos=.4] \arrow[dr, phantom, "="] &  \catone \arrow[r, "1"] \arrow[dr, "1"'] & \arrow[d, "U"] \cV \\ \cV \arrow[r, "U"']  & \cW &
+\cV \arrow[r, "T", bend left] \arrow[r, "U"', bend right] \arrow[r, phantom, "\scriptstyle\Downarrow\theta"] & \cW  &\arrow[ur, phantom, "\scriptstyle\Uparrow\phi_0\quad\quad" pos=.75] & \cW &~\arrow[ur, phantom, "\scriptstyle\Uparrow\phi_0" pos=.85]  & \cW
+\end{tikzcd}
+\]
+\end{definition}
+
+Except in a special case that we now introduce, the maps $\phi$ and $\phi_0$ are to be regarded as part of the structure of a lax monoidal functor, rather than a property the functor $T$ enjoys.
+
+Recall that a functor $T \colon \cV \to \cW$ between cartesian closed categories \textbf{preserves finite products} just when the natural maps defined for any $u,v \in \cV$
+\[ T(u \times v) \isoto Tu \times Tv \qquad \text{and} \qquad T1 \isoto 1\]
+are isomorphisms. These maps satisfy the duals of the coherence conditions mentioned in Definition \ref{defn:lax-monoidal} and  make $T$ into a \textbf{strong monoidal functor} between the cartesian closed categories $\cV$ and $\cW$. The inverse isomorphisms then provide the structure maps of Definition \ref{defn:lax-monoidal}. Moreover, any natural transformation between product-preserving functors is automatically a monoidal natural transformation.
+
+For example:
+
+
+\begin{ex}\label{ex:lax-u-set} Since representable functors preserve products, for any cartesian closed category $\cV$, the underlying set functor $(-)_0 \colon \cV \to \Set$ is product-preserving
+\end{ex}
+
+\begin{ex}\label{ex:strong-free} In a cartesian closed category $\cV$, finite products distribute over arbitrary coproducts. In particular, for any sets $X$ and $Y$ there is an isomorphism
+\[ \amalg_{X \times Y} 1 \cong (\amalg_X 1) \times (\amalg_Y 1)\] between coproducts of the terminal object $1$, which proves that the functor
+\[
+\begin{tikzcd} \Set \arrow[r, "{\amalg_{-} 1}"] & \cV
+\end{tikzcd}
+\] is finite-product-preserving.
+\end{ex}
+
+A finite-product-preserving functor may be used to change the base as follows
+
+\begin{proposition}\label{prop:change-of-base} A finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories induces a change-of-base 2-functor \[ \begin{tikzcd} \eCat{\cV} \arrow[r, "T_*"] & \eCat{\cW}\, . \end{tikzcd}\]
+\end{proposition}
+
+An early observation along these lines was first stated as \cite[II.6.3]{EilenbergKelly:1966cc}, with the proof left to the reader. We adopt the same tactic and leave the diagram chases to the reader or to \cite[4.2.4]{Cruttwell:2008rr} and instead just give the construction of the change-of-base 2-functor, which is the important thing.
+
+\begin{proof}  Let $\cC$ be a $\cV$-category and define a $\cW$-category $T_*\cC$ to have the same objects and to have mapping objects $T_*\cC(x,y) \coloneq T\cC(x,y)$. The composition and identity maps are given by the composites
+\[
+\begin{tikzcd}[column sep=small] T\cC(y,z)\times T\cC(x,y) \arrow[r, "\cong"] & T(\cC(y,z) \times \cC(x,y)) \arrow[r, "T\circ"] & T\cC(x,z) & 1 \arrow[r, "\cong"] & T1 \arrow[r, "T\id_x"] & T\cC(x,x)
+\end{tikzcd}
+\]
+which make use of the inverses of the natural maps that arise when a finite-product-preserving functor is applied to a finite product. A straightforward diagram chase verifies that $T_*\cC$ is a $\cW$-category.
+
+If $F \colon \cC \to \cD$ is a $\cV$-functor, then we define a $\cW$-functor $T_*F \colon T_*\cC \to T_*\cD$ to act on objects by $c \in\cC \mapsto Fc \in \cD$ and with internal action on arrows defined by
+\[ \begin{tikzcd} T\cC(x,y) \arrow[r, "TF_{x,y}"] & T\cD(Fx,Fy) \end{tikzcd}
+\]
+Again, a straightforward diagram chase verifies that $T_*F$ is $\cW$-functorial. It is evident from this definition that $T_*(GF) = T_*G \cdot T_*F$.
+
+Finally, let $\alpha \colon F \To G$ be a $\cV$-natural transformation between $\cV$-functors $F,G \colon \cC\to \cD$ and define a $\cW$-natural transformation $T_*\alpha \colon T_* F \To T_*G$ to have components
+\[
+\begin{tikzcd} 1 \arrow[r, "\cong"] & T1 \arrow[r, "T\alpha_c"] & T\cD(Fc, Gc)\end{tikzcd}
+\]
+Another straightforward diagram chase verifies that $T_*\alpha$ is $\cW$-natural.
+
+It remains to verify this assignment is functorial for both horizontal and vertical composition of enriched natural transformations. %Consulting Definition \ref{defn:V-cat-2-cat}, we see that
+The component of $T_*(\beta\cdot\alpha)$ is defined by the top-horizontal composite below while the component of the vertical composite of $T_*\alpha$ with $T_*\beta \colon T_*G \To T_*H$ is defined by the bottom composite: \[
+\begin{tikzcd} 1 \arrow[r, "\cong"] \arrow[dr, "\cong"'] & T1 \arrow[r, "T(\beta_c\times \alpha_c)"] & T(\cD(Gc, Hc) \times \cD(Fc, Gc)) \arrow[r, "T\circ"] & T\cD(Fc,Hc) \\ & T1 \times T1 \arrow[u, "\cong"'] \arrow[r, "T\beta_c \times T\alpha_c"'] & T\cD(Gc,Hc) \times T\cD(Fc,Gc) \arrow[u, "\cong"']  \end{tikzcd}
+\]
+The square commutates by the naturality of the isomorphism $T(u \times v) \cong Tu \times Tv$, while the triangle commutes because 1 is terminal, so the inverses of the displayed isomorphisms form a commutative triangle. The argument for functoriality of horizontal composites is similar.
+\end{proof}
+
+
+\begin{rmk}\label{rmk:change-of-base-2-fun} In fact, the ``change of base'' procedure $\cV \mapsto \eCat{\cV}$ is \emph{itself} a 2-functor from the 2-category of cartesian closed categories, finite-product-preserving functors, and natural transformations to the 2-category of 2-cat\-e\-go\-ries, 2-functors, and 2-natural transformations. See \cite[\S 4.3]{Cruttwell:2008rr} for a discussion and proof.
+\end{rmk}
+
+
+As an immediate consequence of the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}:
+
+\begin{proposition}\label{prop:change-of-base-adjunction} Any adjunction between cartesian closed categories whose left adjoint preserves finite products induces a change-of-base 2-adjunction
+\[
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"] \arrow[r, phantom, "\rightsquigarrow"] & \eCat{\cV} \arrow[r, bend left=20, start anchor=10, end anchor=170,  "F_*"] \arrow[r, phantom, "\bot"] & \eCat{\cW} \arrow[l, bend left=20, start anchor=190, end anchor=-10,  "U_*"]
+\end{tikzcd}
+\]
+\end{proposition}
+\begin{proof}
+Of course right adjoints always preserve products, so the adjoint pair of functors $F \dashv U$ defines an adjunction in the 2-category of cartesian closed categories and finite-product-preserving functors described in Remark \ref{rmk:change-of-base-2-fun}. The 2-functor $\cV \mapsto \eCat{\cV}$ then carries the adjunction displayed on the left to the adjunction displayed on the right.
+\end{proof}
+
+As a special case:
+
+\begin{cor}\label{cor:free-underlying-2-adj} For any cartesian closed category $\cV$ with coproducts, the underlying category construction and free category construction define  adjoint 2-functors
+\[
+\pushQED{\qed}
+\begin{tikzcd}[column sep=large]
+\Cat \arrow[r, bend left=20, hook, start anchor=10, end anchor=170] \arrow[r, phantom, "\bot"] & \eCat{\cV} \arrow[l, bend left=20, start anchor=190, end anchor=-10, "(-)_0"]
+\end{tikzcd} \qedhere
+\popQED
+\]
+\end{cor}
+
+
+In light of Proposition \ref{prop:change-of-base-adjunction} and results to follow, an adjunction between cartesian closed categories whose left adjoint preserves finite products provides a \textbf{change-of-base adjunction}. While Proposition \ref{prop:change-of-base-adjunction} permits the change of base along either adjoint of a finite-product-preserving adjunction, the next series of results reveal that change of base along the right adjoint is somewhat better behaved.
+
+
+\begin{lemma}\label{lem:enriched-cob-adjunction}
+Any adjunction comprised of finite-product-preserving functors between cartesian closed categories
+\[
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]  \arrow[r, phantom, "\rightsquigarrow"] & \cV \arrow[r, bend left=20, start anchor=20, end anchor=170, "F"] \arrow[r, phantom, "\bot"] & U_*\cW \arrow[l, bend left=20, start anchor=190, end anchor=-15, "U"]  \end{tikzcd}
+\]
+defines a $\cV$-enriched adjunction between the $\cV$-categories $\cV$ and $U_*\cW$; i.e., there exists a $\cV$-natural isomorphism $U\cW(Fv,w) \cong \cV(v,Uw)$.
+\end{lemma}
+\begin{proof}
+The internal action $U_{a,b} \colon U\cW(a,b) \to \cV(Ua,Ub)$ of the $\cV$-functor $U \colon U_*\cW \to \cV$ is defined by the transpose of the map $U\ev \colon U\cW(a,b) \times Ua \to Ub$ defined by applying $U$ to the counit of the cartesian closure adjunction of $\cW$. The $\cV$-functoriality of this map follows from naturality of evaluation in a cartesian closed category.
+%\eqref{eq:ev-ev-square}
+
+
+By the $\cV$-functoriality of $U \colon U_*\cW \to \cV$, the map
+\[
+\begin{tikzcd} U\cW(Fv,w) \arrow[r, "U_{Fv,w}"] & \cV(UFv,Uw) \arrow[r, "{- \circ \eta_v}"] & \cV(v,Uw)
+\end{tikzcd}
+\]
+is $\cV$-natural in $w \in U_*\cW$ for all $v \in \cV$. By a general result about enriching adjoints,  % Remark \ref{rmk:enriching-adjoints},
+to construct a compatible $\cV$-enrichment of $F$, we need only demonstrate that this map in an isomorphism in $\cV$.
+
+We do this by constructing an explicit inverse, namely
+\[
+\begin{tikzcd}
+\cV(v,Uw) \arrow[r, "\eta"] & UF\cV(v,Uw) \arrow[r, "U(F_{v,Uw})"] & U\cW(Fv,FUw) \arrow[r, "\epsilon_w \circ -"] & U\cW(Fv,w)
+\end{tikzcd}
+\]
+where the middle map is defined by applying the unenriched functor $U$ to the action map from the $\cW$-functor $F \colon F_*\cV \to \cW$, which is defined similarly to the $\cV$-functor $U \colon U_*\cW \to \cV$.
+
+The proof that these maps are inverses involves a pair of diagram chases, the first of which demonstrates that the top-right composite reduces to the left-bottom composite, which is the identity:
+\[
+\begin{tikzcd}
+\cV(v,Uw) \arrow[r, "\eta"] \arrow[ddrr, "\eta_{Uw}\circ-"'] & UF\cV(v,Uw) \arrow[r, "U(F_{v,Uw})"] \arrow[dr, "UF_{v, Uw}" description] & U\cW(Fv,FUw) \arrow[r, "\epsilon_w \circ -"] \arrow[d, "U_{Fv,FUw}"] & U\cW(Fv,w) \arrow[d, "U_{Fv,w}"] \\ & & \cV(UFv,UFUw) \arrow[r, "U\epsilon_w \circ -"]  \arrow[d, "-\circ \eta_v"]& \cV(UFv,Uw) \arrow[d, "-\circ \eta_v"] \\ & & \cV(v,UFUw) \arrow[r, "U\epsilon_w\circ-"] & \cV(v,Uw)
+\end{tikzcd}
+\]
+The only subtle point is the commutativity of the trapezoidal region, which expresses the fact that $\eta \colon \id_\cV \To UF$ is a \emph{closed natural transformation} between product-preserving functors between cartesian closed categories. This region commutes because the transposed diagram does:
+\[
+\begin{tikzcd} \cV(v,Uw) \times v\arrow[d, "\eta \times \eta_v"'] \arrow[r, equals] &  \cV(v,Uw) \times v \arrow[d, "\eta"']  \arrow[r, "\ev"] & Uw \arrow[d, "\eta_{Uw}"] \\  UF\cV(v,Uw)\times UFv  \arrow[r, "\cong"] & UF(\cV(v,UW)\times v) \arrow[r, "UF\ev"] & UFUw
+\end{tikzcd}
+\]
+the right-hand square by naturality, and the left-hand square because any naturally transformation between product-preserving functors is automatically a monoidal natural transformation. % (see Exercise \ref{exc:product-preservation-is-monoidal}).
+  The other diagram chase is similar.
+\end{proof}
+
+\begin{proposition}\label{prop:cob-adjunction}
+Given an adjunction between cartesian closed categories
+\[
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]   \end{tikzcd}
+\]
+whose left adjoint preserves finite products then if $\cC$ is co/tensored as a $\cW$-cat\-e\-gory,  $U_*\cC$ is co/tensored as $\cV$-category with the co/tensor of $c \in \cC$ by $v \in \cV$ defined by
+\[ v \otimes c \coloneq Fv \otimes c \qquad \text{and} \qquad c^v \coloneq c^{Fv}.\]
+\end{proposition}
+\begin{proof}
+Suppose $\cC$ admits cotensors as a $\cW$-category. To verify that $U_*\cC$ admits cotensors as a $\cV$-category we must supply an isomorphism
+\[ U\cC(x,c^{Fv}) \cong (U\cC(x,c))^v\] in $\cV$ that is $\cV$-natural in $x$. By the enriched Yoneda lemma, we can extract this isomorphism from an isomorphism \[ \cV(u,U\cC(x,c^{Fv})) \cong \cV(u,(U\cC(x,c))^v)\] that is $\cV$-natural in $u \in \cV$. To that end, by composing the $\cV$-natural isomorphisms of Lemma \ref{lem:enriched-cob-adjunction}, the enriched natural isomorphisms arising from the cartesian closed structure on $\cV$ and on $U_*\cW$, and the isomorphisms that characterize the cotensor on $\cC$ and express the fact that $F$ preserves binary products, we have:
+\begin{align*} \cV(u,U\cC(x,c^{Fv})) &\cong U\cW(Fu, \cC(x,c^{Fv})) \cong U\cW(Fu, \cC(x,c)^{Fv}) \\ &\cong U\cW(Fu \times Fv, \cC(x,c))  \cong U\cW(F(u \times v), \cC(x,c)) \\ &\cong \cV(u \times v, U\cC(x,c)) \cong \cV(u, (U\cC(x,c))^v). \qedhere\end{align*}
+\end{proof}
+
+
+
+This theory of change of base is all well and good from the compound noun perspective on enriched categories, but an additional concern arises from the adjectival point of view. If the finite-product-preserving functor $T \colon \cV \to \cW$ commutes with the underlying set functors for $\cV$ and $\cW$ up to natural isomorphism, then by the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}, the change-of-base 2-functor $T_* \colon \eCat{\cV} \to \eCat{\cW}$ also preserves the underlying categories up to natural isomorphism. This happens in particular in the following setting.
+
+\begin{lemma}\label{lem:right-of-monoidal-adj-ucats} Consider a finite-product-preserving adjunction between cartesian closed categories:
+\[
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]   \end{tikzcd}
+\]
+Then change of base along the right adjoint respects the underlying categories:
+\[
+\begin{tikzcd}[sep=1.5 em] \eCat{\cW} \arrow[rr, "U_*"] \arrow[dr, "{(-)_0}"'] & & \eCat{\cV} \arrow[dl, "(-)_0"] \\ & \Cat
+\end{tikzcd}
+\]
+\end{lemma}
+\begin{proof}
+Let $\cC$ be a $\cW$ category. Then the hom-set in the underlying category of $U_*\cC$ from $x$ to $y$ is isomorphic to the corresponding hom-set
+\[ U_*\cC(x,y)_0 \cong \cV(1, U\cC(x,y))_0 \cong \cW(F1,\cC(x,y))_0 \cong \cW(1,\cC(x,y))_0 \cong \cC(x,y)_0\]
+in the underlying category of $\cC$ and moreover this isomorphism respects the composition and identities in the underlying categories. Thus $\cC_0 \cong U\cC_0$. A similar argument shows that change of base along $U$ respects underlying functors and natural transformations.
+\end{proof}
+
+
+%\begin{lemma}\label{lem:pro-normal-monoidal} The change-of-base 2-functor induced by a finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories preserves underlying categories, if and only if, for each $v \in \cV$ the composite function on hom-sets
+%\[
+%\begin{tikzcd} \cV(1,v)_0 \arrow[r, "T"] & \cW(T1,Tv)_0 \arrow[r, "- \circ \cong"] & \cW(1,Tv)_0
+%\end{tikzcd}
+%\] is a bijection.
+%\end{lemma}
+%\begin{proof}
+%The displayed function defines the component at $v \in \cV$ of the unique monoidal natural transformation from the underlying set-functor for $\cV$ to the composite of $T$ with the underlying set functor for $\cW$. By the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}, if it defines a monoidal natural isomorphism, then it induces a 2-natural isomorphism between the underlying category 2-functor $(-)_0 \colon \eCat{\cV} \to \Cat$ and the composite of the change-of-base 2-functor $T_* \colon \eCat{\cV} \to\eCat{\cW}$ with the underlying category 2-functor $(-)_0 \colon \eCat{\cW} \to \Cat$.
+
+%Conversely, this condition is necessary for the underlying category of the $\cW$-category $T_*\cV$ to coincide with the underlying category of the cartesian closed category $\cV$.
+%\end{proof}
+
+%One situation in which the condition of Lemma \ref{lem:pro-normal-monoidal} is automatic is when the lax monoidal functor is the right adjoint of a monoidal adjunction. The proof, originally given in \cite{Kelly:1974da}, is by a short diagram chase.
+
+The general theory of change-of-base will be applied in the following case the next section.
+
+
+\begin{ex}\label{ex:nerve-ho-change-of-base}
+Both adjoints of the adjunction
+\[
+\begin{tikzcd}[column sep=large]
+\sSet \arrow[r, bend left=20, start anchor=10, end anchor=170, "\ho"] \arrow[r, phantom, "\bot"] & \Cat \arrow[l, bend left=20, start anchor=190, end anchor=-10, hook']
+\end{tikzcd}
+\] of Proposition \ref{prop:ho-nerve-adjunction} preserve finite products. Hence, Proposition \ref{prop:change-of-base-adjunction} induces a change-of-base adjunction defined by the 2-functors
+\[
+\begin{tikzcd}[column sep=large]
+\sCat  \arrow[r, bend left=20, start anchor=7, end anchor=170, "\ho_*"] \arrow[r, phantom, "\bot"] &\twoCat\arrow[l, bend left=20, start anchor=190, end anchor=-5, hook']
+\end{tikzcd}
+\]
+that act identically on objects and act by applying the homotopy category functor or nerve functor, respectively, on homs. By Lemma \ref{lem:right-of-monoidal-adj-ucats}, the right adjoint, which builds a simplicially enriched category from a 2-category, respects the underlying category: the underlying category of objects and 1-cells is identified with the underlying category of objects and 0-arrows. In this case, the functor $\ho \colon \sSet \to \Cat$ commutes with the underlying set functors, so in fact both adjoints preserve underlying categories, as is evident from direct computation. In particular, the homotopy 2-category of an $\infty$-cosmos has the same underlying 1-category. Since the nerve embedding is fully faithful, 2-categories can be identified as a full subcategory comprised of those simplicial categories whose hom spaces are nerves of categories.
+\end{ex}
+
+
+\section{The homotopy 2-category}\label{sec:htpy-2-cat}
+
+Small 1-categories define the objects of a strict 2-category $\Cat$ of categories, functors, and natural transformations. Many basic categorical notions --- those defined in terms of categories, functors, and natural transformations --- can be defined internally to the 2-category $\Cat$. This suggests a natural avenue for generalization: reinterpreting these same definitions in a generic 2-category using its objects in place of small categories, its 1-cells in place of functors, and its 2-cells in place of natural transformations.
+
+A significant portion of the theory of $\infty$-cat\-e\-go\-ries in any fixed $\infty$-cosmos can be developed by following exactly this outline, working internally to a 2-category that we refer to as the \emph{homotopy 2-category} that we associate to any $\infty$-cosmos. The homotopy 2-category of an $\infty$-cosmos is a quotient of the full $\infty$-cosmos, replacing each quasi-categorical functor space by its homotopy category. Surprisingly, this rather destructive quotienting operation preserves quite a lot of information.  This said, we caution the reader against becoming overly seduced by homotopy 2-categories, which are more of a technical convenience for reducing the complexity of our arguments than a fundamental notion of $\infty$-category theory.
+
+Paralleling our discussion of simplicial categories in Definition \ref{defn:simplicial-category} and Digression \ref{dig:simplicial-cat}, there are two perspectives on the notion of a 2-category, which can be understood equally as:
+\begin{enumerate}
+\item\label{itm:strict-bicategory}  ``two-dimensional'' categories, with objects; \textbf{1-cells}, whose boundary are given by a pair of objects; and \textbf{2-cells}, whose boundary are given by a parallel pair of 1-cells between a pair of objects --- together with partially defined composition operations governed by this boundary data
+\item or as categories enriched over $\Cat$.
+\end{enumerate}
+
+Both notions exist in Mathlib in some form. The notion \ref{itm:strict-bicategory} is called a \emph{strict bicategory} and is defined as a special case of a bicategory, in which the associators and unitors are identities (converted into 2-cells). The general notion of enriched category can be specialized to the case of enriching over the cartesian monoidal category of categories, but the connection between these notions remains to be explored.
+
+\begin{proposition} There is an equivalence between categories enriched in categories and strict bicategories. In particular, each can be converted into the other.
+\end{proposition}
+
+The homotopy 2-category is most efficiently defined as a category enriched in $\Cat$ by applying the theory of change-of-base developed in \S\ref{sec:change-of-base}. The homotopy 2-category for the $\infty$-cosmos of quasi-categories was first introduced by Joyal in his work on the foundations of quasi-category theory \cite{Joyal:2008tq}.
+
+\begin{definition}[homotopy 2-category]\label{defn:homotopy-2-cat} Let $\cK$ be an $\infty$-cosmos. Its \textbf{homotopy 2-category} is the 2-category $\h\cK$ whose
+\begin{itemize}
+\item objects are the objects $A, B$ of $\cK$, i.e., the $\infty$-categories;\item 1-cells $f \colon A \to B$ are the 0-arrows in the functor space $\Fun(A,B)$, i.e., the $\infty$-functors; and
+\item 2-cells $\begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "{\scriptstyle\Downarrow \alpha}"] & B\end{tikzcd}$ are homotopy classes of 1-simplices in $\Fun(A,B)$, which we call \textbf{$\infty$-natural transformations}.
+\end{itemize}
+Put another way $\h\cK$ is the 2-category with the same objects as $\cK$ and with hom-categories defined by
+\[ \hFun(A,B)   \coloneq \ho(\Fun(A,B)),\]
+that is, $\hFun(A,B)$ is the homotopy category of the quasi-category $\Fun(A,B)$.
+\end{definition}
+
+\begin{definition}[underlying category of a 2-category]\label{defn:underlying-cat-of-2cat}
+The \textbf{underlying category} of a 2-category is defined by simply forgetting its 2-cells. Note that an $\infty$-cosmos $\cK$ and its homotopy 2-category $\h\cK$ share the same underlying category $\cK_0$ of $\infty$-categories and $\infty$-functors in $\cK$.
+\end{definition}
+
+By Lemma \ref{lem:right-of-monoidal-adj-ucats}:
+
+\begin{lemma} The underlying category of the homotopy 2-category of an $\infty$-cosmos is isomorphic to the underlying category of the $\infty$-cosmos. \qed
+\end{lemma}
+
+We elaborate on the connection between data in the homotopy 2-category and data in the $\infty$-cosmos.
+
+\begin{lemma}\label{lem:invertible-2-cell}$\quad$
+  \begin{enumerate}
+  \item\label{itm:2-cell-as-functor} Every 2-cell $\begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "\scriptstyle\Downarrow\alpha"] & B \end{tikzcd}$  in the homotopy 2-category of an $\infty$-cosmos is represented by a map of quasi-categories as below-left or equivalently by a functor as below-right
+  \[
+  \begin{tikzcd}[sep=small] & \catone+\catone \arrow[dl, hook'] \arrow[dr, "{(f,g)}"] & &  & ~ &  A \arrow[rr, "\name{\alpha}"] \arrow[dr, "{(g,f)}"'] & & B^\cattwo \arrow[dl, "{(p_1,p_0)}", two heads] \\ \cattwo \arrow[rr, "{\alpha}"'] && \Fun(A,B) &\arrow[ur, phantom, "\leftrightsquigarrow"] &  && B \times B
+  \end{tikzcd}
+  \]
+  and two such maps represent the same 2-cell if and only if they are homotopic as 1-simplices in $\Fun(A,B)$.
+  \item\label{itm:2-iso-as-functor} Every invertible 2-cell $ \begin{tikzcd}[column sep=large] A \arrow[r, start anchor=18, end anchor=162, bend left=20, "f"] \arrow[r,  start anchor=342, end anchor=198, bend right=20, "g"'] \arrow[r, phantom, "\scriptstyle\cong\Downarrow\alpha"] & B \end{tikzcd}$
+  in the homotopy 2-category of an $\infty$-cosmos is represented by a map of quasi-categories  as below-left or equivalently by a functor as below-right
+  \[
+  \begin{tikzcd}[sep=small] & \catone+\catone \arrow[dl, hook'] \arrow[dr, "{(f,g)}"] & &  & ~ &  A \arrow[rr, "\name{\alpha}"] \arrow[dr, "{(g,f)}"'] & & B^\iso \arrow[dl, "{(p_1,p_0)}", two heads] \\ \iso \arrow[rr, "{\alpha}"'] && \Fun(A,B) &\arrow[ur, phantom, "\leftrightsquigarrow"] &  && B \times B
+  \end{tikzcd}
+  \] and two such maps represent the same invertible 2-cell if and only if their common restrictions along $\cattwo \inc \iso$ are homotopic as 1-simplices in $\Fun(A,B)$.
+  \end{enumerate}
   \end{lemma}
+
+  The notion of homotopic 1-simplices referenced here is defined in Lemma \ref{lem:1-simp-htpy}. Since the 2-cells in the homotopy 2-category are referred to as $\infty$-natural transformations, we refer to the invertible 2-cells in the homotopy 2-category as \textbf{$\infty$-natural isomorphisms}.
+
   \begin{proof}
-  By hypothesis, if $f \colon A \to B$ defines an equivalence in the $\infty$-cosmos $\cK$ then the induced map on post-composition $f_* \colon \Fun(B,A) \we \Fun(B,B)$ is an equivalence of quasi-categories in the sense of Definition \ref{defn:qcat-equiv}. Evaluating the inverse equivalence $\tilde{g} \colon \Fun(B,B) \we \Fun(B,A)$ and homotopy $\tilde{\beta} \colon \Fun(B,B) \to \Fun(B,B)^\iso$ at the 0-arrow $\id_B \in \Fun(B,B)$, we obtain a 0-arrow $g \colon B \to A$ together with an isomorphism $\beta \colon \iso\to\Fun(B,B)$ from the composite $fg$ to $\id_B$. By the defining universal property of the cotensor \eqref{eq:cotensor-defn}, this isomorphism internalizes to define the map $\beta \colon B \to B^\iso$ in $\cK$ displayed on the right of \eqref{eq:htpy-equiv}.
-
-  Now the hypothesis that $f$ is an equivalence also provides an equivalence of quasi-categories $f_* \colon \Fun(A,A) \we \Fun(A,B)$, and the map $\beta f \colon A \to B^\iso$ represents an isomorphism in $\Fun(A,B)$ from $fgf$ to $f$. Since $f_*$ is an equivalence, we conclude from Remark \ref{rmk:qcat-htpy-cat-equiv} that $\id_A$ and $gf$ are isomorphic in the quasi-category $\Fun(A,A)$: explicitly, such an isomorphism may be defined by applying the inverse equivalence $\tilde{h} \colon \Fun(A,B) \to \Fun(A,A)$ and composing with the components at $\id_A, gf \in \Fun(A,A)$ of the isomorphism $\tilde{\alpha} \colon \Fun(A,A) \to \Fun(A,A)^\iso$ from $\id_{\Fun(A,A)}$ to $\tilde{h}f_*$. Now by Corollary \ref{cor:coherent-iso} this isomorphism is represented by a map $\iso \to \Fun(A,A)$ from $\id_A$ to $gf$, which internalizes to a map $\alpha \colon A \to A^\iso$ in $\cK$ displayed on the left of \eqref{eq:htpy-equiv}.
-
-  The converse is easy: the simplicial cotensor construction commutes with $\Fun(X,-)$, so a homotopy equivalence \eqref{eq:htpy-equiv} induces a  homotopy equivalence of quasi-categories as in Definition \ref{defn:qcat-equiv}.
+  The statement \ref{itm:2-cell-as-functor} records the definition of the 2-cells in the homotopy 2-category and the universal property \eqref{eq:cotensor-defn} of the simplicial cotensor.  For \ref{itm:2-iso-as-functor}, a 2-cell in the homotopy 2-category is \textbf{invertible} if and only if it defines an isomorphism in the appropriate hom-category $\hFun(A,B)$. By  Corollary \ref{cor:coherent-iso} it follows that each invertible 2-cell $\alpha$ is represented by a homotopy coherent isomorphism ${\alpha} \colon \iso \to \Fun(A,B)$, which similarly internalizes to define a functor $\name{\alpha} \colon A \to B^\iso$.
   \end{proof}
 
+  %Change of base is an operation that applies to enriched functors as well as enriched categories, as can be directly verified in the case of greatest interest.
 
-  Many, though not all, of the $\infty$-cosmoi we encounter ``in the wild'' satisfy an additional axiom:
-
-  \begin{definition}[cartesian closed $\infty$-cosmoi]\label{defn:closed-cosmos} An $\infty$-cosmos $\cK$ is \textbf{cartesian closed} if the product bifunctor
-  $- \times -\colon \cK \times \cK \to \cK$ extends to a simplicially enriched two-variable adjunction
-  \[ \Fun(A \times B,C) \cong \Fun(A,C^B) \cong \Fun(B,C^A)\]
-  in which the right adjoints $(-)^A \colon \cK \to \cK$ preserve isofibrations for all $A \in \cK$.
-  \end{definition}
-
-  For instance, the $\infty$-cosmos of quasi-categories is cartesian closed, with the exponentials defined as (special cases of) simplicial cotensors. This is one of the reasons that we use the same notation for cotensor and for exponential. Note in this case the functor spaces and the exponentials coincide. The same is true for the cartesian closed $\infty$-cosmoi of categories and of Kan complexes. In general, the functor space from $A$ to $B$ is the ``underlying quasi-category'' of the exponential $B^A$ whenever it exists. % (see Remark \ref{rmk:underlying-internal-hom}).
-
-  \section{Change of base}\label{sec:change-of-base}
-
-  ``Change of base,'' first considered by Eilenberg and Kelly in \cite{EilenbergKelly:1966cc}, refers to a systematic procedure by which enrichment over one category $\cV$ is converted into enrichment over another category $\cW$.  This will be applied in \S\ref{sec:htpy-2-cat} to convert an $\infty$-cosmos into a simpler structure.
-  %Corollary \ref{cor:V-cat-2-cat} notes that
-  For a cartesian closed category $\cV$, there is a 2-category $\eCat{\cV}$ of $\cV$-categories, $\cV$-functors, and $\cV$-natural transformations. The first main result, appearing as Proposition \ref{prop:change-of-base}, gives conditions under which a functor $T \colon \cV \to \cW$ between cartesian closed categories induces a change-of-base 2-functor $T_* \colon \eCat{\cV} \to \eCat{\cW}$.
-
-  As the context we are working in here is less general than the one considered by Eilenberg and Kelly --- our base categories are cartesian closed while theirs are closed symmetric monoidal --- we take a shortcut which covers all of our examples and is easier to explain.  In general, all that is needed to produce a change of base 2-functor is a \emph{lax monoidal} functor between symmetric monoidal categories, but the lax monoidal functors we encounter between cartesian closed categories are in fact finite-product-preserving, so we content ourselves with explicating the results in that case instead.
-
-  However, lax monoidal functors exist in Mathlib already, so we briefly recall the definition.
-
-  \begin{definition}\label{defn:lax-monoidal} A \textbf{(lax) monoidal functor} between cartesian closed categories $\cV$ and $\cW$ is a functor $T \colon \cV \to \cW$ equipped with natural transformations
-  \[
-  \begin{tikzcd} \cV \times \cV \arrow[r, "T\times T"] \arrow[dr, phantom, "\scriptstyle\Downarrow\phi"] \arrow[d, "\times"'] & \cW \times \cW \arrow[d, "\times"] & \catone \arrow[r, "1"] \arrow[dr, "1"'] & \cV \arrow[d, "T"] \\ \cV \arrow[r, "T"'] & \cW  &\arrow[ur, phantom, "\scriptstyle\Uparrow\phi_0" pos=.85] & \cW
-  \end{tikzcd}
-  \]
-  so that the evident associativity and unit diagrams commute.
-  \end{definition}
-
-  \begin{definition} A \textbf{(lax) monoidal natural transformation} between monoidal functors between cartesian closed categories $T,U \colon \cV \to \cW$ is given by a natural transformation $\theta \colon T \To U$ so that the pasting diagrams commute
-  \[
-  \begin{tikzcd}[row sep=large, column sep=2.3em] \cV \times \cV \arrow[r, "T\times T", bend left] \arrow[r, "U \times U"', bend right] \arrow[r, phantom, "\scriptstyle\Downarrow\theta\times\theta"] \arrow[dr, phantom, "\scriptstyle\Downarrow\phi\quad" pos=.7] \arrow[d, "\times"'] & \cW \times \cW \arrow[d, "\times"] \arrow[dr, phantom, "="] & \cV \times \cV \arrow[r, "T\times T"] \arrow[dr, phantom, "\scriptstyle\quad\Downarrow\phi" pos=.3] \arrow[d, "\times"'] & \cW \times \cW \arrow[d, "\times"] & \catone \arrow[r, "1"] \arrow[dr, bend right, "1"'] & \cV \arrow[d, bend right, "T"'] \arrow[d, bend left, "U"] \arrow[d, phantom, "\scriptstyle\To" pos=.6, "\scriptstyle\theta" pos=.4] \arrow[dr, phantom, "="] &  \catone \arrow[r, "1"] \arrow[dr, "1"'] & \arrow[d, "U"] \cV \\ \cV \arrow[r, "U"']  & \cW &
-  \cV \arrow[r, "T", bend left] \arrow[r, "U"', bend right] \arrow[r, phantom, "\scriptstyle\Downarrow\theta"] & \cW  &\arrow[ur, phantom, "\scriptstyle\Uparrow\phi_0\quad\quad" pos=.75] & \cW &~\arrow[ur, phantom, "\scriptstyle\Uparrow\phi_0" pos=.85]  & \cW
-  \end{tikzcd}
-  \]
-  \end{definition}
-
-  Except in a special case that we now introduce, the maps $\phi$ and $\phi_0$ are to be regarded as part of the structure of a lax monoidal functor, rather than a property the functor $T$ enjoys.
-
-  Recall that a functor $T \colon \cV \to \cW$ between cartesian closed categories \textbf{preserves finite products} just when the natural maps defined for any $u,v \in \cV$
-  \[ T(u \times v) \isoto Tu \times Tv \qquad \text{and} \qquad T1 \isoto 1\]
-  are isomorphisms. These maps satisfy the duals of the coherence conditions mentioned in Definition \ref{defn:lax-monoidal} and  make $T$ into a \textbf{strong monoidal functor} between the cartesian closed categories $\cV$ and $\cW$. The inverse isomorphisms then provide the structure maps of Definition \ref{defn:lax-monoidal}. Moreover, any natural transformation between product-preserving functors is automatically a monoidal natural transformation.
-
-  For example:
-
-
-  \begin{ex}\label{ex:lax-u-set} Since representable functors preserve products, for any cartesian closed category $\cV$, the underlying set functor $(-)_0 \colon \cV \to \Set$ is product-preserving
-  \end{ex}
-
-  \begin{ex}\label{ex:strong-free} In a cartesian closed category $\cV$, finite products distribute over arbitrary coproducts. In particular, for any sets $X$ and $Y$ there is an isomorphism
-  \[ \amalg_{X \times Y} 1 \cong (\amalg_X 1) \times (\amalg_Y 1)\] between coproducts of the terminal object $1$, which proves that the functor
-  \[
-  \begin{tikzcd} \Set \arrow[r, "{\amalg_{-} 1}"] & \cV
-  \end{tikzcd}
-  \] is finite-product-preserving.
-  \end{ex}
-
-  A finite-product-preserving functor may be used to change the base as follows
-
-  \begin{proposition}\label{prop:change-of-base} A finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories induces a change-of-base 2-functor \[ \begin{tikzcd} \eCat{\cV} \arrow[r, "T_*"] & \eCat{\cW}\, . \end{tikzcd}\]
-  \end{proposition}
-
-  An early observation along these lines was first stated as \cite[II.6.3]{EilenbergKelly:1966cc}, with the proof left to the reader. We adopt the same tactic and leave the diagram chases to the reader or to \cite[4.2.4]{Cruttwell:2008rr} and instead just give the construction of the change-of-base 2-functor, which is the important thing.
-
-  \begin{proof}  Let $\cC$ be a $\cV$-category and define a $\cW$-category $T_*\cC$ to have the same objects and to have mapping objects $T_*\cC(x,y) \coloneq T\cC(x,y)$. The composition and identity maps are given by the composites
-  \[
-  \begin{tikzcd}[column sep=small] T\cC(y,z)\times T\cC(x,y) \arrow[r, "\cong"] & T(\cC(y,z) \times \cC(x,y)) \arrow[r, "T\circ"] & T\cC(x,z) & 1 \arrow[r, "\cong"] & T1 \arrow[r, "T\id_x"] & T\cC(x,x)
-  \end{tikzcd}
-  \]
-  which make use of the inverses of the natural maps that arise when a finite-product-preserving functor is applied to a finite product. A straightforward diagram chase verifies that $T_*\cC$ is a $\cW$-category.
-
-  If $F \colon \cC \to \cD$ is a $\cV$-functor, then we define a $\cW$-functor $T_*F \colon T_*\cC \to T_*\cD$ to act on objects by $c \in\cC \mapsto Fc \in \cD$ and with internal action on arrows defined by
-  \[ \begin{tikzcd} T\cC(x,y) \arrow[r, "TF_{x,y}"] & T\cD(Fx,Fy) \end{tikzcd}
-  \]
-  Again, a straightforward diagram chase verifies that $T_*F$ is $\cW$-functorial. It is evident from this definition that $T_*(GF) = T_*G \cdot T_*F$.
-
-  Finally, let $\alpha \colon F \To G$ be a $\cV$-natural transformation between $\cV$-functors $F,G \colon \cC\to \cD$ and define a $\cW$-natural transformation $T_*\alpha \colon T_* F \To T_*G$ to have components
-  \[
-  \begin{tikzcd} 1 \arrow[r, "\cong"] & T1 \arrow[r, "T\alpha_c"] & T\cD(Fc, Gc)\end{tikzcd}
-  \]
-  Another straightforward diagram chase verifies that $T_*\alpha$ is $\cW$-natural.
-
-  It remains to verify this assignment is functorial for both horizontal and vertical composition of enriched natural transformations. %Consulting Definition \ref{defn:V-cat-2-cat}, we see that
-  The component of $T_*(\beta\cdot\alpha)$ is defined by the top-horizontal composite below while the component of the vertical composite of $T_*\alpha$ with $T_*\beta \colon T_*G \To T_*H$ is defined by the bottom composite: \[
-  \begin{tikzcd} 1 \arrow[r, "\cong"] \arrow[dr, "\cong"'] & T1 \arrow[r, "T(\beta_c\times \alpha_c)"] & T(\cD(Gc, Hc) \times \cD(Fc, Gc)) \arrow[r, "T\circ"] & T\cD(Fc,Hc) \\ & T1 \times T1 \arrow[u, "\cong"'] \arrow[r, "T\beta_c \times T\alpha_c"'] & T\cD(Gc,Hc) \times T\cD(Fc,Gc) \arrow[u, "\cong"']  \end{tikzcd}
-  \]
-  The square commutates by the naturality of the isomorphism $T(u \times v) \cong Tu \times Tv$, while the triangle commutes because 1 is terminal, so the inverses of the displayed isomorphisms form a commutative triangle. The argument for functoriality of horizontal composites is similar.
-  \end{proof}
-
-
-  \begin{rmk}\label{rmk:change-of-base-2-fun} In fact, the ``change of base'' procedure $\cV \mapsto \eCat{\cV}$ is \emph{itself} a 2-functor from the 2-category of cartesian closed categories, finite-product-preserving functors, and natural transformations to the 2-category of 2-cat\-e\-go\-ries, 2-functors, and 2-natural transformations. See \cite[\S 4.3]{Cruttwell:2008rr} for a discussion and proof.
-  \end{rmk}
-
-
-  As an immediate consequence of the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}:
-
-  \begin{proposition}\label{prop:change-of-base-adjunction} Any adjunction between cartesian closed categories whose left adjoint preserves finite products induces a change-of-base 2-adjunction
-  \[
-  \begin{tikzcd}[column sep=large]
-  \cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"] \arrow[r, phantom, "\rightsquigarrow"] & \eCat{\cV} \arrow[r, bend left=20, start anchor=10, end anchor=170,  "F_*"] \arrow[r, phantom, "\bot"] & \eCat{\cW} \arrow[l, bend left=20, start anchor=190, end anchor=-10,  "U_*"]
-  \end{tikzcd}
-  \]
-  \end{proposition}
-  \begin{proof}
-  Of course right adjoints always preserve products, so the adjoint pair of functors $F \dashv U$ defines an adjunction in the 2-category of cartesian closed categories and finite-product-preserving functors described in Remark \ref{rmk:change-of-base-2-fun}. The 2-functor $\cV \mapsto \eCat{\cV}$ then carries the adjunction displayed on the left to the adjunction displayed on the right.
-  \end{proof}
-
-  As a special case:
-
-  \begin{cor}\label{cor:free-underlying-2-adj} For any cartesian closed category $\cV$ with coproducts, the underlying category construction and free category construction define  adjoint 2-functors
-  \[
-  \pushQED{\qed}
-  \begin{tikzcd}[column sep=large]
-  \Cat \arrow[r, bend left=20, hook, start anchor=10, end anchor=170] \arrow[r, phantom, "\bot"] & \eCat{\cV} \arrow[l, bend left=20, start anchor=190, end anchor=-10, "(-)_0"]
-  \end{tikzcd} \qedhere
-  \popQED
-  \]
-  \end{cor}
-
-
-  In light of Proposition \ref{prop:change-of-base-adjunction} and results to follow, an adjunction between cartesian closed categories whose left adjoint preserves finite products provides a \textbf{change-of-base adjunction}. While Proposition \ref{prop:change-of-base-adjunction} permits the change of base along either adjoint of a finite-product-preserving adjunction, the next series of results reveal that change of base along the right adjoint is somewhat better behaved.
-
-
-  \begin{lemma}\label{lem:enriched-cob-adjunction}
-  Any adjunction comprised of finite-product-preserving functors between cartesian closed categories
-  \[
-  \begin{tikzcd}[column sep=large]
-  \cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]  \arrow[r, phantom, "\rightsquigarrow"] & \cV \arrow[r, bend left=20, start anchor=20, end anchor=170, "F"] \arrow[r, phantom, "\bot"] & U_*\cW \arrow[l, bend left=20, start anchor=190, end anchor=-15, "U"]  \end{tikzcd}
-  \]
-  defines a $\cV$-enriched adjunction between the $\cV$-categories $\cV$ and $U_*\cW$; i.e., there exists a $\cV$-natural isomorphism $U\cW(Fv,w) \cong \cV(v,Uw)$.
-  \end{lemma}
-  \begin{proof}
-  The internal action $U_{a,b} \colon U\cW(a,b) \to \cV(Ua,Ub)$ of the $\cV$-functor $U \colon U_*\cW \to \cV$ is defined by the transpose of the map $U\ev \colon U\cW(a,b) \times Ua \to Ub$ defined by applying $U$ to the counit of the cartesian closure adjunction of $\cW$. The $\cV$-functoriality of this map follows from naturality of evaluation in a cartesian closed category.
-  %\eqref{eq:ev-ev-square}
-
-
-  By the $\cV$-functoriality of $U \colon U_*\cW \to \cV$, the map
-  \[
-  \begin{tikzcd} U\cW(Fv,w) \arrow[r, "U_{Fv,w}"] & \cV(UFv,Uw) \arrow[r, "{- \circ \eta_v}"] & \cV(v,Uw)
-  \end{tikzcd}
-  \]
-  is $\cV$-natural in $w \in U_*\cW$ for all $v \in \cV$. By a general result about enriching adjoints,  % Remark \ref{rmk:enriching-adjoints},
-  to construct a compatible $\cV$-enrichment of $F$, we need only demonstrate that this map in an isomorphism in $\cV$.
-
-  We do this by constructing an explicit inverse, namely
-  \[
-  \begin{tikzcd}
-  \cV(v,Uw) \arrow[r, "\eta"] & UF\cV(v,Uw) \arrow[r, "U(F_{v,Uw})"] & U\cW(Fv,FUw) \arrow[r, "\epsilon_w \circ -"] & U\cW(Fv,w)
-  \end{tikzcd}
-  \]
-  where the middle map is defined by applying the unenriched functor $U$ to the action map from the $\cW$-functor $F \colon F_*\cV \to \cW$, which is defined similarly to the $\cV$-functor $U \colon U_*\cW \to \cV$.
-
-  The proof that these maps are inverses involves a pair of diagram chases, the first of which demonstrates that the top-right composite reduces to the left-bottom composite, which is the identity:
-  \[
-  \begin{tikzcd}
-  \cV(v,Uw) \arrow[r, "\eta"] \arrow[ddrr, "\eta_{Uw}\circ-"'] & UF\cV(v,Uw) \arrow[r, "U(F_{v,Uw})"] \arrow[dr, "UF_{v, Uw}" description] & U\cW(Fv,FUw) \arrow[r, "\epsilon_w \circ -"] \arrow[d, "U_{Fv,FUw}"] & U\cW(Fv,w) \arrow[d, "U_{Fv,w}"] \\ & & \cV(UFv,UFUw) \arrow[r, "U\epsilon_w \circ -"]  \arrow[d, "-\circ \eta_v"]& \cV(UFv,Uw) \arrow[d, "-\circ \eta_v"] \\ & & \cV(v,UFUw) \arrow[r, "U\epsilon_w\circ-"] & \cV(v,Uw)
-  \end{tikzcd}
-  \]
-  The only subtle point is the commutativity of the trapezoidal region, which expresses the fact that $\eta \colon \id_\cV \To UF$ is a \emph{closed natural transformation} between product-preserving functors between cartesian closed categories. This region commutes because the transposed diagram does:
-  \[
-  \begin{tikzcd} \cV(v,Uw) \times v\arrow[d, "\eta \times \eta_v"'] \arrow[r, equals] &  \cV(v,Uw) \times v \arrow[d, "\eta"']  \arrow[r, "\ev"] & Uw \arrow[d, "\eta_{Uw}"] \\  UF\cV(v,Uw)\times UFv  \arrow[r, "\cong"] & UF(\cV(v,UW)\times v) \arrow[r, "UF\ev"] & UFUw
-  \end{tikzcd}
-  \]
-  the right-hand square by naturality, and the left-hand square because any naturally transformation between product-preserving functors is automatically a monoidal natural transformation. % (see Exercise \ref{exc:product-preservation-is-monoidal}).
-    The other diagram chase is similar.
-  \end{proof}
-
-  \begin{proposition}\label{prop:cob-adjunction}
-  Given an adjunction between cartesian closed categories
-  \[
-  \begin{tikzcd}[column sep=large]
-  \cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]   \end{tikzcd}
-  \]
-  whose left adjoint preserves finite products then if $\cC$ is co/tensored as a $\cW$-cat\-e\-gory,  $U_*\cC$ is co/tensored as $\cV$-category with the co/tensor of $c \in \cC$ by $v \in \cV$ defined by
-  \[ v \otimes c \coloneq Fv \otimes c \qquad \text{and} \qquad c^v \coloneq c^{Fv}.\]
-  \end{proposition}
-  \begin{proof}
-  Suppose $\cC$ admits cotensors as a $\cW$-category. To verify that $U_*\cC$ admits cotensors as a $\cV$-category we must supply an isomorphism
-  \[ U\cC(x,c^{Fv}) \cong (U\cC(x,c))^v\] in $\cV$ that is $\cV$-natural in $x$. By the enriched Yoneda lemma, we can extract this isomorphism from an isomorphism \[ \cV(u,U\cC(x,c^{Fv})) \cong \cV(u,(U\cC(x,c))^v)\] that is $\cV$-natural in $u \in \cV$. To that end, by composing the $\cV$-natural isomorphisms of Lemma \ref{lem:enriched-cob-adjunction}, the enriched natural isomorphisms arising from the cartesian closed structure on $\cV$ and on $U_*\cW$, and the isomorphisms that characterize the cotensor on $\cC$ and express the fact that $F$ preserves binary products, we have:
-  \begin{align*} \cV(u,U\cC(x,c^{Fv})) &\cong U\cW(Fu, \cC(x,c^{Fv})) \cong U\cW(Fu, \cC(x,c)^{Fv}) \\ &\cong U\cW(Fu \times Fv, \cC(x,c))  \cong U\cW(F(u \times v), \cC(x,c)) \\ &\cong \cV(u \times v, U\cC(x,c)) \cong \cV(u, (U\cC(x,c))^v). \qedhere\end{align*}
-  \end{proof}
-
-
-
-  This theory of change of base is all well and good from the compound noun perspective on enriched categories, but an additional concern arises from the adjectival point of view. If the finite-product-preserving functor $T \colon \cV \to \cW$ commutes with the underlying set functors for $\cV$ and $\cW$ up to natural isomorphism, then by the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}, the change-of-base 2-functor $T_* \colon \eCat{\cV} \to \eCat{\cW}$ also preserves the underlying categories up to natural isomorphism. This happens in particular in the following setting.
-
-  \begin{lemma}\label{lem:right-of-monoidal-adj-ucats} Consider a finite-product-preserving adjunction between cartesian closed categories:
-  \[
-  \begin{tikzcd}[column sep=large]
-  \cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]   \end{tikzcd}
-  \]
-  Then change of base along the right adjoint respects the underlying categories:
-  \[
-  \begin{tikzcd}[sep=1.5 em] \eCat{\cW} \arrow[rr, "U_*"] \arrow[dr, "{(-)_0}"'] & & \eCat{\cV} \arrow[dl, "(-)_0"] \\ & \Cat
-  \end{tikzcd}
-  \]
-  \end{lemma}
-  \begin{proof}
-  Let $\cC$ be a $\cW$ category. Then the hom-set in the underlying category of $U_*\cC$ from $x$ to $y$ is isomorphic to the corresponding hom-set
-  \[ U_*\cC(x,y)_0 \cong \cV(1, U\cC(x,y))_0 \cong \cW(F1,\cC(x,y))_0 \cong \cW(1,\cC(x,y))_0 \cong \cC(x,y)_0\]
-  in the underlying category of $\cC$ and moreover this isomorphism respects the composition and identities in the underlying categories. Thus $\cC_0 \cong U\cC_0$. A similar argument shows that change of base along $U$ respects underlying functors and natural transformations.
-  \end{proof}
-
-
-  %\begin{lemma}\label{lem:pro-normal-monoidal} The change-of-base 2-functor induced by a finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories preserves underlying categories, if and only if, for each $v \in \cV$ the composite function on hom-sets
-  %\[
-  %\begin{tikzcd} \cV(1,v)_0 \arrow[r, "T"] & \cW(T1,Tv)_0 \arrow[r, "- \circ \cong"] & \cW(1,Tv)_0
-  %\end{tikzcd}
-  %\] is a bijection.
-  %\end{lemma}
+%  \begin{lemma}\label{lem:cosmological-2-fun} Any simplicial functor $F \colon \cK \to \cL$ between $\infty$-cosmoi induces a 2-functor $F \colon \h\cK \to \h\cL$ between their homotopy 2-categories.
+% \end{lemma}
   %\begin{proof}
-  %The displayed function defines the component at $v \in \cV$ of the unique monoidal natural transformation from the underlying set-functor for $\cV$ to the composite of $T$ with the underlying set functor for $\cW$. By the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}, if it defines a monoidal natural isomorphism, then it induces a 2-natural isomorphism between the underlying category 2-functor $(-)_0 \colon \eCat{\cV} \to \Cat$ and the composite of the change-of-base 2-functor $T_* \colon \eCat{\cV} \to\eCat{\cW}$ with the underlying category 2-functor $(-)_0 \colon \eCat{\cW} \to \Cat$.
-
-  %Conversely, this condition is necessary for the underlying category of the $\cW$-category $T_*\cV$ to coincide with the underlying category of the cartesian closed category $\cV$.
+% The action of  the induced 2-functor $F \colon \h\cK \to \h\cL$ on objects and 1-cells is given by the corresponding action of $F \colon \cK \to \cL$; recall an $\infty$-cosmos and its homotopy 2-category have the same underlying 1-category. Each 2-cell in $\h\cK$ is represented by a 1-simplex  in $\Fun(A,B)$ which is mapped via
+% \[
+%   \begin{tikzcd}[column sep=large, inner sep=0pt] \Fun(A,B) \arrow[r, "F"]  & \Fun(FA,FB)
+%   \end{tikzcd}
+% \]
+  %\vspace{-4ex}
+  %\[
+  % \begin{tikzcd}[column sep=large, inner sep=0pt] A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, bend right, "g"'] \arrow[r, phantom, "{\scriptstyle\Downarrow \alpha}"] & B\arrow[r, maps to] &  FA \arrow[r, start anchor=15, end anchor=165, bend left, "Ff"] \arrow[r, start anchor=345, end anchor=195, bend right, bend right, "Fg"'] \arrow[r, phantom, "{\scriptstyle\Downarrow F\alpha}"] & FB
+  % \end{tikzcd}
+  %\]
+  % to a 1-simplex representing a 2-cell  in $\h\cL$. Since the action $F \colon \Fun(A,B) \to \Fun(FA,FB)$ on functor spaces defines a morphism of simplicial sets, it preserves faces and degeneracies. In particular, homotopic 1-simplices in $\Fun(A,B)$ are carried to homotopic 1-simplices in $\Fun(FA,FB)$ so the action on 2-cells just described is well-defined.  The 2-functoriality of these mappings follows from the simplicial functoriality of the original mapping.
   %\end{proof}
 
-  %One situation in which the condition of Lemma \ref{lem:pro-normal-monoidal} is automatic is when the lax monoidal functor is the right adjoint of a monoidal adjunction. The proof, originally given in \cite{Kelly:1974da}, is by a short diagram chase.
+  We now begin to relate the simplicially enriched structures of an $\infty$-cosmos to the 2-cat\-e\-go\-ri\-cal structures in its homotopy 2-category by proving that homotopy 2-categories inherit products from their $\infty$-cosmoi that satisfy a 2-cat\-e\-go\-ri\-cal universal property. To illustrate, recall that the terminal $\infty$-category $1 \in \cK$ has the universal property $\Fun(X,1) \cong \catone$ for all $X \in \cK$. Applying the homotopy category functor we see that $1 \in \h\cK$ has the universal property $\hFun(X,1) \cong \catone$ for all $X \in \h\cK$, which is expressed by saying that the $\infty$-category $1$ defines a \textbf{2-terminal object} in the homotopy 2-category. This 2-categorical universal property has both a 1-dimensional and a 2-dimensional aspect. Since $\hFun(X,1)\cong \catone$ is a category with a single object, there exists a unique morphism $X \to 1$ in $\cK$, and since $\hFun(X,1)\cong\catone$ has only a single morphism,  the only 2-cells in $\h\cK$ with codomain 1 are identities.
 
-  The general theory of change-of-base will be applied in the following case the next section.
-
-
-  \begin{ex}\label{ex:nerve-ho-change-of-base}
-  Both adjoints of the adjunction
-  \[
-  \begin{tikzcd}[column sep=large]
-  \sSet \arrow[r, bend left=20, start anchor=10, end anchor=170, "\ho"] \arrow[r, phantom, "\bot"] & \Cat \arrow[l, bend left=20, start anchor=190, end anchor=-10, hook']
-  \end{tikzcd}
-  \] of Proposition \ref{prop:ho-nerve-adjunction} preserve finite products. Hence, Proposition \ref{prop:change-of-base-adjunction} induces a change-of-base adjunction defined by the 2-functors
-  \[
-  \begin{tikzcd}[column sep=large]
-  \sCat  \arrow[r, bend left=20, start anchor=7, end anchor=170, "\ho_*"] \arrow[r, phantom, "\bot"] &\twoCat\arrow[l, bend left=20, start anchor=190, end anchor=-5, hook']
+  \begin{proposition}[cartesian (closure)]\label{prop:htpy-2-cat-closure}
+  $\quad$
+  \begin{enumerate}
+  \item The homotopy 2-category of any $\infty$-cosmos has 2-categorical products.
+  \item\label{itm:cart-closed} The homotopy 2-category of a cartesian closed $\infty$-cosmos is cartesian closed as a 2-category.
+  \end{enumerate}
+  \end{proposition}
+  \begin{proof}
+  While the functor $\ho\colon\sSet \to \Cat$ only preserves finite products, the restricted functor $\ho\colon\qCat\to\Cat$ preserves \emph{all} products on account of the simplified description of the homotopy category of a quasi-category given in Lemma \ref{lem:htpy-cat-of-qcat}. Thus for any set $I$ and family of $\infty$-categories $(A_i)_{i \in I}$ in $\cK$, the homotopy category functor carries the isomorphism of functor spaces  to an isomorphism of hom-categories
+  \[ \begin{tikzcd}[column sep=small] \Fun(X,\prod_{i \in I} A_i) \arrow[r, "\cong"] & \prod_{i \in I} \Fun(X,A_i) & \arrow[r, maps to, "\ho"] & ~ & \hFun(X,\prod_{i \in I} A_i) \arrow[r, "\cong"] & \prod_{i \in I} \hFun(X,A_i).
   \end{tikzcd}
   \]
-  that act identically on objects and act by applying the homotopy category functor or nerve functor, respectively, on homs. By Lemma \ref{lem:right-of-monoidal-adj-ucats}, the right adjoint, which builds a simplicially enriched category from a 2-category, respects the underlying category: the underlying category of objects and 1-cells is identified with the underlying category of objects and 0-arrows. In this case, the functor $\ho \colon \sSet \to \Cat$ commutes with the underlying set functors, so in fact both adjoints preserve underlying categories, as is evident from direct computation. In particular, the homotopy 2-category of an $\infty$-cosmos has the same underlying 1-category. Since the nerve embedding is fully faithful, 2-categories can be identified as a full subcategory comprised of those simplicial categories whose hom spaces are nerves of categories.
-  \end{ex}
+  This proves that the homotopy 2-category $\h\cK$ has products whose universal properties have both a 1- and 2-dimensional component, as described in the empty case for terminal objects above.
 
+  If $\cK$ is a cartesian closed $\infty$-cosmos, then for any triple of $\infty$-categories $A,B,C \in \cK$ there exist exponential objects $C^A, C^B \in \cK$ characterized by natural isomorphisms
+  \[ \Fun(A \times B, C) \cong \Fun(A, C^B) \cong \Fun(B,C^A).\] Passing to homotopy categories we have natural isomorphisms
+  \[ \hFun(A \times B, C) \cong \hFun(A, C^B) \cong \hFun(B,C^A),\] which demonstrates that $\h\cK$ is cartesian closed as a 2-category: functors $A \times B \to C$ transpose to define functors $A \to C^B$ and $B \to C^A$, and natural transformations transpose similarly.
+  \end{proof}
 
-  \section{The homotopy 2-category}\label{sec:htpy-2-cat}
+  There is a standard definition of \emph{isomorphism} between two objects in any 1-category, preserved by any functor. Similarly, there is a standard definition of \emph{equivalence} between two objects in any 2-category, preserved by any 2-functor:
 
-  Small 1-categories define the objects of a strict 2-category $\Cat$ of categories, functors, and natural transformations. Many basic categorical notions --- those defined in terms of categories, functors, and natural transformations --- can be defined internally to the 2-category $\Cat$. This suggests a natural avenue for generalization: reinterpreting these same definitions in a generic 2-category using its objects in place of small categories, its 1-cells in place of functors, and its 2-cells in place of natural transformations.
-
-  A significant portion of the theory of $\infty$-cat\-e\-go\-ries in any fixed $\infty$-cosmos can be developed by following exactly this outline, working internally to a 2-category that we refer to as the \emph{homotopy 2-category} that we associate to any $\infty$-cosmos. The homotopy 2-category of an $\infty$-cosmos is a quotient of the full $\infty$-cosmos, replacing each quasi-categorical functor space by its homotopy category. Surprisingly, this rather destructive quotienting operation preserves quite a lot of information.  This said, we caution the reader against becoming overly seduced by homotopy 2-categories, which are more of a technical convenience for reducing the complexity of our arguments than a fundamental notion of $\infty$-category theory.
-
-  Paralleling our discussion of simplicial categories in Definition \ref{defn:simplicial-category} and Digression \ref{dig:simplicial-cat}, there are two perspectives on the notion of a 2-category, which can be understood equally as:
-  \begin{enumerate}
-  \item\label{itm:strict-bicategory}  ``two-dimensional'' categories, with objects; \textbf{1-cells}, whose boundary are given by a pair of objects; and \textbf{2-cells}, whose boundary are given by a parallel pair of 1-cells between a pair of objects --- together with partially defined composition operations governed by this boundary data
-  \item or as categories enriched over $\Cat$.
-  \end{enumerate}
-
-  Both notions exist in Mathlib in some form. The notion \ref{itm:strict-bicategory} is called a \emph{strict bicategory} and is defined as a special case of a bicategory, in which the associators and unitors are identities (converted into 2-cells). The general notion of enriched category can be specialized to the case of enriching over the cartesian monoidal category of categories, but the connection between these notions remains to be explored.
-
-  \begin{proposition} There is an equivalence between categories enriched in categories and strict bicategories. In particular, each can be converted into the other.
-  \end{proposition}
-
-  The homotopy 2-category is most efficiently defined as a category enriched in $\Cat$ by applying the theory of change-of-base developed in \S\ref{sec:change-of-base}. The homotopy 2-category for the $\infty$-cosmos of quasi-categories was first introduced by Joyal in his work on the foundations of quasi-category theory \cite{Joyal:2008tq}.
-
-  \begin{definition}[homotopy 2-category]\label{defn:homotopy-2-cat} Let $\cK$ be an $\infty$-cosmos. Its \textbf{homotopy 2-category} is the 2-category $\h\cK$ whose
+  \begin{definition}[equivalence]\label{defn:2-cat-equiv} An \textbf{equivalence} in a 2-category is given by
   \begin{itemize}
-  \item objects are the objects $A, B$ of $\cK$, i.e., the $\infty$-categories;\item 1-cells $f \colon A \to B$ are the 0-arrows in the functor space $\Fun(A,B)$, i.e., the $\infty$-functors; and
-  \item 2-cells $\begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "{\scriptstyle\Downarrow \alpha}"] & B\end{tikzcd}$ are homotopy classes of 1-simplices in $\Fun(A,B)$, which we call \textbf{$\infty$-natural transformations}.
+  \item a pair of objects $A$ and $B$;
+  \item a pair of 1-cells $f \colon A \to B$ and $g \colon B \to A$; and
+  \item a pair of invertible 2-cells
+  \[
+  \begin{tikzcd}[column sep=large]
+  A \arrow[r, bend left=25, equals] \arrow[r, bend right=25, "gf"'] \arrow[r, phantom, "{\scriptstyle\cong\Downarrow\alpha}"] & A & \text{and} & B \arrow[r, bend right=25, equals] \arrow[r, bend left=25, "fg"] \arrow[r, phantom, "{\scriptstyle\cong\Downarrow\beta}"] & B
+  \end{tikzcd}
+  \]
   \end{itemize}
-  Put another way $\h\cK$ is the 2-category with the same objects as $\cK$ and with hom-categories defined by
-  \[ \hFun(A,B)   \coloneq \ho(\Fun(A,B)),\]
-  that is, $\hFun(A,B)$ is the homotopy category of the quasi-category $\Fun(A,B)$.
+  When $A$ and $B$ are \textbf{equivalent}, we write $A \simeq B$ and refer to the 1-cells $f$ and $g$ as \textbf{equivalences}, denoted by ``$\we$.''
   \end{definition}
 
-  \begin{definition}[underlying category of a 2-category]\label{defn:underlying-cat-of-2cat}
-  The \textbf{underlying category} of a 2-category is defined by simply forgetting its 2-cells. Note that an $\infty$-cosmos $\cK$ and its homotopy 2-category $\h\cK$ share the same underlying category $\cK_0$ of $\infty$-categories and $\infty$-functors in $\cK$.
+  In the case of the homotopy 2-category of an $\infty$-cosmos we have a competing definition of equivalence from \ref{defn:cosmos}: namely a 1-cell $f \colon A \we B$ that induces an equivalence $f_* \colon \Fun(X,A) \we \Fun(X,B)$ on functor spaces --- or equivalently, by Lemma \ref{lem:equiv-htpy-equiv}, a homotopy equivalence defined relative to the interval $\iso$. Crucially, all three notions of equivalence coincide:
+
+  \begin{theorem}[equivalences are equivalences]\label{thm:equiv-are-equiv} In any $\infty$-cosmos $\cK$, the following are equivalent and characterize what it means for a functor $f \colon A \to B$ between $\infty$-categories to define an \textbf{equivalence}.
+  \begin{enumerate}
+  \item\label{itm:rep-equiv} For all $X \in \cK$, the post-composition map $f_* \colon \Fun(X,A) \we \Fun(X,B)$ defines an equivalence of quasi-categories.
+  \item\label{itm:2cat-equiv} There exists a functor $g \colon B \to A$ and natural isomorphisms $\alpha \colon \id_A \cong gf$ and $\beta \colon fg \cong \id_B$ in the homotopy 2-category.
+  \item\label{itm:htpy-equiv} There exists a functor $g \colon B \to A$ and maps
+  \[
+  \begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso  \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] &\text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] \\ & A & &  & B
+  \end{tikzcd}
+  \] in the $\infty$-cosmos $\cK$.
+  \end{enumerate}
+  \end{theorem}
+
+  As an illustrative comparison of 2-categorical and quasi-categorical techniques, rather than appealing to Lemma \ref{lem:equiv-htpy-equiv} to prove \ref{itm:rep-equiv}$\Leftrightarrow$\ref{itm:htpy-equiv}, we re-prove it.
+  \begin{proof}
+    For \ref{itm:rep-equiv}$\To$\ref{itm:2cat-equiv}, if the induced map $f_* \colon \Fun(X,A) \we \Fun(X,B)$  defines an equivalence of quasi-categories then the functor $f_* \colon \hFun(X,A) \we \hFun(X,B)$ defines an equivalence of categories, by Remark \ref{rmk:qcat-htpy-cat-equiv}. In particular, the equialence $f_* \colon \hFun(B,A) \we \hFun(B,B)$ is essentially surjective so there exists $g \in \hFun(B,A)$ and an isomorphism $\beta \colon fg \cong \id_B \in \hFun(B,B)$. Now since $f_* \colon \hFun(A,A) \we \hFun(A,B)$ is fully faithful, the isomorphism $\beta f \colon fgf \cong f \in \hFun(A,B)$ can be lifted to define an isomorphism $\alpha^{-1} \colon gf \cong \id_A \in \hFun(A,A)$. This defines the data of a 2-categorical equivalence in Definition \ref{defn:2-cat-equiv}.
+
+  To see that \ref{itm:2cat-equiv}$\To$\ref{itm:htpy-equiv} recall from Lemma \ref{lem:invertible-2-cell} that the natural isomorphisms $\alpha \colon \id_A \cong gf$ and $\beta \colon fg \cong \id_B$ in $\h\cK$ are represented by maps $\alpha \colon A \to A^\iso$ and $\beta \colon B \to B^\iso$ in $\cK$ as in \eqref{eq:htpy-equiv}.
+
+  Finally, \ref{itm:htpy-equiv}$\To$\ref{itm:rep-equiv} since $\Fun(X,-)$ carries the data of \ref{itm:htpy-equiv} to the data of an equivalence of quasi-categories as in  Definition \ref{defn:qcat-equiv}.
+  \end{proof}
+
+  It is hard to overstate the importance of Theorem \ref{thm:equiv-are-equiv} for the work that follows. The categorical constructions that we introduce for $\infty$-categories, $\infty$-func\-tors, and $\infty$-natural transformations are invariant under 2-cat\-e\-go\-ri\-cal equivalence in the homotopy 2-category and the universal properties we develop similarly characterize 2-categorical equivalence classes of $\infty$-cat\-e\-go\-ries. Theorem \ref{thm:equiv-are-equiv} then asserts that such constructions are ``homotopically correct'': both invariant under equivalence in the $\infty$-cosmos and precisely identifying equivalence classes of objects.
+
+
+  The equivalence invariance of the functor space in the codomain variable is axiomatic, but equivalence invariance in the domain variable is not.\footnote{The functor $\Fun(A,-)$ is a \emph{cosmological functor}, preserving all of the structure of Definition \ref{defn:cosmos}. Cosmological functors then preserve a large class of cosmological notions, including equivalences. These results, however, %Lemma \ref{lem:cosmoi-functors-pres-equiv} does
+  do not apply to $\Fun(-,B)$ since this functor is not cosmological.} Nor is it evident how this could be proven from either \ref{itm:rep-equiv} or \ref{itm:htpy-equiv} of Theorem \ref{thm:equiv-are-equiv}. But using \ref{itm:2cat-equiv} and 2-categorical techniques, there is now a short proof.
+
+  \begin{cor}\label{cor:equiv-invar-fun} Equivalences of $\infty$-categories $A' \we A$ and $B \we B'$ induce an equivalence of functor spaces $\Fun(A,B) \we \Fun(A',B')$.
+  \end{cor}
+  \begin{proof}
+  The representable simplicial functors $\Fun(A,-)\colon \cK \to \qCat$ and $\Fun(-,B)\colon \cK\op \to \qCat$ induce 2-functors $\Fun(A,-)\colon\h\cK\to\h\qCat$ and $\Fun(-,B)\colon\h\cK\op\to\h\qCat$, which preserve the 2-cat\-e\-go\-ri\-cal equivalences of Definition \ref{defn:2-cat-equiv}. By Theorem \ref{thm:equiv-are-equiv} this is what we wanted to show.
+  \end{proof}
+
+  There is also a standard 2-categorical notion of an isofibration, defined in the statement of Proposition \ref{prop:isofib-define-isofib}. %and elaborated upon in Definition \ref{defn:2cat-isofibration}.
+  We now show that any isofibration in an $\infty$-cosmos defines an isofibration in its homotopy 2-category.
+
+  \begin{proposition}[isofibrations are isofibrations]\label{prop:isofib-define-isofib} An isofibration $p \colon E \fib B$  in an $\infty$-cosmos $\cK$ also defines an \textbf{isofibration} in the homotopy 2-category $\h\cK$: given any invertible 2-cell as displayed below-left abutting to $B$ with a specified lift of one of its boundary 1-cells through $p$, there exists an invertible 2-cell abutting to $E$ with this boundary 1-cell as displayed below-right that whiskers with $p$ to the original 2-cell.
+  \[
+    \begin{tikzcd} X \arrow[r, "e"] \arrow[dr, bend right, "b"'] & E \arrow[d, two heads, "p"] \arrow[dl, phantom, "{\scriptstyle\cong\Downarrow\beta}" near start] &\arrow[d, phantom, "="] & X \arrow[rr, start anchor=15, end anchor=165, bend left=20, "e"] \arrow[rr, start anchor=345, end anchor=195, bend right=20, "\bar{e}"', dashed] \arrow[rr, phantom, "{\scriptstyle\cong\Downarrow\gamma}"] && E \arrow[d, two heads, "p"] \\ ~ & B & ~ & & & B
+  \end{tikzcd}
+  \]
+  \end{proposition}
+  \begin{proof} The universal property of the statement says that the functor \[p_* \colon \hFun(X,E) \fib \hFun(X,B)\] is an isofibration of categories in the sense defined in Proposition \ref{prop:cat-cosmos}. By axiom \ref{defn:cosmos}\ref{itm:cosmos-isofib}, since $p \colon E \fib B$ is an isofibration in $\cK$, the induced map $p_* \colon \Fun(X,E) \fib \Fun(X,B)$ is an isofibration of quasi-categories. So it suffices to show that the functor $\ho \colon \qCat\to \Cat$ carries isofibrations of quasi-categories to isofibrations of categories.
+
+  So let us now consider an isofibration $p \colon E \fib B$ between quasi-categories. By Corollary \ref{cor:coherent-iso}, every isomorphism $\beta$ in the homotopy category $\ho{B}$ of the quasi-category $B$ is represented by a simplicial map $\beta \colon \iso \to B$. By Definition \ref{defn:qcat-isofibration}, the lifting problem
+  \[
+  \begin{tikzcd}
+  \catone \arrow[r, "e"] \arrow[d, hook] & E \arrow[d, two heads, "p"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "\beta"'] & B
+  \end{tikzcd}
+  \]
+  can be solved, and the map $\gamma \colon \iso \to E$ so produced represents a lift of the isomorphism from $\ho{B}$ to an isomorphism in $\ho{E}$ with domain $e$.
+  \end{proof}
+
+  \begin{con}[on isofibrations in homotopy 2-categories] Since the converse to Proposition \ref{prop:isofib-define-isofib} does not hold, there is a potential ambiguity when using the term ``isofibration'' to refer to a map in the homotopy 2-category of an $\infty$-cosmos. We adopt the convention that when we declare  a map in $\h\cK$ to be an isofibration we always mean this is the stronger sense of defining an isofibration in $\cK$. This stronger condition gives us access to the 2-categorical lifting property of Proposition \ref{prop:isofib-define-isofib} and also to homotopical properties axiomatized in Definition \ref{defn:cosmos}, which ensure that the strictly defined limits of \ref{defn:cosmos}\ref{itm:cosmos-limits} are automatically equivalence invariant constructions (see \cite[6.2.8,\S C.1]{RiehlVerity:2022eo}). %\S\ref{sec:fib-obj} and Proposition \ref{prop:flexible-homotopical}).
+  \end{con}
+
+  We conclude this chapter with a final definition that can be extracted from the homotopy 2-category of an $\infty$-cosmos. The 1- and 2-cells in the homotopy 2-category from the terminal $\infty$-category $1 \in \cK$ to a generic $\infty$-category $A \in \cK$ define the objects and morphisms in the homotopy category of the $\infty$-category $A$.
+
+  \begin{definition}[homotopy category of an $\infty$-category]\label{defn:htpy-cat-of-infinity-cat} The \textbf{homotopy category} of an $\infty$-category $A$ in an $\infty$-cosmos $\cK$ is defined to be the homotopy category of its underlying quasi-category, that is:
+  \[ \ho A \coloneq \hFun(1,A) \coloneq \ho(\Fun(1,A)).\]
   \end{definition}
 
-  By Lemma \ref{lem:right-of-monoidal-adj-ucats}:
-
-  \begin{lemma} The underlying category of the homotopy 2-category of an $\infty$-cosmos is isomorphic to the underlying category of the $\infty$-cosmos. \qed
-  \end{lemma}
-
-  We elaborate on the connection between data in the homotopy 2-category and data in the $\infty$-cosmos.
-
-  \begin{lemma}\label{lem:invertible-2-cell}$\quad$
-    \begin{enumerate}
-    \item\label{itm:2-cell-as-functor} Every 2-cell $\begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "\scriptstyle\Downarrow\alpha"] & B \end{tikzcd}$  in the homotopy 2-category of an $\infty$-cosmos is represented by a map of quasi-categories as below-left or equivalently by a functor as below-right
-    \[
-    \begin{tikzcd}[sep=small] & \catone+\catone \arrow[dl, hook'] \arrow[dr, "{(f,g)}"] & &  & ~ &  A \arrow[rr, "\name{\alpha}"] \arrow[dr, "{(g,f)}"'] & & B^\cattwo \arrow[dl, "{(p_1,p_0)}", two heads] \\ \cattwo \arrow[rr, "{\alpha}"'] && \Fun(A,B) &\arrow[ur, phantom, "\leftrightsquigarrow"] &  && B \times B
-    \end{tikzcd}
-    \]
-    and two such maps represent the same 2-cell if and only if they are homotopic as 1-simplices in $\Fun(A,B)$.
-    \item\label{itm:2-iso-as-functor} Every invertible 2-cell $ \begin{tikzcd}[column sep=large] A \arrow[r, start anchor=18, end anchor=162, bend left=20, "f"] \arrow[r,  start anchor=342, end anchor=198, bend right=20, "g"'] \arrow[r, phantom, "\scriptstyle\cong\Downarrow\alpha"] & B \end{tikzcd}$
-    in the homotopy 2-category of an $\infty$-cosmos is represented by a map of quasi-categories  as below-left or equivalently by a functor as below-right
-    \[
-    \begin{tikzcd}[sep=small] & \catone+\catone \arrow[dl, hook'] \arrow[dr, "{(f,g)}"] & &  & ~ &  A \arrow[rr, "\name{\alpha}"] \arrow[dr, "{(g,f)}"'] & & B^\iso \arrow[dl, "{(p_1,p_0)}", two heads] \\ \iso \arrow[rr, "{\alpha}"'] && \Fun(A,B) &\arrow[ur, phantom, "\leftrightsquigarrow"] &  && B \times B
-    \end{tikzcd}
-    \] and two such maps represent the same invertible 2-cell if and only if their common restrictions along $\cattwo \inc \iso$ are homotopic as 1-simplices in $\Fun(A,B)$.
-    \end{enumerate}
-    \end{lemma}
-
-    The notion of homotopic 1-simplices referenced here is defined in Lemma \ref{lem:1-simp-htpy}. Since the 2-cells in the homotopy 2-category are referred to as $\infty$-natural transformations, we refer to the invertible 2-cells in the homotopy 2-category as \textbf{$\infty$-natural isomorphisms}.
-
-    \begin{proof}
-    The statement \ref{itm:2-cell-as-functor} records the definition of the 2-cells in the homotopy 2-category and the universal property \eqref{eq:cotensor-defn} of the simplicial cotensor.  For \ref{itm:2-iso-as-functor}, a 2-cell in the homotopy 2-category is \textbf{invertible} if and only if it defines an isomorphism in the appropriate hom-category $\hFun(A,B)$. By  Corollary \ref{cor:coherent-iso} it follows that each invertible 2-cell $\alpha$ is represented by a homotopy coherent isomorphism ${\alpha} \colon \iso \to \Fun(A,B)$, which similarly internalizes to define a functor $\name{\alpha} \colon A \to B^\iso$.
-    \end{proof}
-
-    %Change of base is an operation that applies to enriched functors as well as enriched categories, as can be directly verified in the case of greatest interest.
-
-  %  \begin{lemma}\label{lem:cosmological-2-fun} Any simplicial functor $F \colon \cK \to \cL$ between $\infty$-cosmoi induces a 2-functor $F \colon \h\cK \to \h\cL$ between their homotopy 2-categories.
-  % \end{lemma}
-    %\begin{proof}
-  % The action of  the induced 2-functor $F \colon \h\cK \to \h\cL$ on objects and 1-cells is given by the corresponding action of $F \colon \cK \to \cL$; recall an $\infty$-cosmos and its homotopy 2-category have the same underlying 1-category. Each 2-cell in $\h\cK$ is represented by a 1-simplex  in $\Fun(A,B)$ which is mapped via
-  % \[
-  %   \begin{tikzcd}[column sep=large, inner sep=0pt] \Fun(A,B) \arrow[r, "F"]  & \Fun(FA,FB)
-  %   \end{tikzcd}
-  % \]
-    %\vspace{-4ex}
-    %\[
-    % \begin{tikzcd}[column sep=large, inner sep=0pt] A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, bend right, "g"'] \arrow[r, phantom, "{\scriptstyle\Downarrow \alpha}"] & B\arrow[r, maps to] &  FA \arrow[r, start anchor=15, end anchor=165, bend left, "Ff"] \arrow[r, start anchor=345, end anchor=195, bend right, bend right, "Fg"'] \arrow[r, phantom, "{\scriptstyle\Downarrow F\alpha}"] & FB
-    % \end{tikzcd}
-    %\]
-    % to a 1-simplex representing a 2-cell  in $\h\cL$. Since the action $F \colon \Fun(A,B) \to \Fun(FA,FB)$ on functor spaces defines a morphism of simplicial sets, it preserves faces and degeneracies. In particular, homotopic 1-simplices in $\Fun(A,B)$ are carried to homotopic 1-simplices in $\Fun(FA,FB)$ so the action on 2-cells just described is well-defined.  The 2-functoriality of these mappings follows from the simplicial functoriality of the original mapping.
-    %\end{proof}
-
-    We now begin to relate the simplicially enriched structures of an $\infty$-cosmos to the 2-cat\-e\-go\-ri\-cal structures in its homotopy 2-category by proving that homotopy 2-categories inherit products from their $\infty$-cosmoi that satisfy a 2-cat\-e\-go\-ri\-cal universal property. To illustrate, recall that the terminal $\infty$-category $1 \in \cK$ has the universal property $\Fun(X,1) \cong \catone$ for all $X \in \cK$. Applying the homotopy category functor we see that $1 \in \h\cK$ has the universal property $\hFun(X,1) \cong \catone$ for all $X \in \h\cK$, which is expressed by saying that the $\infty$-category $1$ defines a \textbf{2-terminal object} in the homotopy 2-category. This 2-categorical universal property has both a 1-dimensional and a 2-dimensional aspect. Since $\hFun(X,1)\cong \catone$ is a category with a single object, there exists a unique morphism $X \to 1$ in $\cK$, and since $\hFun(X,1)\cong\catone$ has only a single morphism,  the only 2-cells in $\h\cK$ with codomain 1 are identities.
-
-    \begin{proposition}[cartesian (closure)]\label{prop:htpy-2-cat-closure}
-    $\quad$
-    \begin{enumerate}
-    \item The homotopy 2-category of any $\infty$-cosmos has 2-categorical products.
-    \item\label{itm:cart-closed} The homotopy 2-category of a cartesian closed $\infty$-cosmos is cartesian closed as a 2-category.
-    \end{enumerate}
-    \end{proposition}
-    \begin{proof}
-    While the functor $\ho\colon\sSet \to \Cat$ only preserves finite products, the restricted functor $\ho\colon\qCat\to\Cat$ preserves \emph{all} products on account of the simplified description of the homotopy category of a quasi-category given in Lemma \ref{lem:htpy-cat-of-qcat}. Thus for any set $I$ and family of $\infty$-categories $(A_i)_{i \in I}$ in $\cK$, the homotopy category functor carries the isomorphism of functor spaces  to an isomorphism of hom-categories
-    \[ \begin{tikzcd}[column sep=small] \Fun(X,\prod_{i \in I} A_i) \arrow[r, "\cong"] & \prod_{i \in I} \Fun(X,A_i) & \arrow[r, maps to, "\ho"] & ~ & \hFun(X,\prod_{i \in I} A_i) \arrow[r, "\cong"] & \prod_{i \in I} \hFun(X,A_i).
-    \end{tikzcd}
-    \]
-    This proves that the homotopy 2-category $\h\cK$ has products whose universal properties have both a 1- and 2-dimensional component, as described in the empty case for terminal objects above.
-
-    If $\cK$ is a cartesian closed $\infty$-cosmos, then for any triple of $\infty$-categories $A,B,C \in \cK$ there exist exponential objects $C^A, C^B \in \cK$ characterized by natural isomorphisms
-    \[ \Fun(A \times B, C) \cong \Fun(A, C^B) \cong \Fun(B,C^A).\] Passing to homotopy categories we have natural isomorphisms
-    \[ \hFun(A \times B, C) \cong \hFun(A, C^B) \cong \hFun(B,C^A),\] which demonstrates that $\h\cK$ is cartesian closed as a 2-category: functors $A \times B \to C$ transpose to define functors $A \to C^B$ and $B \to C^A$, and natural transformations transpose similarly.
-    \end{proof}
-
-    There is a standard definition of \emph{isomorphism} between two objects in any 1-category, preserved by any functor. Similarly, there is a standard definition of \emph{equivalence} between two objects in any 2-category, preserved by any 2-functor:
-
-    \begin{definition}[equivalence]\label{defn:2-cat-equiv} An \textbf{equivalence} in a 2-category is given by
-    \begin{itemize}
-    \item a pair of objects $A$ and $B$;
-    \item a pair of 1-cells $f \colon A \to B$ and $g \colon B \to A$; and
-    \item a pair of invertible 2-cells
-    \[
-    \begin{tikzcd}[column sep=large]
-    A \arrow[r, bend left=25, equals] \arrow[r, bend right=25, "gf"'] \arrow[r, phantom, "{\scriptstyle\cong\Downarrow\alpha}"] & A & \text{and} & B \arrow[r, bend right=25, equals] \arrow[r, bend left=25, "fg"] \arrow[r, phantom, "{\scriptstyle\cong\Downarrow\beta}"] & B
-    \end{tikzcd}
-    \]
-    \end{itemize}
-    When $A$ and $B$ are \textbf{equivalent}, we write $A \simeq B$ and refer to the 1-cells $f$ and $g$ as \textbf{equivalences}, denoted by ``$\we$.''
-    \end{definition}
-
-    In the case of the homotopy 2-category of an $\infty$-cosmos we have a competing definition of equivalence from \ref{defn:cosmos}: namely a 1-cell $f \colon A \we B$ that induces an equivalence $f_* \colon \Fun(X,A) \we \Fun(X,B)$ on functor spaces --- or equivalently, by Lemma \ref{lem:equiv-htpy-equiv}, a homotopy equivalence defined relative to the interval $\iso$. Crucially, all three notions of equivalence coincide:
-
-    \begin{theorem}[equivalences are equivalences]\label{thm:equiv-are-equiv} In any $\infty$-cosmos $\cK$, the following are equivalent and characterize what it means for a functor $f \colon A \to B$ between $\infty$-categories to define an \textbf{equivalence}.
-    \begin{enumerate}
-    \item\label{itm:rep-equiv} For all $X \in \cK$, the post-composition map $f_* \colon \Fun(X,A) \we \Fun(X,B)$ defines an equivalence of quasi-categories.
-    \item\label{itm:2cat-equiv} There exists a functor $g \colon B \to A$ and natural isomorphisms $\alpha \colon \id_A \cong gf$ and $\beta \colon fg \cong \id_B$ in the homotopy 2-category.
-    \item\label{itm:htpy-equiv} There exists a functor $g \colon B \to A$ and maps
-    \[
-    \begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso  \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] &\text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] \\ & A & &  & B
-    \end{tikzcd}
-    \] in the $\infty$-cosmos $\cK$.
-    \end{enumerate}
-    \end{theorem}
-
-    As an illustrative comparison of 2-categorical and quasi-categorical techniques, rather than appealing to Lemma \ref{lem:equiv-htpy-equiv} to prove \ref{itm:rep-equiv}$\Leftrightarrow$\ref{itm:htpy-equiv}, we re-prove it.
-    \begin{proof}
-      For \ref{itm:rep-equiv}$\To$\ref{itm:2cat-equiv}, if the induced map $f_* \colon \Fun(X,A) \we \Fun(X,B)$  defines an equivalence of quasi-categories then the functor $f_* \colon \hFun(X,A) \we \hFun(X,B)$ defines an equivalence of categories, by Remark \ref{rmk:qcat-htpy-cat-equiv}. In particular, the equialence $f_* \colon \hFun(B,A) \we \hFun(B,B)$ is essentially surjective so there exists $g \in \hFun(B,A)$ and an isomorphism $\beta \colon fg \cong \id_B \in \hFun(B,B)$. Now since $f_* \colon \hFun(A,A) \we \hFun(A,B)$ is fully faithful, the isomorphism $\beta f \colon fgf \cong f \in \hFun(A,B)$ can be lifted to define an isomorphism $\alpha^{-1} \colon gf \cong \id_A \in \hFun(A,A)$. This defines the data of a 2-categorical equivalence in Definition \ref{defn:2-cat-equiv}.
-
-    To see that \ref{itm:2cat-equiv}$\To$\ref{itm:htpy-equiv} recall from Lemma \ref{lem:invertible-2-cell} that the natural isomorphisms $\alpha \colon \id_A \cong gf$ and $\beta \colon fg \cong \id_B$ in $\h\cK$ are represented by maps $\alpha \colon A \to A^\iso$ and $\beta \colon B \to B^\iso$ in $\cK$ as in \eqref{eq:htpy-equiv}.
-
-    Finally, \ref{itm:htpy-equiv}$\To$\ref{itm:rep-equiv} since $\Fun(X,-)$ carries the data of \ref{itm:htpy-equiv} to the data of an equivalence of quasi-categories as in  Definition \ref{defn:qcat-equiv}.
-    \end{proof}
-
-    It is hard to overstate the importance of Theorem \ref{thm:equiv-are-equiv} for the work that follows. The categorical constructions that we introduce for $\infty$-categories, $\infty$-func\-tors, and $\infty$-natural transformations are invariant under 2-cat\-e\-go\-ri\-cal equivalence in the homotopy 2-category and the universal properties we develop similarly characterize 2-categorical equivalence classes of $\infty$-cat\-e\-go\-ries. Theorem \ref{thm:equiv-are-equiv} then asserts that such constructions are ``homotopically correct'': both invariant under equivalence in the $\infty$-cosmos and precisely identifying equivalence classes of objects.
-
-
-    The equivalence invariance of the functor space in the codomain variable is axiomatic, but equivalence invariance in the domain variable is not.\footnote{The functor $\Fun(A,-)$ is a \emph{cosmological functor}, preserving all of the structure of Definition \ref{defn:cosmos}. Cosmological functors then preserve a large class of cosmological notions, including equivalences. These results, however, %Lemma \ref{lem:cosmoi-functors-pres-equiv} does
-    do not apply to $\Fun(-,B)$ since this functor is not cosmological.} Nor is it evident how this could be proven from either \ref{itm:rep-equiv} or \ref{itm:htpy-equiv} of Theorem \ref{thm:equiv-are-equiv}. But using \ref{itm:2cat-equiv} and 2-categorical techniques, there is now a short proof.
-
-    \begin{cor}\label{cor:equiv-invar-fun} Equivalences of $\infty$-categories $A' \we A$ and $B \we B'$ induce an equivalence of functor spaces $\Fun(A,B) \we \Fun(A',B')$.
-    \end{cor}
-    \begin{proof}
-    The representable simplicial functors $\Fun(A,-)\colon \cK \to \qCat$ and $\Fun(-,B)\colon \cK\op \to \qCat$ induce 2-functors $\Fun(A,-)\colon\h\cK\to\h\qCat$ and $\Fun(-,B)\colon\h\cK\op\to\h\qCat$, which preserve the 2-cat\-e\-go\-ri\-cal equivalences of Definition \ref{defn:2-cat-equiv}. By Theorem \ref{thm:equiv-are-equiv} this is what we wanted to show.
-    \end{proof}
-
-    There is also a standard 2-categorical notion of an isofibration, defined in the statement of Proposition \ref{prop:isofib-define-isofib}. %and elaborated upon in Definition \ref{defn:2cat-isofibration}.
-    We now show that any isofibration in an $\infty$-cosmos defines an isofibration in its homotopy 2-category.
-
-    \begin{proposition}[isofibrations are isofibrations]\label{prop:isofib-define-isofib} An isofibration $p \colon E \fib B$  in an $\infty$-cosmos $\cK$ also defines an \textbf{isofibration} in the homotopy 2-category $\h\cK$: given any invertible 2-cell as displayed below-left abutting to $B$ with a specified lift of one of its boundary 1-cells through $p$, there exists an invertible 2-cell abutting to $E$ with this boundary 1-cell as displayed below-right that whiskers with $p$ to the original 2-cell.
-    \[
-      \begin{tikzcd} X \arrow[r, "e"] \arrow[dr, bend right, "b"'] & E \arrow[d, two heads, "p"] \arrow[dl, phantom, "{\scriptstyle\cong\Downarrow\beta}" near start] &\arrow[d, phantom, "="] & X \arrow[rr, start anchor=15, end anchor=165, bend left=20, "e"] \arrow[rr, start anchor=345, end anchor=195, bend right=20, "\bar{e}"', dashed] \arrow[rr, phantom, "{\scriptstyle\cong\Downarrow\gamma}"] && E \arrow[d, two heads, "p"] \\ ~ & B & ~ & & & B
-    \end{tikzcd}
-    \]
-    \end{proposition}
-    \begin{proof} The universal property of the statement says that the functor \[p_* \colon \hFun(X,E) \fib \hFun(X,B)\] is an isofibration of categories in the sense defined in Proposition \ref{prop:cat-cosmos}. By axiom \ref{defn:cosmos}\ref{itm:cosmos-isofib}, since $p \colon E \fib B$ is an isofibration in $\cK$, the induced map $p_* \colon \Fun(X,E) \fib \Fun(X,B)$ is an isofibration of quasi-categories. So it suffices to show that the functor $\ho \colon \qCat\to \Cat$ carries isofibrations of quasi-categories to isofibrations of categories.
-
-    So let us now consider an isofibration $p \colon E \fib B$ between quasi-categories. By Corollary \ref{cor:coherent-iso}, every isomorphism $\beta$ in the homotopy category $\ho{B}$ of the quasi-category $B$ is represented by a simplicial map $\beta \colon \iso \to B$. By Definition \ref{defn:qcat-isofibration}, the lifting problem
-    \[
-    \begin{tikzcd}
-    \catone \arrow[r, "e"] \arrow[d, hook] & E \arrow[d, two heads, "p"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "\beta"'] & B
-    \end{tikzcd}
-    \]
-    can be solved, and the map $\gamma \colon \iso \to E$ so produced represents a lift of the isomorphism from $\ho{B}$ to an isomorphism in $\ho{E}$ with domain $e$.
-    \end{proof}
-
-    \begin{con}[on isofibrations in homotopy 2-categories] Since the converse to Proposition \ref{prop:isofib-define-isofib} does not hold, there is a potential ambiguity when using the term ``isofibration'' to refer to a map in the homotopy 2-category of an $\infty$-cosmos. We adopt the convention that when we declare  a map in $\h\cK$ to be an isofibration we always mean this is the stronger sense of defining an isofibration in $\cK$. This stronger condition gives us access to the 2-categorical lifting property of Proposition \ref{prop:isofib-define-isofib} and also to homotopical properties axiomatized in Definition \ref{defn:cosmos}, which ensure that the strictly defined limits of \ref{defn:cosmos}\ref{itm:cosmos-limits} are automatically equivalence invariant constructions (see \cite[6.2.8,\S C.1]{RiehlVerity:2022eo}). %\S\ref{sec:fib-obj} and Proposition \ref{prop:flexible-homotopical}).
-    \end{con}
-
-    We conclude this chapter with a final definition that can be extracted from the homotopy 2-category of an $\infty$-cosmos. The 1- and 2-cells in the homotopy 2-category from the terminal $\infty$-category $1 \in \cK$ to a generic $\infty$-category $A \in \cK$ define the objects and morphisms in the homotopy category of the $\infty$-category $A$.
-
-    \begin{definition}[homotopy category of an $\infty$-category]\label{defn:htpy-cat-of-infinity-cat} The \textbf{homotopy category} of an $\infty$-category $A$ in an $\infty$-cosmos $\cK$ is defined to be the homotopy category of its underlying quasi-category, that is:
-    \[ \ho A \coloneq \hFun(1,A) \coloneq \ho(\Fun(1,A)).\]
-    \end{definition}
-
-    As we shall discover, homotopy categories generally inherit ``derived'' analogues of structures present at the level of $\infty$-categories. %An early example of this appears in Proposition \ref{prop:induced-adjunctions}\ref{itm:adj-htpy-cat}.
-
-\end{comment}
+  As we shall discover, homotopy categories generally inherit ``derived'' analogues of structures present at the level of $\infty$-categories. %An early example of this appears in Proposition \ref{prop:induced-adjunctions}\ref{itm:adj-htpy-cat}.
