@@ -1,0 +1,128 @@
+% In this file you should put all LaTeX macros to be used
+% both by the pdf version and the web version.
+% This should be most of your macros.
+
+% Theorems
+\theoremstyle{theorem}
+\newtheorem{thm}{Theorem}[section]
+
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{conj}[thm]{Conjecture}
+
+% Definitions
+\theoremstyle{definition}
+
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{ex}[thm]{Example}
+\newtheorem{nex}[thm]{Non-Example}
+\newtheorem{obs}[thm]{Observation}
+\newtheorem{dig}[thm]{Digression}
+\newtheorem{ntn}[thm]{Notation}
+\newtheorem{rec}[thm]{Recall}
+\newtheorem{rmk}[thm]{Remark}
+\newtheorem{pre}[thm]{Preview}
+\newtheorem{war}[thm]{Warning}
+\newtheorem{con}[thm]{Convention}
+
+% Number equations in sections
+\makeatletter
+\let\c@equation\c@thm
+\numberwithin{equation}{section}
+\makeatother
+
+\renewcommand{\theenumi}{\roman{enumi}}
+
+%enriched (i.e. all large) categories.
+\newcommand{\ec}[1]{{\mathord{\mathcal{#1}}}}
+\newcommand{\cA}{\ec{A}}
+\newcommand{\cC}{\ec{C}}
+\newcommand{\cD}{\ec{D}}
+\newcommand{\cK}{\ec{K}}
+\newcommand{\cL}{\ec{L}}
+\newcommand{\cV}{\ec{V}}
+\newcommand{\cW}{\ec{W}}
+\newcommand{\Cat}{\ec{Cat}}
+\newcommand{\Kan}{\ec{Kan}}
+\newcommand{\qCat}{\ec{QCat}}
+\newcommand{\Set}{\ec{Set}}
+\newcommand{\sSet}{\ec{sSet}}
+\newcommand{\twoCat}{2\text{-}\Cat}
+\newcommand{\sCat}{\sSet\text{-}\Cat}
+\newcommand{\eCat}[1]{{#1}\text{-}\Cat}%for enriched categories
+
+% Various hom notations.
+\newcommand{\qop}[1]{{\mathord{\mathsf{#1}}}}
+\newcommand{\Fun}{\qop{Fun}}%mapping spaces in cosmoi
+\newcommand{\ho}{\qop{h}}
+\newcommand{\hFun}{\qop{hFun}}%hom categories in homotopy 2-categories
+\newcommand{\core}{\qop{core}}%not cosmological
+\newcommand{\coreop}[1]{{{#1}^\simeq}}%for core as an operator
+
+\newcommand{\catfour}{{\Bbbfour}}%texdoc unimath-symbols.pdf
+\newcommand{\catthree}{{\Bbbthree}}%texdoc unimath-symbols.pdf
+\newcommand{\cattwo}{{\Bbbtwo}}
+\newcommand{\catone}{{\Bbbone}}
+\newcommand{\catn}{{\mathbb{n}}}
+\newcommand{\catnone}{{\catn\!+\!\catone}}
+\newcommand{\catntwo}{{\catn\!+\!\cattwo}}
+\newcommand{\iso}{{\BbbI}}
+
+%arrows; cheap version of \we and \trvfib
+\makeatletter
+\def\makeslashed#1#2#3#4#5{#1{\mathpalette{\sla@{#2}{#3}{#4}}{#5}}}
+
+\def\@mathlower#1#2#3{\setbox0=\hbox{$\m@th#2#3$}\lower#1\ht0\box0}
+\def\mathlower#1#2{\mathpalette{\@mathlower{#1}}{#2}}
+\makeatother
+
+\newcommand\dhxrightarrow[2][]{%
+  \mathrel{\ooalign{$\xrightarrow[#1\mkern4mu]{#2\mkern4mu}$\cr%
+  \hidewidth$\rightarrow\mkern4mu$}}
+}
+
+% New style, simpler, inline arrows.
+\let\xto=\xrightarrow
+\newcommand{\fib}{\twoheadrightarrow}
+\newcommand{\we}{\xrightarrow{{\smash{\mathlower{0.8}{\sim}}}}}
+\newcommand{\trvfib}{\dhxrightarrow{{\smash{\mathlower{0.8}{\sim}}}}}
+\newcommand{\To}{\Rightarrow}%2-cells
+\newcommand{\isoto}{\xrightarrow{{\smash{\mathlower{0.8}{\cong}}}}}
+\newcommand{\inc}{\hookrightarrow}
+
+%1-cells induced from 2-cells
+\newcommand{\name}[1]{{\ulcorner{#1}\urcorner}}
+
+
+% Elementary operators in the theory of (stratified) simplicial sets.
+
+\newcommand{\face}{\delta}
+\newcommand{\degen}{\sigma}
+\newcommand{\fbv}[1]{\{{#1}\}}
+
+
+% Duals / Superscripted postfix ops
+
+\newcommand{\op}{^{\mathord{\textup{op}}}}
+\newcommand{\co}{^{\mathord{\textup{co}}}}
+\newcommand{\coop}{^{\mathord{\textup{coop}}}}
+
+% General operations on maps etc.
+\newcommand{\cosk}{\textup{cosk}}
+\newcommand{\cod}{\textup{cod}}
+\newcommand{\dom}{\textup{dom}}
+\newcommand{\ev}{\textup{ev}}
+\newcommand{\id}{\textup{id}}
+\newcommand{\sk}{\textup{sk}}
+
+
+%###trial notation for the homotopy 2-category
+\newcommand{\h}{\mathfrak{h}}
+
+% Leibniz...
+% ... for binary operators like join and product
+\newcommand{\leib}[1]{\mathbin{\widehat{#1}}}
+% ... for prefix operators like lim, colim and decalage.
+\newcommand{\uleib}[1]{\widehat{#1}}
+\newcommand{\pwr}{\pitchfork}
