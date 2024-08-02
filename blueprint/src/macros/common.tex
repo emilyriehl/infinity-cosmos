@@ -4,31 +4,32 @@
 
 % Theorems
 \theoremstyle{theorem}
-\newtheorem{thm}{Theorem}[section]
-
-\newtheorem{lem}[thm]{Lemma}
-\newtheorem{prop}[thm]{Proposition}
-\newtheorem{cor}[thm]{Corollary}
-\newtheorem{conj}[thm]{Conjecture}
+\newtheorem{theorem}{Theorem}[section]%for blueprint
+\newtheorem{thm}[theorem]{Theorem}%not for blueprint
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{lem}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{prop}[theorem]{Proposition}
+\newtheorem{cor}[theorem]{Corollary}
+\newtheorem{conj}[theorem]{Conjecture}
+\newtheorem{rmk}[theorem]{Remark}
+\newtheorem{obs}[theorem]{Observation}
+\newtheorem{dig}[theorem]{Digression}
+\newtheorem{rec}[theorem]{Recall}
+\newtheorem{war}[theorem]{Warning}
 
 % Definitions
 \theoremstyle{definition}
-
-\newtheorem{defn}[thm]{Definition}
-\newtheorem{ex}[thm]{Example}
-\newtheorem{nex}[thm]{Non-Example}
-\newtheorem{obs}[thm]{Observation}
-\newtheorem{dig}[thm]{Digression}
-\newtheorem{ntn}[thm]{Notation}
-\newtheorem{rec}[thm]{Recall}
-\newtheorem{rmk}[thm]{Remark}
-\newtheorem{pre}[thm]{Preview}
-\newtheorem{war}[thm]{Warning}
-\newtheorem{con}[thm]{Convention}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{defn}[theorem]{Definition}
+\newtheorem{ex}[theorem]{Example}
+\newtheorem{nex}[theorem]{Non-Example}
+\newtheorem{ntn}[theorem]{Notation}
+\newtheorem{con}[theorem]{Convention}
 
 % Number equations in sections
 \makeatletter
-\let\c@equation\c@thm
+\let\c@equation\c@theorem
 \numberwithin{equation}{section}
 \makeatother
 
