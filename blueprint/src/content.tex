@@ -35,7 +35,7 @@ which axiomatizes the universe in which $\infty$-categories live as objects.\foo
 Before introducing an axiomatic framework that allows us to develop $\infty$-cat\-e\-gory theory in general, we first consider one model in particular:  \emph{quasi-cat\-e\-go\-ries}, which were introduced in 1973 by Boardman and Vogt  \cite{BoardmanVogt:1973hi} in their study of homotopy coherent diagrams. Ordinary 1-categories give examples of quasi-categories via the construction of Definition \ref{defn:nerve}. Joyal first undertook the task of extending 1-category theory to quasi-category theory in \cite{Joyal:2002qk} and \cite{Joyal:2008tq} and in several unpublished draft book manuscripts. The majority of the results in this section are due to him.
 
 
-\begin{defn}[the simplex category]\label{defn:simplex-cat}
+\begin{defn}[the simplex category]\label{defn:simplex-category}
  \lean{SimplexCategory.smallCategory}
  \leanok
   Let $\Del$ denote the \textbf{simplex category} of finite nonempty ordinals $[n] = \{0 <1 <\cdots < n\}$ and order-preserving maps. These include in particular the
@@ -47,10 +47,10 @@ Before introducing an axiomatic framework that allows us to develop $\infty$-cat
 \]
 whose images, respectively, omit and double up on the element $i \in [n]$. Every morphism in $\Del$ factors uniquely as an epimorphism followed by a monomorphism; these epimorphisms, the \textbf{degeneracy operators}, decompose as composites of elementary degeneracy operators, while the monomorphisms, the \textbf{face operators}, decompose as composites of elementary face operators.
 
-\begin{defn}
-  \lean{SimplexCategory.smallCategory}
+\begin{defn}[the category of simplicial sets]\label{defn:sset-category}
+  \lean{SSet.largeCategory}
  \leanok
-
+ \uses{defn:simplex-category}
 The category of \textbf{simplicial sets} is the category $\sSet \coloneq \Set^{\Del\op}$ of pre\-sheaves on the simplex category.
 \end{defn}
 
