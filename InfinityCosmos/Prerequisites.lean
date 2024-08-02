@@ -1,4 +1,4 @@
-import InfinityCosmos.AlgebraicTopology.SimplicialSet.SimplexCategory
-import InfinityCosmos.AlgebraicTopology.SimplicialSet.SimplicialSet
-import InfinityCosmos.AlgebraicTopology.SimplicialSet.Nerve
-import InfinityCosmos.AlgebraicTopology.SimplicialSet.Quasicategory
+import InfinityCosmos.Mathlib.AlgebraicTopology.SimplexCategory
+import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialSet
+import InfinityCosmos.Mathlib.AlgebraicTopology.Nerve
+import InfinityCosmos.Mathlib.AlgebraicTopology.Quasicategory

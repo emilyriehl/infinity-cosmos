@@ -1,1 +1,1 @@
-import InfinityCosmos.Example
+import InfinityCosmos.Prerequisites
