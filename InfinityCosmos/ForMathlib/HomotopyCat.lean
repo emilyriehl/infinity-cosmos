@@ -1380,17 +1380,17 @@ nonrec def nerve₂Adj : SSet.Truncated.hoFunctor₂.{0} ⊣ nerveFunctor₂.{0,
       rw [ReflQuiv.adj.right_triangle_components C]
     simp
 
-/-- ER: A new strategy to prove that nerveFunctor₂ is fully faithful: just argue directly using toNerve₂.ext to help with fullness. Faithfulness is easy (modulo the perpetuating universe error).-/
-instance nerveFunctor₂.faithful : nerveFunctor₂.{0,0}.Faithful := by
-  have := ReflQuiv.forget.{0,0}.Faithful
-  exact (Functor.Faithful.of_comp_iso (G := oneTruncation₂.{0}) (H := ReflQuiv.forget.{0,0}) nerve₂oneTrunc.natIso.{0})
+/-- ER: A new strategy to prove that nerveFunctor₂ is fully faithful: just argue directly using toNerve₂.ext to help with fullness. Faithfulness is easy (modulo a universe error I can't figure out).-/
+instance nerveFunctor₂.faithful : nerveFunctor₂.{u,u}.Faithful := by sorry
+  -- have lem := ReflQuiv.forget.{u,u}.Faithful
+  -- exact (Functor.Faithful.of_comp_iso (G := oneTruncation₂.{u}) (H := ReflQuiv.forget.{u,u}) nerve₂oneTrunc.natIso.{u})
 
 /-- ER: Here is my best attempt to prove fullness. map_comp should be extractible by using lem somehow. -/
-instance nerveFunctor₂.full : nerveFunctor₂.Full where
+instance nerveFunctor₂.full : nerveFunctor₂.{u,u}.Full where
   map_surjective := by
     intro X Y F
-    let uF := SSet.oneTruncation₂.map F
-    let uF' := (nerve₂oneTrunc.natIso.inv.app X) ≫ uF ≫ (nerve₂oneTrunc.natIso.hom.app Y)
+    let uF := SSet.oneTruncation₂.{u}.map F
+    let uF' := (nerve₂oneTrunc.natIso.{u}.inv.app X) ≫ uF ≫ (nerve₂oneTrunc.natIso.{u}.hom.app Y)
     let fF : X ⥤ Y := by
       refine ReflPrefunctor.toFunctor uF' ?_
       intro a b c h k
@@ -1407,13 +1407,13 @@ instance nerveFunctor₂.full : nerveFunctor₂.Full where
     refine Exists.intro ?_ ?_
     · exact fF
     · refine toNerve₂.ext' (nerveFunctor₂.map fF) F ?_
-      · have nat := nerve₂oneTrunc.natIso.hom.naturality fF
+      · have nat := nerve₂oneTrunc.natIso.{u}.hom.naturality fF
         simp at nat
         rw [eq] at nat
-        simp [uF'] at nat
-        simp [uF] at nat
-        have := (Iso.cancel_iso_hom_right (oneTruncation₂.map (nerveFunctor₂.map fF)) (oneTruncation₂.map F) (nerve₂oneTrunc.natIso.app Y)).mp nat
-        exact this
+        simp [uF', uF] at nat
+        exact
+          ((Iso.cancel_iso_hom_right (oneTruncation₂.{u}.map (nerveFunctor₂.{u}.map fF))
+            (oneTruncation₂.{u}.map F) (nerve₂oneTrunc.natIso.{u}.app Y)).mp nat)
 
 instance nerveFunctor₂.fullyfaithful : nerveFunctor₂.FullyFaithful := by
   have := nerveFunctor₂.faithful
@@ -1490,6 +1490,7 @@ instance nerveFunctor₂.fullyfaithful : nerveFunctor₂.FullyFaithful := by
 -- instance nerveFunctor₂.fullyfaithful : nerveFunctor₂.FullyFaithful := by sorry
 -- --  apply Adjunction.fullyFaithfulROfIsIsoCounit nerve₂Adj
 
+/-- ER: Universe errors from here. -/
 instance nerve₂Adj.reflective : Reflective nerveFunctor₂.{0,0} :=
   Reflective.mk SSet.Truncated.hoFunctor₂ nerve₂Adj
 
