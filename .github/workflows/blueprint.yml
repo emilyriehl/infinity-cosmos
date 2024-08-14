@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main # Trigger on pushes to the default branch
+      - pitmonticone/fix-jekyll-urls # Trigger on pushes to the branch with the fix for Jekyll URLs
   workflow_dispatch:        # Allow manual triggering of the workflow from the GitHub Actions interface
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
