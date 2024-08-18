@@ -446,12 +446,9 @@ end
 
 [Kerodon, 0032] -/
 instance (C : Type) [Category C] : Quasicategory (nerve C) := by
-  apply quasicategory_of_filler
-  intro n i σ₀ h₀ hₙ
-  use filler σ₀ h₀ hₙ
-  intro j hj
+  refine quasicategory_of_filler _ fun n i σ₀ h₀ hₙ ↦ ⟨filler σ₀ h₀ hₙ, fun j hj ↦ ?_⟩
   cases n using Nat.casesAuxOn with
-  | zero => apply filler_spec_zero _ _ _ _ hj
-  | succ n => apply filler_spec_succ _ _ _ _ hj
+  | zero => exact filler_spec_zero _ _ _ _ hj
+  | succ n => exact filler_spec_succ _ _ _ _ hj
 
 end SSet
