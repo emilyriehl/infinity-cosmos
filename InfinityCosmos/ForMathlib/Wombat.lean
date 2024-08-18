@@ -52,8 +52,6 @@ open Simplicial
 
 namespace SSet
 
--- def horn.δ {n : ℕ} (i j : Fin (n+2)) (h : j ≠ i) : Λ[n+1, i] _[n] := horn.face i j h
-
 section nerve
 
 variable {C : Type} [inst : Category C]
