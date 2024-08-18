@@ -6,6 +6,7 @@ import Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts
 import Mathlib.CategoryTheory.Monad.Limits
 import Mathlib.CategoryTheory.Opposites
 import Mathlib.Tactic.LiftLets
+import InfinityCosmos.ForMathlib.Wombat
 
 noncomputable section
 
@@ -415,6 +416,20 @@ def mkOfLe {n} (i j : Fin (n+1)) (h : i ≤ j) : [1] ⟶ [n] :=
       | 0, 1, _ => h
   }
 
+theorem Fin.le_succ {n} (i : Fin n) : i.castSucc ≤ i.succ := Nat.le_succ i
+
+def Fin.hom_succ {n} (i : Fin n) : i.castSucc ⟶ i.succ := homOfLE (Fin.le_succ i)
+
+def mkOfSucc {n} (i : Fin n) : [1] ⟶ [n] :=
+  SimplexCategory.mkHom {
+    toFun := fun | 0 => i | 1 => i.succ
+    monotone' := fun
+      | 0, 0, _ | 1, 1, _ => le_rfl
+      | 0, 1, _ => by
+        simp only [Fin.coe_eq_castSucc]
+        exact Fin.le_succ i
+  }
+
 def mkOfLeComp {n} (i j k : Fin (n+1)) (h₁ : i ≤ j) (h₂ : j ≤ k): [2] ⟶ [n] :=
   SimplexCategory.mkHom {
     toFun := fun | 0 => i | 1 => j | 2 => k
@@ -506,6 +521,121 @@ local notation (priority := high) "[" n "]" => SimplexCategory.mk n
 set_option quotPrecheck false
 local macro:max (priority := high) "[" n:term "]₂" : term =>
   `((⟨SimplexCategory.mk $n, by decide⟩ : Δ 2))
+
+private
+def pt {n} (i : Fin (n + 1)) : ([0] : SimplexCategory) ⟶ [n] := SimplexCategory.const _ _ i
+
+private
+def pt' {n} (i : Fin (n + 1)) : StructuredArrow (op [n]) (Δ.ι 2).op :=
+  .mk (Y := op [0]₂) (.op (pt i))
+
+private
+def ar {n} {i j : Fin (n+1)} (k : i ⟶ j) : [1] ⟶ [n] := mkOfLe _ _ k.le
+
+private
+def ar' {n} {i j : Fin (n+1)} (k : i ⟶ j) : StructuredArrow (op [n]) (Δ.ι 2).op :=
+  .mk (Y := op [1]₂) (.op (ar k))
+
+private
+def arr' {n} (i : Fin n) : StructuredArrow (op [n]) (Δ.ι 2).op := ar' (Fin.hom_succ i)
+
+private
+def arr'.dom {n} (i : Fin n) : (arr' i) ⟶ (pt' i.castSucc) := by
+  fapply StructuredArrow.homMk
+  · exact (.op (SimplexCategory.const _ _ 0))
+  · apply Quiver.Hom.unop_inj
+    ext z; revert z; intro (0 : Fin 1); rfl
+
+private
+def ran.lift {C : Cat} {n}
+    (s : Cone (StructuredArrow.proj (op [n]) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C))
+    (x : s.pt) : nerve C _[n] := by
+  fapply SSet.nerve.mk
+  · exact (fun i => s.π.app (pt' i) x |>.obj 0)
+  · intro i
+    refine eqToHom ?_
+    ≫ (s.π.app (arr' i) x).map' 0 1
+    ≫ eqToHom ?_
+    · have hi := congr_fun (s.π.naturality <|
+          StructuredArrow.homMk (f := arr' i) (f' := pt' i.castSucc)
+            (.op (SimplexCategory.const _ _ 0)) <| by
+            apply Quiver.Hom.unop_inj
+            ext z; revert z; intro (0 : Fin 1); rfl) x
+      simp at hi
+      rw [hi]
+      exact rfl
+    · have hj := congr_fun (s.π.naturality <|
+          StructuredArrow.homMk (f := arr' i) (f' := pt' i.succ)
+            (.op (SimplexCategory.const _ _ 1)) <| by
+            apply Quiver.Hom.unop_inj
+            ext z; revert z; intro (0 : Fin 1); rfl) x
+      simp at hj
+      rw [hj]
+      exact rfl
+
+private
+def fact.arr {C : Cat} {n}
+    (s : Cone (StructuredArrow.proj (op [n]) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C))
+    (x : s.pt)
+    (j : StructuredArrow (op [n]) (Δ.ι 2).op)
+    (i : Fin ((unop ((Δ.ι 2).op.obj ((StructuredArrow.proj (op [n]) (Δ.ι 2).op).obj j))).len + 1)) : j ⟶ (pt' i) := by
+  fapply StructuredArrow.homMk
+  · exact (.op (SimplexCategory.const _ _ 0))
+  · apply Quiver.Hom.unop_inj
+    simp [pt']
+    simp [pt]
+    have := SimplexCategory.const_comp [0] j.hom.unop i
+    simp at i
+    ext z
+    revert z
+    intro | 0 => sorry
+
+
+def isPointwiseRightKanExtensionAt' (C : Cat) (n : ℕ) :
+    RightExtension.IsPointwiseRightKanExtensionAt
+      (nerveRightExtension C) (op ([n] : SimplexCategory)) := by
+  show IsLimit _
+  unfold nerveRightExtension RightExtension.coneAt
+  simp only [nerveFunctor_obj, RightExtension.mk_left, nerve_obj, SimplexCategory.len_mk,
+    const_obj_obj, op_obj, comp_obj, StructuredArrow.proj_obj, whiskeringLeft_obj_obj,
+    RightExtension.mk_hom, NatTrans.id_app, comp_id]
+  exact {
+    lift := fun s x => ran.lift s x
+      -- ER: This also works.
+      -- intro s x
+      -- show (nerve C).obj (op [n])
+      -- fapply SSet.nerve.mk
+      -- · exact (fun i => s.π.app (pt' i) x |>.obj 0)
+      -- · intro i
+      --   have := (s.π.app (arr' i) x).map' 0 1
+      --   dsimp at this ⊢
+      --   have hi := congr_fun (s.π.naturality <|
+      --     StructuredArrow.homMk (f := arr' i) (f' := pt' i.castSucc)
+      --       (.op (SimplexCategory.const _ _ 0)) <| by
+      --       apply Quiver.Hom.unop_inj
+      --       ext z; revert z; intro (0 : Fin 1); rfl) x
+      --   have hj := congr_fun (s.π.naturality <|
+      --     StructuredArrow.homMk (f := arr' i) (f' := pt' i.succ)
+      --       (.op (SimplexCategory.const _ _ 1)) <| by
+      --       apply Quiver.Hom.unop_inj
+      --       ext z; revert z; intro (0 : Fin 1); rfl) x
+      --   simp at hi hj
+      --   rw [hi, hj]
+      --   exact this
+    fac := by
+      intro s j
+      ext x
+      fapply ComposableArrows.ext
+      · intro i
+        unfold ran.lift SSet.nerve.mk pt' pt
+        simp
+        have := congr_fun (s.π.naturality (fact.arr s x j i)) x
+        unfold pt' pt fact.arr at this
+        simp at this
+        sorry
+      · sorry
+    uniq := sorry
+  }
 
 def isPointwiseRightKanExtensionAt (C : Cat) (n : ℕ) :
     RightExtension.IsPointwiseRightKanExtensionAt
