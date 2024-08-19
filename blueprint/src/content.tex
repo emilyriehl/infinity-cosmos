@@ -96,11 +96,11 @@ The definition of a quasi-category can be found in Mathlib as well.
 \leanok
 \uses{defn:simplicial-set}
    A \textbf{quasi-category} is a simplicial set $A$ in which any \textbf{inner horn} can be extended to a simplex, solving the displayed lifting problem:
-  \begin{equation}\label{eq:qcat-defn}
+  \begin{figure}\label{eq:qcat-defn}
   \begin{tikzcd}
   \Lambda^k[n] \arrow[r] \arrow[d, hook] & A  \\ \Delta[n] \arrow[ur, dashed]
   \end{tikzcd} \qquad  \text{for}\ \ n \geq 2,\ 0 < k < n.
-  \end{equation}
+\end{figure}
 \end{definition}
 
   Quasi-categories were first introduced by Boardman and Vogt \cite{BoardmanVogt:1973hi} under the name ``weak Kan complexes,'' as they generalize the following notion:
