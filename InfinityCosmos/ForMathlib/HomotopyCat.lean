@@ -84,7 +84,7 @@ lemma mk_obj {V W : Type*} [ReflQuiver V] [ReflQuiver W] {obj : V → W} {map} {
 lemma mk_map {V W : Type*} [ReflQuiver V] [ReflQuiver W] {obj : V → W} {map} {X Y : V} {f : X ⟶ Y} :
     (Prefunctor.mk obj map).map f = map f := rfl
 
-@[ext]
+-- @[ext]
 theorem ext {V : Type u} [ReflQuiver.{v₁} V] {W : Type u₂} [ReflQuiver.{v₂} W] {F G : ReflPrefunctor V W}
     (h_obj : ∀ X, F.obj X = G.obj X)
     (h_map : ∀ (X Y : V) (f : X ⟶ Y),
