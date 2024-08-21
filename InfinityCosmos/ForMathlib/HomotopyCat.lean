@@ -546,6 +546,8 @@ def arr'.dom {n} (i : Fin n) : (arr' i) ⟶ (pt' i.castSucc) := by
   · apply Quiver.Hom.unop_inj
     ext z; revert z; intro (0 : Fin 1); rfl
 
+/-- This is the value at x : s.pt of the lift of the cone s through the cone with summit nerve
+C _[n].-/
 private
 def ran.lift {C : Cat} {n}
     (s : Cone (StructuredArrow.proj (op [n]) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C))
@@ -573,25 +575,56 @@ def ran.lift {C : Cat} {n}
       rw [hj]
       exact rfl
 
+/-- An object j : StructuredArrow (op [n]) (Δ.ι 2).op defines a morphism Fin (jlen+1) -> Fin(n+1).
+This calculates the image of i : Fin(jlen+1); we might think of this as j(i). -/
 private
-def fact.arr.dom.pt {n}
+def fact.obj.dom {n}
     (j : StructuredArrow (op [n]) (Δ.ι 2).op)
     (i : Fin ((unop ((Δ.ι 2).op.obj ((StructuredArrow.proj (op [n]) (Δ.ι 2).op).obj j))).len + 1)) :
     Fin (n + 1) := (SimplexCategory.Hom.toOrderHom j.hom.unop) i
 
+/-- This is the unique arrow in StructuredArrow (op [n]) (Δ.ι 2).op from j to pt' of the j(i)
+calculated above. This is used to prove that ran.lift defines a factorization on objects.-/
 private
-def fact.arr {n}
+def fact.obj.arr {n}
     (j : StructuredArrow (op [n]) (Δ.ι 2).op)
     (i : Fin ((unop ((Δ.ι 2).op.obj ((StructuredArrow.proj (op [n]) (Δ.ι 2).op).obj j))).len + 1))
-    : j ⟶ (pt' (fact.arr.dom.pt j i)) := by
+    : j ⟶ (pt' (fact.obj.dom j i)) :=
+  StructuredArrow.homMk (.op (SimplexCategory.const _ _ i)) <| by
+    apply Quiver.Hom.unop_inj
+    ext z; revert z; intro | 0 => rfl
+
+/-- An object j : StructuredArrow (op [n]) (Δ.ι 2).op defines a morphism Fin (jlen+1) -> Fin(n+1).
+This calculates the image of i.succ : Fin(jlen+1); we might think of this as j(i.succ). -/
+private
+def fact.map.cod {n}
+    (j : StructuredArrow (op [n]) (Δ.ι 2).op)
+    (i : Fin ((unop ((Δ.ι 2).op.obj ((StructuredArrow.proj (op [n]) (Δ.ι 2).op).obj j))).len)) :
+    Fin (n + 1) := (SimplexCategory.Hom.toOrderHom j.hom.unop) i.succ
+
+/-- The unique arrow (fact.obj.dom j i.castSucc) ⟶ (fact.map.cod j i) in Fin(n+1). -/
+private
+def fact.map.map {n}
+    (j : StructuredArrow (op [n]) (Δ.ι 2).op)
+    (i : Fin ((unop ((Δ.ι 2).op.obj ((StructuredArrow.proj (op [n]) (Δ.ι 2).op).obj j))).len)) :
+    (fact.obj.dom j i.castSucc) ⟶ (fact.map.cod j i) := by
+  let jfun := Monotone.functor (j.hom.unop.toOrderHom).monotone
+  exact (jfun.map (Fin.hom_succ i))
+
+/-- This is the unique arrow in StructuredArrow (op [n]) (Δ.ι 2).op from j to ar' of the map just
+constructed. This is used to prove that ran.lift defines a factorization on maps.-/
+private
+def fact.map.arr {n}
+    (j : StructuredArrow (op [n]) (Δ.ι 2).op)
+    (i : Fin ((unop ((Δ.ι 2).op.obj ((StructuredArrow.proj (op [n]) (Δ.ι 2).op).obj j))).len))
+    : j ⟶ (ar' (fact.map.map j i)) := by
   fapply StructuredArrow.homMk
-  · exact (.op (SimplexCategory.const _ _ i))
+  · exact (.op (mkOfSucc i))
   · apply Quiver.Hom.unop_inj
-    have := SimplexCategory.const_comp [0] j.hom.unop i
-    simp at i
-    ext z
-    revert z
-    intro | 0 => rfl
+    ext z; revert z
+    intro
+    | 0 => sorry
+    | 1 => rfl
 
 def isPointwiseRightKanExtensionAt (C : Cat.{0}) (n : ℕ) :
     RightExtension.IsPointwiseRightKanExtensionAt
@@ -628,8 +661,6 @@ def isPointwiseRightKanExtensionAt (C : Cat.{0}) (n : ℕ) :
       intro s j
       ext x
       unfold ran.lift SSet.nerve.mk pt' pt arr' ar' ar
-      let jlen := ((Δ.ι 2).obj (unop j.right)).len
-      have jhomunop' : [jlen] ⟶ [n] := j.hom.unop
       fapply ComposableArrows.ext
       · intro i
         simp at i
@@ -640,12 +671,11 @@ def isPointwiseRightKanExtensionAt (C : Cat.{0}) (n : ℕ) :
           ComposableArrows.map', types_comp_apply, nerve_map, SimplexCategory.toCat_map,
           ComposableArrows.whiskerLeft_obj,
           ComposableArrows.mkOfObjOfMapSucc_obj, Fin.zero_eta, Fin.isValue, Fin.mk_one, Monotone.functor_obj]
-        have ji := (SimplexCategory.Hom.toOrderHom jhomunop') i
-        have nat := congr_fun (s.π.naturality (fact.arr j i)) x
-        unfold pt' pt fact.arr at nat
+        have nat := congr_fun (s.π.naturality (fact.obj.arr j i)) x
+        unfold pt' pt fact.obj.arr at nat
         simp at nat
         have := congrArg (·.obj 0) <| nat
-        unfold fact.arr.dom.pt nerveFunctor₂ truncation at this
+        unfold fact.obj.dom nerveFunctor₂ truncation at this
         exact this
       · intro i hi
         simp only [StructuredArrow.proj_obj, op_obj, const_obj_obj, comp_obj, nerveFunctor_obj,
@@ -656,6 +686,10 @@ def isPointwiseRightKanExtensionAt (C : Cat.{0}) (n : ℕ) :
           Int.reduceNeg, Int.Nat.cast_ofNat_Int, ComposableArrows.whiskerLeft_obj,
           Monotone.functor_obj, ComposableArrows.mkOfObjOfMapSucc_obj,
           ComposableArrows.whiskerLeft_map]
+        have nat := congr_fun (s.π.naturality (fact.map.arr j (Fin.mk i hi))) x
+        unfold ar' ar fact.map.arr fact.obj.dom fact.map.cod at nat
+        simp at nat
+        -- have := congrArg (·.map' 0 1) <| nat
         sorry
     uniq := by
       intro s lift' fact'
@@ -671,6 +705,9 @@ def isPointwiseRightKanExtensionAt (C : Cat.{0}) (n : ℕ) :
         simp only [id_eq, Int.reduceNeg, Int.Nat.cast_ofNat_Int, ComposableArrows.map',
           SimplexCategory.len_mk, StructuredArrow.proj_obj, StructuredArrow.mk_right, op_obj,
           Fin.zero_eta, Fin.isValue, Fin.mk_one, ComposableArrows.mkOfObjOfMapSucc_obj]
+        have eq := congr_fun (fact' (arr' (Fin.mk i hi))) x
+        simp at eq
+--        have := congrArg (·.hom) <| eq
         sorry
   }
 end
