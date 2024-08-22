@@ -1342,46 +1342,83 @@ def toNerve₂.mk {X : SSet.Truncated 2} {C : Cat}
         | 1 => exact fun f => .mk₁ (F.map ⟨f, rfl, rfl⟩)
         | 2 => exact fun φ => .mk₂ (F.map (φ01₂ φ)) (F.map (φ12₂ φ))
       naturality := by
-        rintro ⟨⟨m, hm⟩⟩ ⟨⟨n, hn⟩⟩ ⟨f⟩
+        rintro ⟨⟨m, hm⟩⟩ ⟨⟨n, hn⟩⟩ ⟨α⟩
         induction' m using SimplexCategory.rec with m
         induction' n using SimplexCategory.rec with n
         ext x
-        dsimp at f
+        dsimp at α
         simp [SimplexCategory.rec]
         (match m with | 0 | 1 | 2 => ?_) <;> (match n with | 0 | 1 | 2 => ?_)
-        · unfold nerveFunctor₂
-          simp only [comp_obj, nerveFunctor_obj]
-          apply ComposableArrows.ext
+        · apply ComposableArrows.ext₀
+          unfold nerveFunctor₂ truncation
+          simp only [ComposableArrows.obj', Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
+            ComposableArrows.mk₀_obj, comp_obj, nerveFunctor_obj, whiskeringLeft_obj_obj,
+            Functor.comp_map, op_obj, op_map, Quiver.Hom.unop_op', nerve_map, Quiver.Hom.unop_op,
+            SimplexCategory.toCat_map, ComposableArrows.whiskerLeft_obj, Monotone.functor_obj]
+          -- ER: Would help if we knew α = 𝟙 [0].
+          sorry
+        · fapply ComposableArrows.ext₁
           · simp
-          · intro i
-            dsimp
-            sorry
-        · sorry
-        · sorry
-        · unfold nerveFunctor₂
-          simp only [comp_obj, nerveFunctor_obj]
-          apply ComposableArrows.ext
-          · simp
-          · intro i
-            dsimp
-            sorry
-        · sorry
-        · sorry
-        · unfold nerveFunctor₂
-          simp only [comp_obj, nerveFunctor_obj]
-          apply ComposableArrows.ext
-          · simp
-          · intro i
-            dsimp
-            sorry
-        · sorry
-        · unfold nerveFunctor₂
-          simp only [comp_obj, nerveFunctor_obj]
-          apply ComposableArrows.ext
-          · intro i
-            dsimp
             sorry
           · sorry
+          · sorry
+        · sorry
+        · apply ComposableArrows.ext₀
+          unfold nerveFunctor₂ truncation Δ.ι
+          simp only [ComposableArrows.obj', Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
+            ComposableArrows.mk₀_obj, comp_obj, nerveFunctor_obj, whiskeringLeft_obj_obj,
+            Functor.comp_map, op_obj, op_map, Quiver.Hom.unop_op', nerve_map, Quiver.Hom.unop_op,
+            SimplexCategory.toCat_map, ComposableArrows.whiskerLeft_obj, Monotone.functor_obj,
+            ComposableArrows.mk₁_obj, ComposableArrows.Mk₁.obj]
+          -- ER: Would help if we know maps out of 0 were constant.
+          sorry
+        · sorry
+        · sorry
+        · apply ComposableArrows.ext₀
+          unfold nerveFunctor₂ truncation Δ.ι SimplexCategory.Truncated.inclusion fullSubcategoryInclusion inducedFunctor
+          simp only [ComposableArrows.obj', Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
+            ComposableArrows.mk₀_obj, comp_obj, nerveFunctor_obj, whiskeringLeft_obj_obj,
+            Functor.comp_map, op_obj, op_map, Quiver.Hom.unop_op', nerve_map,
+            SimplexCategory.len_mk, Quiver.Hom.unop_op, SimplexCategory.toCat_map,
+            ComposableArrows.whiskerLeft_obj, Monotone.functor_obj] -- , ComposableArrows.precomp_obj]
+          -- ER: Would help if we know maps out of 0 were constant.
+          sorry
+        · sorry
+        · sorry
+        -- (match m with | 0 | 1 | 2 => ?_) <;> (match n with | 0 | 1 | 2 => ?_)
+        -- · unfold nerveFunctor₂
+        --   simp only [comp_obj, nerveFunctor_obj]
+        --   apply ComposableArrows.ext
+        --   · simp
+        --   · intro i
+        --     dsimp
+        --     sorry
+        -- · sorry
+        -- · sorry
+        -- · unfold nerveFunctor₂
+        --   simp only [comp_obj, nerveFunctor_obj]
+        --   apply ComposableArrows.ext
+        --   · simp
+        --   · intro i
+        --     dsimp
+        --     sorry
+        -- · sorry
+        -- · sorry
+        -- · unfold nerveFunctor₂
+        --   simp only [comp_obj, nerveFunctor_obj]
+        --   apply ComposableArrows.ext
+        --   · simp
+        --   · intro i
+        --     dsimp
+        --     sorry
+        -- · sorry
+        -- · unfold nerveFunctor₂
+        --   simp only [comp_obj, nerveFunctor_obj]
+        --   apply ComposableArrows.ext
+        --   · intro i
+        --     dsimp
+        --     sorry
+        --   · sorry
 
 /-- ER: We might prefer this version where we are missing the analogue of the hypothesis hyp
 conjugated by the isomorphism nerve₂Adj.NatIso.app C -/
