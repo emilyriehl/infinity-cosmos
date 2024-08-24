@@ -54,7 +54,7 @@ namespace SSet
 
 section nerve
 
-variable {C : Type} [inst : Category C]
+variable {C : Type u} [inst : Category.{v} C]
 
 -- TODO: move
 /-- A constructor for `n`-simplices of the nerve of a category,
@@ -212,7 +212,7 @@ end nerve
 
 namespace filler
 
-variable {C : Type} [Category C]
+variable {C : Type u} [Category.{v} C]
 variable {n : ℕ} {i : Fin (n+3)} (σ₀ : Λ[n+2, i] ⟶ nerve C)
 variable (h₀ : 0 < i) (hₙ : i < Fin.last (n+2))
 
@@ -231,7 +231,7 @@ end filler
 
 section
 
-variable {C : Type} [Category C]
+variable {C : Type u} [Category.{v} C]
 variable {n : ℕ} {i : Fin (n+3)} (σ₀ : Λ[n+2, i] ⟶ nerve C)
 variable (h₀ : 0 < i) (hₙ : i < Fin.last (n+2))
 
@@ -451,7 +451,7 @@ end
 /-- The nerve of a category is a quasicategory.
 
 [Kerodon, 0032] -/
-instance (C : Type) [Category C] : Quasicategory (nerve C) := by
+instance (C : Type u) [Category.{v} C] : Quasicategory (nerve C) := by
   refine quasicategory_of_filler _ fun n i σ₀ h₀ hₙ ↦ ⟨filler σ₀ h₀ hₙ, fun j hj ↦ ?_⟩
   cases n using Nat.casesAuxOn with
   | zero => exact filler_spec_zero _ _ _ _ hj
