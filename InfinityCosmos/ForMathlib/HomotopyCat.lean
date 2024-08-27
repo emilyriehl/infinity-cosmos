@@ -233,10 +233,7 @@ def forget : Cat.{v, u} ⥤ ReflQuiv.{v, u} where
 
 theorem forget_faithful {C D : Cat.{v, u}} (F G : C ⥤ D)
     (hyp : forget.map F = forget.map G) : F = G := by
-  cases F
-  cases G
-  cases hyp
-  rfl
+  cases F; cases G; cases hyp; rfl
 
 theorem forget.Faithful : Functor.Faithful (forget) where
   map_injective := fun hyp ↦ forget_faithful _ _ hyp
@@ -249,10 +246,7 @@ def forgetToQuiv : ReflQuiv.{v, u} ⥤ Quiv.{v, u} where
 
 theorem forgetToQuiv_faithful {V W : ReflQuiv} (F G : V ⥤rq W)
     (hyp : forgetToQuiv.map F = forgetToQuiv.map G) : F = G := by
-  cases F
-  cases G
-  cases hyp
-  rfl
+  cases F; cases G; cases hyp; rfl
 
 theorem forgetToQuiv.Faithful : Functor.Faithful (forgetToQuiv) where
   map_injective := fun hyp ↦ forgetToQuiv_faithful _ _ hyp
@@ -626,6 +620,7 @@ def arr'.dom {n} (i : Fin n) : (arr' i) ⟶ (pt' i.castSucc) := by
   · apply Quiver.Hom.unop_inj
     ext z; revert z; intro (0 : Fin 1); rfl
 
+
 theorem ran.lift.eq {C : Cat} {n}
     (s : Cone (StructuredArrow.proj (op [n]) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C))
     (x : s.pt) {i j} (k : i ⟶ j) :
@@ -742,12 +737,9 @@ def ran.lift' {C : Cat} {n}
       dsimp at h'g ⊢
       dsimp at h'fg ⊢
       refine ((heq_comp ?_ ?_ ?_ h'f ((eqToHom_comp_heq_iff ..).2 h'g)).trans ?_).symm
-      · refine (ran.lift.eq ..).symm.trans ?_
-        exact congr($(congr_fun (s.π.naturality (tri₀ f g)) x).obj 0)
-      · refine (ran.lift.eq₂ ..).symm.trans ?_
-        exact congr($(congr_fun (s.π.naturality (tri₁ f g)) x).obj 0)
-      · refine (ran.lift.eq₂ ..).symm.trans ?_
-        exact congr($(congr_fun (s.π.naturality (tri₂ f g)) x).obj 0)
+      · exact (ran.lift.eq ..).symm.trans congr($(congr_fun (s.π.naturality (tri₀ f g)) x).obj 0)
+      · exact (ran.lift.eq₂ ..).symm.trans congr($(congr_fun (s.π.naturality (tri₁ f g)) x).obj 0)
+      · exact (ran.lift.eq₂ ..).symm.trans congr($(congr_fun (s.π.naturality (tri₂ f g)) x).obj 0)
       refine (h'fg.trans ?_).symm
       simp [nerveFunctor₂, truncation, ← map_comp]; congr 1
 
@@ -831,11 +823,8 @@ def isPointwiseRightKanExtensionAt (C : Cat) (n : ℕ) :
     fac := by
       intro s j
       ext x
-      refine have obj_eq := ?a; ComposableArrows.ext obj_eq ?b
-      · intro i
-        have nat := congr_fun (s.π.naturality (fact.obj.arr j i)) x
-        have := congrArg (·.obj 0) <| nat
-        exact this
+      refine have obj_eq := ?_; ComposableArrows.ext obj_eq ?_
+      · exact fun i ↦ congrArg (·.obj 0) <| congr_fun (s.π.naturality (fact.obj.arr j i)) x
       · intro i hi
         simp only [StructuredArrow.proj_obj, op_obj, const_obj_obj, comp_obj, nerveFunctor_obj,
           RightExtension.mk_left, nerve_obj, SimplexCategory.len_mk, whiskeringLeft_obj_obj,
@@ -871,8 +860,7 @@ def isPointwiseRightKanExtensionAt (C : Cat) (n : ℕ) :
         rw [ComposableArrows.mkOfObjOfMapSucc_map_succ _ _ i hi]
         have eq := congr_fun (fact' (arr' (Fin.mk i hi))) x
         simp at eq ⊢
-        have := congr_arg_heq (·.hom) <| eq
-        exact (conj_eqToHom_iff_heq' _ _ _ _).2 this
+        exact (conj_eqToHom_iff_heq' _ _ _ _).2 (congr_arg_heq (·.hom) <| eq)
   }
 end
 
@@ -1382,15 +1370,14 @@ theorem nerve₂Adj.counit.naturality' ⦃C D : Cat.{u, u}⦄ (F : C ⟶ D) :
     lhs; rw [← Functor.assoc]; lhs; apply this.symm
   simp only [Cat.freeRefl_obj_α, ReflQuiv.of_val, comp_obj, Functor.comp_map]
   rw [← Functor.assoc _ _ F]
-  conv => rhs; lhs; apply (nerve₂Adj.counit.component_eq C)
+  conv => rhs; lhs; exact (nerve₂Adj.counit.component_eq C)
   conv =>
     rhs
-    apply
-      ((whiskerRight nerve₂oneTrunc.natIso.hom Cat.freeRefl ≫
-        ReflQuiv.adj.counit).naturality F).symm
-  simp [Functor.comp_eq_comp, component]
-  rw [Functor.assoc]
-  simp [SSet.Truncated.hoFunctor₂Obj.quotientFunctor]
+    exact ((whiskerRight nerve₂oneTrunc.natIso.hom Cat.freeRefl ≫
+      ReflQuiv.adj.counit).naturality F).symm
+  simp only [component, Cat.freeRefl_obj_α, ReflQuiv.of_val, NatTrans.comp_app, comp_obj,
+    ReflQuiv.forget_obj, id_obj, whiskerRight_app, comp_eq_comp, Functor.comp_map, Functor.assoc,
+    Truncated.hoFunctor₂Obj.quotientFunctor, Cat.freeRefl_obj_α, ReflQuiv.of_val]
   rw [Quotient.lift_spec]
 
 def nerve₂Adj.counit : nerveFunctor₂ ⋙ SSet.Truncated.hoFunctor₂.{u} ⟶ (𝟭 Cat) where
@@ -1969,15 +1956,13 @@ instance nerveFunctor₂.full : nerveFunctor₂.{u, u}.Full where
         apply ComposableArrows.ext₀; rfl
     let fF : X ⥤ Y := ReflPrefunctor.toFunctor uF' this
     have eq : fF.toReflPrefunctor = uF' := rfl
-    use fF
-    refine toNerve₂.ext' (nerveFunctor₂.map fF) F ?_
+    refine ⟨fF, toNerve₂.ext' (nerveFunctor₂.map fF) F ?_⟩
     · have nat := nerve₂oneTrunc.natIso.hom.naturality fF
       simp at nat
       rw [eq] at nat
       simp [uF', uF] at nat
-      exact
-        (Iso.cancel_iso_hom_right (oneTruncation₂.map (nerveFunctor₂.map fF))
-          (oneTruncation₂.map F) (nerve₂oneTrunc.natIso.app Y)).mp nat
+      exact (Iso.cancel_iso_hom_right (oneTruncation₂.map (nerveFunctor₂.map fF))
+        (oneTruncation₂.map F) (nerve₂oneTrunc.natIso.app Y)).mp nat
 
 instance nerveFunctor₂.fullyfaithful : nerveFunctor₂.FullyFaithful :=
   FullyFaithful.ofFullyFaithful nerveFunctor₂
