@@ -379,16 +379,11 @@ nonrec def adj : Cat.freeRefl.{max u v, u} ⊣ ReflQuiv.forget :=
   Adjunction.mkOfUnitCounit {
     unit := {
       app := adj.unit.app
-      naturality := by
-        intro V W f
-        exact rfl
+      naturality := fun V W f ↦ by exact rfl
     }
     counit := {
       app := adj.counit.app
-      naturality := by
-        intro C D F
-        apply Quotient.lift_unique'
-        exact (Quiv.adj.counit.naturality F)
+      naturality := fun C D F ↦ Quotient.lift_unique' _ _ _ (Quiv.adj.counit.naturality F)
     }
     left_triangle := by
       ext V
@@ -627,7 +622,6 @@ def arr'.dom {n} (i : Fin n) : (arr' i) ⟶ (pt' i.castSucc) := by
   · exact (.op (SimplexCategory.const _ _ 0))
   · apply Quiver.Hom.unop_inj
     ext z; revert z; intro (0 : Fin 1); rfl
-
 
 theorem ran.lift.eq {C : Cat} {n}
     (s : Cone (StructuredArrow.proj (op [n]) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C))
@@ -944,8 +938,7 @@ instance (S : SSet) : ReflQuiver (OneTruncation S) where
   id X := by
     refine ⟨S.map (SimplexCategory.σ (n := 0) 0).op X, ?_, ?_⟩ <;>
     · change (S.map _ ≫ S.map _) X = X
-      rw [← map_comp]
-      rw [(_ : _ ≫ _ = 𝟙 _)]; simp
+      rw [← map_comp, (_ : _ ≫ _ = 𝟙 _)]; simp
       show ({..} : Opposite _) = _; congr; ext i
       let 0 := i
       rfl
@@ -1015,8 +1008,7 @@ def OneTruncation.ofNerve (C : Type u) [Category.{u} C] :
       obtain ⟨f, rfl, rfl⟩ := f
       apply Subtype.ext
       simp [ReflQuiv.comp_eq_comp]
-      refine ((H2 _ _).trans ?_).symm
-      refine (H1 _ _).trans ?_
+      refine ((H2 _ _).trans ((H1 _ _).trans ?_)).symm
       fapply ComposableArrows.ext₁
       · rfl
       · rfl
