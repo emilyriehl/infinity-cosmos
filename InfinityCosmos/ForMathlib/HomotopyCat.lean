@@ -1685,30 +1685,23 @@ theorem oneTruncation₂_toNerve₂Mk' {X : SSet.Truncated 2} {C : Cat}
       = CategoryStruct.comp (obj := C) ((f ≫ (nerve₂oneTrunc.natIso.app C).hom).map (φ01₂ φ))
         ((f ≫ (nerve₂oneTrunc.natIso.app C).hom).map (φ12₂ φ))) :
     oneTruncation₂.map (toNerve₂.mk' f hyp) = f := by
-  fapply ReflPrefunctor.ext
-  · intro X; exact ComposableArrows.ext₀ rfl
-  · intro X Y g
-    apply eq_of_heq
-    refine (heq_eqRec_iff_heq _ _ _).2 <| (heq_eqRec_iff_heq _ _ _).2 ?_
-    simp [oneTruncation₂]
-    have {A B A' B' : OneTruncation₂ (nerveFunctor₂.obj C)}
-       : A = A' → B = B' → ∀ (x : A ⟶ B) (y : A' ⟶ B'), x.1 = y.1 → HEq x y := by
-      rintro rfl rfl ⟨⟩ ⟨⟩ ⟨⟩; rfl
-    apply this
-    · exact ComposableArrows.ext₀ rfl
-    · exact ComposableArrows.ext₀ rfl
-    · simp
-      fapply ComposableArrows.ext₁
-      · simp [ReflQuiv.comp_eq_comp]
-        rw [g.2.1]
-        exact congr_arg (·.obj 0) (f.map g).2.1.symm
-      · simp [ReflQuiv.comp_eq_comp]
-        rw [g.2.2]
-        exact congr_arg (·.obj 1) (f.map g).2.2.symm
-      · refine (conj_eqToHom_iff_heq' _ _ _ _).2 ?_
-        simp [ReflQuiv.comp_eq_comp, OneTruncation.ofNerve.map]
-        obtain ⟨g, rfl, rfl⟩ := g
-        rfl
+  refine ReflPrefunctor.ext (fun _ ↦ ComposableArrows.ext₀ rfl)
+    (fun X Y g ↦ eq_of_heq ((heq_eqRec_iff_heq _ _ _).2 <| (heq_eqRec_iff_heq _ _ _).2 ?_))
+  simp [oneTruncation₂]
+  have {A B A' B' : OneTruncation₂ (nerveFunctor₂.obj C)}
+      : A = A' → B = B' → ∀ (x : A ⟶ B) (y : A' ⟶ B'), x.1 = y.1 → HEq x y := by
+    rintro rfl rfl ⟨⟩ ⟨⟩ ⟨⟩; rfl
+  apply this
+  · exact ComposableArrows.ext₀ rfl
+  · exact ComposableArrows.ext₀ rfl
+  · simp
+    fapply ComposableArrows.ext₁ <;> simp [ReflQuiv.comp_eq_comp]
+    · rw [g.2.1]; exact congr_arg (·.obj 0) (f.map g).2.1.symm
+    · rw [g.2.2]; exact congr_arg (·.obj 1) (f.map g).2.2.symm
+    · refine (conj_eqToHom_iff_heq' _ _ _ _).2 ?_
+      simp [ReflQuiv.comp_eq_comp, OneTruncation.ofNerve.map]
+      obtain ⟨g, rfl, rfl⟩ := g
+      rfl
 
 /-- Now do a case split. For n = 0 and n = 1 this is covered by the hypothesis.
          For n = 2 this is covered by the new lemma above.-/
