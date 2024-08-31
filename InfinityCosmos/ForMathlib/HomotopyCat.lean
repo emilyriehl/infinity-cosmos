@@ -1504,7 +1504,6 @@ instance (C : Cat) : Mono (seagull C) where
         have const01 (α : [0]₂ ⟶ [1]₂) : OK α := by
           ext x
           apply ComposableArrows.ext₀
-          unfold nerveFunctor₂ truncation Δ.ι
           simp only [ComposableArrows.obj', Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
             ComposableArrows.mk₀_obj, comp_obj, nerveFunctor_obj, whiskeringLeft_obj_obj,
             Functor.comp_map, op_obj, op_map, Quiver.Hom.unop_op', nerve_map, Quiver.Hom.unop_op,
@@ -1524,14 +1523,7 @@ instance (C : Cat) : Mono (seagull C) where
             ext i; match i with | 0 => rfl
         have const02 (α : [0]₂ ⟶ [2]₂) : OK α := by
           ext x
-          simp [SimplexCategory.rec]
           apply ComposableArrows.ext₀
-          unfold nerveFunctor₂ truncation Δ.ι SimplexCategory.Truncated.inclusion fullSubcategoryInclusion inducedFunctor
-          simp only [ComposableArrows.obj', Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
-            ComposableArrows.mk₀_obj, comp_obj, nerveFunctor_obj, whiskeringLeft_obj_obj,
-            Functor.comp_map, op_obj, op_map, Quiver.Hom.unop_op', nerve_map,
-            SimplexCategory.len_mk, Quiver.Hom.unop_op, SimplexCategory.toCat_map,
-            ComposableArrows.whiskerLeft_obj, Monotone.functor_obj] -- , ComposableArrows.precomp_obj]
           -- ER: Would help if we know maps out of 0 were constant.
           obtain ⟨i : Fin 3, rfl⟩ := eq_const_of_zero' α
           match i with
@@ -1663,7 +1655,6 @@ instance (C : Cat) : Mono (seagull C) where
             ext x
             simp [SimplexCategory.rec]
             apply ComposableArrows.ext₀
-            unfold nerveFunctor₂ truncation
             simp only [ComposableArrows.obj', Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
               ComposableArrows.mk₀_obj, comp_obj, nerveFunctor_obj, whiskeringLeft_obj_obj,
               Functor.comp_map, op_obj, op_map, Quiver.Hom.unop_op', nerve_map, Quiver.Hom.unop_op,
@@ -1755,17 +1746,7 @@ def nerve₂Adj.unit.component (X : SSet.Truncated.{u} 2) :
   · exact (ReflQuiv.adj.{u}.unit.app (SSet.oneTruncation₂.obj X) ⋙rq
     (SSet.Truncated.hoFunctor₂Obj.quotientFunctor X).toReflPrefunctor ⋙rq
     (nerve₂oneTrunc.natIso).inv.app (SSet.Truncated.hoFunctor₂.obj X))
-  · intro φ
-    set g := _ ≫ ((nerve₂oneTrunc.natIso).app _).hom
-    have : g = (ReflQuiv.adj.{u}.unit.app (SSet.oneTruncation₂.obj X) ⋙rq
-      (SSet.Truncated.hoFunctor₂Obj.quotientFunctor X).toReflPrefunctor) := by
-      dsimp only [g]
-      rw [← ReflQuiv.comp_eq_comp (Y := ReflQuiv.of _), Category.assoc, Iso.app_hom,
-        Iso.inv_hom_id_app]
-      exact Category.comp_id _
-    clear_value g; subst g
-    simp [Truncated.hoFunctor₂Obj.quotientFunctor, toReflPrefunctor]
-    exact Quotient.sound _ (HoRel₂.mk φ)
+  · exact fun φ ↦ Quotient.sound _ (HoRel₂.mk φ)
 
 theorem nerve₂Adj.unit.component_eq (X : SSet.Truncated.{u} 2) :
     SSet.oneTruncation₂.map (nerve₂Adj.unit.component X) =
@@ -1777,19 +1758,12 @@ theorem nerve₂Adj.unit.component_eq (X : SSet.Truncated.{u} 2) :
 def nerve₂Adj.unit : 𝟭 (SSet.Truncated.{u} 2) ⟶ Truncated.hoFunctor₂ ⋙ nerveFunctor₂ where
   app := nerve₂Adj.unit.component
   naturality := by
-    intro V W f
-    simp only [id_obj, comp_obj, Functor.id_map, Functor.comp_map]
-    apply toNerve₂.ext'
-      (f ≫ nerve₂Adj.unit.component W)
-      (nerve₂Adj.unit.component V ≫ nerveFunctor₂.map (Truncated.hoFunctor₂.map f))
+    refine fun V W f ↦ toNerve₂.ext' (f ≫ nerve₂Adj.unit.component W)
+      (nerve₂Adj.unit.component V ≫ nerveFunctor₂.map (Truncated.hoFunctor₂.map f)) ?_
     rw [Functor.map_comp, Functor.map_comp, nerve₂Adj.unit.component_eq,
       nerve₂Adj.unit.component_eq]
     simp only [comp_obj, ReflQuiv.forget_obj, Cat.freeRefl_obj_α, ReflQuiv.of_val,
       ReflPrefunctor.comp_assoc]
-    rw [← ReflQuiv.comp_eq_comp, ← ReflQuiv.comp_eq_comp, ← assoc]
-    have η := ReflQuiv.adj.{u}.unit.naturality (oneTruncation₂.map f)
-    simp at η
-    conv => lhs; lhs; apply η
     have nat₁ := (nerve₂oneTrunc.natIso).inv.naturality (Truncated.hoFunctor₂.map f)
     repeat rw [← ReflQuiv.comp_eq_comp (X := ReflQuiv.of _) (Y := ReflQuiv.of _)]
     repeat rw [assoc]
@@ -1972,14 +1946,10 @@ def nerveAdjunction : SSet.hoFunctor ⊣ nerveFunctor :=
 why we do this inefficiently.-/
 instance nerveFunctor.faithful : nerveFunctor.{u, u}.Faithful := by
   have := coskeleton.faithful 2
-  have : (nerveFunctor₂.{u, u} ⋙ ran (Δ.ι 2).op).Faithful :=
-    Faithful.comp nerveFunctor₂.{u, u} (ran (Δ.ι 2).op)
   exact Functor.Faithful.of_iso (F := (nerveFunctor₂.{u, u} ⋙ ran (Δ.ι 2).op)) Nerve.cosk2Iso.symm
 
 instance nerveFunctor.full : nerveFunctor.{u, u}.Full := by
   have := coskeleton.full 2
-  have : (nerveFunctor₂.{u, u} ⋙ ran (Δ.ι 2).op).Full :=
-    Full.comp nerveFunctor₂.{u, u} (ran (Δ.ι 2).op)
   exact Functor.Full.of_iso (F := (nerveFunctor₂.{u, u} ⋙ ran (Δ.ι 2).op)) Nerve.cosk2Iso.symm
 
 instance nerveFunctor.fullyfaithful : nerveFunctor.FullyFaithful :=
