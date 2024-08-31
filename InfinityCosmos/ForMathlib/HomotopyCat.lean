@@ -1755,8 +1755,6 @@ def nerve₂Adj.unit : 𝟭 (SSet.Truncated.{u} 2) ⟶ Truncated.hoFunctor₂ �
       (nerve₂Adj.unit.component V ≫ nerveFunctor₂.map (Truncated.hoFunctor₂.map f)) ?_
     rw [Functor.map_comp, Functor.map_comp, nerve₂Adj.unit.component_eq,
       nerve₂Adj.unit.component_eq]
-    simp only [comp_obj, ReflQuiv.forget_obj, Cat.freeRefl_obj_α, ReflQuiv.of_val,
-      ReflPrefunctor.comp_assoc]
     have nat₁ := (nerve₂oneTrunc.natIso).inv.naturality (Truncated.hoFunctor₂.map f)
     repeat rw [← ReflQuiv.comp_eq_comp (X := ReflQuiv.of _) (Y := ReflQuiv.of _)]
     repeat rw [assoc]
