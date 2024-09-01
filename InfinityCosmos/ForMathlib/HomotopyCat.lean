@@ -998,13 +998,12 @@ def OneTruncation.ofNerve (C : Type u) [Category.{u} C] :
     have H2 {X Y Y' : OneTruncation (nerve C)} (f : X ⟶ Y) (h : Y = Y') :
         (Eq.rec f h : X ⟶ Y').1 = f.1 := by cases h; rfl
     fapply ReflPrefunctor.ext <;> simp
-    · exact fun _ ↦ ComposableArrows.ext₀ (by rfl)
+    · exact fun _ ↦ ComposableArrows.ext₀ rfl
     · intro X Y f
       obtain ⟨f, rfl, rfl⟩ := f
       apply Subtype.ext
       simp [ReflQuiv.comp_eq_comp]
-      refine ((H2 _ _).trans ((H1 _ _).trans ?_)).symm
-      fapply ComposableArrows.ext₁
+      refine ((H2 _ _).trans ((H1 _ _).trans (ComposableArrows.ext₁ ?_ ?_ ?_))).symm
       · rfl
       · rfl
       · simp [ofNerve.inv, ofNerve.hom, ofNerve.map]; rfl
