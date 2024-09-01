@@ -882,11 +882,9 @@ def cosk2NatTrans : nerveFunctor.{u, v} ⟶ nerveFunctor₂ ⋙ ran (Δ.ι 2).op
 
 def cosk2RightExtension.hom (C : Cat.{v, u}) :
     nerveRightExtension C ⟶
-      RightExtension.mk _ ((Δ.ι 2).op.ranCounit.app ((Δ.ι 2).op ⋙ nerveFunctor.obj C)) := by
-  fapply CostructuredArrow.homMk
-  · simp only [nerveFunctor_obj, RightExtension.mk_left]
-    exact (cosk2NatTrans.app C)
-  · exact (coskAdj 2).left_triangle_components (nerveFunctor.obj C)
+      RightExtension.mk _ ((Δ.ι 2).op.ranCounit.app ((Δ.ι 2).op ⋙ nerveFunctor.obj C)) :=
+  CostructuredArrow.homMk (cosk2NatTrans.app C)
+    ((coskAdj 2).left_triangle_components (nerveFunctor.obj C))
 
 instance cosk2RightExtension.hom_isIso (C : Cat) :
     IsIso (cosk2RightExtension.hom C) :=
