@@ -843,7 +843,6 @@ def isPointwiseRightKanExtensionAt (C : Cat) (n : ℕ) :
           ComposableArrows.whiskerLeft_map] at obj_eq ⊢
         rw [ran.lift.map]
         have nat := congr_fun (s.π.naturality (fact.map.arr j (Fin.mk i hi))) x
-        simp at nat
         have := congr_arg_heq (·.map' 0 1) <| nat
         refine (conj_eqToHom_iff_heq' _ _ _ _).2 ?_
         simpa only [Int.reduceNeg, StructuredArrow.proj_obj, op_obj, id_eq, Int.Nat.cast_ofNat_Int,
@@ -854,15 +853,9 @@ def isPointwiseRightKanExtensionAt (C : Cat) (n : ℕ) :
       ext x
       unfold ran.lift SSet.nerve.mk pt' pt arr' ar' ar
       fapply ComposableArrows.ext
-      · intro i
-        simp
-        have eq := congr_fun (fact' (StructuredArrow.mk (Y := op [0]₂) ([0].const [n] i).op)) x
-        simp at eq
-        exact (congrArg (·.obj 0) <| eq)
+      · exact fun i ↦ (congrArg (·.obj 0) <| congr_fun (fact'
+          (StructuredArrow.mk (Y := op [0]₂) ([0].const [n] i).op)) x)
       · intro i hi
-        simp only [id_eq, Int.reduceNeg, Int.Nat.cast_ofNat_Int,
-          SimplexCategory.len_mk, StructuredArrow.proj_obj, StructuredArrow.mk_right, op_obj,
-          Fin.zero_eta, Fin.isValue, Fin.mk_one, ComposableArrows.mkOfObjOfMapSucc_obj]
         rw [ComposableArrows.mkOfObjOfMapSucc_map_succ _ _ i hi]
         have eq := congr_fun (fact' (arr' (Fin.mk i hi))) x
         simp at eq ⊢
