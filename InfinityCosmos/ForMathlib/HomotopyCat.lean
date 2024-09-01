@@ -799,9 +799,8 @@ private
 def fact.map.map {n}
     (j : StructuredArrow (op [n]) (Δ.ι 2).op)
     (i : Fin (unop j.right).1.len) :
-    fact.obj.dom j i.castSucc ⟶ fact.map.cod j i := by
-  let jfun := Monotone.functor (j.hom.unop.toOrderHom).monotone
-  exact (jfun.map (Fin.hom_succ i))
+    fact.obj.dom j i.castSucc ⟶ fact.map.cod j i :=
+  (Monotone.functor (j.hom.unop.toOrderHom).monotone).map (Fin.hom_succ i)
 
 /-- This is the unique arrow in StructuredArrow (op [n]) (Δ.ι 2).op from j to ar' of the map just
 constructed. This is used to prove that ran.lift defines a factorization on maps.-/
