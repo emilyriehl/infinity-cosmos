@@ -29,8 +29,7 @@ theorem conj_eqToHom_iff_heq' {C} [Category C] {W X Y Z : C}
 
 theorem eqToHom_comp_heq {C} [Category C] {W X Y : C}
     (f : Y ⟶ X) (h : W = Y) : HEq (eqToHom h ≫ f) f := by
-  rw [← conj_eqToHom_iff_heq _ _ h rfl]
-  simp
+  rw [← conj_eqToHom_iff_heq _ _ h rfl, eqToHom_refl, comp_id]
 
 @[simp] theorem eqToHom_comp_heq_iff {C} [Category C] {W X Y Z Z' : C}
     (f : Y ⟶ X) (g : Z ⟶ Z') (h : W = Y) :
@@ -44,8 +43,7 @@ theorem eqToHom_comp_heq {C} [Category C] {W X Y : C}
 
 theorem comp_eqToHom_heq {C} [Category C] {X Y Z : C}
     (f : X ⟶ Y) (h : Y = Z) : HEq (f ≫ eqToHom h) f := by
-  rw [← conj_eqToHom_iff_heq' _ _ rfl h]
-  simp
+  rw [← conj_eqToHom_iff_heq' _ _ rfl h, eqToHom_refl, id_comp]
 
 @[simp] theorem comp_eqToHom_heq_iff {C} [Category C] {W X Y Z Z' : C}
     (f : X ⟶ Y) (g : Z ⟶ Z') (h : Y = W) :
@@ -297,24 +295,22 @@ def freeRefl : ReflQuiv.{v, u} ⥤ Cat.{max u v, u} where
       constructor)
   map_id X := by
     dsimp
-    symm
-    apply Quotient.lift_unique
-    refine (Functor.comp_id _).trans <| (Functor.id_comp _).symm.trans ?_
+    refine (Quotient.lift_unique _ _ _ _ ((Functor.comp_id _).trans <|
+      (Functor.id_comp _).symm.trans ?_)).symm
     congr 1
     exact (free.map_id X.toQuiv).symm
   map_comp {X Y Z} f g := by
     dsimp
-    symm
-    apply Quotient.lift_unique
+    apply (Quotient.lift_unique _ _ _ _ _).symm
     have : free.map (f ≫ g).toPrefunctor =
         free.map (X := X.toQuiv) (Y := Y.toQuiv) f.toPrefunctor ⋙
         free.map (X := Y.toQuiv) (Y := Z.toQuiv) g.toPrefunctor := by
       show _ = _ ≫ _
       rw [← Functor.map_comp]; rfl
-    rw [this]; simp [Functor.assoc]
+    rw [this, Functor.assoc]
     show _ ⋙ _ ⋙ _ = _
-    rw [← Functor.assoc, Quotient.lift_spec, Functor.assoc,
-      FreeRefl.quotientFunctor, Quotient.lift_spec]
+    rw [← Functor.assoc, Quotient.lift_spec, Functor.assoc, FreeRefl.quotientFunctor,
+      Quotient.lift_spec]
 
 theorem freeRefl_naturality {X Y} [ReflQuiver X] [ReflQuiver Y] (f : X ⥤rq Y) :
     free.map (X := Quiv.of X) (Y := Quiv.of Y) f.toPrefunctor ⋙
@@ -338,10 +334,7 @@ namespace ReflQuiv
 def adj.unit.app (V : ReflQuiv.{max u v, u}) : V ⥤rq forget.obj (Cat.freeRefl.obj V) where
   toPrefunctor := Quiv.adj.unit.app (V.toQuiv) ⋙q
     Quiv.forget.map (Cat.FreeRefl.quotientFunctor V)
-  map_id := fun X => by
-    apply Quotient.sound
-    simp [ReflPrefunctor.map_id]
-    constructor
+  map_id := fun _ => Quotient.sound _ ⟨⟩
 
 /-- This is used in the proof of both triangle equalities. Should we simp?-/
 theorem adj.unit.component_eq (V : ReflQuiv.{max u v, u}) :
@@ -405,16 +398,13 @@ nonrec def adj : Cat.freeRefl.{max u v, u} ⊣ ReflQuiv.forget :=
       conv => enter [1, 2]; apply Quiv.adj.counit.naturality
       rw [Functor.comp_eq_comp, ← Functor.assoc, ← Functor.comp_eq_comp]
       conv => enter [1, 1]; apply Quiv.adj.left_triangle_components V.toQuiv
-      simp [Functor.id_eq_id]
       exact Functor.id_comp _
     right_triangle := by
       ext C
       simp only [comp_obj, forget_obj, id_obj, NatTrans.comp_app, Cat.freeRefl_obj_α, of_val,
         whiskerLeft_app, associator_inv_app, whiskerRight_app, forget_map, id_comp,
-        NatTrans.id_app', forgetToQuiv.map_comp, adj.unit.component_eq, Category.assoc,
-        Functor.toReflPrefunctor_toPrefunctor, Quiv.comp_eq_comp, adj.counit.component_eq]
-      apply forgetToQuiv_faithful
-      exact Quiv.adj.right_triangle_components C
+        NatTrans.id_app']
+      exact forgetToQuiv_faithful _ _ (Quiv.adj.right_triangle_components C)
   }
 
 end ReflQuiv
@@ -451,9 +441,7 @@ def mkOfSucc {n} (i : Fin n) : [1] ⟶ [n] :=
     toFun := fun | 0 => i.castSucc | 1 => i.succ
     monotone' := fun
       | 0, 0, _ | 1, 1, _ => le_rfl
-      | 0, 1, _ => by
-        simp only [Fin.coe_eq_castSucc]
-        exact Fin.le_succ i
+      | 0, 1, _ => Fin.le_succ i
   }
 
 def mkOfLeComp {n} (i j k : Fin (n+1)) (h₁ : i ≤ j) (h₂ : j ≤ k): [2] ⟶ [n] :=
@@ -481,7 +469,6 @@ instance Δ.ι.op.fullyFaithful (k) : (Δ.ι k).op.FullyFaithful :=
 
 theorem eq_const_of_zero {n : SimplexCategory} (f : [0] ⟶ n) :
     f = SimplexCategory.const _ n (f.toOrderHom 0) := by
-  apply SimplexCategory.Hom.ext
   ext x; match x with | 0 => rfl
 
 theorem eq_const_of_zero' {n : SimplexCategory} (f : [0] ⟶ n) :
@@ -1291,8 +1278,6 @@ def SSet.Truncated.hoFunctor₂Map {V W : SSet.Truncated.{u} 2} (F : V ⟶ W) : 
       SSet.Truncated.hoFunctor₂Obj.quotientFunctor _)
     (fun X Y f g hfg => by
       let .mk φ := hfg
-      clear f g hfg
-      simp [Quot.liftOn]
       apply Quotient.sound
       convert HoRel₂.mk (F.app (op _) φ) using 0
       apply HoRel₂.ext_triangle
