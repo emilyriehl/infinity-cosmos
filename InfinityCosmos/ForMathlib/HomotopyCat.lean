@@ -1,3 +1,4 @@
+-- import InfinityCosmos.Mathlib.CategoryTheory.Category.Cat
 import Mathlib.AlgebraicTopology.Nerve
 import Mathlib.CategoryTheory.Category.Quiv
 import Mathlib.CategoryTheory.Comma.StructuredArrow
@@ -6,7 +7,6 @@ import Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts
 import Mathlib.CategoryTheory.Monad.Limits
 import Mathlib.CategoryTheory.Opposites
 import Mathlib.Tactic.LiftLets
-import InfinityCosmos.ForMathlib.Wombat
 
 noncomputable section
 
@@ -15,13 +15,15 @@ open Category Limits Functor
 universe v v₁ v₂ u u₁ u₂
 
 section
-theorem Functor.id_eq_id (X : Cat) : 𝟙 X = 𝟭 X := rfl
-theorem Functor.comp_eq_comp {X Y Z : Cat} (F : X ⟶ Y) (G : Y ⟶ Z) : F ≫ G = F ⋙ G := rfl
 
+-- ER: Moved to CategoryTheory/Category/Cat.lean
+theorem Cat.id_eq_id (X : Cat) : 𝟙 X = 𝟭 X := rfl
+theorem Cat.comp_eq_comp {X Y Z : Cat} (F : X ⟶ Y) (G : Y ⟶ Z) : F ≫ G = F ⋙ G := rfl
+@[simp] theorem Cat.of_α (C) [Category C] : (of C).α = C := rfl
+
+-- ER: Moved to CategoryTheory/Category/Quiv.lean
 theorem Quiv.id_eq_id (X : Quiv) : 𝟙 X = 𝟭q X := rfl
 theorem Quiv.comp_eq_comp {X Y Z : Quiv} (F : X ⟶ Y) (G : Y ⟶ Z) : F ≫ G = F ⋙q G := rfl
-
-@[simp] theorem Cat.of_α (C) [Category C] : (of C).α = C := rfl
 
 theorem conj_eqToHom_iff_heq' {C} [Category C] {W X Y Z : C}
     (f : W ⟶ X) (g : Y ⟶ Z) (h : W = Y) (h' : Z = X) :
@@ -383,7 +385,7 @@ nonrec def adj : Cat.freeRefl.{max u v, u} ⊣ ReflQuiv.forget :=
       apply Cat.FreeRefl.lift_unique'
       simp only [id_obj, Cat.free_obj, Cat.of_α, comp_obj, Cat.freeRefl_obj_α, NatTrans.comp_app,
         forget_obj, whiskerRight_app, associator_hom_app, whiskerLeft_app, id_comp, NatTrans.id_app']
-      rw [Functor.id_eq_id, Functor.comp_eq_comp]
+      rw [Cat.id_eq_id, Cat.comp_eq_comp]
       simp only [Cat.freeRefl_obj_α, Functor.comp_id]
       rw [← Functor.assoc, ← Cat.freeRefl_naturality, Functor.assoc]
       dsimp [Cat.freeRefl]
@@ -394,9 +396,9 @@ nonrec def adj : Cat.freeRefl.{max u v, u} ⊣ ReflQuiv.forget :=
       rw [Cat.free.map_comp]
       show (_ ⋙ ((Quiv.forget ⋙ Cat.free).map (X := Cat.of _) (Y := Cat.of _)
         (Cat.FreeRefl.quotientFunctor V))) ⋙ _ = _
-      rw [Functor.assoc, ← Functor.comp_eq_comp]
+      rw [Functor.assoc, ← Cat.comp_eq_comp]
       conv => enter [1, 2]; apply Quiv.adj.counit.naturality
-      rw [Functor.comp_eq_comp, ← Functor.assoc, ← Functor.comp_eq_comp]
+      rw [Cat.comp_eq_comp, ← Functor.assoc, ← Cat.comp_eq_comp]
       conv => enter [1, 1]; apply Quiv.adj.left_triangle_components V.toQuiv
       exact Functor.id_comp _
     right_triangle := by
@@ -652,7 +654,7 @@ private
 def ran.lift {C : Cat} {n}
     (s : Cone (StructuredArrow.proj (op [n]) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C))
     (x : s.pt) : nerve C _[n] := by
-  fapply SSet.nerve.mk
+  fapply ComposableArrows.mkOfObjOfMapSucc
   · exact fun i ↦ s.π.app (pt' i) x |>.obj 0
   · exact fun i ↦ eqToHom (ran.lift.eq ..) ≫ (s.π.app (arr' i) x).map' 0 1 ≫
       eqToHom (ran.lift.eq₂ ..).symm
@@ -749,7 +751,7 @@ theorem ran.lift.map {C : Cat} {n}
     fapply ComposableArrows.ext
     · intro; rfl
     · intro i hi
-      dsimp only [CategoryTheory.Nerve.ran.lift, SSet.nerve.mk]
+      dsimp only [CategoryTheory.Nerve.ran.lift]
       rw [ComposableArrows.mkOfObjOfMapSucc_map_succ _ _ i hi]
       rw [eqToHom_refl, eqToHom_refl, id_comp, comp_id]; rfl
   exact eq_of_heq (congr_arg_heq (·.map k) this)
@@ -838,7 +840,7 @@ def isPointwiseRightKanExtensionAt (C : Cat) (n : ℕ) :
     uniq := by
       intro s lift' fact'
       ext x
-      unfold ran.lift SSet.nerve.mk pt' pt arr' ar' ar
+      unfold ran.lift pt' pt arr' ar' ar
       fapply ComposableArrows.ext
       · exact fun i ↦ (congrArg (·.obj 0) <| congr_fun (fact'
           (StructuredArrow.mk (Y := op [0]₂) ([0].const [n] i).op)) x)
@@ -1355,7 +1357,7 @@ theorem nerve₂Adj.counit.naturality' ⦃C D : Cat.{u, u}⦄ (F : C ⟶ D) :
     exact ((whiskerRight nerve₂oneTrunc.natIso.hom Cat.freeRefl ≫
       ReflQuiv.adj.counit).naturality F).symm
   simp only [component, Cat.freeRefl_obj_α, ReflQuiv.of_val, NatTrans.comp_app, comp_obj,
-    ReflQuiv.forget_obj, id_obj, whiskerRight_app, comp_eq_comp, Functor.comp_map, Functor.assoc,
+    ReflQuiv.forget_obj, id_obj, whiskerRight_app, Cat.comp_eq_comp, Functor.comp_map, Functor.assoc,
     Truncated.hoFunctor₂Obj.quotientFunctor, Cat.freeRefl_obj_α, ReflQuiv.of_val]
   rw [Quotient.lift_spec]
 
@@ -1750,9 +1752,9 @@ nonrec def nerve₂Adj : SSet.Truncated.hoFunctor₂.{u} ⊣ nerveFunctor₂ := 
     apply SSet.Truncated.hoFunctor₂Obj.lift_unique'
     simp only [id_obj, Cat.freeRefl_obj_α, ReflQuiv.of_val, comp_obj, NatTrans.comp_app,
       whiskerRight_app, associator_hom_app, whiskerLeft_app, id_comp, NatTrans.id_app']
-    rw [← Functor.comp_eq_comp
+    rw [← Cat.comp_eq_comp
       (SSet.Truncated.hoFunctor₂Obj.quotientFunctor X) (𝟙 (SSet.Truncated.hoFunctor₂.obj X))]
-    rw [comp_id, Functor.comp_eq_comp, ← Functor.assoc]
+    rw [comp_id, Cat.comp_eq_comp, ← Functor.assoc]
     conv =>
       lhs; lhs; apply (SSet.Truncated.hoFunctor₂_naturality (nerve₂Adj.unit.component X)).symm
     simp only [comp_obj, Cat.freeRefl_obj_α, Functor.comp_map]
@@ -1762,7 +1764,7 @@ nonrec def nerve₂Adj : SSet.Truncated.hoFunctor₂.{u} ⊣ nerveFunctor₂ := 
       apply (nerve₂Adj.counit.component_eq (SSet.Truncated.hoFunctor₂.obj X))
     simp only [comp_obj, ReflQuiv.forget_obj, Cat.freeRefl_obj_α, ReflQuiv.of_val,
       ReflPrefunctor.comp_assoc, NatTrans.comp_app, id_obj, whiskerRight_app]
-    rw [← Functor.comp_eq_comp, ← assoc, ← Cat.freeRefl.map_comp, ReflQuiv.comp_eq_comp,
+    rw [← Cat.comp_eq_comp, ← assoc, ← Cat.freeRefl.map_comp, ReflQuiv.comp_eq_comp,
       ReflPrefunctor.comp_assoc]
     simp only [ReflQuiv.forget_obj, Cat.freeRefl_obj_α, ReflQuiv.of_val, ReflPrefunctor.comp_assoc]
     rw [← ReflQuiv.comp_eq_comp]
