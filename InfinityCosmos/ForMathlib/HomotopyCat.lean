@@ -1,4 +1,4 @@
-import InfinityCosmos.Mathlib.AlgebraicTopology.Nerve
+import Mathlib.AlgebraicTopology.Nerve
 import Mathlib.CategoryTheory.Category.Quiv
 import Mathlib.CategoryTheory.Comma.StructuredArrow
 import Mathlib.CategoryTheory.Limits.Presheaf

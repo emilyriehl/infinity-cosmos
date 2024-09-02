@@ -1,12 +1,12 @@
-import InfinityCosmos.Mathlib.AlgebraicTopology.Nerve
+import Mathlib.AlgebraicTopology.Nerve
 import Mathlib.CategoryTheory.Category.Quiv
 import Mathlib.CategoryTheory.Limits.Presheaf
 import Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts
 import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Closed.Monoidal
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
-import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Basic
-import InfinityCosmos.Mathlib.AlgebraicTopology.Quasicategory
+import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+import Mathlib.AlgebraicTopology.Quasicategory
 
 noncomputable section
 

@@ -1,7 +1,7 @@
-import InfinityCosmos.Mathlib.AlgebraicTopology.SimplexCategory
-import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialSet
-import InfinityCosmos.Mathlib.AlgebraicTopology.Nerve
-import InfinityCosmos.Mathlib.AlgebraicTopology.Quasicategory
+import Mathlib.AlgebraicTopology.SimplexCategory
+import Mathlib.AlgebraicTopology.SimplicialSet
+import Mathlib.AlgebraicTopology.Nerve
+import Mathlib.AlgebraicTopology.Quasicategory
 
 section preservesProducts
 
