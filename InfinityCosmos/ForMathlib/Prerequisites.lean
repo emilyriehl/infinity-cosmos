@@ -1,9 +1,9 @@
-import Mathlib.AlgebraicTopology.SimplexCategory
-import Mathlib.AlgebraicTopology.SimplicialSet
-import Mathlib.AlgebraicTopology.Nerve
-import Mathlib.AlgebraicTopology.Quasicategory
+-- import Mathlib.AlgebraicTopology.SimplexCategory
+-- import Mathlib.AlgebraicTopology.SimplicialSet
+-- import Mathlib.AlgebraicTopology.Nerve
+-- import Mathlib.AlgebraicTopology.Quasicategory
 
-section preservesProducts
+-- section preservesProducts
 
 -- open Limits
 
