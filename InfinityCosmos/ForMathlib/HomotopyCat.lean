@@ -1,12 +1,7 @@
--- import InfinityCosmos.Mathlib.CategoryTheory.Category.Cat
 import Mathlib.AlgebraicTopology.Nerve
 import Mathlib.CategoryTheory.Category.Quiv
-import Mathlib.CategoryTheory.Comma.StructuredArrow
-import Mathlib.CategoryTheory.Limits.Presheaf
-import Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts
+import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
 import Mathlib.CategoryTheory.Monad.Limits
-import Mathlib.CategoryTheory.Opposites
-import Mathlib.Tactic.LiftLets
 
 noncomputable section
 
