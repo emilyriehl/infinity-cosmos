@@ -2,3 +2,9 @@ import InfinityCosmos.Basic
 import InfinityCosmos.ForMathlib.Prerequisites
 import InfinityCosmos.ForMathlib.HomotopyCat
 import InfinityCosmos.ForMathlib.Wombat
+import InfinityCosmos.ForMathlib.CategoryTheory.Category.ReflQuiv
+import InfinityCosmos.ForMathlib.Combinatorics.Quiver.ReflQuiver
+import InfinityCosmos.CategoryTheory.Category.Cat
+import InfinityCosmos.CategoryTheory.Category.Quiv
+import InfinityCosmos.CategoryTheory.EqToHom
+import InfinityCosmos.CategoryTheory.Quotient

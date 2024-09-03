@@ -16,15 +16,16 @@ universe v v₁ v₂ u u₁ u₂
 
 section
 
--- ER: Moved to CategoryTheory/Category/Cat.lean
+-- NB: Copied to Mathlib/CategoryTheory/Category/Cat.lean
 theorem Cat.id_eq_id (X : Cat) : 𝟙 X = 𝟭 X := rfl
 theorem Cat.comp_eq_comp {X Y Z : Cat} (F : X ⟶ Y) (G : Y ⟶ Z) : F ≫ G = F ⋙ G := rfl
 @[simp] theorem Cat.of_α (C) [Category C] : (of C).α = C := rfl
 
--- ER: Moved to CategoryTheory/Category/Quiv.lean
+-- NB: Copied to mathlib/CategoryTheory/Category/Quiv.lean
 theorem Quiv.id_eq_id (X : Quiv) : 𝟙 X = 𝟭q X := rfl
 theorem Quiv.comp_eq_comp {X Y Z : Quiv} (F : X ⟶ Y) (G : Y ⟶ Z) : F ≫ G = F ⋙q G := rfl
 
+-- NB: Copied to Mathlib/CategoryTheory/EqToHom.lean
 theorem conj_eqToHom_iff_heq' {C} [Category C] {W X Y Z : C}
     (f : W ⟶ X) (g : Y ⟶ Z) (h : W = Y) (h' : Z = X) :
     f = eqToHom h ≫ g ≫ eqToHom h' ↔ HEq f g := conj_eqToHom_iff_heq _ _ _ h'.symm
@@ -66,6 +67,7 @@ theorem heq_comp {C} [Category C] {X Y Z X' Y' Z' : C}
 
 end
 
+-- NB: Copied to Mathlib/CategoryTheory/Quotient.lean
 namespace Quotient
 variable {C : Type _} [Category C] (r : HomRel C)
 
@@ -94,6 +96,8 @@ theorem CompClosure.congruence : Congruence fun a b => EqvGen (@CompClosure C _ 
 
 end Quotient
 
+
+-- NB: Copied to ForMathlib/Combinatorics/Quiver/ReflQuiver.lean
 @[pp_with_univ]
 class ReflQuiver (obj : Type u) extends Quiver.{v} obj : Type max u v where
   /-- The identity morphism on an object. -/
@@ -197,6 +201,7 @@ instance discreteQuiver (V : Type u) : ReflQuiver.{u+1} (Discrete V) := { discre
 
 end ReflQuiver
 
+-- NB: Copied to ForMathlib/CategoryTheory/Category/ReflQuiv.lean
 @[nolint checkUnivs]
 def ReflQuiv :=
   Bundled ReflQuiver.{v + 1, u}
@@ -329,9 +334,6 @@ end Cat
 
 namespace ReflQuiv
 
--- We might construct `of_lift_iso_self : Paths.of ⋙ lift F ≅ F`
--- (and then show that `lift F` is initial amongst such functors)
--- but it would require lifting quite a bit of machinery to quivers!
 @[simps! toPrefunctor obj map]
 def adj.unit.app (V : ReflQuiv.{max u v, u}) : V ⥤rq forget.obj (Cat.freeRefl.obj V) where
   toPrefunctor := Quiv.adj.unit.app (V.toQuiv) ⋙q
@@ -356,7 +358,7 @@ def adj.counit.app (C : Cat) : Cat.freeRefl.obj (forget.obj C) ⥤ C := by
       Prefunctor.mapPath_nil, composePath_nil]
     rfl
 
-/-- ER: This is used in the proof of both triangle equalities. -/
+/-- This is used in the proof of both triangle equalities. -/
 @[simp]
 theorem adj.counit.component_eq (C : Cat) :
     Cat.FreeRefl.quotientFunctor C ⋙ adj.counit.app C =
@@ -410,6 +412,8 @@ nonrec def adj : Cat.freeRefl.{max u v, u} ⊣ ReflQuiv.forget :=
   }
 
 end ReflQuiv
+
+-- NB: Exports to other files stop here.
 
 theorem Fin.le_succ {n} (i : Fin n) : i.castSucc ≤ i.succ := Nat.le_succ i
 
