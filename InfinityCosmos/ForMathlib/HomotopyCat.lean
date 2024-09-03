@@ -457,11 +457,13 @@ def mkOfLeComp {n} (i j k : Fin (n+1)) (h₁ : i ≤ j) (h₂ : j ≤ k): [2] �
   }
 
 
+-- NB: Moved to SimplexCategory because it's needed weirdly for skAdj and coskAdj?
 /-- The fully faithful inclusion of the truncated simplex category into the usual
 simplex category.
-NB: Next four definitions exist already in simplex category (without the abbrevation). Final instance had to be made "noncomputable."
 -/
 abbrev Δ.ι (k) : Δ k ⥤ SimplexCategory := SimplexCategory.Truncated.inclusion
+
+-- NB: Next three definitions exist already in simplex category (without the abbrevation). Final instance had to be made "noncomputable."
 
 instance Δ.ι.op_full (k) : (Δ.ι k).op.Full := inferInstance
 
@@ -470,6 +472,7 @@ instance Δ.ι.op_faithful (k) : (Δ.ι k).op.Faithful := inferInstance
 instance Δ.ι.op.fullyFaithful (k) : (Δ.ι k).op.FullyFaithful :=
   FullyFaithful.ofFullyFaithful (ι k).op
 
+-- NB: Moved to SimplexCategory.
 theorem eq_const_of_zero {n : SimplexCategory} (f : [0] ⟶ n) :
     f = SimplexCategory.const _ n (f.toOrderHom 0) := by
   ext x; match x with | 0 => rfl
@@ -513,14 +516,17 @@ open SimplexCategory
 
 namespace SSet
 
+-- NB: Moved to SimplicialSet
 /-- The ulift functor `SSet.Truncated.{u} ⥤ SSet.Truncated.{max u v}` on truncated
 simplicial sets. -/
 def Truncated.uliftFunctor (k : ℕ) : SSet.Truncated.{u} k ⥤ SSet.Truncated.{max u v} k :=
   (whiskeringRight _ _ _).obj CategoryTheory.uliftFunctor.{v, u}
 
+-- NB: Renamed "sk" to "truncation" in both SimplicialObject and SimplicialSet.
 /-- This is called "sk" in SimplicialSet and SimplicialObject, but this is a better name.-/
 def truncation (k) : SSet ⥤ SSet.Truncated k := (whiskeringLeft _ _ _).obj (Δ.ι k).op
 
+-- NB: Moved to SimplicialSet.
 def skAdj (k) : lan (Δ.ι k).op ⊣ truncation.{u} k := lanAdjunction _ _
 def coskAdj (k) : truncation.{u} k ⊣ ran (Δ.ι k).op := ranAdjunction _ _
 
@@ -556,6 +562,7 @@ instance skAdj.coreflective (k) : Coreflective (lan (H := Type u) (Δ.ι k).op) 
 
 end SSet
 
+-- NB: Moved to Nerve.
 open SSet
 
 def nerveFunctor₂ : Cat.{v, u} ⥤ SSet.Truncated 2 := nerveFunctor ⋙ truncation 2
@@ -610,14 +617,7 @@ def ar' {n} {i j : Fin (n+1)} (k : i ⟶ j) : StructuredArrow (op [n]) (Δ.ι 2)
 /-- The object of StructuredArrow (op [n]) (Δ.ι 2).op corresponding to
 ar Fin.hom_succ i. -/
 private
-def arr' {n} (i : Fin n) : StructuredArrow (op [n]) (Δ.ι 2).op := ar' (Fin.hom_succ i)
-
-private
-def arr'.dom {n} (i : Fin n) : (arr' i) ⟶ (pt' i.castSucc) := by
-  fapply StructuredArrow.homMk
-  · exact (.op (SimplexCategory.const _ _ 0))
-  · apply Quiver.Hom.unop_inj
-    ext z; revert z; intro (0 : Fin 1); rfl
+def ar'succ {n} (i : Fin n) : StructuredArrow (op [n]) (Δ.ι 2).op := ar' (Fin.hom_succ i)
 
 theorem ran.lift.eq {C : Cat} {n}
     (s : Cone (StructuredArrow.proj (op [n]) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C))
@@ -657,9 +657,10 @@ def ran.lift {C : Cat} {n}
     (x : s.pt) : nerve C _[n] := by
   fapply ComposableArrows.mkOfObjOfMapSucc
   · exact fun i ↦ s.π.app (pt' i) x |>.obj 0
-  · exact fun i ↦ eqToHom (ran.lift.eq ..) ≫ (s.π.app (arr' i) x).map' 0 1 ≫
+  · exact fun i ↦ eqToHom (ran.lift.eq ..) ≫ (s.π.app (ar'succ i) x).map' 0 1 ≫
       eqToHom (ran.lift.eq₂ ..).symm
 
+/-- A second less efficient construction of the above with more information about arbitrary maps.-/
 private
 def ran.lift' {C : Cat} {n}
     (s : Cone (StructuredArrow.proj (op [n]) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C))
@@ -760,7 +761,7 @@ theorem ran.lift.map {C : Cat} {n}
 /-- An object j : StructuredArrow (op [n]) (Δ.ι 2).op defines a morphism Fin (jlen+1) -> Fin(n+1).
 This calculates the image of i : Fin(jlen+1); we might think of this as j(i). -/
 private
-def fact.obj.dom {n}
+def strArr.homEv {n}
     (j : StructuredArrow (op [n]) (Δ.ι 2).op)
     (i : Fin ((unop ((Δ.ι 2).op.obj ((StructuredArrow.proj (op [n]) (Δ.ι 2).op).obj j))).len + 1)) :
     Fin (n + 1) := (SimplexCategory.Hom.toOrderHom j.hom.unop) i
@@ -771,7 +772,7 @@ private
 def fact.obj.arr {n}
     (j : StructuredArrow (op [n]) (Δ.ι 2).op)
     (i : Fin ((unop ((Δ.ι 2).op.obj ((StructuredArrow.proj (op [n]) (Δ.ι 2).op).obj j))).len + 1))
-    : j ⟶ (pt' (fact.obj.dom j i)) :=
+    : j ⟶ (pt' (strArr.homEv j i)) :=
   StructuredArrow.homMk (.op (SimplexCategory.const _ _ i)) <| by
     apply Quiver.Hom.unop_inj
     ext z; revert z; intro | 0 => rfl
@@ -779,17 +780,17 @@ def fact.obj.arr {n}
 /-- An object j : StructuredArrow (op [n]) (Δ.ι 2).op defines a morphism Fin (jlen+1) -> Fin(n+1).
 This calculates the image of i.succ : Fin(jlen+1); we might think of this as j(i.succ). -/
 private
-def fact.map.cod {n}
+def strArr.homEvSucc {n}
     (j : StructuredArrow (op [n]) (Δ.ι 2).op)
     (i : Fin (unop j.right).1.len) :
     Fin (n + 1) := (SimplexCategory.Hom.toOrderHom j.hom.unop) i.succ
 
-/-- The unique arrow (fact.obj.dom j i.castSucc) ⟶ (fact.map.cod j i) in Fin(n+1). -/
+/-- The unique arrow (strArr.homEv j i.castSucc) ⟶ (strArr.homEvSucc j i) in Fin(n+1). -/
 private
-def fact.map.map {n}
+def strArr.homEv.map {n}
     (j : StructuredArrow (op [n]) (Δ.ι 2).op)
     (i : Fin (unop j.right).1.len) :
-    fact.obj.dom j i.castSucc ⟶ fact.map.cod j i :=
+    strArr.homEv j i.castSucc ⟶ strArr.homEvSucc j i :=
   (Monotone.functor (j.hom.unop.toOrderHom).monotone).map (Fin.hom_succ i)
 
 /-- This is the unique arrow in StructuredArrow (op [n]) (Δ.ι 2).op from j to ar' of the map just
@@ -798,7 +799,7 @@ private
 def fact.map.arr {n}
     (j : StructuredArrow (op [n]) (Δ.ι 2).op)
     (i : Fin (unop j.right).1.len)
-    : j ⟶ ar' (fact.map.map j i) := by
+    : j ⟶ ar' (strArr.homEv.map j i) := by
   fapply StructuredArrow.homMk
   · exact .op (mkOfSucc i : [1] ⟶ [(unop j.right).1.len])
   · apply Quiver.Hom.unop_inj
@@ -841,13 +842,13 @@ def isPointwiseRightKanExtensionAt (C : Cat) (n : ℕ) :
     uniq := by
       intro s lift' fact'
       ext x
-      unfold ran.lift pt' pt arr' ar' ar
+      unfold ran.lift pt' pt ar'succ ar' ar
       fapply ComposableArrows.ext
       · exact fun i ↦ (congrArg (·.obj 0) <| congr_fun (fact'
           (StructuredArrow.mk (Y := op [0]₂) ([0].const [n] i).op)) x)
       · intro i hi
         rw [ComposableArrows.mkOfObjOfMapSucc_map_succ _ _ i hi]
-        have eq := congr_fun (fact' (arr' (Fin.mk i hi))) x
+        have eq := congr_fun (fact' (ar'succ (Fin.mk i hi))) x
         simp at eq ⊢
         exact (conj_eqToHom_iff_heq' _ _ _ _).2 (congr_arg_heq (·.hom) <| eq)
   }
@@ -895,7 +896,7 @@ def cosk2NatIso.component (C : Cat.{v, u}) :
     ((whiskeringLeft _ _ _).obj (Δ.ι 2).op) ((Δ.ι 2).op ⋙ nerveFunctor.obj C)).mapIso
       (cosk2RightExtension.component.hom.iso C)
 
-/-- ER: It follows that we have a natural isomorphism between nerveFunctor and nerveFunctor ⋙ cosk₂
+/-- It follows that we have a natural isomorphism between nerveFunctor and nerveFunctor ⋙ cosk₂
 whose components are the isomorphisms just established. -/
 def cosk2Iso : nerveFunctor.{u, u} ≅ nerveFunctor₂.{u, u} ⋙ ran (Δ.ι 2).op := by
   apply NatIso.ofComponents cosk2NatIso.component _
@@ -903,6 +904,8 @@ def cosk2Iso : nerveFunctor.{u, u} ≅ nerveFunctor₂.{u, u} ⋙ ran (Δ.ι 2).
   exact cosk2NatTrans.naturality
 
 end Nerve
+
+-- NB: Stopped the exporting here.
 
 section
 open Opposite
