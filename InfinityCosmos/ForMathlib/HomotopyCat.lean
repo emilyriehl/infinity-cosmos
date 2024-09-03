@@ -71,28 +71,28 @@ end
 namespace Quotient
 variable {C : Type _} [Category C] (r : HomRel C)
 
-theorem CompClosure.congruence : Congruence fun a b => EqvGen (@CompClosure C _ r a b) where
-  equivalence := EqvGen.is_equivalence _
+theorem CompClosure.congruence : Congruence fun a b => Relation.EqvGen (@CompClosure C _ r a b) where
+  equivalence := Relation.EqvGen.is_equivalence _
   compLeft f g g' rel := by
     induction rel with
     | rel _ _ h =>
       let .intro f' m₁ m₂ g h := h
-      apply EqvGen.rel
+      apply Relation.EqvGen.rel
       rw [← assoc, ← assoc f]
       exact ⟨_, _, _, _, h⟩
-    | refl => exact EqvGen.refl _
-    | symm _ _ _ ih => exact EqvGen.symm _ _ ih
-    | trans _ _ _ _ _ ih₁ ih₂ => exact EqvGen.trans _ _ _ ih₁ ih₂
+    | refl => exact Relation.EqvGen.refl _
+    | symm _ _ _ ih => exact Relation.EqvGen.symm _ _ ih
+    | trans _ _ _ _ _ ih₁ ih₂ => exact Relation.EqvGen.trans _ _ _ ih₁ ih₂
   compRight g rel := by
     induction rel with
     | rel _ _ h =>
       let .intro f' m₁ m₂ g h := h
-      apply EqvGen.rel
+      apply Relation.EqvGen.rel
       repeat rw [assoc]
       exact ⟨_, _, _, _, h⟩
-    | refl => exact EqvGen.refl _
-    | symm _ _ _ ih => exact EqvGen.symm _ _ ih
-    | trans _ _ _ _ _ ih₁ ih₂ => exact EqvGen.trans _ _ _ ih₁ ih₂
+    | refl => exact Relation.EqvGen.refl _
+    | symm _ _ _ ih => exact Relation.EqvGen.symm _ _ ih
+    | trans _ _ _ _ _ ih₁ ih₂ => exact Relation.EqvGen.trans _ _ _ ih₁ ih₂
 
 end Quotient
 
