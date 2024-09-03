@@ -505,6 +505,39 @@ theorem eq_of_one_to_one (f : [1] ⟶ [1]) :
     rw [e0, e1] at this
     exact Not.elim (by decide) this
 
+theorem eq_of_one_to_two (f : [1] ⟶ [2]) :
+    f = (SimplexCategory.δ (n := 1) 0) ∨ f = (SimplexCategory.δ (n := 1) 1) ∨ f = (SimplexCategory.δ (n := 1) 2) ∨ ∃ a, f = SimplexCategory.const _ _ a := by
+  have : f.toOrderHom 0 ≤ f.toOrderHom 1 := f.toOrderHom.monotone (by decide : (0 : Fin 2) ≤ 1)
+  match e0 : f.toOrderHom 0, e1 : f.toOrderHom 1 with
+  | 1, 2 =>
+    left
+    ext i : 3
+    match i with
+    | 0 => exact e0
+    | 1 => exact e1
+  | 0, 2 =>
+    right; left
+    ext i : 3
+    match i with
+    | 0 => exact e0
+    | 1 => exact e1
+  | 0, 1 =>
+    right; right; left
+    ext i : 3
+    match i with
+    | 0 => exact e0
+    | 1 => exact e1
+  | 0, 0 | 1, 1 | 2, 2 =>
+    right; right; right; use f.toOrderHom 0
+    ext i : 3
+    match i with
+    | 0 => rfl
+    | 1 => exact e1.trans e0.symm
+  | 1, 0 | 2, 0 | 2, 1 =>
+    rw [e0, e1] at this
+    exact Not.elim (by decide) this
+
+
 theorem const_fac_thru_zero (n m : SimplexCategory) (i : Fin (m.len + 1)) :
     SimplexCategory.const n m i =
     SimplexCategory.const n [0] 0 ≫ SimplexCategory.const [0] m i := by
@@ -1017,9 +1050,6 @@ def OneTruncation.ofNerveNatIso : nerveFunctor.{u,u} ⋙ SSet.oneTruncation ≅ 
       unfold SSet.oneTruncation nerveFunctor mapComposableArrows toReflPrefunctor
       simp [ReflQuiv.comp_eq_comp, ofNerve, ofNerve.hom, ofNerve.map]
 
-def helperAdj : Cat.freeRefl.{u, u} ⊣ nerveFunctor.{u, u} ⋙ SSet.oneTruncation.{u} :=
-  (ReflQuiv.adj).ofNatIsoRight (OneTruncation.ofNerveNatIso.symm)
-
 local notation (priority := high) "[" n "]" => SimplexCategory.mk n
 
 theorem opstuff.{w} (V : Cᵒᵖ ⥤ Type w) {X Y Z : C} {α : X ⟶ Y} {β : Y ⟶ Z} {γ : X ⟶ Z} {φ} :
@@ -1109,39 +1139,6 @@ def SSet.hoFunctor' : SSet.{u} ⥤ Cat.{u,u} where
     simp [hoFunctorMap]
     rw [Quotient.lift_spec, Cat.comp_eq, Cat.comp_eq, ← Functor.assoc, Functor.assoc,
       Quotient.lift_spec, Functor.assoc, Quotient.lift_spec]
-
-theorem eq_of_one_to_two (f : [1] ⟶ [2]) :
-    f = δ0 ∨ f = δ1 ∨ f = δ2 ∨ ∃ a, f = SimplexCategory.const _ _ a := by
-  have : f.toOrderHom 0 ≤ f.toOrderHom 1 := f.toOrderHom.monotone (by decide : (0 : Fin 2) ≤ 1)
-  match e0 : f.toOrderHom 0, e1 : f.toOrderHom 1 with
-  | 1, 2 =>
-    left
-    ext i : 3
-    match i with
-    | 0 => exact e0
-    | 1 => exact e1
-  | 0, 2 =>
-    right; left
-    ext i : 3
-    match i with
-    | 0 => exact e0
-    | 1 => exact e1
-  | 0, 1 =>
-    right; right; left
-    ext i : 3
-    match i with
-    | 0 => exact e0
-    | 1 => exact e1
-  | 0, 0 | 1, 1 | 2, 2 =>
-    right; right; right; use f.toOrderHom 0
-    ext i : 3
-    match i with
-    | 0 => rfl
-    | 1 => exact e1.trans e0.symm
-  | 1, 0 | 2, 0 | 2, 1 =>
-    rw [e0, e1] at this
-    exact Not.elim (by decide) this
-
 end
 
 section
