@@ -473,6 +473,11 @@ instance Δ.ι.op.fullyFaithful (k) : (Δ.ι k).op.FullyFaithful :=
   FullyFaithful.ofFullyFaithful (ι k).op
 
 -- NB: Moved to SimplexCategory.
+theorem const_fac_thru_zero (n m : SimplexCategory) (i : Fin (m.len + 1)) :
+    SimplexCategory.const n m i =
+    SimplexCategory.const n [0] 0 ≫ SimplexCategory.const [0] m i := by
+  rw [SimplexCategory.const_comp]; rfl
+
 theorem eq_const_of_zero {n : SimplexCategory} (f : [0] ⟶ n) :
     f = SimplexCategory.const _ n (f.toOrderHom 0) := by
   ext x; match x with | 0 => rfl
@@ -536,12 +541,6 @@ theorem eq_of_one_to_two (f : [1] ⟶ [2]) :
   | 1, 0 | 2, 0 | 2, 1 =>
     rw [e0, e1] at this
     exact Not.elim (by decide) this
-
-
-theorem const_fac_thru_zero (n m : SimplexCategory) (i : Fin (m.len + 1)) :
-    SimplexCategory.const n m i =
-    SimplexCategory.const n [0] 0 ≫ SimplexCategory.const [0] m i := by
-  rw [SimplexCategory.const_comp]; rfl
 
 end SimplexCategory
 
@@ -1102,9 +1101,6 @@ theorem HoRel.ext_triangle {V} (X X' Y Y' Z Z' : OneTruncation V)
   cases hZ
   congr! <;> apply Subtype.ext <;> assumption
 
-theorem Cat.id_eq (C : Cat) : 𝟙 C = 𝟭 C := rfl
-theorem Cat.comp_eq {C D E : Cat} (F : C ⟶ D) (G : D ⟶ E) : F ≫ G = F ⋙ G := rfl
-
 def SSet.hoCat (V : SSet.{u}) : Type u :=
   Quotient (C := Cat.freeRefl.obj (ReflQuiv.of (OneTruncation V))) (HoRel (V := V))
 
@@ -1137,7 +1133,7 @@ def SSet.hoFunctor' : SSet.{u} ⥤ Cat.{u,u} where
   map_comp {S T U} F G := by
     apply Quotient.lift_unique'
     simp [hoFunctorMap]
-    rw [Quotient.lift_spec, Cat.comp_eq, Cat.comp_eq, ← Functor.assoc, Functor.assoc,
+    rw [Quotient.lift_spec, Cat.comp_eq_comp, Cat.comp_eq_comp, ← Functor.assoc, Functor.assoc,
       Quotient.lift_spec, Functor.assoc, Quotient.lift_spec]
 end
 
@@ -1301,7 +1297,7 @@ def SSet.Truncated.hoFunctor₂ : SSet.Truncated.{u} 2 ⥤ Cat.{u,u} where
   map_comp {S T U} F G := by
     apply Quotient.lift_unique'
     simp [hoFunctor₂Map, SSet.Truncated.hoFunctor₂Obj.quotientFunctor]
-    rw [Quotient.lift_spec, Cat.comp_eq, Cat.comp_eq, ← Functor.assoc, Functor.assoc,
+    rw [Quotient.lift_spec, Cat.comp_eq_comp, Cat.comp_eq_comp, ← Functor.assoc, Functor.assoc,
       Quotient.lift_spec, Functor.assoc, Quotient.lift_spec]
 
 theorem SSet.Truncated.hoFunctor₂_naturality {X Y : SSet.Truncated.{u} 2} (f : X ⟶ Y) :
