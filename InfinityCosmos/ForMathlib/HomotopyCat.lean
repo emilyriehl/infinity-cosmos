@@ -408,12 +408,12 @@ nonrec def adj : Cat.freeRefl.{max u v, u} ⊣ ReflQuiv.forget :=
 
 end ReflQuiv
 
--- NB: Exports to other files stop here.
-
+-- NB: Moved to Order.Category.NonEmptyFiniteLinOrd.lean; who knows if this is correct
 theorem Fin.le_succ {n} (i : Fin n) : i.castSucc ≤ i.succ := Nat.le_succ i
 
 def Fin.hom_succ {n} (i : Fin n) : i.castSucc ⟶ i.succ := homOfLE (Fin.le_succ i)
 
+-- NB: Ignoring through the local notation for now.
 open Simplicial
 local notation3:1000 (priority := high) X " _[" n "]" =>
     (X : CategoryTheory.SimplicialObject _).obj (Opposite.op (SimplexCategory.mk n))
@@ -425,6 +425,7 @@ instance (k : ℕ) : Category (Δ k) := inferInstanceAs (Category (FullSubcatego
 
 local notation (priority := high) "[" n "]" => SimplexCategory.mk n
 
+-- NB: Moved to simplex category and compiled out the abbreviation.
 @[ext]
 theorem Δ.Hom.ext {k} {a b : Δ k} (f g : a ⟶ b) :
     f.toOrderHom = g.toOrderHom → f = g := SimplexCategory.Hom.ext _ _
@@ -458,6 +459,7 @@ def mkOfLeComp {n} (i j k : Fin (n+1)) (h₁ : i ≤ j) (h₂ : j ≤ k): [2] �
 
 /-- The fully faithful inclusion of the truncated simplex category into the usual
 simplex category.
+NB: Next four definitions exist already in simplex category (without the abbrevation). Final instance had to be made "noncomputable."
 -/
 abbrev Δ.ι (k) : Δ k ⥤ SimplexCategory := SimplexCategory.Truncated.inclusion
 
