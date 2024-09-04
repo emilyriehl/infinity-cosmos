@@ -13,6 +13,13 @@ SSet.Quasicategory
 SSet.KanComplex
 CategoryTheory.nerve
 CategoryTheory.nerveFunctor
+CategoryTheory.Nerve.cosk2Iso
+SSet.oneTruncation
+CategoryTheory.ReflQuiv.adj
+CategoryTheory.SSet.hoCat
+CategoryTheory.nerveCounit_isIso
+CategoryTheory.nerveAdjunction
+nerveFunctor.fullyfaithful
 CategoryTheory.SimplicialCategory
 CategoryTheory.SimplicialCategory.HasCotensors
 CategoryTheory.SimplicialCategory.cotensor_bifunctoriality
