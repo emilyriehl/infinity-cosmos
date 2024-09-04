@@ -899,7 +899,7 @@ theorem isRightKanExtension (C : Cat) :
   RightExtension.IsPointwiseRightKanExtension.isRightKanExtension
     (isPointwiseRightKanExtension C)
 
-/-- ER: The natural map from a nerve. -/
+/-- The natural map from a nerve. -/
 def cosk2NatTrans : nerveFunctor.{u, v} ⟶ nerveFunctor₂ ⋙ ran (Δ.ι 2).op :=
   whiskerLeft nerveFunctor (coskAdj 2).unit
 
@@ -938,18 +938,19 @@ def cosk2Iso : nerveFunctor.{u, u} ≅ nerveFunctor₂.{u, u} ⋙ ran (Δ.ι 2).
 end Nerve
 
 -- NB: Stopped the exporting here.
+
 section
 open Opposite
 
-def OneTruncation (S : SSet) := S _[0]
+def SSet.OneTruncation (S : SSet) := S _[0]
 
-def OneTruncation.src {S : SSet} (f : S _[1]) : OneTruncation S :=
+def SSet.OneTruncation.src {S : SSet} (f : S _[1]) : OneTruncation S :=
   S.map (SimplexCategory.δ (n := 0) 1).op f
 
-def OneTruncation.tgt {S : SSet} (f : S _[1]) : OneTruncation S :=
+def SSet.OneTruncation.tgt {S : SSet} (f : S _[1]) : OneTruncation S :=
   S.map (SimplexCategory.δ (n := 0) 0).op f
 
-def OneTruncation.Hom {S : SSet} (X Y : OneTruncation S) :=
+def SSet.OneTruncation.Hom {S : SSet} (X Y : OneTruncation S) :=
   {p : S _[1] // src p = X ∧ tgt p = Y}
 
 instance (S : SSet) : ReflQuiver (OneTruncation S) where
@@ -983,8 +984,6 @@ def SSet.oneTruncation : SSet.{u} ⥤ ReflQuiv.{u,u} where
   }
   map_id X := by rfl
   map_comp f g := by rfl
-
-
 
 section
 variable {C : Type u} [Category.{v} C]
@@ -1045,6 +1044,7 @@ def SSet.OneTruncation.ofNerve (C : Type u) [Category.{u} C] :
     · intro X Y f
       simp [ReflQuiv.comp_eq_comp, ReflQuiv.id_eq_id, ofNerve.inv, ofNerve.hom, ofNerve.map]
 
+/-- ER: For use later. -/
 @[simps! hom_app_obj hom_app_map inv_app_obj_obj inv_app_obj_map inv_app_map]
 def SSet.OneTruncation.ofNerve.natIso : nerveFunctor.{u,u} ⋙ SSet.oneTruncation ≅ ReflQuiv.forget := by
   refine NatIso.ofComponents (fun C => OneTruncation.ofNerve C) ?nat
@@ -1058,35 +1058,35 @@ def SSet.OneTruncation.ofNerve.natIso : nerveFunctor.{u,u} ⋙ SSet.oneTruncatio
 
 local notation (priority := high) "[" n "]" => SimplexCategory.mk n
 
-private def ι0 : [0] ⟶ [2] := SimplexCategory.δ (n := 0) 1 ≫ SimplexCategory.δ (n := 1) 1
-private def ι1 : [0] ⟶ [2] := SimplexCategory.δ (n := 0) 0 ≫ SimplexCategory.δ (n := 1) 2
-private def ι2 : [0] ⟶ [2] := SimplexCategory.δ (n := 0) 0 ≫ SimplexCategory.δ (n := 1) 1
+def ι0 : [0] ⟶ [2] := SimplexCategory.δ (n := 0) 1 ≫ SimplexCategory.δ (n := 1) 1
+def ι1 : [0] ⟶ [2] := SimplexCategory.δ (n := 0) 0 ≫ SimplexCategory.δ (n := 1) 2
+def ι2 : [0] ⟶ [2] := SimplexCategory.δ (n := 0) 0 ≫ SimplexCategory.δ (n := 1) 1
 
-private def ev0 {V : SSet} (φ : V _[2]) : OneTruncation V := V.map ι0.op φ
-private def ev1 {V : SSet} (φ : V _[2]) : OneTruncation V := V.map ι1.op φ
-private def ev2 {V : SSet} (φ : V _[2]) : OneTruncation V := V.map ι2.op φ
+def φ0 {V : SSet} (φ : V _[2]) : OneTruncation V := V.map ι0.op φ
+def φ1 {V : SSet} (φ : V _[2]) : OneTruncation V := V.map ι1.op φ
+def φ2 {V : SSet} (φ : V _[2]) : OneTruncation V := V.map ι2.op φ
 
-private def δ0 : [1] ⟶ [2] := SimplexCategory.δ (n := 1) 0
-private def δ1 : [1] ⟶ [2] := SimplexCategory.δ (n := 1) 1
-private def δ2 : [1] ⟶ [2] := SimplexCategory.δ (n := 1) 2
+def δ1 : [1] ⟶ [2] := SimplexCategory.δ (n := 1) 1
+def δ2 : [1] ⟶ [2] := SimplexCategory.δ (n := 1) 2
+def δ0 : [1] ⟶ [2] := SimplexCategory.δ (n := 1) 0
 
-private def ev02 {V : SSet} (φ : V _[2]) : ev0 φ ⟶ ev2 φ :=
+def φ02 {V : SSet} (φ : V _[2]) : φ0 φ ⟶ φ2 φ :=
   ⟨V.map δ1.op φ, opstuff V rfl, opstuff V rfl⟩
-private def ev01 {V : SSet} (φ : V _[2]) : ev0 φ ⟶ ev1 φ :=
+def φ01 {V : SSet} (φ : V _[2]) : φ0 φ ⟶ φ1 φ :=
   ⟨V.map δ2.op φ, opstuff V (SimplexCategory.δ_comp_δ (j := 1) le_rfl), opstuff V rfl⟩
-private def ev12 {V : SSet} (φ : V _[2]) : ev1 φ ⟶ ev2 φ :=
+def φ12 {V : SSet} (φ : V _[2]) : φ1 φ ⟶ φ2 φ :=
   ⟨V.map δ0.op φ,
     opstuff V (SimplexCategory.δ_comp_δ (i := 0) (j := 1) (by decide)).symm,
     opstuff V rfl⟩
 
-inductive SSet.HoRel {V : SSet} :
+inductive HoRel {V : SSet} :
     (X Y : Cat.freeRefl.obj (ReflQuiv.of (OneTruncation V))) → (f g : X ⟶ Y) → Prop
   | mk (φ : V _[2]) :
     HoRel _ _
-      (Quot.mk _ (.cons .nil (ev02 φ)))
-      (Quot.mk _ (.cons (.cons .nil (ev01 φ)) (ev12 φ)))
+      (Quot.mk _ (.cons .nil (φ02 φ)))
+      (Quot.mk _ (.cons (.cons .nil (φ01 φ)) (φ12 φ)))
 
-theorem SSet.HoRel.ext_triangle {V} (X X' Y Y' Z Z' : OneTruncation V)
+theorem HoRel.ext_triangle {V} (X X' Y Y' Z Z' : OneTruncation V)
     (hX : X = X') (hY : Y = Y') (hZ : Z = Z')
     (f : X ⟶ Z) (f' : X' ⟶ Z') (hf : f.1 = f'.1)
     (g : X ⟶ Y) (g' : X' ⟶ Y') (hg : g.1 = g'.1)
@@ -1136,7 +1136,6 @@ def SSet.hoFunctor' : SSet.{u} ⥤ Cat.{u,u} where
     simp [hoFunctorMap]
     rw [Quotient.lift_spec, Cat.comp_eq_comp, Cat.comp_eq_comp, ← Functor.assoc, Functor.assoc,
       Quotient.lift_spec, Functor.assoc, Quotient.lift_spec]
-
 end
 
 section
@@ -1152,7 +1151,7 @@ set_option quotPrecheck false
 local macro:max (priority := high) "[" n:term "]₂" : term =>
   `((⟨SimplexCategory.mk $n, by decide⟩ : Δ 2))
 
-def SSet.OneTruncation₂ (S : SSet.Truncated 2) := S _[0]₂
+def OneTruncation₂ (S : SSet.Truncated 2) := S _[0]₂
 
 abbrev δ₂ {n} (i : Fin (n + 2)) (hn := by decide) (hn' := by decide) :
     (⟨[n], hn⟩ : Δ 2) ⟶ ⟨[n + 1], hn'⟩ := SimplexCategory.δ i
@@ -1160,13 +1159,13 @@ abbrev δ₂ {n} (i : Fin (n + 2)) (hn := by decide) (hn' := by decide) :
 abbrev σ₂ {n} (i : Fin (n + 1)) (hn := by decide) (hn' := by decide) :
     (⟨[n+1], hn⟩ : Δ 2) ⟶ ⟨[n], hn'⟩ := SimplexCategory.σ i
 
-def SSet.OneTruncation₂.src {S : SSet.Truncated 2} (f : S _[1]₂) : OneTruncation₂ S :=
+def OneTruncation₂.src {S : SSet.Truncated 2} (f : S _[1]₂) : OneTruncation₂ S :=
   S.map (δ₂ (n := 0) 1).op f
 
-def SSet.OneTruncation₂.tgt {S : SSet.Truncated 2} (f : S _[1]₂) : OneTruncation₂ S :=
+def OneTruncation₂.tgt {S : SSet.Truncated 2} (f : S _[1]₂) : OneTruncation₂ S :=
   S.map (δ₂ (n := 0) 0).op f
 
-def SSet.OneTruncation₂.Hom {S : SSet.Truncated 2} (X Y : OneTruncation₂ S) :=
+def OneTruncation₂.Hom {S : SSet.Truncated 2} (X Y : OneTruncation₂ S) :=
   {p : S _[1]₂ // src p = X ∧ tgt p = Y}
 
 instance (S : SSet.Truncated 2) : ReflQuiver (OneTruncation₂ S) where
@@ -1202,16 +1201,17 @@ def SSet.oneTruncation₂ : SSet.Truncated.{u} 2 ⥤ ReflQuiv.{u,u} where
   map_id X := by rfl
   map_comp f g := by rfl
 
+section
 variable {V : SSet}
 
-def SSet.OneTruncation₂.ofTwoTruncation (V : SSet) :
+def OneTruncation₂.ofTwoTruncationIso (V : SSet) :
     ReflQuiv.of (OneTruncation₂ ((truncation 2).obj V)) ≅ ReflQuiv.of (OneTruncation V) := .refl _
 
-def SSet.OneTruncation₂.ofTwoTruncation.ofNerve (C : Cat) :
+def OneTruncation₂.nerve₂Iso (C : Cat) :
     ReflQuiv.of (OneTruncation₂ (nerve₂ C)) ≅ ReflQuiv.of (OneTruncation (nerve C)) := .refl _
 
 @[simps!]
-def SSet.OneTruncation₂.ofNerve₂.natIso :
+def OneTruncation₂.nerve₂NatIso :
     nerveFunctor₂ ⋙ SSet.oneTruncation₂ ≅ nerveFunctor ⋙ SSet.oneTruncation := .refl _
 
 local notation (priority := high) "[" n "]" => SimplexCategory.mk n
@@ -1220,31 +1220,31 @@ def ι0₂ : [0]₂ ⟶ [2]₂ := δ₂ (n := 0) 1 ≫ δ₂ (n := 1) 1
 def ι1₂ : [0]₂ ⟶ [2]₂ := δ₂ (n := 0) 0 ≫ δ₂ (n := 1) 2
 def ι2₂ : [0]₂ ⟶ [2]₂ := δ₂ (n := 0) 0 ≫ δ₂ (n := 1) 1
 
-def ev0₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : OneTruncation₂ V := V.map ι0₂.op φ
-def ev1₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : OneTruncation₂ V := V.map ι1₂.op φ
-def ev2₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : OneTruncation₂ V := V.map ι2₂.op φ
+def φ0₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : OneTruncation₂ V := V.map ι0₂.op φ
+def φ1₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : OneTruncation₂ V := V.map ι1₂.op φ
+def φ2₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : OneTruncation₂ V := V.map ι2₂.op φ
 
 def δ1₂ : [1]₂ ⟶ [2]₂ := δ₂ (n := 1) 1
 def δ2₂ : [1]₂ ⟶ [2]₂ := δ₂ (n := 1) 2
 def δ0₂ : [1]₂ ⟶ [2]₂ := δ₂ (n := 1) 0
 
-def ev02₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : ev0₂ φ ⟶ ev2₂ φ :=
+def φ02₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : φ0₂ φ ⟶ φ2₂ φ :=
   ⟨V.map δ1₂.op φ, opstuff V rfl, opstuff V rfl⟩
-def ev01₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : ev0₂ φ ⟶ ev1₂ φ :=
+def φ01₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : φ0₂ φ ⟶ φ1₂ φ :=
   ⟨V.map δ2₂.op φ, opstuff V (SimplexCategory.δ_comp_δ (j := 1) le_rfl), opstuff V rfl⟩
-def ev12₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : ev1₂ φ ⟶ ev2₂ φ :=
+def φ12₂ {V : SSet.Truncated 2} (φ : V _[2]₂) : φ1₂ φ ⟶ φ2₂ φ :=
   ⟨V.map δ0₂.op φ,
     opstuff V (SimplexCategory.δ_comp_δ (i := 0) (j := 1) (by decide)).symm,
     opstuff V rfl⟩
 
-inductive SSet.HoRel₂ {V : SSet.Truncated 2} :
+inductive HoRel₂ {V : SSet.Truncated 2} :
     (X Y : Cat.freeRefl.obj (ReflQuiv.of (OneTruncation₂ V))) → (f g : X ⟶ Y) → Prop
   | mk (φ : V _[2]₂) :
     HoRel₂ _ _
-      (Quot.mk _ (.cons .nil (ev02₂ φ)))
-      (Quot.mk _ (.cons (.cons .nil (ev01₂ φ)) (ev12₂ φ)))
+      (Quot.mk _ (.cons .nil (φ02₂ φ)))
+      (Quot.mk _ (.cons (.cons .nil (φ01₂ φ)) (φ12₂ φ)))
 
-theorem SSet.HoRel₂.ext_triangle {V} (X X' Y Y' Z Z' : OneTruncation₂ V)
+theorem HoRel₂.ext_triangle {V} (X X' Y Y' Z Z' : OneTruncation₂ V)
     (hX : X = X') (hY : Y = Y') (hZ : Z = Z')
     (f : X ⟶ Z) (f' : X' ⟶ Z') (hf : f.1 = f'.1)
     (g : X ⟶ Y) (g' : X' ⟶ Y') (hg : g.1 = g'.1)
@@ -1305,6 +1305,7 @@ theorem SSet.Truncated.hoFunctor₂_naturality {X Y : SSet.Truncated.{u} 2} (f :
     (SSet.oneTruncation₂ ⋙ Cat.freeRefl).map f ⋙
     hoFunctor₂Obj.quotientFunctor Y =
     SSet.Truncated.hoFunctor₂Obj.quotientFunctor X ⋙ hoFunctor₂Map f := rfl
+end
 
 -- /-- ER: We don't actually need this but it would be nice and potentially not too hard. -/
 -- def hoFunctor.ofTwoTruncationIso (V : SSet) :
@@ -1315,20 +1316,20 @@ theorem SSet.Truncated.hoFunctor₂_naturality {X Y : SSet.Truncated.{u} 2} (f :
 --     truncation 2 ⋙ SSet.Truncated.hoFunctor₂ ≅ SSet.hoFunctor' := sorry
 
 @[simps! hom_app_obj hom_app_map inv_app_obj_obj inv_app_obj_map inv_app_map]
-def forgetToReflQuiv.natIso : nerveFunctor₂ ⋙ SSet.oneTruncation₂.{u} ≅ ReflQuiv.forget :=
-  OneTruncation₂.ofNerve₂.natIso ≪≫ OneTruncation.ofNerve.natIso
+def nerve₂oneTrunc.natIso : nerveFunctor₂ ⋙ SSet.oneTruncation₂.{u} ≅ ReflQuiv.forget :=
+  OneTruncation₂.nerve₂NatIso ≪≫ OneTruncation.ofNerve.natIso
 
 @[simps!]
 def nerve₂Adj.counit.component (C : Cat.{u, u}) :
     SSet.Truncated.hoFunctor₂.obj (nerveFunctor₂.obj C) ⥤ C := by
   fapply Quotient.lift
-  · exact (whiskerRight (forgetToReflQuiv.natIso).hom _ ≫ ReflQuiv.adj.{u}.counit).app C
+  · exact (whiskerRight (nerve₂oneTrunc.natIso).hom _ ≫ ReflQuiv.adj.{u}.counit).app C
   · intro x y f g rel
     cases rel; rename_i φ
     simp [ReflQuiv.adj, Quot.liftOn, Cat.FreeRefl.quotientFunctor, Quotient.functor,
       Quiv.adj, Quiv.id_eq_id]
-    change OneTruncation.ofNerve.map (ev02₂ φ) =
-      OneTruncation.ofNerve.map (ev01₂ φ) ≫ OneTruncation.ofNerve.map (ev12₂ φ)
+    change OneTruncation.ofNerve.map (φ02₂ φ) =
+      OneTruncation.ofNerve.map (φ01₂ φ) ≫ OneTruncation.ofNerve.map (φ12₂ φ)
     simp [OneTruncation.ofNerve.map]
     exact φ.map_comp (X := (0 : Fin 3)) (Y := 1) (Z := 2)
       (homOfLE (by decide)) (homOfLE (by decide))
@@ -1336,7 +1337,7 @@ def nerve₂Adj.counit.component (C : Cat.{u, u}) :
 @[simp]
 theorem nerve₂Adj.counit.component_eq (C : Cat) :
     SSet.Truncated.hoFunctor₂Obj.quotientFunctor (nerve₂ C) ⋙ nerve₂Adj.counit.component.{u} C =
-    (whiskerRight forgetToReflQuiv.natIso.hom _ ≫
+    (whiskerRight nerve₂oneTrunc.natIso.hom _ ≫
       ReflQuiv.adj.{u}.counit).app C := rfl
 
 theorem nerve₂Adj.counit.naturality' ⦃C D : Cat.{u, u}⦄ (F : C ⟶ D) :
@@ -1351,7 +1352,7 @@ theorem nerve₂Adj.counit.naturality' ⦃C D : Cat.{u, u}⦄ (F : C ⟶ D) :
   conv => rhs; lhs; exact (nerve₂Adj.counit.component_eq C)
   conv =>
     rhs
-    exact ((whiskerRight forgetToReflQuiv.natIso.hom Cat.freeRefl ≫
+    exact ((whiskerRight nerve₂oneTrunc.natIso.hom Cat.freeRefl ≫
       ReflQuiv.adj.counit).naturality F).symm
   simp only [component, Cat.freeRefl_obj_α, ReflQuiv.of_val, NatTrans.comp_app, comp_obj,
     ReflQuiv.forget_obj, id_obj, whiskerRight_app, Cat.comp_eq_comp, Functor.comp_map, Functor.assoc,
@@ -1373,7 +1374,7 @@ def toNerve₂.mk.app {X : SSet.Truncated 2} {C : Cat}
   match n with
   | 0 => exact fun x => .mk₀ (F.obj x)
   | 1 => exact fun f => .mk₁ (F.map ⟨f, rfl, rfl⟩)
-  | 2 => exact fun φ => .mk₂ (F.map (ev01₂ φ)) (F.map (ev12₂ φ))
+  | 2 => exact fun φ => .mk₂ (F.map (φ01₂ φ)) (F.map (φ12₂ φ))
 
 @[simp] theorem toNerve₂.mk.app_zero {X : SSet.Truncated 2} {C : Cat}
     (F : SSet.oneTruncation₂.obj X ⟶ ReflQuiv.of C) (x : X _[0]₂) :
@@ -1385,7 +1386,7 @@ def toNerve₂.mk.app {X : SSet.Truncated 2} {C : Cat}
 
 @[simp] theorem toNerve₂.mk.app_two {X : SSet.Truncated 2} {C : Cat}
     (F : SSet.oneTruncation₂.obj X ⟶ ReflQuiv.of C) (φ : X _[2]₂) :
-    mk.app F [2]₂ φ = .mk₂ (F.map (ev01₂ φ)) (F.map (ev12₂ φ)) := rfl
+    mk.app F [2]₂ φ = .mk₂ (F.map (φ01₂ φ)) (F.map (φ12₂ φ)) := rfl
 
 def seagull (C : Cat.{v, u}) :
     (nerveFunctor₂.obj C).obj (op [2]₂) ⟶
@@ -1417,8 +1418,8 @@ instance (C : Cat) : Mono (seagull C) where
 @[simps] def toNerve₂.mk {X : SSet.Truncated.{u} 2} {C : Cat}
     (F : SSet.oneTruncation₂.obj X ⟶ ReflQuiv.of C)
     (hyp : (φ : X _[2]₂) →
-      F.map (ev02₂ φ) =
-        CategoryStruct.comp (obj := C) (F.map (ev01₂ φ)) (F.map (ev12₂ φ)))
+      F.map (φ02₂ φ) =
+        CategoryStruct.comp (obj := C) (F.map (φ01₂ φ)) (F.map (φ12₂ φ)))
     : X ⟶ nerveFunctor₂.obj C where
       app := fun n => toNerve₂.mk.app F n.unop
       naturality := by
@@ -1427,7 +1428,7 @@ instance (C : Cat) : Mono (seagull C) where
         induction' m using SimplexCategory.rec with m
         induction' n using SimplexCategory.rec with n
         dsimp at α ⊢
-        let OK {n m } (f : (⟨[n], hn⟩ : Δ 2) ⟶ ⟨[m], hm⟩) :=
+        let OK {n m hn hm} (f : (⟨[n], hn⟩ : Δ 2) ⟶ ⟨[m], hm⟩) :=
           X.map f.op ≫ mk.app F ⟨[n], hn⟩ = mk.app F ⟨[m], hm⟩ ≫ (nerveFunctor₂.obj C).map f.op
         show OK α
         have fac : ∀ {n m hn hm} {α : (⟨[n], hn⟩ : Δ 2) ⟶ ⟨[m], hm⟩} k hk
@@ -1497,6 +1498,7 @@ instance (C : Cat) : Mono (seagull C) where
         have const02 (α : [0]₂ ⟶ [2]₂) : OK α := by
           ext x
           apply ComposableArrows.ext₀
+          -- ER: Would help if we know maps out of 0 were constant.
           obtain ⟨i : Fin 3, rfl⟩ := eq_const_of_zero' α
           match i with
           | 0 =>
@@ -1541,11 +1543,11 @@ instance (C : Cat) : Mono (seagull C) where
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp]; rfl
               · clear fac const01 const10 const02 OK
-                dsimp [ev12₂, ev01₂, nerveFunctor₂, truncation, forget₂, HasForget₂.forget₂]
+                dsimp [φ12₂, φ01₂, nerveFunctor₂, truncation, forget₂, HasForget₂.forget₂]
                 show _ = _ ≫ ComposableArrows.Precomp.map _ _ ⟨1, _⟩ ⟨2, _⟩ _ ≫ _
                 rw [ComposableArrows.Precomp.map]; dsimp
                 apply (conj_eqToHom_iff_heq' ..).2
-                dsimp [δ0₂, δ0, δ₂, OneTruncation₂.src, ev1₂]
+                dsimp [δ0₂, δ0, δ₂, OneTruncation₂.src, φ1₂]
                 have : ∀ {A B A' B' : OneTruncation₂ X} (x₁ : A ⟶ B) (x₂ : A' ⟶ B'),
                     A = A' → B = B' → x₁.1 = x₂.1 → HEq (F.map x₁) (F.map x₂) := by
                     rintro _ _ _ _ ⟨⟩ ⟨⟩ rfl rfl ⟨⟩; rfl
@@ -1569,11 +1571,11 @@ instance (C : Cat) : Mono (seagull C) where
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp]; rfl
               · clear fac const01 const10 const02 OK
-                dsimp [ev12₂, ev01₂, nerveFunctor₂, truncation, forget₂, HasForget₂.forget₂]
+                dsimp [φ12₂, φ01₂, nerveFunctor₂, truncation, forget₂, HasForget₂.forget₂]
                 show _ = _ ≫ ComposableArrows.Precomp.map _ _ ⟨0, _⟩ ⟨2, _⟩ _ ≫ _
                 rw [ComposableArrows.Precomp.map]; dsimp
                 apply (conj_eqToHom_iff_heq' ..).2
-                dsimp [δ0₂, δ0, δ₂, OneTruncation₂.src, ev1₂]
+                dsimp [δ0₂, δ0, δ₂, OneTruncation₂.src, φ1₂]
                 have : ∀ {A B A' B' : OneTruncation₂ X} (x₁ : A ⟶ B) (x₂ : A' ⟶ B'),
                     A = A' → B = B' → x₁.1 = x₂.1 → HEq (F.map x₁) (F.map x₂) := by
                     rintro _ _ _ _ ⟨⟩ ⟨⟩ rfl rfl ⟨⟩; rfl
@@ -1598,11 +1600,11 @@ instance (C : Cat) : Mono (seagull C) where
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp]; rfl
               · clear fac const01 const10 const02 OK
-                dsimp [ev12₂, ev01₂, nerveFunctor₂, truncation, forget₂, HasForget₂.forget₂]
+                dsimp [φ12₂, φ01₂, nerveFunctor₂, truncation, forget₂, HasForget₂.forget₂]
                 show _ = _ ≫ ComposableArrows.Precomp.map _ _ ⟨0, _⟩ ⟨1, _⟩ _ ≫ _
                 rw [ComposableArrows.Precomp.map]; dsimp
                 apply (conj_eqToHom_iff_heq' ..).2
-                dsimp [δ0₂, δ0, δ₂, OneTruncation₂.src, ev1₂]
+                dsimp [δ0₂, δ0, δ₂, OneTruncation₂.src, φ1₂]
                 have : ∀ {A B A' B' : OneTruncation₂ X} (x₁ : A ⟶ B) (x₂ : A' ⟶ B'),
                     A = A' → B = B' → x₁.1 = x₂.1 → HEq (F.map x₁) (F.map x₂) := by
                     rintro _ _ _ _ ⟨⟩ ⟨⟩ rfl rfl ⟨⟩; rfl
@@ -1644,18 +1646,18 @@ conjugated by the isomorphism nerve₂Adj.NatIso.app C -/
 @[simps!] def toNerve₂.mk' {X : SSet.Truncated.{u} 2} {C : Cat}
     (f : SSet.oneTruncation₂.obj X ⟶ SSet.oneTruncation₂.obj (nerveFunctor₂.obj C))
     (hyp : (φ : X _[2]₂) →
-      (f ≫ (forgetToReflQuiv.natIso.app C).hom).map (ev02₂ φ)
-      = CategoryStruct.comp (obj := C) ((f ≫ (forgetToReflQuiv.natIso.app C).hom).map (ev01₂ φ))
-        ((f ≫ (forgetToReflQuiv.natIso.app C).hom).map (ev12₂ φ)))
+      (f ≫ (nerve₂oneTrunc.natIso.app C).hom).map (φ02₂ φ)
+      = CategoryStruct.comp (obj := C) ((f ≫ (nerve₂oneTrunc.natIso.app C).hom).map (φ01₂ φ))
+        ((f ≫ (nerve₂oneTrunc.natIso.app C).hom).map (φ12₂ φ)))
     : X ⟶ nerveFunctor₂.obj C :=
-  toNerve₂.mk (f ≫ (forgetToReflQuiv.natIso.app C).hom) hyp
+  toNerve₂.mk (f ≫ (nerve₂oneTrunc.natIso.app C).hom) hyp
 
 theorem oneTruncation₂_toNerve₂Mk' {X : SSet.Truncated 2} {C : Cat}
     (f : SSet.oneTruncation₂.obj X ⟶ SSet.oneTruncation₂.obj (nerveFunctor₂.obj C))
     (hyp : (φ : X _[2]₂) →
-      (f ≫ (forgetToReflQuiv.natIso.app C).hom).map (ev02₂ φ)
-      = CategoryStruct.comp (obj := C) ((f ≫ (forgetToReflQuiv.natIso.app C).hom).map (ev01₂ φ))
-        ((f ≫ (forgetToReflQuiv.natIso.app C).hom).map (ev12₂ φ))) :
+      (f ≫ (nerve₂oneTrunc.natIso.app C).hom).map (φ02₂ φ)
+      = CategoryStruct.comp (obj := C) ((f ≫ (nerve₂oneTrunc.natIso.app C).hom).map (φ01₂ φ))
+        ((f ≫ (nerve₂oneTrunc.natIso.app C).hom).map (φ12₂ φ))) :
     oneTruncation₂.map (toNerve₂.mk' f hyp) = f := by
   refine ReflPrefunctor.ext (fun _ ↦ ComposableArrows.ext₀ rfl)
     (fun X Y g ↦ eq_of_heq ((heq_eqRec_iff_heq _ _ _).2 <| (heq_eqRec_iff_heq _ _ _).2 ?_))
@@ -1710,14 +1712,14 @@ def nerve₂Adj.unit.component (X : SSet.Truncated.{u} 2) :
   fapply toNerve₂.mk' (C := SSet.Truncated.hoFunctor₂.obj X)
   · exact (ReflQuiv.adj.{u}.unit.app (SSet.oneTruncation₂.obj X) ⋙rq
     (SSet.Truncated.hoFunctor₂Obj.quotientFunctor X).toReflPrefunctor ⋙rq
-    (forgetToReflQuiv.natIso).inv.app (SSet.Truncated.hoFunctor₂.obj X))
+    (nerve₂oneTrunc.natIso).inv.app (SSet.Truncated.hoFunctor₂.obj X))
   · exact fun φ ↦ Quotient.sound _ (HoRel₂.mk φ)
 
 theorem nerve₂Adj.unit.component_eq (X : SSet.Truncated.{u} 2) :
     SSet.oneTruncation₂.map (nerve₂Adj.unit.component X) =
     ReflQuiv.adj.{u}.unit.app (SSet.oneTruncation₂.obj X) ⋙rq
     (SSet.Truncated.hoFunctor₂Obj.quotientFunctor X).toReflPrefunctor ⋙rq
-    (forgetToReflQuiv.natIso).inv.app (SSet.Truncated.hoFunctor₂.obj X) := by
+    (nerve₂oneTrunc.natIso).inv.app (SSet.Truncated.hoFunctor₂.obj X) := by
   apply oneTruncation₂_toNerve₂Mk'
 
 def nerve₂Adj.unit : 𝟭 (SSet.Truncated.{u} 2) ⟶ Truncated.hoFunctor₂ ⋙ nerveFunctor₂ where
@@ -1727,7 +1729,7 @@ def nerve₂Adj.unit : 𝟭 (SSet.Truncated.{u} 2) ⟶ Truncated.hoFunctor₂ �
       (nerve₂Adj.unit.component V ≫ nerveFunctor₂.map (Truncated.hoFunctor₂.map f)) ?_
     rw [Functor.map_comp, Functor.map_comp, nerve₂Adj.unit.component_eq,
       nerve₂Adj.unit.component_eq]
-    have nat₁ := (forgetToReflQuiv.natIso).inv.naturality (Truncated.hoFunctor₂.map f)
+    have nat₁ := (nerve₂oneTrunc.natIso).inv.naturality (Truncated.hoFunctor₂.map f)
     repeat rw [← ReflQuiv.comp_eq_comp (X := ReflQuiv.of _) (Y := ReflQuiv.of _)]
     repeat rw [assoc]
     simp at nat₁
@@ -1790,7 +1792,7 @@ nonrec def nerve₂Adj : SSet.Truncated.hoFunctor₂.{u} ⊣ nerveFunctor₂ := 
       ReflPrefunctor.comp_assoc]
     rw [← ReflQuiv.comp_eq_comp, ← ReflQuiv.comp_eq_comp (X := ReflQuiv.of _) (Y := ReflQuiv.of _)
       (Z := ReflQuiv.of _), assoc, assoc, ← Functor.comp_map,
-        ← forgetToReflQuiv.natIso.inv.naturality]
+        ← nerve₂oneTrunc.natIso.inv.naturality]
     conv => lhs; rhs; rw [← assoc] --
     show _ ≫ (ReflQuiv.forget.map _ ≫ ReflQuiv.forget.map _) ≫ _ = _
     rw [← ReflQuiv.forget.map_comp]
@@ -1800,7 +1802,7 @@ nonrec def nerve₂Adj : SSet.Truncated.hoFunctor₂.{u} ⊣ nerveFunctor₂ := 
     simp only [ReflQuiv.forget_obj, Cat.freeRefl_obj_α, ReflQuiv.of_val, NatTrans.comp_app,
       comp_obj, id_obj, whiskerRight_app]
     rw [ReflQuiv.forget.map_comp, ← Functor.comp_map, ← assoc, ← assoc]
-    have := ReflQuiv.adj.unit.naturality (forgetToReflQuiv.natIso.hom.app C)
+    have := ReflQuiv.adj.unit.naturality (nerve₂oneTrunc.natIso.hom.app C)
     simp only [Functor.comp_obj] at this
     conv => lhs; lhs; lhs; apply this.symm
     simp only [Cat.freeRefl_obj_α, id_obj, Functor.id_map]
@@ -1810,14 +1812,14 @@ nonrec def nerve₂Adj : SSet.Truncated.hoFunctor₂.{u} ⊣ nerveFunctor₂ := 
 instance nerveFunctor₂.faithful : nerveFunctor₂.{u, u}.Faithful := by
   haveI lem := ReflQuiv.forget.Faithful -- TODO: why is this needed
   exact Functor.Faithful.of_comp_iso
-    (G := oneTruncation₂) (H := ReflQuiv.forget) forgetToReflQuiv.natIso
+    (G := oneTruncation₂) (H := ReflQuiv.forget) nerve₂oneTrunc.natIso
 
 instance nerveFunctor₂.full : nerveFunctor₂.{u, u}.Full where
   map_surjective := by
     intro X Y F
     let uF := SSet.oneTruncation₂.map F
     let uF' : X ⥤rq Y :=
-      forgetToReflQuiv.natIso.inv.app X ≫ uF ≫ forgetToReflQuiv.natIso.hom.app Y
+      nerve₂oneTrunc.natIso.inv.app X ≫ uF ≫ nerve₂oneTrunc.natIso.hom.app Y
     have {a b c : X} (h : a ⟶ b) (k : b ⟶ c) :
         uF'.map (h ≫ k) = uF'.map h ≫ uF'.map k := by
       let hk := ComposableArrows.mk₂ h k
@@ -1885,12 +1887,12 @@ instance nerveFunctor₂.full : nerveFunctor₂.{u, u}.Full where
     let fF : X ⥤ Y := ReflPrefunctor.toFunctor uF' this
     have eq : fF.toReflPrefunctor = uF' := rfl
     refine ⟨fF, toNerve₂.ext' (nerveFunctor₂.map fF) F ?_⟩
-    · have nat := forgetToReflQuiv.natIso.hom.naturality fF
+    · have nat := nerve₂oneTrunc.natIso.hom.naturality fF
       simp at nat
       rw [eq] at nat
       simp [uF', uF] at nat
       exact (Iso.cancel_iso_hom_right (oneTruncation₂.map (nerveFunctor₂.map fF))
-        (oneTruncation₂.map F) (forgetToReflQuiv.natIso.app Y)).mp nat
+        (oneTruncation₂.map F) (nerve₂oneTrunc.natIso.app Y)).mp nat
 
 instance nerveFunctor₂.fullyfaithful : nerveFunctor₂.FullyFaithful :=
   FullyFaithful.ofFullyFaithful nerveFunctor₂
