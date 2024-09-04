@@ -1,6 +1,6 @@
 import InfinityCosmos.Basic
 import InfinityCosmos.ForMathlib.Prerequisites
-import InfinityCosmos.ForMathlib.HomotopyCat
+-- import InfinityCosmos.ForMathlib.HomotopyCat
 import InfinityCosmos.ForMathlib.Wombat
 -- import InfinityCosmos.ForMathlib.CategoryTheory.Category.ReflQuiv
 -- import InfinityCosmos.ForMathlib.Combinatorics.Quiver.ReflQuiver
