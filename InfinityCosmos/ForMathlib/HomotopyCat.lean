@@ -937,7 +937,7 @@ def cosk2Iso : nerveFunctor.{u, u} ≅ nerveFunctor₂.{u, u} ⋙ ran (Δ.ι 2).
 
 end Nerve
 
--- NB: Stopped the exporting here.
+-- NB: Moved from here to the commented out to-dos to HomotopyCat.
 
 section
 open Opposite
@@ -1303,6 +1303,9 @@ theorem SSet.hoFunctor₂_naturality {X Y : SSet.Truncated.{u} 2} (f : X ⟶ Y) 
     (SSet.oneTruncation₂ ⋙ Cat.freeRefl).map f ⋙
     hoFunctor₂Obj.quotientFunctor Y =
     SSet.hoFunctor₂Obj.quotientFunctor X ⋙ hoFunctor₂Map f := rfl
+
+def SSet.hoFunctor : SSet.{u} ⥤ Cat.{u, u} := truncation 2 ⋙ SSet.hoFunctor₂
+
 end
 
 -- /-- ER: We don't actually need this but it would be nice and potentially not too hard. -/
@@ -1313,6 +1316,7 @@ end
 -- def hoFunctor.ofTwoTruncationNatIso :
 --     truncation 2 ⋙ SSet.hoFunctor₂ ≅ SSet.hoFunctor' := sorry
 
+-- NB: Moved from here through the second to last definition to NerveAdjunction.
 @[simps! hom_app_obj hom_app_map inv_app_obj_obj inv_app_obj_map inv_app_map]
 def forgetToReflQuiv.natIso : nerveFunctor₂ ⋙ SSet.oneTruncation₂.{u} ≅ ReflQuiv.forget :=
   OneTruncation₂.nerve₂.natIso ≪≫ OneTruncation.ofNerve.natIso
@@ -1900,8 +1904,6 @@ instance nerve₂Adj.reflective : Reflective nerveFunctor₂.{u, u} :=
 
 end
 
-def SSet.hoFunctor : SSet.{u} ⥤ Cat.{u, u} := truncation 2 ⋙ SSet.hoFunctor₂
-
 def nerveAdjunction : SSet.hoFunctor ⊣ nerveFunctor :=
   Adjunction.ofNatIsoRight ((coskAdj 2).comp nerve₂Adj) Nerve.cosk2Iso.symm
 
@@ -1927,6 +1929,8 @@ instance : Reflective nerveFunctor where
   L := SSet.hoFunctor
   adj := nerveAdjunction
 
+
+-- NB: Moved to CategoryTheory.Category.Cat.Limits
 instance : HasColimits Cat.{u, u} :=
   hasColimits_of_reflective nerveFunctor
 
