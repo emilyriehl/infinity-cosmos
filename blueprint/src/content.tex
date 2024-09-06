@@ -577,7 +577,7 @@ The other simplicial limit notions postulated by axiom \ref{defn:cosmos}\ref{itm
 \section{\texorpdfstring{$\infty$}{Infinity}-Cosmoi}\label{sec:cosmos}
 
 There are a variety of models of infinite-dimensional categories for which the category of ``$\infty$-categories,'' as we call them, and ``$\infty$-functors'' between them is enriched over quasi-categories and admits classes of isofibrations, equivalences, and trivial fibrations satisfying certain
-properties that are familiar from abstract homotopy theory, forming a \emph{category of fibrant objects} \`{a} la Brown \cite{Brown:1973ah}. In particular, the use of isofibrations in diagrams guarantees that their strict limits are equivalence invariant, so we can take advantage of up-to-isomorphism universal properties and strict functoriality of these constructions while still working ``homotopically.'' This motivates the following axiomatization:
+properties that are familiar from abstract homotopy theory.\footnote{More specifically, these classes form a \emph{category of fibrant objects} \`{a} la Brown \cite{Brown:1973ah}.} In particular, the use of isofibrations in diagrams guarantees that their strict limits are equivalence invariant, so we can take advantage of up-to-isomorphism universal properties and strict functoriality of these constructions while still working ``homotopically.'' This motivates the following axiomatization:
 
 
 \begin{definition}[$\infty$-cosmos]\label{defn:cosmos}
@@ -607,7 +607,7 @@ For ease of reference, we refer to the simplicially enriched limits of diagrams 
   In an $\infty$-cosmos $\cK$, a morphism $f\colon A \to B$ is a \textbf{trivial fibration} just when $f$ is both an isofibration and an equivalence.
 \end{definition}
 
-These classes are denoted by ``$\we$''  and ``$\trvfib$'', respectively.
+These classes are denoted by ``$\we$''  and ``$\trvfib$'', respectively.\footnote{Please help us find an html friendly version of the trivial fibration symbol.}
 
 Put more concisely, one might say that an $\infty$-cosmos is a ``quasi-cat\-e\-go\-ri\-cal\-ly enriched category of fibrant objects.'' %(see Definition \ref{defn:cat-of-fib-obj} and Example \ref{ex:cosmos-as-cat-of-fib-obj}).
 
@@ -615,8 +615,11 @@ Put more concisely, one might say that an $\infty$-cosmos is a ``quasi-cat\-e\-g
   Henceforth, we recast $\infty$-\textbf{category} as a technical term to refer to an object in an arbitrary ambient $\infty$-cosmos. Similarly, we use the term $\infty$-\textbf{functor} --- or more commonly the elision ``\textbf{functor}'' --- to refer to a morphism $f \colon A \to B$ in an $\infty$-cosmos. This explains why we refer to the quasi-category $\Fun(A,B)$ between two $\infty$-categories in an $\infty$-cosmos as a ``functor space'': its vertices are the ($\infty$-)functors from $A$ to $B$.
 \end{con}
 
-\begin{rmk} The underlying category $\cK_0$ of an $\infty$-cosmos $\cK$ is the category whose objects are the $\infty$-categories in $\cK$ and whose morphisms are the $0$-arrows, i.e., the vertices in the functor spaces. In all of the examples to appear in what follows, this recovers the expected category of $\infty$-categories in a particular model and functors between them.
-\end{rmk}
+\begin{definition}\label{defn:underlying-cat-of-cosmos}
+  \uses{defn:cosmos} The underlying category $\cK_0$ of an $\infty$-cosmos $\cK$ is the category whose objects are the $\infty$-categories in $\cK$ and whose morphisms are the $0$-arrows, i.e., the vertices in the functor spaces.
+\end{definition}
+
+In all of the examples to appear in what follows, this recovers the expected category of $\infty$-categories in a particular model and functors between them.
 
 The following theorem should be quite difficult to formalize:
 
@@ -675,18 +678,18 @@ By a Yoneda-style argument, the ``homotopy equivalence'' characterization of the
 \begin{lemma}[equivalences are homotopy equivalences]\label{lem:equiv-htpy-equiv}
   \uses{defn:cosmos, defn:coherent-isomorphism, defn:equivalence}
 A map $f \colon A \to B$ between $\infty$-categories in an $\infty$-cosmos $\cK$ is an equivalence if and only if it extends to the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the interval: that is, if there exist maps $g \colon B \to A$
-\begin{equation}\label{eq:htpy-equiv}
+\begin{center}
 \begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso   \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"',  "\ev_1"] & \text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso  \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] \\ & A & &  & B
 \end{tikzcd}
-\end{equation}
+\end{center}
 in the $\infty$-cosmos.
 \end{lemma}
 \begin{proof}
-By hypothesis, if $f \colon A \to B$ defines an equivalence in the $\infty$-cosmos $\cK$ then the induced map on post-composition $f_* \colon \Fun(B,A) \we \Fun(B,B)$ is an equivalence of quasi-categories in the sense of Definition \ref{defn:qcat-equivalence}. Evaluating the inverse equivalence $\tilde{g} \colon \Fun(B,B) \we \Fun(B,A)$ and homotopy $\tilde{\beta} \colon \Fun(B,B) \to \Fun(B,B)^\iso$ at the 0-arrow $\id_B \in \Fun(B,B)$, we obtain a 0-arrow $g \colon B \to A$ together with an isomorphism $\beta \colon \iso\to\Fun(B,B)$ from the composite $fg$ to $\id_B$. By the defining universal property of the cotensor \eqref{eq:cotensor-defn}, this isomorphism internalizes to define the map $\beta \colon B \to B^\iso$ in $\cK$ displayed on the right of \eqref{eq:htpy-equiv}.
+By hypothesis, if $f \colon A \to B$ defines an equivalence in the $\infty$-cosmos $\cK$ then the induced map on post-composition $f_* \colon \Fun(B,A) \we \Fun(B,B)$ is an equivalence of quasi-categories in the sense of Definition \ref{defn:qcat-equivalence}. Evaluating the inverse equivalence $\tilde{g} \colon \Fun(B,B) \we \Fun(B,A)$ and homotopy $\tilde{\beta} \colon \Fun(B,B) \to \Fun(B,B)^\iso$ at the 0-arrow $\id_B \in \Fun(B,B)$, we obtain a 0-arrow $g \colon B \to A$ together with an isomorphism $\beta \colon \iso\to\Fun(B,B)$ from the composite $fg$ to $\id_B$. By the defining universal property of the cotensor \eqref{eq:cotensor-defn}, this isomorphism internalizes to define the map $\beta \colon B \to B^\iso$ in $\cK$ displayed on the right of the displayed equation in the statement.
 
-Now the hypothesis that $f$ is an equivalence also provides an equivalence of quasi-categories $f_* \colon \Fun(A,A) \we \Fun(A,B)$, and the map $\beta f \colon A \to B^\iso$ represents an isomorphism in $\Fun(A,B)$ from $fgf$ to $f$. Since $f_*$ is an equivalence, we conclude from Lemma \ref{lem:qcat-htpy-cat-equiv} that $\id_A$ and $gf$ are isomorphic in the quasi-category $\Fun(A,A)$: explicitly, such an isomorphism may be defined by applying the inverse equivalence $\tilde{h} \colon \Fun(A,B) \to \Fun(A,A)$ and composing with the components at $\id_A, gf \in \Fun(A,A)$ of the isomorphism $\tilde{\alpha} \colon \Fun(A,A) \to \Fun(A,A)^\iso$ from $\id_{\Fun(A,A)}$ to $\tilde{h}f_*$. Now by Proposition \ref{prop:coherent-iso} this isomorphism is represented by a map $\iso \to \Fun(A,A)$ from $\id_A$ to $gf$, which internalizes to a map $\alpha \colon A \to A^\iso$ in $\cK$ displayed on the left of \eqref{eq:htpy-equiv}.
+Now the hypothesis that $f$ is an equivalence also provides an equivalence of quasi-categories $f_* \colon \Fun(A,A) \we \Fun(A,B)$, and the map $\beta f \colon A \to B^\iso$ represents an isomorphism in $\Fun(A,B)$ from $fgf$ to $f$. Since $f_*$ is an equivalence, we conclude from Lemma \ref{lem:qcat-htpy-cat-equiv} that $\id_A$ and $gf$ are isomorphic in the quasi-category $\Fun(A,A)$: explicitly, such an isomorphism may be defined by applying the inverse equivalence $\tilde{h} \colon \Fun(A,B) \to \Fun(A,A)$ and composing with the components at $\id_A, gf \in \Fun(A,A)$ of the isomorphism $\tilde{\alpha} \colon \Fun(A,A) \to \Fun(A,A)^\iso$ from $\id_{\Fun(A,A)}$ to $\tilde{h}f_*$. Now by Proposition \ref{prop:coherent-iso} this isomorphism is represented by a map $\iso \to \Fun(A,A)$ from $\id_A$ to $gf$, which internalizes to a map $\alpha \colon A \to A^\iso$ in $\cK$ displayed on the left of the displayed equation in the statement.
 
-The converse is easy: the simplicial cotensor construction commutes with $\Fun(X,-)$, so a homotopy equivalence \eqref{eq:htpy-equiv} induces a  homotopy equivalence of quasi-categories as in Definition \ref{defn:qcat-equivalence}.
+The converse is easy: the simplicial cotensor construction commutes with $\Fun(X,-)$, so a homotopy equivalence induces a  homotopy equivalence of quasi-categories as in Definition \ref{defn:qcat-equivalence}.
 \end{proof}
 
 
