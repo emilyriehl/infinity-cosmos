@@ -1545,7 +1545,9 @@ instance (C : Cat) : Mono (nerve₂.seagull C) where
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp]; rfl
               · clear fac const01 const10 const02 OK
-                dsimp [ev12₂, ev01₂, nerveFunctor₂, truncation, forget₂, HasForget₂.forget₂]
+                dsimp only [nerveFunctor₂, truncation, comp_obj, nerveFunctor_obj,
+                  whiskeringLeft_obj_obj, Functor.comp_map, nerve_map,
+                  ComposableArrows.whiskerLeft_map, ComposableArrows.precomp_map]
                 show _ = _ ≫ ComposableArrows.Precomp.map _ _ ⟨1, _⟩ ⟨2, _⟩ _ ≫ _
                 rw [ComposableArrows.Precomp.map]; dsimp
                 apply (conj_eqToHom_iff_heq' ..).2
@@ -1573,7 +1575,9 @@ instance (C : Cat) : Mono (nerve₂.seagull C) where
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp]; rfl
               · clear fac const01 const10 const02 OK
-                dsimp [ev12₂, ev01₂, nerveFunctor₂, truncation, forget₂, HasForget₂.forget₂]
+                dsimp only [nerveFunctor₂, truncation, comp_obj, nerveFunctor_obj,
+                  whiskeringLeft_obj_obj, Functor.comp_map, nerve_map,
+                  ComposableArrows.whiskerLeft_map, ComposableArrows.precomp_map]
                 show _ = _ ≫ ComposableArrows.Precomp.map _ _ ⟨0, _⟩ ⟨2, _⟩ _ ≫ _
                 rw [ComposableArrows.Precomp.map]; dsimp
                 apply (conj_eqToHom_iff_heq' ..).2
@@ -1602,7 +1606,9 @@ instance (C : Cat) : Mono (nerve₂.seagull C) where
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp]; rfl
               · clear fac const01 const10 const02 OK
-                dsimp [ev12₂, ev01₂, nerveFunctor₂, truncation, forget₂, HasForget₂.forget₂]
+                dsimp only [nerveFunctor₂, truncation, comp_obj, nerveFunctor_obj,
+                  whiskeringLeft_obj_obj, Functor.comp_map, nerve_map,
+                  ComposableArrows.whiskerLeft_map, ComposableArrows.precomp_map]
                 show _ = _ ≫ ComposableArrows.Precomp.map _ _ ⟨0, _⟩ ⟨1, _⟩ _ ≫ _
                 rw [ComposableArrows.Precomp.map]; dsimp
                 apply (conj_eqToHom_iff_heq' ..).2
