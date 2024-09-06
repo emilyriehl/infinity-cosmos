@@ -367,6 +367,19 @@ By soundness of the quotient construction:
   Another lengthy exercise in low-dimensional horn filling.
  \end{proof}
 
+Later we will require either of the following results:
+
+\begin{lemma}\label{lem:ho-preserves-products}
+  \uses{lem:htpy-cat-of-qcat, defn:homotopy-cat}
+  $\quad$
+  \begin{enumerate}
+  \item The functor $\ho \colon \sSet \to \Cat$ preserves finite products.
+  \item The functor $\ho \colon \qCat \to \Cat$ preserves small products.
+  \end{enumerate}
+\end{lemma}
+
+
+
    \begin{definition}[isomorphism in a quasi-category]\label{defn:isomorphism}
     \uses{defn:simplicial-set} A 1-simplex in a quasi-category is an \textbf{isomorphism}\footnote{Joyal refers to these maps as ``isomorphisms'' while Lurie refers to them as ``equivalences.'' We prefer, wherever possible, to use the same term for $\infty$-categorical concepts as for the analogous 1-categorical ones.} just when it represents an isomorphism in the homotopy category. By Lemma \ref{lem:htpy-cat-of-qcat} this means that $f \colon a \to b$ is an isomorphism if and only if there exists a 1-simplex $f^{-1} \colon b \to a$ together with a pair of 2-simplices
    \begin{center}
@@ -747,7 +760,7 @@ For example:
 \begin{ex}\label{ex:strong-free} In a cartesian closed category $\cV$, finite products distribute over arbitrary coproducts. In particular, for any sets $X$ and $Y$ there is an isomorphism
 \[ \amalg_{X \times Y} 1 \cong (\amalg_X 1) \times (\amalg_Y 1)\] between coproducts of the terminal object $1$, which proves that the functor
 \begin{center}
-\begin{tikzcd} \Set \arrow[r, "{\amalg_{-} 1}"] & \cV
+\begin{tikzcd} \mathcal{S}et \arrow[r, "{\amalg_{-} 1}"] & \cV
 \end{tikzcd}
 \end{center} is finite-product-preserving.
 \end{ex}
@@ -756,7 +769,7 @@ A finite-product-preserving functor may be used to change the base as follows
 
 \begin{proposition}\label{prop:change-of-base}
   \uses{defn:monoidal-functor}
-  A finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories induces a change-of-base 2-functor \begin{center} \begin{tikzcd} \eCat{\cV} \arrow[r, "T_*"] & \eCat{\cW}\, . \end{tikzcd}\end{center}
+  A finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories induces a change-of-base 2-functor \begin{center} \begin{tikzcd} {\cV}\text{-}\mathcal{C}at \arrow[r, "T_*"] & {\cW}\text{-}\mathcal{C}at\, . \end{tikzcd}\end{center}
 \end{proposition}
 
 An early observation along these lines was first stated as \cite[II.6.3]{EilenbergKelly:1966cc}, with the proof left to the reader. We adopt the same tactic and leave the diagram chases to the reader or to \cite[4.2.4]{Cruttwell:2008rr} and instead just give the construction of the change-of-base 2-functor, which is the important thing.
@@ -798,7 +811,7 @@ As an immediate consequence of the 2-functoriality of Remark \ref{rmk:change-of-
   Any adjunction between cartesian closed categories whose left adjoint preserves finite products induces a change-of-base 2-adjunction
 \begin{center}
 \begin{tikzcd}[column sep=large]
-\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"] \arrow[r, phantom, "\rightsquigarrow"] & \eCat{\cV} \arrow[r, bend left=20, start anchor=10, end anchor=170,  "F_*"] \arrow[r, phantom, "\bot"] & \eCat{\cW} \arrow[l, bend left=20, start anchor=190, end anchor=-10,  "U_*"]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"] \arrow[r, phantom, "\rightsquigarrow"] & {\cV}\text{-}\mathcal{C}at \arrow[r, bend left=20, start anchor=10, end anchor=170,  "F_*"] \arrow[r, phantom, "\bot"] & {\cW}\text{-}\mathcal{C}at \arrow[l, bend left=20, start anchor=190, end anchor=-10,  "U_*"]
 \end{tikzcd}
 \end{center}
 \end{proposition}
@@ -811,11 +824,9 @@ As a special case:
 \begin{corollary}\label{cor:free-underlying-2-adj}
   \uses{prop:change-of-base-adjunction} For any cartesian closed category $\cV$ with coproducts, the underlying category construction and free category construction define  adjoint 2-functors
 \begin{center}
-\pushQED{\qed}
 \begin{tikzcd}[column sep=large]
 \Cat \arrow[r, bend left=20, hook, start anchor=10, end anchor=170] \arrow[r, phantom, "\bot"] & \eCat{\cV} \arrow[l, bend left=20, start anchor=190, end anchor=-10, "(-)_0"]
-\end{tikzcd} \qedhere
-\popQED
+\end{tikzcd}
 \end{center}
 \end{corollary}
 
@@ -925,19 +936,20 @@ The general theory of change-of-base will be applied in the following case the n
 
 
 \begin{example}\label{ex:nerve-ho-change-of-base}
-  \uses{prop:change-of-base-adjunction}
+  \uses{prop:change-of-base-adjunc  tion, lem:ho-preserves-products}
 Both adjoints of the adjunction
 \begin{center}
 \begin{tikzcd}[column sep=large]
-\sSet \arrow[r, bend left=20, start anchor=10, end anchor=170, "\ho"] \arrow[r, phantom, "\bot"] & \Cat \arrow[l, bend left=20, start anchor=190, end anchor=-10, hook']
+s\mathcal{S}et \arrow[r, bend left=20, start anchor=10, end anchor=170, "\ho"] \arrow[r, phantom, "\bot"] & \mathcal{C}at \arrow[l, bend left=20, start anchor=190, end anchor=-10, hook']
 \end{tikzcd}
 \end{center} of Proposition \ref{prop:ho-nerve-adjunction} preserve finite products. Hence, Proposition \ref{prop:change-of-base-adjunction} induces a change-of-base adjunction defined by the 2-functors
 \begin{center}
 \begin{tikzcd}[column sep=large]
-\sCat  \arrow[r, bend left=20, start anchor=7, end anchor=170, "\ho_*"] \arrow[r, phantom, "\bot"] &\twoCat\arrow[l, bend left=20, start anchor=190, end anchor=-5, hook']
+s\mathcal{C}at  \arrow[r, bend left=20, start anchor=7, end anchor=170, "\ho_*"] \arrow[r, phantom, "\bot"] &2\text{-}\mathcal{C}at\arrow[l, bend left=20, start anchor=190, end anchor=-5, hook']
 \end{tikzcd}
 \end{center}
-that act identically on objects and act by applying the homotopy category functor or nerve functor, respectively, on homs. By Lemma \ref{lem:right-of-monoidal-adj-ucats}, the right adjoint, which builds a simplicially enriched category from a 2-category, respects the underlying category: the underlying category of objects and 1-cells is identified with the underlying category of objects and 0-arrows. In this case, the functor $\ho \colon \sSet \to \Cat$ commutes with the underlying set functors, so in fact both adjoints preserve underlying categories, as is evident from direct computation. In particular, the homotopy 2-category of an $\infty$-cosmos has the same underlying 1-category. Since the nerve embedding is fully faithful, 2-categories can be identified as a full subcategory comprised of those simplicial categories whose hom spaces are nerves of categories.
+that act identically on objects and act by applying the homotopy category functor or nerve functor, respectively, on homs. %By Lemma \ref{lem:right-of-monoidal-adj-ucats},
+  The right adjoint, which builds a simplicially enriched category from a 2-category, respects the underlying category: the underlying category of objects and 1-cells is identified with the underlying category of objects and 0-arrows. In this case, the functor $\ho \colon \sSet \to \Cat$ commutes with the underlying set functors, so in fact both adjoints preserve underlying categories, as is evident from direct computation. In particular, the homotopy 2-category of an $\infty$-cosmos has the same underlying 1-category. Since the nerve embedding is fully faithful, 2-categories can be identified as a full subcategory comprised of those simplicial categories whose hom spaces are nerves of categories.
 \end{example}
 
 \section{The homotopy 2-category}\label{sec:htpy-2-cat}
