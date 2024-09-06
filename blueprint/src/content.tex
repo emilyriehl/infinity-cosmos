@@ -966,16 +966,20 @@ Paralleling our discussion of simplicial categories in Definition \ref{defn:simp
 
 Both notions exist in Mathlib in some form. The notion \ref{itm:strict-bicategory} is called a \emph{strict bicategory} and is defined as a special case of a bicategory, in which the associators and unitors are identities (converted into 2-cells). The general notion of enriched category can be specialized to the case of enriching over the cartesian monoidal category of categories, but the connection between these notions remains to be explored.
 
-\begin{proposition} There is an equivalence between categories enriched in categories and strict bicategories. In particular, each can be converted into the other.
+\begin{proposition}\label{prop:2-cat-as-cat-enriched} There is an equivalence between categories enriched in categories and strict bicategories. In particular, each can be converted into the other.
 \end{proposition}
 
 The homotopy 2-category is most efficiently defined as a category enriched in $\Cat$ by applying the theory of change-of-base developed in \S\ref{sec:change-of-base}. The homotopy 2-category for the $\infty$-cosmos of quasi-categories was first introduced by Joyal in his work on the foundations of quasi-category theory \cite{Joyal:2008tq}.
 
 \begin{definition}[homotopy 2-category]\label{defn:homotopy-2-cat}
-  \uses{defn:cosmos, defn:homotopy-cat, ex:nerve-ho-change-of-base} Let $\cK$ be an $\infty$-cosmos. Its \textbf{homotopy 2-category} is the 2-category $\h\cK$ whose
+  \uses{defn:cosmos, defn:homotopy-cat, ex:nerve-ho-change-of-base, prop:2-cat-as-cat-enriched} Let $\cK$ be an $\infty$-cosmos. Its \textbf{homotopy 2-category} is the 2-category $\h\cK$ whose
 \begin{itemize}
 \item objects are the objects $A, B$ of $\cK$, i.e., the $\infty$-categories;\item 1-cells $f \colon A \to B$ are the 0-arrows in the functor space $\Fun(A,B)$, i.e., the $\infty$-functors; and
-\item 2-cells $\begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "{\scriptstyle\Downarrow \alpha}"] & B\end{tikzcd}$ are homotopy classes of 1-simplices in $\Fun(A,B)$, which we call \textbf{$\infty$-natural transformations}.
+\item 2-cells
+\begin{center}
+\begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "{\scriptstyle\Downarrow \alpha}"] & B\end{tikzcd}
+\end{center}
+ are homotopy classes of 1-simplices in $\Fun(A,B)$, which we call \textbf{$\infty$-natural transformations}.
 \end{itemize}
 Put another way $\h\cK$ is the 2-category with the same objects as $\cK$ and with hom-categories defined by
 \[ \hFun(A,B)   \coloneq \ho(\Fun(A,B)),\]
@@ -989,7 +993,7 @@ The \textbf{underlying category} of a 2-category is defined by simply forgetting
 
 \begin{lemma}\label{lem:underlying-cat-iso}
   \uses{defn:underlying-cat-of-2cat, defn:underlying-cat, defn:homotopy-2-cat}
-  The underlying category of the homotopy 2-category of an $\infty$-cosmos is isomorphic to the underlying category of the $\infty$-cosmos. \qed
+  The underlying category of the homotopy 2-category of an $\infty$-cosmos is isomorphic to the underlying category of the $\infty$-cosmos.
 \end{lemma}
 
 We elaborate on the connection between data in the homotopy 2-category and data in the $\infty$-cosmos.
@@ -997,13 +1001,19 @@ We elaborate on the connection between data in the homotopy 2-category and data 
 \begin{lemma}\label{lem:invertible-2-cell}$\quad$
   \uses{defn:homotopy-2-cat, lem:qcat-1-simplex-htpy, prop:coherent-iso}
   \begin{enumerate}
-  \item\label{itm:2-cell-as-functor} Every 2-cell $\begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "\scriptstyle\Downarrow\alpha"] & B \end{tikzcd}$  in the homotopy 2-category of an $\infty$-cosmos is represented by a map of quasi-categories as below-left or equivalently by a functor as below-right
+  \item\label{itm:2-cell-as-functor} Every 2-cell
+  \begin{center}
+  \begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "\scriptstyle\Downarrow\alpha"] & B \end{tikzcd}
+  \end{center}  in the homotopy 2-category of an $\infty$-cosmos is represented by a map of quasi-categories as below-left or equivalently by a functor as below-right
   \begin{center}
   \begin{tikzcd}[sep=small] & \catone+\catone \arrow[dl, hook'] \arrow[dr, "{(f,g)}"] & &  & ~ &  A \arrow[rr, "\name{\alpha}"] \arrow[dr, "{(g,f)}"'] & & B^\cattwo \arrow[dl, "{(p_1,p_0)}", two heads] \\ \cattwo \arrow[rr, "{\alpha}"'] && \Fun(A,B) &\arrow[ur, phantom, "\leftrightsquigarrow"] &  && B \times B
   \end{tikzcd}
   \end{center}
   and two such maps represent the same 2-cell if and only if they are homotopic as 1-simplices in $\Fun(A,B)$.
-  \item\label{itm:2-iso-as-functor} Every invertible 2-cell $ \begin{tikzcd}[column sep=large] A \arrow[r, start anchor=18, end anchor=162, bend left=20, "f"] \arrow[r,  start anchor=342, end anchor=198, bend right=20, "g"'] \arrow[r, phantom, "\scriptstyle\cong\Downarrow\alpha"] & B \end{tikzcd}$
+  \item\label{itm:2-iso-as-functor} Every invertible 2-cell
+  \begin{center}
+  \begin{tikzcd}[column sep=large] A \arrow[r, start anchor=18, end anchor=162, bend left=20, "f"] \arrow[r,  start anchor=342, end anchor=198, bend right=20, "g"'] \arrow[r, phantom, "\scriptstyle\cong\Downarrow\alpha"] & B \end{tikzcd}
+  \end{center}
   in the homotopy 2-category of an $\infty$-cosmos is represented by a map of quasi-categories  as below-left or equivalently by a functor as below-right
   \begin{center}
   \begin{tikzcd}[sep=small] & \catone+\catone \arrow[dl, hook'] \arrow[dr, "{(f,g)}"] & &  & ~ &  A \arrow[rr, "\name{\alpha}"] \arrow[dr, "{(g,f)}"'] & & B^\iso \arrow[dl, "{(p_1,p_0)}", two heads] \\ \iso \arrow[rr, "{\alpha}"'] && \Fun(A,B) &\arrow[ur, phantom, "\leftrightsquigarrow"] &  && B \times B
@@ -1047,6 +1057,7 @@ We elaborate on the connection between data in the homotopy 2-category and data 
   \end{enumerate}
   \end{proposition}
   \begin{proof}
+    \uses{lem:ho-preserves-products}
   While the functor $\ho\colon\sSet \to \Cat$ only preserves finite products, the restricted functor $\ho\colon\qCat\to\Cat$ preserves \emph{all} products on account of the simplified description of the homotopy category of a quasi-category given in Lemma \ref{lem:htpy-cat-of-qcat}. Thus for any set $I$ and family of $\infty$-categories $(A_i)_{i \in I}$ in $\cK$, the homotopy category functor carries the isomorphism of functor spaces  to an isomorphism of hom-categories
   \begin{center} \begin{tikzcd}[column sep=small] \Fun(X,\prod_{i \in I} A_i) \arrow[r, "\cong"] & \prod_{i \in I} \Fun(X,A_i) & \arrow[r, maps to, "\ho"] & ~ & \hFun(X,\prod_{i \in I} A_i) \arrow[r, "\cong"] & \prod_{i \in I} \hFun(X,A_i).
   \end{tikzcd}
@@ -1093,7 +1104,7 @@ We elaborate on the connection between data in the homotopy 2-category and data 
   \begin{proof}
     For \ref{itm:rep-equiv}$\To$\ref{itm:2cat-equiv}, if the induced map $f_* \colon \Fun(X,A) \we \Fun(X,B)$  defines an equivalence of quasi-categories then the functor $f_* \colon \hFun(X,A) \we \hFun(X,B)$ defines an equivalence of categories, by Lemma \ref{lem:qcat-htpy-cat-equiv}. In particular, the equivalence $f_* \colon \hFun(B,A) \we \hFun(B,B)$ is essentially surjective so there exists $g \in \hFun(B,A)$ and an isomorphism $\beta \colon fg \cong \id_B \in \hFun(B,B)$. Now since $f_* \colon \hFun(A,A) \we \hFun(A,B)$ is fully faithful, the isomorphism $\beta f \colon fgf \cong f \in \hFun(A,B)$ can be lifted to define an isomorphism $\alpha^{-1} \colon gf \cong \id_A \in \hFun(A,A)$. This defines the data of a 2-categorical equivalence in Definition \ref{defn:2-cat-equivalence}.
 
-  To see that \ref{itm:2cat-equiv}$\To$\ref{itm:htpy-equiv} recall from Lemma \ref{lem:invertible-2-cell} that the natural isomorphisms $\alpha \colon \id_A \cong gf$ and $\beta \colon fg \cong \id_B$ in $\h\cK$ are represented by maps $\alpha \colon A \to A^\iso$ and $\beta \colon B \to B^\iso$ in $\cK$ as in \eqref{eq:htpy-equiv}.
+  To see that \ref{itm:2cat-equiv}$\To$\ref{itm:htpy-equiv} recall from Lemma \ref{lem:invertible-2-cell} that the natural isomorphisms $\alpha \colon \id_A \cong gf$ and $\beta \colon fg \cong \id_B$ in $\h\cK$ are represented by maps $\alpha \colon A \to A^\iso$ and $\beta \colon B \to B^\iso$ in $\cK$ as in Lemma \ref{lem:equiv-htpy-equiv}.
 
   Finally, \ref{itm:htpy-equiv}$\To$\ref{itm:rep-equiv} since $\Fun(X,-)$ carries the data of \ref{itm:htpy-equiv} to the data of an equivalence of quasi-categories as in  Definition \ref{defn:qcat-equivalence}.
   \end{proof}
