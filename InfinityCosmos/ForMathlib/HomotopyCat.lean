@@ -1929,7 +1929,6 @@ instance : Reflective nerveFunctor where
   L := SSet.hoFunctor
   adj := nerveAdjunction
 
-
 -- NB: Moved to CategoryTheory.Category.Cat.Limits
 instance : HasColimits Cat.{u, u} :=
   hasColimits_of_reflective nerveFunctor

@@ -285,7 +285,7 @@ To that end consider
 The functor that carries a category to its underlying reflexive quiver has a left adjoint, defining the free category on a reflexive quiver:
 \begin{center}
   \begin{tikzcd}[column sep=huge]
-    \mathcal{C}at \arrow[r, start anchor=353, end anchor=190, bend right, hook', "U"] \arrow[r, phantom, "\bot"] & r\mathcal{Q}uiv \arrow[l, start anchor=170, end anchor=7, bend right, "F"' pos=.48]
+    \mathcal{C}at \arrow[r, start anchor=353, end anchor=190, bend right, hook', "U"'] \arrow[r, phantom, "\bot"] & r\mathcal{Q}uiv \arrow[l, start anchor=170, end anchor=7, bend right, "F"' pos=.48]
   \end{tikzcd}
   \end{center}
 \end{proposition}
@@ -508,12 +508,23 @@ The data of a \textbf{simplicial category} is a \textbf{simplicially enriched ca
   \end{center}
 \end{definition}
 
-For each $n \geq 0$, an $n$-simplex in $\cA(x,y)$ is referred to as an $n$-\textbf{arrow} from $x$ to $y$. The $n$-arrows assemble into the arrows of an ordinary category $\cA_n$ with the same set of objects as $\cA$.
+\begin{definition}\label{defn:n-arrow}
+  \uses{defn:simplicial-category, defn:simplicial-set}
+For each $n \geq 0$, an $n$-simplex in $\cA(x,y)$ is referred to as an $n$-\textbf{arrow} from $x$ to $y$.
+\end{definition}
+
+\begin{lemma}\label{lem:cat-of-n-arrows} For any simplicial category $\cA$ and $n \geq 0$,
+the $n$-arrows assemble into the arrows of an ordinary category $\cA_n$ with the same set of objects as $\cA$.
+\end{lemma}
+\begin{proof}
+  \uses{defn:n-arrow}
+The category of $n$-arrows is easy to construct directly. Alternatively, this result can be proven by applying the theory of change-of-base of \S\ref{sec:change-of-base} to the functor $\textup{ev}_n \colon \sSet \to \Set$.
+\end{proof}
 
 In particular:
-
 \begin{definition}\label{defn:underlying-cat}
-the category $\cA_0$ of 0-arrows is the \textbf{underlying category} of the simplicial category $\cA$, which forgets the higher dimensional simplicial structure.
+  \uses{lem:cat-of-n-arrows}
+The category $\cA_0$ of 0-arrows is the \textbf{underlying category} of the simplicial category $\cA$, which forgets the higher dimensional simplicial structure.
 \end{definition}
 
 There is alternate presentation of the data of a simplicial category as a simplicial object in the category of categories and identity-on-objects functors.\footnote{The phrase ``simplicial object in $\Cat$'' is reserved for the more general yet less common notion of a diagram $\Del\op\to\Cat$ that is not necessarily comprised of identity-on-objects functors.}
@@ -521,11 +532,11 @@ There is alternate presentation of the data of a simplicial category as a simpli
 
 \begin{dig}[simplicial categories as simplicial objects]\label{dig:simplicial-cat}
   A \textbf{simplicial category} $\cA$ is equivalently given by categories $\cA_n$, with a common set of objects and whose arrows are called $n$-\textbf{arrows}, that assemble into a diagram $\Del\op \to \Cat$ of identity-on-objects functors
-  \begin{equation}\label{eq:simplicial-cat}
+\begin{center}
   \begin{tikzcd}[column sep=large]
   \cdots \cA_3 \arrow[r, shift right=2.25em, "\cdot\face^0" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^2" description, pos=.35] \arrow[r, shift left=2.25em, "\cdot\face^3" description, pos=.35]& \cA_2  \arrow[l, "\cdot\degen^1" description, pos=.35] \arrow[l, shift left=1.5em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=1.5em, "\cdot\degen^2" description, pos=.35] \arrow[r, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=1.5em, "\cdot\face^2" description, pos=.35] \arrow[r, shift right=1.5em, "\cdot\face^0" description, pos=.35]  & \cA_1 \arrow[l, shift left=.75em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=.75em, "\cdot\degen^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^0" description, pos=.35] & \cA_0 \arrow[l, "\cdot\degen^0" description, pos=.35]
-  \end{tikzcd}\eqcolon\cA
-  \end{equation}
+  \end{tikzcd}$\eqcolon\cA$
+\end{center}
 \end{dig}
 
 By contrast, the notion of simplicially enriched limit remains to be formalized. Fortunately, we do not (immediately) require the general notion of \emph{weighted limits}, as the notion of an $\infty$-cosmos only requires two special cases: \emph{cotensors} and \emph{conical limits}.
@@ -534,7 +545,6 @@ By contrast, the notion of simplicially enriched limit remains to be formalized.
 \lean{CategoryTheory.SimplicialCategory.HasCotensors}
 \leanok
 \uses{defn:simplicial-category}
-
   Let $\cA$ be a simplicial category. The \textbf{cotensor} of an object $A \in \cA$ by a simplicial set $U$ is characterized by a natural isomorphism of simplicial sets
   \begin{equation}\label{eq:cotensor-defn}
   \cA(X,A^U) \cong \cA(X,A)^U
@@ -545,7 +555,7 @@ By contrast, the notion of simplicially enriched limit remains to be formalized.
 \lean{CategoryTheory.SimplicialCategory.cotensor_bifunctoriality}
   Assuming such objects exist, the simplicial cotensor defines a bifunctor
   \begin{center}
-  \begin{tikzcd}[row sep=tiny] \sSet\op \times \cA \arrow[r] & \cA \\
+  \begin{tikzcd}[row sep=tiny] s\mathcal{S}et\op \times \cA \arrow[r] & \cA \\
   (U,A) \arrow[r, maps to] & A^U
   \end{tikzcd}\end{center} in a unique way making the isomorphism \eqref{eq:cotensor-defn} natural in $U$ and $A$ as well.
 \end{lemma}
@@ -555,7 +565,7 @@ The other simplicial limit notions postulated by axiom \ref{defn:cosmos}\ref{itm
 \begin{definition}[simplicial conical limits]\label{defn:simplicial-conical-limit}
 \uses{defn:simplicial-category}
   Consider a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in the underlying category $\cA_0$ of a simplicially-enriched category $\cA$.  By applying the covariant rep\-re\-sentable functor $\cA(X,-) \colon \cA_0 \to \sSet$ to a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in $\cA_0$, we obtain a natural comparison map
-  \begin{equation}\label{eq:simplicial-limit-map} \cA(X,\lim_{j \in J}A_j) \xto{\mkern40mu} \lim_{j \in J}\cA(X,A_j).
+  \begin{equation}\label{eq:simplicial-limit-map} \cA(X,\lim_{j \in J}A_j) \to \lim_{j \in J}\cA(X,A_j).
   \end{equation}
   We say that $\lim_{j\in J}A_j$ defines a \textbf{simplicially enriched limit} if and only if \eqref{eq:simplicial-limit-map} is an isomorphism of simplicial sets for all $X \in \cA$.
 \end{definition}
