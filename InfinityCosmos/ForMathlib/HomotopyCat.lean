@@ -1418,7 +1418,7 @@ instance (C : Cat) : Mono (nerve₂.seagull C) where
     · have := congr_arg_heq (·.hom) <| eq2
       refine (conj_eqToHom_iff_heq' _ _ _ _).2 this
 
-@[simps] def toNerve₂.mk {X : SSet.Truncated.{u} 2} {C : Cat}
+@[simps!] def toNerve₂.mk {X : SSet.Truncated.{u} 2} {C : Cat}
     (F : SSet.oneTruncation₂.obj X ⟶ ReflQuiv.of C)
     (hyp : (φ : X _[2]₂) →
       F.map (ev02₂ φ) =
@@ -1446,13 +1446,13 @@ instance (C : Cat) : Mono (nerve₂.seagull C) where
           cases SimplexCategory.eq_const_to_zero α
           dsimp
           fapply ComposableArrows.ext₁
-          · simp [nerveFunctor₂, truncation, OneTruncation₂.src]
+          · simp only [ComposableArrows.mk₁_obj, ComposableArrows.Mk₁.obj]
             congr 1
             refine congr_fun (?_ : X.map _ ≫ X.map _ = 𝟙 _) x
             rw [← map_comp, ← map_id]; congr 1
             apply Quiver.Hom.unop_inj
             apply SimplexCategory.hom_zero_zero
-          · simp [nerveFunctor₂, truncation, OneTruncation₂.tgt]
+          · simp only [ComposableArrows.mk₁_obj, ComposableArrows.Mk₁.obj]
             congr 1
             refine congr_fun (?_ : X.map _ ≫ X.map _ = 𝟙 _) x
             rw [← map_comp, ← map_id]; congr 1
@@ -1466,26 +1466,20 @@ instance (C : Cat) : Mono (nerve₂.seagull C) where
                 rintro _ _ _ _ rfl rfl rfl
                 exact congr_arg_heq (fun a => (ComposableArrows.mk₁ (C := C) a).hom) (F.map_id x)
               apply this
-              · simp [nerveFunctor₂, truncation, OneTruncation₂.src]
+              · simp only [SimplexCategory.len_mk]
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = 𝟙 _).symm x
                 rw [← map_comp, ← map_id]; congr 1
-                apply Quiver.Hom.unop_inj
-                apply SimplexCategory.hom_zero_zero
-              · simp [nerveFunctor₂, truncation, OneTruncation₂.tgt]
+                exact Quiver.Hom.unop_inj (SimplexCategory.hom_zero_zero _)
+              · simp only [SimplexCategory.len_mk]
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = 𝟙 _).symm x
                 rw [← map_comp, ← map_id]; congr 1
-                apply Quiver.Hom.unop_inj
-                apply SimplexCategory.hom_zero_zero
+                exact Quiver.Hom.unop_inj (SimplexCategory.hom_zero_zero _)
               · rw [← eq_const_to_zero]
             · simp; rfl
         have const01 (α : [0]₂ ⟶ [1]₂) : OK α := by
           ext x
           apply ComposableArrows.ext₀
-          simp only [ComposableArrows.obj', Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
-            ComposableArrows.mk₀_obj, comp_obj, nerveFunctor_obj, whiskeringLeft_obj_obj,
-            Functor.comp_map, op_obj, op_map, Quiver.Hom.unop_op', nerve_map, Quiver.Hom.unop_op,
-            SimplexCategory.toCat_map, ComposableArrows.whiskerLeft_obj, Monotone.functor_obj,
-            ComposableArrows.mk₁_obj, ComposableArrows.Mk₁.obj]
+          simp only [SimplexCategory.len_mk]
           obtain ⟨i : Fin 2, rfl⟩ := eq_const_of_zero' α
           match i with
           | 0 =>
@@ -1533,14 +1527,14 @@ instance (C : Cat) : Mono (nerve₂.seagull C) where
             match α, eq_of_one_to_two α with
             | _, .inl rfl =>
               ext x
-              simp [SimplexCategory.rec]
+              simp only [types_comp_apply, mk.app_two, ComposableArrows.mk₂]
               fapply ComposableArrows.ext₁
-              · simp [nerveFunctor₂, truncation, OneTruncation₂.src]
+              · simp only [mk.app_one, ComposableArrows.mk₁_obj, ComposableArrows.Mk₁.obj]
                 congr 1
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp, ← op_comp]; congr 2
                 ext ⟨i, hi⟩; match i with | 0 => rfl
-              · simp [nerveFunctor₂, truncation, OneTruncation₂.tgt]
+              · simp only [mk.app_one, ComposableArrows.mk₁_obj, ComposableArrows.Mk₁.obj]
                 congr 1
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp]; rfl
@@ -1564,13 +1558,13 @@ instance (C : Cat) : Mono (nerve₂.seagull C) where
                 · rfl
             | _, .inr (.inl rfl) =>
               ext x
-              simp [SimplexCategory.rec]
+              simp only [types_comp_apply, mk.app_two, ComposableArrows.mk₂]
               fapply ComposableArrows.ext₁
-              · simp [nerveFunctor₂, truncation, OneTruncation₂.src]
+              · simp only [mk.app_one, ComposableArrows.mk₁_obj, ComposableArrows.Mk₁.obj]
                 congr 1
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp]; rfl
-              · simp [nerveFunctor₂, truncation, OneTruncation₂.tgt]
+              · simp only [mk.app_one, ComposableArrows.mk₁_obj, ComposableArrows.Mk₁.obj]
                 congr 1
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp]; rfl
@@ -1594,14 +1588,14 @@ instance (C : Cat) : Mono (nerve₂.seagull C) where
                 · rfl
             | _, .inr (.inr (.inl rfl)) =>
               ext x
-              simp [SimplexCategory.rec]
+              simp only [types_comp_apply, mk.app_two, ComposableArrows.mk₂]
               fapply ComposableArrows.ext₁
-              · simp [nerveFunctor₂, truncation, OneTruncation₂.src]
+              · simp only [mk.app_one, ComposableArrows.mk₁_obj, ComposableArrows.Mk₁.obj]
                 congr 1
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp, ← op_comp]; congr 2
                 ext ⟨i, hi⟩; match i with | 0 => rfl
-              · simp [nerveFunctor₂, truncation, OneTruncation₂.tgt]
+              · simp only [mk.app_one, ComposableArrows.mk₁_obj, ComposableArrows.Mk₁.obj]
                 congr 1
                 refine congr_fun (?_ : X.map _ ≫ X.map _ = _) x
                 rw [← map_comp]; rfl
@@ -1637,10 +1631,7 @@ instance (C : Cat) : Mono (nerve₂.seagull C) where
             ext x
             simp [SimplexCategory.rec]
             apply ComposableArrows.ext₀
-            simp only [ComposableArrows.obj', Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
-              ComposableArrows.mk₀_obj, comp_obj, nerveFunctor_obj, whiskeringLeft_obj_obj,
-              Functor.comp_map, op_obj, op_map, Quiver.Hom.unop_op', nerve_map, Quiver.Hom.unop_op,
-              SimplexCategory.toCat_map, ComposableArrows.whiskerLeft_obj, Monotone.functor_obj]
+            simp only [ComposableArrows.obj', ComposableArrows.mk₀_obj]
             cases SimplexCategory.hom_zero_zero α
             congr 1
             exact congr_fun (X.map_id _) x
