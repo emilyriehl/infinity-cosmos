@@ -1,4 +1,4 @@
-import Mathlib.AlgebraicTopology.Nerve
+import InfinityCosmos.Mathlib.AlgebraicTopology.Nerve
 import Mathlib.CategoryTheory.Category.Quiv
 import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
 import Mathlib.CategoryTheory.Monad.Limits

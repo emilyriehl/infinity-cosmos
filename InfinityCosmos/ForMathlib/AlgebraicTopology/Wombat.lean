@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johan Commelin
 -/
 
-import Mathlib.AlgebraicTopology.Nerve
-import Mathlib.AlgebraicTopology.Quasicategory
+import InfinityCosmos.Mathlib.AlgebraicTopology.Nerve
+import InfinityCosmos.Mathlib.AlgebraicTopology.Quasicategory
 
 open CategoryTheory CategoryTheory.Limits Opposite
 
