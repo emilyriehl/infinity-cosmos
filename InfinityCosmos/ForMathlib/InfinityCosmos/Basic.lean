@@ -53,7 +53,7 @@ def getCotensorCone (A : SSet) (X : K) [HasCotensor A X] : CotensorCone A X :=
   Classical.choice <| HasCotensor.exists_cotensor
 
 variable (K) in
-/-- `K` has simplicial cotensors  -/
+/-- `K` has simplicial cotensors when cotensors with any simplicial set exist. -/
 class HasCotensors : Prop where
   /-- All `A : SSet` and `X : K` have a cotensor. -/
   has_cotensors : ∀ A : SSet, ∀ X : K, HasCotensor A X := by infer_instance -- ER: I don't get what this means.
