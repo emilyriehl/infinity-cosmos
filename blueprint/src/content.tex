@@ -639,7 +639,7 @@ properties that are familiar from abstract homotopy theory.\footnote{More specif
 
 \begin{definition}[$\infty$-cosmos]\label{defn:cosmos}
 \lean{CategoryTheory.InfinityCosmos}
-\uses{defn:simplicial-cotensor defn:simplicial-conical-limit, lem:cotensor-bifunctor}
+\uses{defn:simplicial-cotensor, defn:simplicial-conical-limit, lem:cotensor-bifunctor}
   An $\infty$-\textbf{cosmos} $\cK$ is a category that is enriched over quasi-categories,\footnote{This is to say $\cK$ is a simplicially enriched category (see Definition \ref{defn:simplicial-category}) whose hom spaces are all quasi-categories.} meaning in particular that\begin{itemize}
   \item its morphisms $f \colon A \to B$ define the vertices of a quasi-category denoted $\Fun(A,B)$ and referred to as a \textbf{functor space},
   \end{itemize}
@@ -810,7 +810,7 @@ For example:
 A finite-product-preserving functor may be used to change the base as follows
 
 \begin{proposition}\label{prop:change-of-base}
-  \uses{defn:monoidal-functor}
+  \uses{defn:lax-monoidal-functor}
   A finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories induces a change-of-base 2-functor \begin{center} \begin{tikzcd} {\cV}\text{-}\mathcal{C}at \arrow[r, "T_*"] & {\cW}\text{-}\mathcal{C}at\, . \end{tikzcd}\end{center}
 \end{proposition}
 
@@ -978,7 +978,7 @@ The general theory of change-of-base will be applied in the following case the n
 
 
 \begin{example}\label{ex:nerve-ho-change-of-base}
-  \uses{prop:change-of-base-adjunc  tion, lem:ho-preserves-products}
+  \uses{prop:change-of-base-adjunction, lem:ho-preserves-products}
 Both adjoints of the adjunction
 \begin{center}
 \begin{tikzcd}[column sep=large]
