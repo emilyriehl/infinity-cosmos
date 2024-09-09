@@ -46,4 +46,4 @@ L3. Define [simplicial conical limits](https://emilyriehl.github.io/infinity-cos
 
 C1. Using all of the above, complete the definition of an [∞-cosmos](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-cosmos.html#defn:cosmos).
 
-C2. Define [cartesian closed ∞-cosmoi](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-cosmos.html#defn:closed-cosmos)
+C2. Define [cartesian closed ∞-cosmoi](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-cosmos.html#defn:closed-cosmos).
