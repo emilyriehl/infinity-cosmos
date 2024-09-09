@@ -32,9 +32,9 @@ S3. Characterize the [homotopy category of a quasi-category](https://emilyriehl.
 
 S4. Prove that the [homotopy category functor preserves equivalences](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#lem:qcat-htpy-cat-equiv).
 
-S5. A final particularly hard task: prove that the homotopy category functor [preserves products](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#lem:ho-preserves-products). There are two lemmas here, both of which we will eventually need. I suspect the easier will be to show that the homotopy category functor, when restricted to the subcategory of quasi-categories preserves all products, though this relies on task 3. The harder result, which could be attempted now, would be to show that on the full category of simplicial sets, this functor preserves finite products (binary products and the terminal object).
+S5. A final particularly hard task: prove that the homotopy category functor [preserves products](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#lem:ho-preserves-products). There are two lemmas here, both of which we will eventually need. I suspect the easier will be to show that the homotopy category functor, when restricted to the subcategory of quasi-categories preserves all products, though this relies on task 3. The harder result, which could be attempted now, would be to show that this functor preserves finite products (binary products and the terminal object) of arbitrary simplicial sets.
 
-**Tasks involving simplicially enriched limits
+**Tasks involving simplicially enriched limits**:
 
 L1. Define [simplicial cotensors](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-enriched-limits.html#defn:simplicial-cotensor). Note the current definition of "has cotensors" is too weak and should be fixed.
 
@@ -42,7 +42,7 @@ L2. Prove that simplicial cotensors define a [bifunctor](https://emilyriehl.gith
 
 L3. Define [simplicial conical limits](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-enriched-limits.html#defn:simplicial-conical-limit).
 
-**Tasks involving ∞-cosmoi.
+**Tasks involving ∞-cosmoi**:
 
 C1. Using all of the above, complete the definition of an [∞-cosmos](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-cosmos.html#defn:cosmos).
 
