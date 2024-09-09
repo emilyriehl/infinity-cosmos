@@ -8,7 +8,7 @@ The initial aims of this project are relatively modest, though with sufficient i
 
 This project is being co-lead by @**Dom Verity** and @**Mario Carneiro**, though my hope is to spare them some of the day-to-day burdens by serving as project manager. I'm relatively new to Lean, however, so advice from more experienced folks is **especially welcome.**
 
-If you're interesting in hearing more or contributing to the development of this project, please join us in the #**InfinityCosmos** stream!
+If you're interesting in hearing more or contributing to the development of this project, please join us in the #**Infinity-Cosmos** stream!
 
 
 
