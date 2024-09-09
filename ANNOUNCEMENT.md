@@ -36,7 +36,7 @@ S5. A final particularly hard task: prove that the homotopy category functor [pr
 
 **Tasks involving simplicially enriched limits**:
 
-L1. Define [simplicial cotensors](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-enriched-limits.html#defn:simplicial-cotensor). Note the current definition of "has cotensors" is too weak and should be fixed.
+L1. Define [simplicial cotensors](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-enriched-limits.html#defn:simplicial-cotensors). While the current definition of "has cotensors" is mathematically correct, it is likely not in the most useful form, as it does not give us direct access to the simplicially enriched adjunction or include the associativity isomorphisms.
 
 L2. Prove that simplicial cotensors define a [bifunctor](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-enriched-limits.html#lem:cotensor-bifunctor).
 
