@@ -332,14 +332,15 @@ By soundness of the quotient construction:
 This should be relatively straightforward.
 \end{proof}
 
-   \begin{proposition}\label{prop:nerve-reflective}
-    \lean{CategoryTheory.nerveCounit_isIso}
-   The homotopy category of the nerve of a 1-category is isomorphic to the original category, as the 2-simplices in the nerve witness all of the composition relations satisfied by the arrows in the underlying reflexive directed graph.
-   \end{proposition}
-   \begin{proof}
-    \leanok
+\begin{proposition}\label{prop:nerve-reflective}
+  \lean{CategoryTheory.nerveCounit_isIso}
+  \leanok
+  The homotopy category of the nerve of a 1-category is isomorphic to the original category, as the 2-simplices in the nerve witness all of the composition relations satisfied by the arrows in the underlying reflexive directed graph.
+\end{proposition}
+\begin{proof}
+  \leanok
   This has been formalized and is currently in the \href{https://github.com/leanprover-community/mathlib4/tree/CatHasColimits}{CatHasColimits branch of Mathlib}.
-  \end{proof}
+\end{proof}
 
    Indeed, the natural isomorphism $\ho{C} \cong C$ forms the counit of an adjunction, embedding $\Cat$ as a reflective subcategory of $\sSet$.
 
