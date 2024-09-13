@@ -2,32 +2,38 @@ import InfinityCosmos.Mathlib.AlgebraicTopology.Quasicategory
 import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
+import Mathlib.CategoryTheory.Products.Basic
 
 noncomputable section
 
 namespace CategoryTheory
-open Category Limits Functor
+open Category Limits Functor MonoidalCategory BraidedCategory
 universe v v₁ v₂ u u₁ u₂
 
 variable (K : Type u) [Category.{v} K]
-
-instance : MonoidalClosed SSet := sorry
 
 namespace SimplicialCategory
 variable [SimplicialCategory K]
 variable {K}
 
-instance : CartesianClosed SSet := sorry
+-- Dagur: we could deduce this from abstract nonsense, but we might want to define it explicitly
+-- to get better definitional properties.
+instance : MonoidalClosed SSet := sorry
+
+instance : SymmetricCategory SSet := inferInstance
 -- instance : HasBinaryProducts SSet := by infer_instance
 
--- ER: Should work but can't figure out the monoidal product is the cartesian product.
--- ER: Also I can't get the × notation to work for the product.
-def sComp (X Y Z : K) : Limits.prod (sHom X Y) (sHom Y Z) ⟶ sHom X Z := by sorry
---  have := sHomComp X Y Z
+-- def sComp (X Y Z : K) : (sHom X Y) ⊗ (sHom Y Z) ⟶ sHom X Z := sHomComp X Y Z
 
-def coneNatTrans {A : SSet} {AX X : K} (Y : K) (cone : A ⟶ sHom AX X) : sHom Y AX ⟶ (A ⟹ sHom Y X) :=
-  let map := (prod.map (𝟙 (sHom Y AX)) cone) ≫ (sComp Y AX X)
-  (CartesianClosed.curry ((prod.braiding A (sHom Y AX)).hom ≫ map))
+-- Dagur: I think it's a good idea to use the monoidal structure given by the
+-- `ChosenFiniteProducts` instance on functor categories. It has good definitional properties, like
+-- the following:
+example (R S : SSet) (n : SimplexCategory) : (R ⊗ S).obj ⟨n⟩ = (R.obj ⟨n⟩ × S.obj ⟨n⟩) := rfl
+
+def coneNatTrans {A : SSet} {AX X : K} (Y : K) (cone : A ⟶ sHom AX X) :
+    sHom Y AX ⟶ (A ⟶[SSet] sHom Y X) :=
+  let map := ((sHom Y AX) ◁ cone) ≫ (sHomComp Y AX X)
+  (MonoidalClosed.curry ((braiding A (sHom Y AX)).hom ≫ map))
 
 structure IsCotensor {A : SSet} {X : K} (AX : K) (cone : A ⟶ sHom AX X) where
   uniq : ∀ (Y : K), (IsIso (coneNatTrans Y cone))
@@ -77,15 +83,19 @@ def cotensor.is_cotensor (A : SSet) (X : K) [HasCotensor A X] :
     IsCotensor (A ⋔ X) (cotensor.cone A X) := (getCotensorCone A X).is_cotensor
 
 def cotensor.iso (A : SSet) (X : K) [HasCotensor A X] (Y : K) :
-    (sHom Y (A ⋔ X)) ≅ (A ⟹ sHom Y X) := by
+    (sHom Y (A ⋔ X)) ≅ (A ⟶[SSet] sHom Y X) := by
   have := (cotensor.is_cotensor A X).uniq Y
   exact asIso (coneNatTrans Y (cone A X))
 
--- ER: Finish by applying ev0 to cotensor.iso and using a similar equivalence that calculates the 0-simplicies in the cartesian closed structure.
+-- ER: Finish by applying a similar equivalence to `SimplicialCategory.homEquiv'` that calculates
+-- the 0-simplicies in the cartesian closed structure.
 def cotensor.iso.underlying (A : SSet) (X : K) [HasCotensor A X] (Y : K) :
   (Y ⟶ (A ⋔ X)) ≃ (A ⟶ sHom Y X) := by
-  have := SimplicialCategory.homEquiv' Y (A ⋔ X)
-  sorry
+  refine (SimplicialCategory.homEquiv' Y (A ⋔ X)).trans ?_
+  refine (((evaluation _ _).obj ⟨SimplexCategory.mk 0⟩).mapIso
+    (cotensor.iso A X Y)).toEquiv.trans ?_
+  sorry -- need to define the cartesian/monoidal closed structure first
+
 
 def cotensorCovMap [HasCotensors K] (A : SSet) {X Y : K} (f : X ⟶ Y) : A ⋔ X ⟶ A ⋔ Y :=
   (cotensor.iso.underlying A Y (A ⋔ X)).symm
