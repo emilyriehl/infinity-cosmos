@@ -116,8 +116,7 @@ def cotensorContraMap [HasCotensors K] {A B : SSet} (i : A ⟶ B) (X : K) : B �
 
 theorem cotensor_bifunctoriality [HasCotensors K] {A B : SSet} (i : A ⟶ B) {X Y : K} (f : X ⟶ Y) :
     (cotensorCovMap B f) ≫ (cotensorContraMap i Y) =
-    (cotensorContraMap i X) ≫ (cotensorCovMap A f) := by
-  sorry
+    (cotensorContraMap i X) ≫ (cotensorCovMap A f) := by sorry
 
 -- noncomputable def cotensor [SimplicialCategory K] : SSetᵒᵖ ⥤ K ⥤ K := sorry
 
