@@ -2,12 +2,12 @@ import InfinityCosmos.Mathlib.AlgebraicTopology.Quasicategory
 import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
-import Mathlib.CategoryTheory.Products.Basic
+import Mathlib.CategoryTheory.Functor.FunctorHom
 
 noncomputable section
 
 namespace CategoryTheory
-open Category Limits Functor MonoidalCategory BraidedCategory
+open Category Limits Functor MonoidalCategory BraidedCategory Simplicial SSet
 universe v v₁ v₂ u u₁ u₂
 
 variable (K : Type u) [Category.{v} K]
@@ -16,9 +16,18 @@ namespace SimplicialCategory
 variable [SimplicialCategory K]
 variable {K}
 
--- Dagur: we could deduce this from abstract nonsense, but we might want to define it explicitly
--- to get better definitional properties.
-instance : MonoidalClosed SSet := sorry
+instance : SimplicialCategory SSet where
+  toEnrichedCategory := inferInstanceAs (EnrichedCategory (_ ⥤ Type _) (_ ⥤ Type _))
+  homEquiv := sorry
+  homEquiv_id := sorry
+  homEquiv_comp := sorry
+
+-- After #13710 is merged, this will follow (with the correct defeq).
+instance : MonoidalClosed SSet where
+  closed A := {
+    rightAdj := (sHomFunctor _).obj ⟨A⟩
+    adj := sorry
+  }
 
 instance : SymmetricCategory SSet := inferInstance
 -- instance : HasBinaryProducts SSet := by infer_instance
@@ -31,7 +40,10 @@ instance : SymmetricCategory SSet := inferInstance
 example (R S : SSet) (n : SimplexCategory) : (R ⊗ S).obj ⟨n⟩ = (R.obj ⟨n⟩ × S.obj ⟨n⟩) := rfl
 
 def coneNatTrans {A : SSet} {AX X : K} (Y : K) (cone : A ⟶ sHom AX X) :
-    sHom Y AX ⟶ (A ⟶[SSet] sHom Y X) :=
+  -- The notation `A ⟶[SSet] sHom Y X` is ambiguous, could mean both `ihom` or the enriched hom...
+  -- Here we mean `ihom` so we write that explicitly.
+  -- These notations should probably be scoped.
+    sHom Y AX ⟶ ((ihom A).obj (sHom Y X)) :=
   let map := ((sHom Y AX) ◁ cone) ≫ (sHomComp Y AX X)
   (MonoidalClosed.curry ((braiding A (sHom Y AX)).hom ≫ map))
 
@@ -83,19 +95,17 @@ def cotensor.is_cotensor (A : SSet) (X : K) [HasCotensor A X] :
     IsCotensor (A ⋔ X) (cotensor.cone A X) := (getCotensorCone A X).is_cotensor
 
 def cotensor.iso (A : SSet) (X : K) [HasCotensor A X] (Y : K) :
-    (sHom Y (A ⋔ X)) ≅ (A ⟶[SSet] sHom Y X) := by
+    -- Again the notation `A ⟶[SSet] sHom Y X` is ambiguous.
+    (sHom Y (A ⋔ X)) ≅ ((ihom A).obj (sHom Y X)) := by
   have := (cotensor.is_cotensor A X).uniq Y
   exact asIso (coneNatTrans Y (cone A X))
 
--- ER: Finish by applying a similar equivalence to `SimplicialCategory.homEquiv'` that calculates
--- the 0-simplicies in the cartesian closed structure.
 def cotensor.iso.underlying (A : SSet) (X : K) [HasCotensor A X] (Y : K) :
-  (Y ⟶ (A ⋔ X)) ≃ (A ⟶ sHom Y X) := by
-  refine (SimplicialCategory.homEquiv' Y (A ⋔ X)).trans ?_
-  refine (((evaluation _ _).obj ⟨SimplexCategory.mk 0⟩).mapIso
-    (cotensor.iso A X Y)).toEquiv.trans ?_
-  sorry -- need to define the cartesian/monoidal closed structure first
-
+  (Y ⟶ (A ⋔ X)) ≃ (A ⟶ sHom Y X) :=
+  (SimplicialCategory.homEquiv' Y (A ⋔ X)).trans <|
+    (((evaluation SimplexCategoryᵒᵖ (Type _)).obj ⟨SimplexCategory.mk 0⟩).mapIso
+      (cotensor.iso A X Y)).toEquiv.trans
+        (SimplicialCategory.homEquiv' A (sHom Y X)).symm
 
 def cotensorCovMap [HasCotensors K] (A : SSet) {X Y : K} (f : X ⟶ Y) : A ⋔ X ⟶ A ⋔ Y :=
   (cotensor.iso.underlying A Y (A ⋔ X)).symm
@@ -106,7 +116,8 @@ def cotensorContraMap [HasCotensors K] {A B : SSet} (i : A ⟶ B) (X : K) : B �
 
 theorem cotensor_bifunctoriality [HasCotensors K] {A B : SSet} (i : A ⟶ B) {X Y : K} (f : X ⟶ Y) :
     (cotensorCovMap B f) ≫ (cotensorContraMap i Y) =
-    (cotensorContraMap i X) ≫ (cotensorCovMap A f) := by sorry
+    (cotensorContraMap i X) ≫ (cotensorCovMap A f) := by
+  sorry
 
 -- noncomputable def cotensor [SimplicialCategory K] : SSetᵒᵖ ⥤ K ⥤ K := sorry
 
