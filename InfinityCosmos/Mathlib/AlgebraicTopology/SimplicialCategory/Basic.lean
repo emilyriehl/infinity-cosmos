@@ -5,6 +5,8 @@ Authors: Joël Riou
 -/
 import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Enriched.Basic
+import Mathlib.CategoryTheory.Functor.FunctorHom
+import Mathlib.CategoryTheory.Closed.Cartesian
 
 /-!
 # Simplicial categories
@@ -33,7 +35,7 @@ by morphisms `Δ[1] ⊗ X ⟶ Y`.
 
 universe v u
 
-open CategoryTheory Category Simplicial MonoidalCategory
+open CategoryTheory Category MonoidalCategory Simplicial SSet
 
 namespace CategoryTheory
 
@@ -117,6 +119,29 @@ noncomputable def sHomFunctor : Cᵒᵖ ⥤ C ⥤ SSet.{v} where
       map := fun φ => sHomWhiskerLeft K.unop φ }
   map φ :=
     { app := fun L => sHomWhiskerRight φ.unop L }
+
+noncomputable instance : SimplicialCategory SSet where
+  toEnrichedCategory := inferInstanceAs (EnrichedCategory (_ ⥤ Type _) (_ ⥤ Type _))
+  homEquiv (K L) := by
+    refine Equiv.trans ?_ (unitHomEquiv _).symm
+    sorry
+  homEquiv_id := sorry
+  homEquiv_comp := sorry
+
+-- After #13710 is merged, this will follow (with the correct defeq).
+noncomputable instance : MonoidalClosed SSet where
+  closed A := {
+    rightAdj := (sHomFunctor _).obj ⟨A⟩
+    adj := sorry
+  }
+
+noncomputable instance : SymmetricCategory SSet := inferInstance
+-- instance : HasBinaryProducts SSet := by infer_instance
+
+-- Dagur: I think it's a good idea to use the monoidal structure given by the
+-- `ChosenFiniteProducts` instance on functor categories. It has good definitional properties, like
+-- the following:
+example (R S : SSet) (n : SimplexCategory) : (R ⊗ S).obj ⟨n⟩ = (R.obj ⟨n⟩ × S.obj ⟨n⟩) := rfl
 
 end SimplicialCategory
 

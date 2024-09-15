@@ -38,6 +38,11 @@ lemma isIso_limitComparison (X : A) (h : IsSLimit c) : IsIso (limitComparison c 
   rw [limitComparison_eq_conePointUniqueUpToIso (h := h)]
   infer_instance
 
+noncomputable def limitComparisonIso (X : A) (h : IsSLimit c) :
+    sHom X c.pt ≅ (limit (K ⋙ (sHomFunctor A).obj (op X))) := by
+  have := isIso_limitComparison c X h
+  exact (asIso (SimplicialCategory.limitComparison c X))
+
 noncomputable def isSLimitOfIsIsoLimitComparison [∀ X, IsIso (limitComparison c X)]
     (hc : IsLimit c) : IsSLimit c where
   isLimit := hc
