@@ -122,9 +122,10 @@ noncomputable def sHomFunctor : Cᵒᵖ ⥤ C ⥤ SSet.{v} where
 
 noncomputable instance : SimplicialCategory SSet where
   toEnrichedCategory := inferInstanceAs (EnrichedCategory (_ ⥤ Type _) (_ ⥤ Type _))
-  homEquiv (K L) := by
-    refine Equiv.trans ?_ (unitHomEquiv _).symm
-    sorry
+  homEquiv K L :=
+    letI e : (K ⟶ L) ≃ (K ⊗ 𝟙_ SSet ⟶ L) :=
+      ⟨fun f => (ρ_ _).hom ≫ f, fun f => (ρ_ _).inv ≫ f, by aesop_cat, by aesop_cat⟩
+    e.trans (Functor.homObjEquiv _ _ _).symm |>.trans (Functor.functorHomEquiv K L (𝟙_ SSet)).symm
   homEquiv_id := sorry
   homEquiv_comp := sorry
 
