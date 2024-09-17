@@ -118,6 +118,64 @@ end
 
 end WalkingIso
 
+/-- Now we redefine `WalkingIso` as `FreeIso` to experiment with a different definition. We start by
+introducting an alias for the type underlying a codiscrete or chaotic or contractible category
+structure.-/
+def Contractible (A : Type u) : Type u := A
+namespace Contractible
+
+instance (A : Type u) : Category (Contractible A) where
+  Hom _ _ := Unit
+  id _ := ⟨⟩
+  comp _ _ := ⟨⟩
+
+end Contractible
+
+inductive FreeIso : Type u where
+  | zero : FreeIso
+  | one : FreeIso
+
+open FreeIso
+
+namespace FreeIso
+
+/-- The free isomorphism is the contractible category on two objects.-/
+instance : Category (FreeIso) where
+  Hom _ _ := Unit
+  id _ := ⟨⟩
+  comp _ _ := ⟨⟩
+
+section
+
+variable {C : Type u'} [Category.{v'} C]
+
+/-- Functors out of `WalkingIso` define isomorphisms in the target category.-/
+def toIso  (F : FreeIso ⥤ C) : (F.obj zero) ≅ (F.obj one) where
+  hom := F.map PUnit.unit
+  inv := F.map PUnit.unit
+  hom_inv_id := by
+    rw [← F.map_comp, ← F.map_id]
+    exact rfl
+  inv_hom_id := by
+    rw [← F.map_comp, ← F.map_id]
+    exact rfl
+
+/-- From an isomorphism in a category, one can build a functor out of `FreeIso` to
+that category.-/
+def fromIso {X Y : C} (e : X ≅ Y) : FreeIso ⥤ C where
+  obj := fun
+    | zero => X
+    | one => Y
+  map := @fun
+    | zero, zero, _ => 𝟙 _
+    | zero, one,  _ => e.hom
+    | one,  zero, _ => e.inv
+    | one,  one,  _ => 𝟙 _
+end
+
+end FreeIso
+
+
 end CategoryTheory
 
 namespace SSet
