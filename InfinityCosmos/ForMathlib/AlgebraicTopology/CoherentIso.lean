@@ -14,36 +14,36 @@ namespace CategoryTheory
 
 /-- This is the free-living isomorphism as a category with objects called
 `zero` and `one`. Perhaps these should have different names?-/
-inductive walkingIso : Type u where
-  | zero : walkingIso
-  | one : walkingIso
+inductive WalkingIso : Type u where
+  | zero : WalkingIso
+  | one : WalkingIso
 
-open walkingIso
+open WalkingIso
 
 namespace WalkingIso
 
 /-- The arrows in the walking iso category split into three cases.-/
-inductive Hom : walkingIso → walkingIso → Type v where
-  | id : (X : walkingIso) → Hom X X
+inductive Hom : WalkingIso → WalkingIso → Type v where
+  | id : (X : WalkingIso) → Hom X X
   | hom : Hom zero one
   | inv : Hom one zero
 
-/-- The quiver structure on `walkingIso`-/
-instance : Quiver walkingIso where
+/-- The quiver structure on `WalkingIso`-/
+instance : Quiver WalkingIso where
   Hom := Hom
 
-/-- The quiver `walkingIso` has at most one arrow in each hom.-/
-instance : Quiver.IsThin walkingIso := fun _ _ => by
+/-- The quiver `WalkingIso` has at most one arrow in each hom.-/
+instance : Quiver.IsThin WalkingIso := fun _ _ => by
   constructor
   intro f g
-  casesm* walkingIso, (_ : walkingIso) ⟶ (_ : walkingIso)
+  casesm* WalkingIso, (_ : WalkingIso) ⟶ (_ : WalkingIso)
   · rfl
   · rfl
   · rfl
   · rfl
 
-/-- The category structure on `walkingIso` defined by case analysis.-/
-instance : CategoryStruct walkingIso where
+/-- The category structure on `WalkingIso` defined by case analysis.-/
+instance : CategoryStruct WalkingIso where
   Hom := Hom
   id := Hom.id
   comp := by
@@ -57,15 +57,15 @@ instance : CategoryStruct walkingIso where
       · exact Hom.inv
       · exact (Hom.id _)
 
-/-- As a thin quiver with a category structure, `walkingIso` is a category.-/
-instance : Category walkingIso := thin_category
+/-- As a thin quiver with a category structure, `WalkingIso` is a category.-/
+instance : Category WalkingIso := thin_category
 
 section
 
 variable {C : Type u'} [Category.{v'} C]
 
-/-- Functors out of `walkingIso` define isomorphisms in the target category.-/
-def toIso  (F : walkingIso ⥤ C) : (F.obj zero) ≅ (F.obj one) where
+/-- Functors out of `WalkingIso` define isomorphisms in the target category.-/
+def toIso  (F : WalkingIso ⥤ C) : (F.obj zero) ≅ (F.obj one) where
   hom := F.map Hom.hom
   inv := F.map Hom.inv
   hom_inv_id := by
@@ -75,13 +75,13 @@ def toIso  (F : walkingIso ⥤ C) : (F.obj zero) ≅ (F.obj one) where
     rw [← F.map_comp, ← F.map_id]
     exact rfl
 
-/-- From an isomorphism in a category, one can build a functor out of `walkingIso` to
+/-- From an isomorphism in a category, one can build a functor out of `WalkingIso` to
 that category.-/
-def fromIso (X Y : C) : (X ≅ Y) → (walkingIso ⥤ C) := fun f => {
+def fromIso (X Y : C) : (X ≅ Y) → (WalkingIso ⥤ C) := fun f => {
   obj := by
     intro E
     match E with
-    | walkingIso.zero => exact X
+    | WalkingIso.zero => exact X
     | one => exact Y
   map := by
     intro E F h
@@ -122,7 +122,7 @@ end CategoryTheory
 
 namespace SSet
 
-/-- This is the homotopy coherent isomorphism, defined to be the nerve of `walkingIso`.-/
-def coherentIso : SSet := nerve walkingIso
+/-- This is the homotopy coherent isomorphism, defined to be the nerve of `WalkingIso`.-/
+def coherentIso : SSet := nerve WalkingIso
 
 end SSet
