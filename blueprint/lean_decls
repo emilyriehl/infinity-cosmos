@@ -20,9 +20,11 @@ CategoryTheory.SSet.hoCat
 CategoryTheory.nerveCounit_isIso
 CategoryTheory.nerveAdjunction
 CategoryTheory.nerveFunctor.fullyfaithful
+SSet.trivialFibration
 CategoryTheory.SimplicialCategory
 CategoryTheory.SimplicialCategory.HasCotensor
 CategoryTheory.SimplicialCategory.HasCotensors
 CategoryTheory.SimplicialCategory.cotensor_bifunctoriality
+CategoryTheory.IsSLimit
 CategoryTheory.InfinityCosmos
 CategoryTheory.LaxMonoidalFunctor

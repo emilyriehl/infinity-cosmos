@@ -1,6 +1,7 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.CoherentIso
 import InfinityCosmos.ForMathlib.AlgebraicTopology.HomotopyCat
 import InfinityCosmos.ForMathlib.AlgebraicTopology.Wombat
+import InfinityCosmos.ForMathlib.CategoryTheory.MorphismProperty
 import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
 import InfinityCosmos.ForMathlib.InfinityCosmos.Prerequisites
 import InfinityCosmos.Mathlib.AlgebraicTopology.KanComplex
