@@ -5,8 +5,8 @@ Authors: Joël Riou
 -/
 import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Enriched.Basic
-import Mathlib.CategoryTheory.Functor.FunctorHom
 import Mathlib.CategoryTheory.Closed.Cartesian
+import Mathlib.CategoryTheory.Closed.FunctorToTypes
 
 /-!
 # Simplicial categories
@@ -126,22 +126,20 @@ noncomputable instance : SimplicialCategory SSet where
     letI e : (K ⟶ L) ≃ (K ⊗ 𝟙_ SSet ⟶ L) :=
       ⟨fun f => (ρ_ _).hom ≫ f, fun f => (ρ_ _).inv ≫ f, by aesop_cat, by aesop_cat⟩
     e.trans (Functor.homObjEquiv _ _ _).symm |>.trans (Functor.functorHomEquiv K L (𝟙_ SSet)).symm
-  homEquiv_id := sorry
-  homEquiv_comp := sorry
+  homEquiv_id := by aesop_cat
+  homEquiv_comp := by aesop_cat
 
--- After #13710 is merged, this will follow (with the correct defeq).
 noncomputable instance : MonoidalClosed SSet where
   closed A := {
     rightAdj := (sHomFunctor _).obj ⟨A⟩
-    adj := sorry
+    adj := FunctorToTypes.adj _
   }
 
 noncomputable instance : SymmetricCategory SSet := inferInstance
 -- instance : HasBinaryProducts SSet := by infer_instance
 
--- Dagur: I think it's a good idea to use the monoidal structure given by the
--- `ChosenFiniteProducts` instance on functor categories. It has good definitional properties, like
--- the following:
+/-- The monoidal structure given by the `ChosenFiniteProducts` has good definitional properties,
+like the following: -/
 example (R S : SSet) (n : SimplexCategory) : (R ⊗ S).obj ⟨n⟩ = (R.obj ⟨n⟩ × S.obj ⟨n⟩) := rfl
 
 end SimplicialCategory
