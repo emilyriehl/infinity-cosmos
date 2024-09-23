@@ -91,7 +91,7 @@ def homEquiv' (C : Cat) (A : Type*) : (objects.obj C ⟶ A) ≃ (C ⟶ functor.o
   left_inv _ := rfl
   right_inv _ := rfl
 
-/-- The functor that turns a type into a codiscrete category is left adjoints to the objects
+/-- The functor that turns a type into a codiscrete category is right adjoint to the objects
 functor.-/
 def adj : objects ⊣ functor := mkOfHomEquiv
   {
