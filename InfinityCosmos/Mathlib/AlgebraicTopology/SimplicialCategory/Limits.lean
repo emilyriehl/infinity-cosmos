@@ -143,8 +143,8 @@ section ConicalProducts
 variable {I : Type u₁}
 variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
 
-/-- An abbreviation for `HasConicalLimit (Discrete.functor f)`. -/
-abbrev HasProduct (f : I → C) :=
+/-- An abbreviation for `HasSLimit (Discrete.functor f)`. -/
+abbrev HasConicalProduct (f : I → C) :=
   HasConicalLimit (Discrete.functor f)
 
 end ConicalProducts
