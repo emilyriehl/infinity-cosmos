@@ -20,48 +20,6 @@ theorem Cat.comp_eq_comp {X Y Z : Cat} (F : X ⟶ Y) (G : Y ⟶ Z) : F ≫ G = F
 theorem Quiv.id_eq_id (X : Quiv) : 𝟙 X = 𝟭q X := rfl
 theorem Quiv.comp_eq_comp {X Y Z : Quiv} (F : X ⟶ Y) (G : Y ⟶ Z) : F ≫ G = F ⋙q G := rfl
 
--- NB: Copied to Mathlib/CategoryTheory/EqToHom.lean
-theorem conj_eqToHom_iff_heq' {C} [Category C] {W X Y Z : C}
-    (f : W ⟶ X) (g : Y ⟶ Z) (h : W = Y) (h' : Z = X) :
-    f = eqToHom h ≫ g ≫ eqToHom h' ↔ HEq f g := conj_eqToHom_iff_heq _ _ _ h'.symm
-
-theorem eqToHom_comp_heq {C} [Category C] {W X Y : C}
-    (f : Y ⟶ X) (h : W = Y) : HEq (eqToHom h ≫ f) f := by
-  rw [← conj_eqToHom_iff_heq _ _ h rfl, eqToHom_refl, comp_id]
-
-@[simp] theorem eqToHom_comp_heq_iff {C} [Category C] {W X Y Z Z' : C}
-    (f : Y ⟶ X) (g : Z ⟶ Z') (h : W = Y) :
-    HEq (eqToHom h ≫ f) g ↔ HEq f g :=
-  ⟨(eqToHom_comp_heq ..).symm.trans, (eqToHom_comp_heq ..).trans⟩
-
-@[simp] theorem heq_eqToHom_comp_iff {C} [Category C] {W X Y Z Z' : C}
-    (f : Y ⟶ X) (g : Z ⟶ Z') (h : W = Y) :
-    HEq g (eqToHom h ≫ f) ↔ HEq g f :=
-  ⟨(·.trans (eqToHom_comp_heq ..)), (·.trans (eqToHom_comp_heq ..).symm)⟩
-
-theorem comp_eqToHom_heq {C} [Category C] {X Y Z : C}
-    (f : X ⟶ Y) (h : Y = Z) : HEq (f ≫ eqToHom h) f := by
-  rw [← conj_eqToHom_iff_heq' _ _ rfl h, eqToHom_refl, id_comp]
-
-@[simp] theorem comp_eqToHom_heq_iff {C} [Category C] {W X Y Z Z' : C}
-    (f : X ⟶ Y) (g : Z ⟶ Z') (h : Y = W) :
-    HEq (f ≫ eqToHom h) g ↔ HEq f g :=
-  ⟨(comp_eqToHom_heq ..).symm.trans, (comp_eqToHom_heq ..).trans⟩
-
-@[simp] theorem heq_comp_eqToHom_iff {C} [Category C] {W X Y Z Z' : C}
-    (f : X ⟶ Y) (g : Z ⟶ Z') (h : Y = W) :
-    HEq g (f ≫ eqToHom h) ↔ HEq g f :=
-  ⟨(·.trans (comp_eqToHom_heq ..)), (·.trans (comp_eqToHom_heq ..).symm)⟩
-
-theorem heq_comp {C} [Category C] {X Y Z X' Y' Z' : C}
-    {f : X ⟶ Y} {g : Y ⟶ Z} {f' : X' ⟶ Y'} {g' : Y' ⟶ Z'}
-    (eq1 : X = X') (eq2 : Y = Y') (eq3 : Z = Z')
-    (H1 : HEq f f') (H2 : HEq g g') :
-    HEq (f ≫ g) (f' ≫ g') := by
-  cases eq1; cases eq2; cases eq3; cases H1; cases H2; rfl
-
-end
-
 -- NB: Copied to Mathlib/CategoryTheory/Quotient.lean
 namespace Quotient
 variable {C : Type _} [Category C] (r : HomRel C)

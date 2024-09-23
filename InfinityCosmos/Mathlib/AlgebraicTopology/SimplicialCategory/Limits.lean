@@ -1,19 +1,23 @@
 import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 
+universe u v u₁ v₁
 namespace CategoryTheory
 
 open Limits SimplicialCategory Opposite
 
-variable {I A : Type*} [Category I] [Category A] [SimplicialCategory A] {K : I ⥤ A} (c : Cone K)
+
+section
+
+variable {J C : Type*} [Category J] [Category C] [SimplicialCategory C] {F : J ⥤ C} (c : Cone F)
 
 /--
 A limit cone `c` in a simplicial category `A` is a *simplicially enriched limit* if for every
-`X : A`, the cone obtained by applying the simplicial coyoneda functor `(X ⟶[A] -)` to `c` is a
+`X : C`, the cone obtained by applying the simplicial coyoneda functor `(X ⟶[A] -)` to `c` is a
 limit cone in `SSet`.
 -/
 structure IsSLimit where
   isLimit : IsLimit c
-  isSLimit (X : A) : IsLimit <| ((sHomFunctor A).obj (op X)).mapCone c
+  isSLimit (X : C) : IsLimit <| ((sHomFunctor C).obj (op X)).mapCone c
 
 namespace SimplicialCategory
 
@@ -25,21 +29,21 @@ cone in `A` is a simplicially enriched limit if and only if the comparison map 
 for every `X : A`.
 -/
 
-noncomputable def limitComparison (X : A) :
-    sHom X c.pt ⟶ limit (K ⋙ (sHomFunctor A).obj (op X)) :=
-  limit.lift _ (((sHomFunctor A).obj (op X)).mapCone c)
+noncomputable def limitComparison (X : C) :
+    sHom X c.pt ⟶ limit (F ⋙ (sHomFunctor C).obj (op X)) :=
+  limit.lift _ (((sHomFunctor C).obj (op X)).mapCone c)
 
-lemma limitComparison_eq_conePointUniqueUpToIso (X : A) (h : IsSLimit c) :
+lemma limitComparison_eq_conePointUniqueUpToIso (X : C) (h : IsSLimit c) :
     limitComparison c X = ((h.isSLimit X).conePointUniqueUpToIso (limit.isLimit _)).hom := by
   apply limit.hom_ext
   simp [limitComparison]
 
-lemma isIso_limitComparison (X : A) (h : IsSLimit c) : IsIso (limitComparison c X) := by
+lemma isIso_limitComparison (X : C) (h : IsSLimit c) : IsIso (limitComparison c X) := by
   rw [limitComparison_eq_conePointUniqueUpToIso (h := h)]
   infer_instance
 
-noncomputable def limitComparisonIso (X : A) (h : IsSLimit c) :
-    sHom X c.pt ≅ (limit (K ⋙ (sHomFunctor A).obj (op X))) := by
+noncomputable def limitComparisonIso (X : C) (h : IsSLimit c) :
+    sHom X c.pt ≅ (limit (F ⋙ (sHomFunctor C).obj (op X))) := by
   have := isIso_limitComparison c X h
   exact (asIso (SimplicialCategory.limitComparison c X))
 
@@ -47,11 +51,11 @@ noncomputable def isSLimitOfIsIsoLimitComparison [∀ X, IsIso (limitComparison 
     (hc : IsLimit c) : IsSLimit c where
   isLimit := hc
   isSLimit X := by
-    suffices PreservesLimit K ((sHomFunctor A).obj (op X)) from this.preserves hc
-    have : HasLimit K := ⟨c, hc⟩
+    suffices PreservesLimit F ((sHomFunctor C).obj (op X)) from this.preserves hc
+    have : HasLimit F := ⟨c, hc⟩
     apply (config := { allowSynthFailures := true } ) preservesLimitOfIsIsoPost
-    have : limit.post K ((sHomFunctor A).obj (op X)) =
-      (((sHomFunctor A).obj (op X)).map ((limit.isLimit K).conePointUniqueUpToIso hc).hom) ≫
+    have : limit.post F ((sHomFunctor C).obj (op X)) =
+      (((sHomFunctor C).obj (op X)).map ((limit.isLimit F).conePointUniqueUpToIso hc).hom) ≫
         limitComparison c X := by
       apply limit.hom_ext
       intro j
@@ -63,4 +67,86 @@ noncomputable def isSLimitOfIsIsoLimitComparison [∀ X, IsIso (limitComparison 
     infer_instance
 
 
-end CategoryTheory.SimplicialCategory
+end SimplicialCategory
+
+end
+
+section ConicalLimits
+
+variable {J : Type u₁} [Category.{v₁} J]
+variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
+
+/-- `ConicalLimitCone F` contains a cone over `F` together with the information that it is a conical
+limit. -/
+structure ConicalLimitCone (F : J ⥤ C) where
+  /-- The cone itself -/
+  cone : Cone F
+  /-- The proof that is the limit cone -/
+  isLimit : IsSLimit cone
+
+/-- `HasConicalLimit F` represents the mere existence of a limit for `F`. -/
+class HasConicalLimit (F : J ⥤ C) : Prop where mk' ::
+  /-- There is some limit cone for `F` -/
+  exists_limit : Nonempty (ConicalLimitCone F)
+
+theorem HasConicalLimit.mk {F : J ⥤ C} (d : ConicalLimitCone F) : HasConicalLimit F :=
+  ⟨Nonempty.intro d⟩
+
+/-- Use the axiom of choice to extract explicit `ConicalLimitCone F` from `HasConicalLimit F`. -/
+noncomputable def getConicalLimitCone (F : J ⥤ C) [HasConicalLimit F] : ConicalLimitCone F :=
+  Classical.choice <| HasConicalLimit.exists_limit
+
+variable (J C)
+
+/-- `C` has conical limits of shape `J` if there exists a conical limit for every functor
+`F : J ⥤ C`. -/
+class HasConicalLimitsOfShape : Prop where
+  /-- All functors `F : J ⥤ C` from `J` have limits -/
+  has_conical_limit : ∀ F : J ⥤ C, HasConicalLimit F := by infer_instance
+
+/-- `C` has all conical limits of size `v₁ u₁` (`HasLimitsOfSize.{v₁ u₁} C`)
+if it has conical limits of every shape `J : Type u₁` with `[Category.{v₁} J]`.
+-/
+@[pp_with_univ]
+class HasConicalLimitsOfSize (C : Type u) [Category.{v} C] [SimplicialCategory C] : Prop where
+  /-- All functors `F : J ⥤ C` from all small `J` have conical limits -/
+  has_conical_limits_of_shape : ∀ (J : Type u₁) [Category.{v₁} J], HasConicalLimitsOfShape J C := by
+    infer_instance
+
+-- COMMENTED OUT SEVERAL THINGS DUE TO UNIVERSE ERRORS
+-- /-- `C` has all (small) conical limits if it has limits of every shape that is as big as its
+-- hom-sets.-/
+-- abbrev HasConicalLimits (C : Type u) [Category.{v} C] [SimplicialCategory C]  : Prop :=
+--   HasConicalLimitsOfSize.{v, v} C
+
+-- theorem HasConicalLimits.has_conical_limits_of_shape {C : Type u} [Category.{v} C]
+--     [SimplicialCategory C] [HasConicalLimits C] (J : Type v)
+--     [Category.{v} J] : HasConicalLimitsOfShape J C :=
+--   HasConicalLimitsOfSize.has_conical_limits_of_shape J
+
+variable {J C}
+
+-- see Note [lower instance priority]
+instance (priority := 100) hasConicalLimitOfHasConicalLimitsOfShape {J : Type u₁} [Category.{v₁} J]
+    [SimplicialCategory C] [HasConicalLimitsOfShape J C] (F : J ⥤ C) : HasConicalLimit F :=
+  HasConicalLimitsOfShape.has_conical_limit F
+
+-- -- see Note [lower instance priority]
+-- instance (priority := 100) hasConicalLimitsOfShapeOfHasLimits {J : Type u₁} [Category.{v₁} J]
+--     [SimplicialCategory C]
+--     [HasConicalLimitsOfSize.{v₁, u₁} C] : HasConicalLimitsOfShape J C :=
+--   HasConicalLimitsOfSize.has_conical_limits_of_shape J
+
+end ConicalLimits
+
+section ConicalProducts
+variable {I : Type u₁}
+variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
+
+/-- An abbreviation for `HasSLimit (Discrete.functor f)`. -/
+abbrev HasConicalProduct (f : I → C) :=
+  HasConicalLimit (Discrete.functor f)
+
+end ConicalProducts
+
+end CategoryTheory
