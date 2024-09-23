@@ -5,6 +5,8 @@ Authors: Johns Hopkins Category Theory Seminar
 -/
 
 import InfinityCosmos.Mathlib.AlgebraicTopology.Nerve
+import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+
 
 universe u v u' v'
 
@@ -120,7 +122,7 @@ end WalkingIso
 
 /-- Now we redefine `WalkingIso` as `FreeIso` to experiment with a different definition. We start by
 introducting an alias for the type underlying a codiscrete or chaotic or contractible category
-structure.-/
+structure. TODO: Change to codiscrete. -/
 def Contractible (A : Type u) : Type u := A
 namespace Contractible
 
@@ -149,7 +151,7 @@ section
 
 variable {C : Type u'} [Category.{v'} C]
 
-/-- Functors out of `WalkingIso` define isomorphisms in the target category.-/
+/-- Functors out of `FreeIso` define isomorphisms in the target category.-/
 def toIso  (F : FreeIso ⥤ C) : (F.obj zero) ≅ (F.obj one) where
   hom := F.map PUnit.unit
   inv := F.map PUnit.unit
@@ -171,16 +173,65 @@ def fromIso {X Y : C} (e : X ≅ Y) : FreeIso ⥤ C where
     | zero, one,  _ => e.hom
     | one,  zero, _ => e.inv
     | one,  one,  _ => 𝟙 _
+
+
+def equiv : (FreeIso ⥤ C) ≃ Σ (X : C) (Y : C), (X ≅ Y) where
+  toFun F := ⟨F.obj zero, F.obj one, toIso F⟩
+  invFun p := fromIso p.2.2
+  right_inv := by
+    intro ⟨X, Y, e⟩
+    simp [toIso, fromIso]
+  left_inv := by
+    intro F
+    simp [toIso, fromIso]
+    fapply Functor.hext
+    · intro i
+      cases i <;> rfl
+    · intro i j
+      simp [toIso, fromIso]
+      cases i <;> cases j <;> intro ⟨⟩ <;> simp only [heq_eq_eq]
+      · rw [← F.map_id]
+        exact rfl
+      · rw [← F.map_id]
+        exact rfl
+
 end
 
-end FreeIso
+def coev (i : FreeIso) : Fin 1 ⥤ FreeIso := ComposableArrows.mk₀ i
 
+end FreeIso
 
 end CategoryTheory
 
 namespace SSet
 
-/-- This is the homotopy coherent isomorphism, defined to be the nerve of `WalkingIso`.-/
-def coherentIso : SSet := nerve WalkingIso
+open Simplicial SimplicialCategory
+
+def coherentIso : SSet.{u} := nerve FreeIso
+
+def coherentIso.pt (i : FreeIso) : Δ[0] ⟶ coherentIso :=
+  (yonedaEquiv coherentIso [0]).symm (FreeIso.coev i)
+
+def expPoint.equiv (X : SSet) : sHom Δ[0] X ⟶ X := by
+  have := SimplicialCategory.instSSet.homEquiv Δ[0] X
+  sorry
+
+
+noncomputable def coherentIso.ev (A : SSet) (i : FreeIso) : sHom coherentIso A ⟶ A := by
+  refine ?_ ≫ expPoint.equiv A
+  sorry
+
+/-- This is in the wrong file; should add a hypothesis that `A` and `B` are quasi-categories and move into a quasi-category namespace?-/
+structure SHomotopy {A B : SSet.{u}} (f g : A ⟶ B) : Type u where
+  homotopy : A ⟶ sHom coherentIso B
+  source_eq : homotopy ≫ coherentIso.ev B FreeIso.zero = f
+  target_eq : homotopy ≫ coherentIso.ev B FreeIso.one = g
+
+
+structure Equiv (A B : SSet.{u}) : Type u where
+  toFun : A ⟶ B
+  invFun : B ⟶ A
+  left_inv : SHomotopy (toFun ≫ invFun) (𝟙 A)
+  right_inv : SHomotopy (invFun ≫ toFun) (𝟙 B)
 
 end SSet
