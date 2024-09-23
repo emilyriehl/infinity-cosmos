@@ -19,13 +19,13 @@ def Codiscrete (A : Type u) : Type u := A
 
 namespace Codiscrete
 
-instance (A : Type u) : Category (Codiscrete A) where
+instance (A : Type*) : Category (Codiscrete A) where
   Hom _ _ := Unit -- The hom types in the Codiscrete A are the unit type.
   id _ := ⟨⟩ -- This is the unique element of the unit type.
   comp _ _ := ⟨⟩
 
 /-- A function induces a functor between codiscrete categories.-/
-def funToFunc {A B : Type u} (f : A → B) : Codiscrete A ⥤ Codiscrete B where
+def funToFunc {A B : Type*} (f : A → B) : Codiscrete A ⥤ Codiscrete B where
   obj a := f a
   map _ := ⟨⟩
 
@@ -45,7 +45,7 @@ def natTrans {A C : Type*} [Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : 
 
 /-- For functors into a codiscrete category, a natural isomorphism is just a collection of
 isomorphisms, as the naturality squares are trivial.-/
-def natIso {A C : Type u}[Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : C, F.obj c ≅ G.obj c) :
+def natIso {A C : Type*}[Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : C, F.obj c ≅ G.obj c) :
     F ≅ G where
   hom := {
     app := fun _ => ⟨⟩
@@ -56,7 +56,7 @@ def natIso {A C : Type u}[Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : C,
 
 /-- Every functor `F` to a codiscrete category is naturally isomorphic {(actually, equal)?} to
   `Codiscrete.functor (F.obj)`. -/
-def natIsoFunctor {A C : Type u}[Category C] {F : C ⥤ Codiscrete A} : F ≅ lift (F.obj) where
+def natIsoFunctor {A C : Type*}[Category C] {F : C ⥤ Codiscrete A} : F ≅ lift (F.obj) where
   hom := {
     app := fun _ => ⟨⟩
   }
@@ -67,7 +67,7 @@ def natIsoFunctor {A C : Type u}[Category C] {F : C ⥤ Codiscrete A} : F ≅ li
 open Opposite
 
 /-- A codiscrete category is equivalent to its opposite category. -/
-protected def opposite (A : Type u) : (Codiscrete A)ᵒᵖ ≌ Codiscrete A :=
+protected def opposite (A : Type*) : (Codiscrete A)ᵒᵖ ≌ Codiscrete A :=
  let F : (Codiscrete A)ᵒᵖ ⥤ Codiscrete A := lift fun (op (x)) => x
  {
   functor := F
@@ -101,7 +101,7 @@ def adj : objects ⊣ functor := mkOfHomEquiv
   }
 
 /-- A second proof of the same adjunction.  -/
-def adj' : Cat.objects ⊣ functor where
+def adj' : objects ⊣ functor where
   unit := {
     app := fun _ => {
       obj := fun _ => _
