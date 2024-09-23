@@ -32,12 +32,17 @@ def funToFunc {A B : Type u} (f : A → B) : Codiscrete A ⥤ Codiscrete B where
 /-- Any function `C → A` lifts to a functor `C ⥤  Codiscrete A`. For discrete categories this is
 called `functor` but we use that name for something else. -/
 def lift {A C: Type u}[Category C] (F : C → A) : C ⥤ Codiscrete A where
-  obj c := F c
+  obj := F
   map _ := ⟨⟩
+
+def invlift {A C: Type u}[Category C] (F : C ⥤ Codiscrete A) : C → A :=
+  F.obj
+
 
 /-- For functors to a codiscrete category, a natural transformation is trivial
 -/
-def natTrans {A C : Type u} [Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : C, F.obj c ⟶ G.obj c) :
+def natTrans {A C : Type u} [Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : C, F.obj c ⟶ G.obj c)
+:
     F ⟶ G where
   app _ := ⟨⟩
 
@@ -77,27 +82,55 @@ protected def opposite (A : Type u) : (Codiscrete A)ᵒᵖ ≌ Codiscrete A :=
   counitIso := natIso fun c => Iso.refl c
  }
 
-def functor : Type u ⥤ Cat.{0,u} where
+def Cod : Type u ⥤ Cat.{0,u} where
   obj A := Cat.of (Codiscrete A)
   map := funToFunc
 
 open Adjunction
 
-def homEquiv (C : Cat) (Y : Type u) : (Cat.objects.obj C ⟶ Y) ≃ (C ⟶ functor.obj Y) := sorry
+/-For a category C and Y : type u, this is the equivalence between the hom objects C → Y
+and hom  C ⥤ Codiscrete Y -/
+def homEquiv' (C : Cat) (Y : Type u) : (Cat.objects.obj C ⟶ Y) ≃ (C ⟶ Cod.obj Y) where
+  toFun := lift
+  invFun := invlift
+  left_inv _ := rfl
+  right_inv _ := rfl
 
-def adj : Cat.objects ⊣ functor := by
+/-Adjunction between the Objects functor (left adjoint) and the codiscrete functor (right adjoint)
+using the hom set adjunction definition  -/
+def adj : Cat.objects ⊣ Cod := by
   apply mkOfHomEquiv
   exact {
-    homEquiv := homEquiv
-    homEquiv_naturality_left_symm := sorry
-    homEquiv_naturality_right := sorry
+    homEquiv := homEquiv'
+    homEquiv_naturality_left_symm := by
+      intro _ _ _ _ _
+      rfl
+    homEquiv_naturality_right := by
+      intro _ _ _ _ _
+      rfl
   }
 
-def adj' : Cat.objects ⊣ functor where
-  unit := sorry
-  counit := sorry
-  left_triangle_components := sorry
-  right_triangle_components := sorry
+/-Adjunction between the Objects functor (left adjoint) and the codiscrete functor (right adjoint)
+using the unit/counit definition  -/
+def adj' : Cat.objects ⊣ Cod where
+  unit := {
+    app := fun _ => {
+      obj := fun _ => _
+      map := fun _ => ⟨⟩
+    }
+  }
+  counit := {
+    app := fun _ => id
+  }
+  left_triangle_components := by
+    intro _
+    simp only [Functor.id_obj, Functor.comp_obj, id_eq]
+    rfl
+  right_triangle_components := by
+    intro _
+    simp only [Functor.id_obj, Functor.comp_obj, id_eq]
+    rfl
+
 
 end Codiscrete
 
