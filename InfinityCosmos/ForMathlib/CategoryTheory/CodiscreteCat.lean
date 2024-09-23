@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2024 Alvaro Belmonte. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Alvaro Belmonte
+-/
 import Mathlib.CategoryTheory.EqToHom
 import Mathlib.CategoryTheory.Pi.Basic
 import Mathlib.Data.ULift
@@ -8,13 +13,9 @@ universe u v
 
 namespace CategoryTheory
 
--- def isCodiscrete (C : Type) [Category C] :=
--- ∀ a b : C, inhabited ( inssubsingleton (a ⟶ b) )
-
-/-- We start by introducting an alias for the type underlying a codiscrete or chaotic or contractible category
+/-- We start by introducting an alias for the type underlying a codiscrete category
 structure.-/
 def Codiscrete (A : Type u) : Type u := A
-
 
 namespace Codiscrete
 
@@ -23,33 +24,27 @@ instance (A : Type u) : Category (Codiscrete A) where
   id _ := ⟨⟩ -- This is the unique element of the unit type.
   comp _ _ := ⟨⟩
 
-
-/-- \ func is the functor arrow; \ to is the function arrow.-/
+/-- A function induces a functor between codiscrete categories.-/
 def funToFunc {A B : Type u} (f : A → B) : Codiscrete A ⥤ Codiscrete B where
   obj a := f a
   map _ := ⟨⟩
 
 /-- Any function `C → A` lifts to a functor `C ⥤  Codiscrete A`. For discrete categories this is
 called `functor` but we use that name for something else. -/
-def lift {A C: Type u}[Category C] (F : C → A) : C ⥤ Codiscrete A where
+def lift {A C : Type*}[Category C] (F : C → A) : C ⥤ Codiscrete A where
   obj := F
   map _ := ⟨⟩
 
-def invlift {A C: Type u}[Category C] (F : C ⥤ Codiscrete A) : C → A :=
-  F.obj
+/-- Any functor `C ⥤  Codiscrete A` has an underlying function.-/
+def invlift {A C : Type*}[Category C] (F : C ⥤ Codiscrete A) : C → A := F.obj
 
-
-/-- For functors to a codiscrete category, a natural transformation is trivial
--/
-def natTrans {A C : Type u} [Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : C, F.obj c ⟶ G.obj c)
-:
+/-- For functors to a codiscrete category, a natural transformation is trivial.-/
+def natTrans {A C : Type*} [Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : C, F.obj c ⟶ G.obj c) :
     F ⟶ G where
   app _ := ⟨⟩
 
-/-- For functors into a codiscrete category,
-a natural isomorphism is just a collection of isomorphisms,
-as the naturality squares are trivial.
--/
+/-- For functors into a codiscrete category, a natural isomorphism is just a collection of
+isomorphisms, as the naturality squares are trivial.-/
 def natIso {A C : Type u}[Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : C, F.obj c ≅ G.obj c) :
     F ≅ G where
   hom := {
@@ -82,37 +77,31 @@ protected def opposite (A : Type u) : (Codiscrete A)ᵒᵖ ≌ Codiscrete A :=
   counitIso := natIso fun c => Iso.refl c
  }
 
-def Cod : Type u ⥤ Cat.{0,u} where
+def functor : Type u ⥤ Cat.{0,u} where
   obj A := Cat.of (Codiscrete A)
   map := funToFunc
 
-open Adjunction
+open Adjunction Cat
 
-/-For a category C and Y : type u, this is the equivalence between the hom objects C → Y
-and hom  C ⥤ Codiscrete Y -/
-def homEquiv' (C : Cat) (Y : Type u) : (Cat.objects.obj C ⟶ Y) ≃ (C ⟶ Cod.obj Y) where
+/-- For a category `C` and type `A`, there is an equivalence between functions `objects.obj C ⟶ A`
+and functors `C ⥤ Codiscrete A`.-/
+def homEquiv' (C : Cat) (A : Type*) : (objects.obj C ⟶ A) ≃ (C ⟶ functor.obj A) where
   toFun := lift
   invFun := invlift
   left_inv _ := rfl
   right_inv _ := rfl
 
-/-Adjunction between the Objects functor (left adjoint) and the codiscrete functor (right adjoint)
-using the hom set adjunction definition  -/
-def adj : Cat.objects ⊣ Cod := by
-  apply mkOfHomEquiv
-  exact {
+/-- The functor that turns a type into a codiscrete category is left adjoints to the objects
+functor.-/
+def adj : objects ⊣ functor := mkOfHomEquiv
+  {
     homEquiv := homEquiv'
-    homEquiv_naturality_left_symm := by
-      intro _ _ _ _ _
-      rfl
-    homEquiv_naturality_right := by
-      intro _ _ _ _ _
-      rfl
+    homEquiv_naturality_left_symm := fun _ _ => Eq.refl _
+    homEquiv_naturality_right := fun _ _ => Eq.refl _
   }
 
-/-Adjunction between the Objects functor (left adjoint) and the codiscrete functor (right adjoint)
-using the unit/counit definition  -/
-def adj' : Cat.objects ⊣ Cod where
+/-- A second proof of the same adjunction.  -/
+def adj' : Cat.objects ⊣ functor where
   unit := {
     app := fun _ => {
       obj := fun _ => _
@@ -130,7 +119,6 @@ def adj' : Cat.objects ⊣ Cod where
     intro _
     simp only [Functor.id_obj, Functor.comp_obj, id_eq]
     rfl
-
 
 end Codiscrete
 
