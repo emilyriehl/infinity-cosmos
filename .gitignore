@@ -39,4 +39,4 @@ docs/_includes/sorries.md
 *.synctex.gz(busy)
 *.pdfsync
 ## Virtual environment
-.venv
+/.venv
