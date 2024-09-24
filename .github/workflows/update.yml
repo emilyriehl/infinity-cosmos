@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
+      # Allow the workflow to push changes to the repository
+      contents: write
       # Allow the workflow to create or update issues in the repository
       issues: write
       # Allow the workflow to create or update pull requests in the repository
