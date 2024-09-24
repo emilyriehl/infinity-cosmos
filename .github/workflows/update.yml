@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Update Lean project
-        uses: pitmonticone/lean-update
+        uses: oliver-butterley/lean-update@v1-alpha
         with:
           # If the update succeeds, create a pull request with the changes
           on_update_succeeds: pr
