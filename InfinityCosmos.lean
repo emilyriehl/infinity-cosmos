@@ -1,4 +1,5 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.CoherentIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.Homotopy
 import InfinityCosmos.ForMathlib.AlgebraicTopology.HomotopyCat
 import InfinityCosmos.ForMathlib.AlgebraicTopology.Wombat
 import InfinityCosmos.ForMathlib.CategoryTheory.CodiscreteCat

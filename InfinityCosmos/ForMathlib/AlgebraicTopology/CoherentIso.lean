@@ -88,36 +88,4 @@ open Simplicial SimplicialCategory
 def coherentIso.pt (i : WalkingIso) : Δ[0] ⟶ coherentIso :=
   (yonedaEquiv coherentIso [0]).symm (WalkingIso.coev i)
 
-open MonoidalCategory in
-def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) := by sorry
-
-open MonoidalCategory in
-noncomputable def expUnitNatIso : ihom (𝟙_ SSet) ≅ 𝟭 SSet :=
-  (conjugateIsoEquiv (Adjunction.id (C := SSet)) (ihom.adjunction _)
-    (leftUnitorNatIso _)).symm
-
-def expPointNatIso : ihom Δ[0] ≅ 𝟭 SSet := by sorry
---   refine ?_ ≪≫ expUnitNatIso
---   have := pointIsUnit.symm.op
---   sorry
-
-def expPointIsoSelf (X : SSet) : sHom Δ[0] X ≅ X := sorry -- expPointNatIso.app X
-
-noncomputable def coherentIso.ev (X : SSet) (i : WalkingIso) : sHom coherentIso X ⟶ X :=
-  (MonoidalClosed.pre (coherentIso.pt i)).app X ≫ (expPointIsoSelf X).hom
-
-/-- This is in the wrong file.
-We should add a hypothesis that `A` and `B` are quasi-categories and perhaps move into a
-quasi-category namespace?-/
-structure SHomotopy {A B : SSet.{u}} (f g : A ⟶ B) : Type u where
-  homotopy : A ⟶ sHom coherentIso B
-  source_eq : homotopy ≫ coherentIso.ev B WalkingIso.zero = f
-  target_eq : homotopy ≫ coherentIso.ev B WalkingIso.one = g
-
-structure Equiv (A B : SSet.{u}) : Type u where
-  toFun : A ⟶ B
-  invFun : B ⟶ A
-  left_inv : SHomotopy (toFun ≫ invFun) (𝟙 A)
-  right_inv : SHomotopy (invFun ≫ toFun) (𝟙 B)
-
 end SSet
