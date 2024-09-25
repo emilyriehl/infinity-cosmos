@@ -1,6 +1,7 @@
 import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 
-universe u v u₁ v₁
+universe v₁ u₁ v u
+
 namespace CategoryTheory
 
 open Limits SimplicialCategory Opposite
@@ -8,11 +9,14 @@ open Limits SimplicialCategory Opposite
 
 section
 
-variable {J C : Type*} [Category J] [Category C] [SimplicialCategory C] {F : J ⥤ C} (c : Cone F)
+variable {J : Type u₁} [Category.{v₁} J]
+variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
+
+variable {F : J ⥤ C} (c : Cone F)
 
 /--
-A limit cone `c` in a simplicial category `A` is a *simplicially enriched limit* if for every
-`X : C`, the cone obtained by applying the simplicial coyoneda functor `(X ⟶[A] -)` to `c` is a
+A limit cone `c` in a simplicial category `A` is a *simplicially enriched limit* if for every
+`X : C`, the cone obtained by applying the simplicial coyoneda functor `(X ⟶[A] -)` to `c` is a
 limit cone in `SSet`.
 -/
 structure IsSLimit where
@@ -25,15 +29,19 @@ namespace SimplicialCategory
 # Characterization in terms of the comparison map.
 
 There is a canonical comparison map with the limit in `SSet`, the following proves that a limit
-cone in `A` is a simplicially enriched limit if and only if the comparison map is an isomorphism
+cone in `A` is a simplicially enriched limit if and only if the comparison map is an isomorphism
 for every `X : A`.
 -/
 
-noncomputable def limitComparison (X : C) :
+-- Adjunsting the size of `J` would also work, but this is more universe polymorphic.
+variable [HasLimitsOfShape J SSet]
+
+noncomputable def limitComparison (X : C)  :
     sHom X c.pt ⟶ limit (F ⋙ (sHomFunctor C).obj (op X)) :=
   limit.lift _ (((sHomFunctor C).obj (op X)).mapCone c)
 
-lemma limitComparison_eq_conePointUniqueUpToIso (X : C) (h : IsSLimit c) :
+lemma limitComparison_eq_conePointUniqueUpToIso (X : C) (h : IsSLimit c)
+    [HasLimit (F ⋙ (sHomFunctor C).obj (op X))] :
     limitComparison c X = ((h.isSLimit X).conePointUniqueUpToIso (limit.isLimit _)).hom := by
   apply limit.hom_ext
   simp [limitComparison]
@@ -113,16 +121,15 @@ class HasConicalLimitsOfSize (C : Type u) [Category.{v} C] [SimplicialCategory C
   has_conical_limits_of_shape : ∀ (J : Type u₁) [Category.{v₁} J], HasConicalLimitsOfShape J C := by
     infer_instance
 
--- COMMENTED OUT SEVERAL THINGS DUE TO UNIVERSE ERRORS
--- /-- `C` has all (small) conical limits if it has limits of every shape that is as big as its
--- hom-sets.-/
--- abbrev HasConicalLimits (C : Type u) [Category.{v} C] [SimplicialCategory C]  : Prop :=
---   HasConicalLimitsOfSize.{v, v} C
+/-- `C` has all (small) conical limits if it has limits of every shape that is as big as its
+hom-sets.-/
+abbrev HasConicalLimits (C : Type u) [Category.{v} C] [SimplicialCategory C]  : Prop :=
+  HasConicalLimitsOfSize.{v, v} C
 
--- theorem HasConicalLimits.has_conical_limits_of_shape {C : Type u} [Category.{v} C]
---     [SimplicialCategory C] [HasConicalLimits C] (J : Type v)
---     [Category.{v} J] : HasConicalLimitsOfShape J C :=
---   HasConicalLimitsOfSize.has_conical_limits_of_shape J
+theorem HasConicalLimits.has_conical_limits_of_shape {C : Type u} [Category.{v} C]
+    [SimplicialCategory C] [HasConicalLimits C] (J : Type v)
+    [Category.{v} J] : HasConicalLimitsOfShape J C :=
+  HasConicalLimitsOfSize.has_conical_limits_of_shape J
 
 variable {J C}
 
@@ -131,11 +138,11 @@ instance (priority := 100) hasConicalLimitOfHasConicalLimitsOfShape {J : Type u�
     [SimplicialCategory C] [HasConicalLimitsOfShape J C] (F : J ⥤ C) : HasConicalLimit F :=
   HasConicalLimitsOfShape.has_conical_limit F
 
--- -- see Note [lower instance priority]
--- instance (priority := 100) hasConicalLimitsOfShapeOfHasLimits {J : Type u₁} [Category.{v₁} J]
---     [SimplicialCategory C]
---     [HasConicalLimitsOfSize.{v₁, u₁} C] : HasConicalLimitsOfShape J C :=
---   HasConicalLimitsOfSize.has_conical_limits_of_shape J
+-- see Note [lower instance priority]
+instance (priority := 100) hasConicalLimitsOfShapeOfHasLimits {J : Type u₁} [Category.{v₁} J]
+    [SimplicialCategory C]
+    [HasConicalLimitsOfSize.{v₁, u₁} C] : HasConicalLimitsOfShape J C :=
+  HasConicalLimitsOfSize.has_conical_limits_of_shape J
 
 end ConicalLimits
 
