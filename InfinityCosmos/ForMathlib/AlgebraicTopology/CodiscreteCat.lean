@@ -122,14 +122,8 @@ def adj' : Cat.objects ⊣ Cod where
   counit := {
     app := fun _ => id
   }
-  left_triangle_components := by
-    intro _
-    simp only [Functor.id_obj, Functor.comp_obj, id_eq]
-    rfl
-  right_triangle_components := by
-    intro _
-    simp only [Functor.id_obj, Functor.comp_obj, id_eq]
-    rfl
+  left_triangle_components := by aesop
+  right_triangle_components := by aesop
 
 
 end Codiscrete
