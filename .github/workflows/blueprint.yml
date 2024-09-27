@@ -43,6 +43,7 @@ jobs:
             .lake/build/doc/declarations
             .lake/build/doc/find
             .lake/build/doc/*.*
+            #!.lake/build/doc/declarations/declaration-data-InfinityCosmos*
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: MathlibDoc-
 
