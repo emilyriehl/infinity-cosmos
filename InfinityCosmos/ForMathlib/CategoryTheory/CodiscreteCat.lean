@@ -21,7 +21,7 @@ namespace Codiscrete
 
 instance (A : Type*) : Category (Codiscrete A) where
   Hom _ _ := Unit -- The hom types in the Codiscrete A are the unit type.
-  id _ := ⟨⟩ -- This is the unique element of the unit type.
+  id _ := ⟨⟩      -- This is the unique element of the unit type.
   comp _ _ := ⟨⟩
 
 /-- A function induces a functor between codiscrete categories.-/
@@ -47,34 +47,26 @@ def natTrans {A C : Type*} [Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : 
 isomorphisms, as the naturality squares are trivial.-/
 def natIso {A C : Type*}[Category C] {F G : C ⥤ Codiscrete A} (_ : ∀ c : C, F.obj c ≅ G.obj c) :
     F ≅ G where
-  hom := {
-    app := fun _ => ⟨⟩
-  }
-  inv := {
-    app := fun _ => ⟨⟩
-  }
+  hom := { app := fun _ ↦ ⟨⟩ }
+  inv := { app := fun _ ↦ ⟨⟩ }
 
 /-- Every functor `F` to a codiscrete category is naturally isomorphic {(actually, equal)?} to
   `Codiscrete.functor (F.obj)`. -/
 def natIsoFunctor {A C : Type*}[Category C] {F : C ⥤ Codiscrete A} : F ≅ lift (F.obj) where
-  hom := {
-    app := fun _ => ⟨⟩
-  }
-  inv := {
-    app := fun _ => ⟨⟩
-  }
+  hom := { app := fun _ ↦ ⟨⟩ }
+  inv := { app := fun _ ↦ ⟨⟩ }
 
 open Opposite
 
 /-- A codiscrete category is equivalent to its opposite category. -/
 protected def opposite (A : Type*) : (Codiscrete A)ᵒᵖ ≌ Codiscrete A :=
- let F : (Codiscrete A)ᵒᵖ ⥤ Codiscrete A := lift fun (op (x)) => x
+ let F : (Codiscrete A)ᵒᵖ ⥤ Codiscrete A := lift fun (op (x)) ↦ x
  {
   functor := F
   inverse := F.rightOp
-  unitIso := NatIso.ofComponents fun ⟨x⟩ =>
+  unitIso := NatIso.ofComponents fun ⟨x⟩ ↦
    Iso.refl _
-  counitIso := natIso fun c => Iso.refl c
+  counitIso := natIso fun c ↦ Iso.refl c
  }
 
 def functor : Type u ⥤ Cat.{0,u} where
@@ -96,23 +88,21 @@ functor.-/
 def adj : objects ⊣ functor := mkOfHomEquiv
   {
     homEquiv := homEquiv'
-    homEquiv_naturality_left_symm := fun _ _ => Eq.refl _
-    homEquiv_naturality_right := fun _ _ => Eq.refl _
+    homEquiv_naturality_left_symm := fun _ _ ↦ rfl
+    homEquiv_naturality_right := fun _ _ ↦ rfl
   }
 
 /-- A second proof of the same adjunction.  -/
 def adj' : objects ⊣ functor where
   unit := {
-    app := fun _ => {
-      obj := fun _ => _
-      map := fun _ => ⟨⟩
+    app := fun _ ↦ {
+      obj := fun _ ↦ _
+      map := fun _ ↦ ⟨⟩
     }
   }
-  counit := {
-    app := fun _ => id
-  }
-  left_triangle_components := by aesop
-  right_triangle_components := by aesop
+  counit := { app := fun _ ↦ id }
+  left_triangle_components := fun _ ↦ rfl
+  right_triangle_components := fun _ ↦ rfl
 
 end Codiscrete
 
