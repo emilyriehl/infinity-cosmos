@@ -39,12 +39,8 @@ variable {C : Type u'} [Category.{v'} C]
 def toIso  (F : WalkingIso ⥤ C) : (F.obj zero) ≅ (F.obj one) where
   hom := F.map PUnit.unit
   inv := F.map PUnit.unit
-  hom_inv_id := by
-    rw [← F.map_comp, ← F.map_id]
-    exact rfl
-  inv_hom_id := by
-    rw [← F.map_comp, ← F.map_id]
-    exact rfl
+  hom_inv_id := by rw [← F.map_comp, ← F.map_id]; rfl
+  inv_hom_id := by rw [← F.map_comp, ← F.map_id]; rfl
 
 /-- From an isomorphism in a category, one can build a functor out of `WalkingIso` to
 that category.-/
@@ -62,13 +58,12 @@ def fromIso {X Y : C} (e : X ≅ Y) : WalkingIso ⥤ C where
 def equiv : (WalkingIso ⥤ C) ≃ Σ (X : C) (Y : C), (X ≅ Y) where
   toFun F := ⟨F.obj zero, F.obj one, toIso F⟩
   invFun p := fromIso p.2.2
-  right_inv := fun ⟨X, Y, e⟩ => rfl
+  right_inv := fun ⟨X, Y, e⟩ ↦ rfl
   left_inv F := by
-    simp [toIso, fromIso]
-    fapply Functor.hext
+    apply Functor.hext
     · intro i; cases i <;> rfl
     · intro i j
-      simp [toIso, fromIso]
+      simp only [fromIso, toIso]
       cases i <;> cases j <;> intro ⟨⟩ <;> simp only [heq_eq_eq] <;> rw [← F.map_id] <;> rfl
 
 end
