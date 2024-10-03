@@ -22,9 +22,8 @@ namespace Functor
 variable {C : Type*} [Category C] {D : Type*} [Category D]
 
 lemma map_eqToHom (F : C ⥤ D) (X Y : C) (h : X = Y) :
-    F.map (eqToHom h) = eqToHom (congrArg F.obj h) := by
-  subst h
-  simp only [eqToHom_refl, map_id]
+    F.map (eqToHom h) = eqToHom (congrArg F.obj h) :=
+  eqToHom_map F h
 
 end Functor
 
@@ -71,27 +70,21 @@ def nerve.δ_mk_mor (n : ℕ)
     obj (Fin.succAbove j k.castSucc) ⟶ obj (Fin.succAbove j k.succ) := by
   refine ltByCases (k.val + 1) j.val ?lt ?eq ?gt <;> intro hkj
   case lt =>
-    refine eqToHom (congrArg _ ?_) ≫ mor k.castSucc ≫ eqToHom (congrArg _ ?_)
-    · have : k.val < j.val := by omega
-      exact Fin.succAbove_of_castSucc_lt j k.castSucc this
-    · have eq : k.succ.castSucc = k.castSucc.succ := by rfl
-      rw [← eq]
-      exact Eq.symm (Fin.succAbove_of_castSucc_lt j k.succ hkj)
+    refine eqToHom (congrArg _ (?_)) ≫ mor k.castSucc ≫ eqToHom (congrArg _ ?_)
+    · exact Fin.succAbove_of_castSucc_lt j k.castSucc (Nat.lt_of_succ_lt hkj)
+    · exact Eq.symm (Fin.succAbove_of_castSucc_lt j k.succ hkj)
   case eq =>
-    refine eqToHom (congrArg _ ?_) ≫ mor k.castSucc ≫ mor k.succ ≫ eqToHom (congrArg _ ?_)
-    · have : k.val + 1 ≤ j.val := by exact Nat.le_of_eq hkj
-      exact Fin.succAbove_of_castSucc_lt j k.castSucc this
+    refine eqToHom (congrArg _ ?_) ≫ mor k.castSucc ≫ mor k.succ ≫ eqToHom (congrArg _ (Eq.symm ?_))
+    · exact Fin.succAbove_of_castSucc_lt j k.castSucc (Nat.le_of_eq hkj)
     · have : j.val < k.val + 2 := by omega
-      exact Eq.symm (Fin.succAbove_of_lt_succ j k.succ this)
+      exact Fin.succAbove_of_lt_succ j k.succ (this)
   case gt =>
-    refine eqToHom (congrArg _ ?_) ≫ mor k.succ ≫ eqToHom (congrArg _ ?_)
-    · have eq : k.succ.castSucc = k.castSucc.succ := by rfl
-      rw [eq]
-      exact Fin.succAbove_of_lt_succ j k.castSucc hkj
-    · have : j.val < k.val + 2 := by omega
-      exact Eq.symm (Fin.succAbove_of_lt_succ j k.succ this)
+    refine eqToHom (congrArg _ ?_) ≫ mor k.succ ≫ eqToHom (congrArg _ (Eq.symm (?_)))
+    · exact Fin.succAbove_of_lt_succ j k.castSucc hkj
+    · exact Fin.succAbove_of_lt_succ j k.succ (Nat.lt_succ_of_lt hkj)
 
 open ComposableArrows in
+
 lemma nerve.δ_mk (n : ℕ)
     (obj : Fin (n+2) → C) (mor : ∀ (i : Fin (n+1)), obj i.castSucc ⟶ obj i.succ)
     (j : Fin (n+2)) :
@@ -102,9 +95,9 @@ lemma nerve.δ_mk (n : ℕ)
   simp only [Category.comp_id, Category.id_comp]
   intro i hi
   have hmap := (mkOfObjOfMapSucc obj mor).map_eqToHom
-  have aux₀ := (mkOfObjOfMapSucc obj mor).map'_def i (i+1) (by omega) (by omega)
-  have aux₁ := (mkOfObjOfMapSucc obj mor).map'_def (i+1) (i+2) (by omega) (by omega)
-  rw [← ComposableArrows.map'_def _ i (i+1) (by omega) (by omega)]
+  have aux₀ := (mkOfObjOfMapSucc obj mor).map'_def _ _ (Nat.le_add_right _ 1) (Nat.le_add_right_of_le hi)
+  have aux₁ := (mkOfObjOfMapSucc obj mor).map'_def _ _ (Nat.le_succ _) (Nat.le_add_of_sub_le hi)
+  rw [← ComposableArrows.map'_def _ _ _ (Nat.le_add_right _ _) hi]
   rw [mkOfObjOfMapSucc_map_succ _ _ _ (by omega)] at aux₀ aux₁ ⊢
   dsimp only [δ_mk_mor, ltByCases]
   split <;> rename_i hij
@@ -112,14 +105,13 @@ lemma nerve.δ_mk (n : ℕ)
     rw [← hmap, ← hmap, aux₀, ← Functor.map_comp, ← Functor.map_comp]
     rfl
     · ext; simp [Fin.succAbove, Fin.lt_iff_val_lt_val, hij]
-    · have : i < j.val := by linarith only [hij]
+    · have : i < j.val := Nat.lt_of_succ_lt hij
       simp [Fin.succAbove, Fin.lt_iff_val_lt_val, this]
   split <;> rename_i hij'
   · simp only [Fin.castSucc_mk, Fin.succ_mk]
     rw [← hmap, ← hmap, aux₁, ← Functor.map_comp, ← Functor.map_comp]
     rfl
-    · have : ¬ i + 1 < j.val := by omega
-      ext; simp [Fin.succAbove, Fin.lt_iff_val_lt_val, this]
+    · ext; simp [Fin.succAbove, Fin.lt_iff_val_lt_val, hij]
     · have : ¬ i < j.val := by omega
       ext; simp [Fin.succAbove, Fin.lt_iff_val_lt_val, this]
   · simp only [Fin.castSucc_mk, Fin.succ_mk]
@@ -246,8 +238,8 @@ lemma filler_spec_zero ⦃i : Fin 3⦄ (σ₀ : Λ[2, i] ⟶ nerve C)
   rw [filler, nerve.δ_mk]
   dsimp only [nerve.mk]
   refine ComposableArrows.ext₁ ?_ ?_ ?_
-  · symm; apply nerve.horn_app_obj
-  · symm; apply nerve.horn_app_obj
+  · exact Eq.symm (nerve.horn_app_obj _ _ _ _ _ _)
+  · exact Eq.symm (nerve.horn_app_obj _ _ _ _ _ _)
   dsimp only [ComposableArrows.hom]
   rw [ComposableArrows.mkOfObjOfMapSucc_map_succ _ _ 0 zero_lt_one]
   obtain rfl : i = 1 := by
@@ -307,9 +299,7 @@ lemma nerve.arrow_app_congr' {n : ℕ} {i : Fin (n+4)} (σ : Λ[n+3, i] ⟶ nerv
     ≫ arrow (σ.app (op [1]) g₂)
     ≫ eqToHom hg₂
     ≫ arrow (σ.app (op [1]) g₃)
-    ≫ eqToHom hg₃ := by
-  subst h₁ h₂ h₃
-  exact H
+    ≫ eqToHom hg₃ := by subst h₁ h₂ h₃; exact H
 
 open SimplexCategory in
 lemma filler_spec_succ_aux
