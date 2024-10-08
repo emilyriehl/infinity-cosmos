@@ -57,13 +57,13 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake build InfinityCosmos
 
-      - name: Cache mathlib API docs
+      - name: Cache API docs
         uses: actions/cache@v4
         with:
           path: |
             .lake/build/doc
-          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: MathlibDoc-
+          key: Doc-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
+          restore-keys: Doc-
 
       # .lake/build/doc/Init
       # .lake/build/doc/Lake
