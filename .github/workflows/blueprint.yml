@@ -61,7 +61,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            .lake/build/doc
+            .lake/build
           key: Doc-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
           restore-keys: Doc-
 
@@ -117,10 +117,10 @@ jobs:
       - name: Copy API documentation to `home_page/docs`
         run: cp -r .lake/build/doc home_page/docs
 
-      - name: Remove unnecessary lake files from documentation in `home_page/docs`
-        run: |
-          find home_page/docs -name "*.trace" -delete
-          find home_page/docs -name "*.hash" -delete
+      # - name: Remove unnecessary lake files from documentation in `home_page/docs`
+      #   run: |
+      #     find home_page/docs -name "*.trace" -delete
+      #     find home_page/docs -name "*.hash" -delete
 
       - name: Bundle dependencies
         if: github.event_name == 'push'
