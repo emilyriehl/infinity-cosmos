@@ -233,6 +233,7 @@ This is not the proof that was formalized but we include it for fun:
 
  \begin{proof}
   \uses{prop:nerve-2-coskeletal}
+  \leanok
  Via the isomorphism $C \cong \cosk_2C$ from Proposition \ref{prop:nerve-2-coskeletal} and the associated adjunction $\sk_2 \dashv \cosk_2$ of,   %\ref{defn:sk-cosk},
   the required lifting problem displayed below-left transposes to the one displayed below-right:
  \begin{center}
@@ -843,7 +844,8 @@ A finite-product-preserving functor may be used to change the base as follows:
 
 An early observation along these lines was first stated as \cite[II.6.3]{EilenbergKelly:1966cc}, with the proof left to the reader. We adopt the same tactic and leave the diagram chases to the reader or to \cite[4.2.4]{Cruttwell:2008rr} and instead just give the construction of the change-of-base 2-functor, which is the important thing. The construction of a $\cW$-category $T_*\cC$ from a $\cV$-category $\cC$ exists in Mathlib in the more general setting of a lax monoidal functor $T$, but change of base for enriched functors or natural transformations has not been formalized.
 
-\begin{proof}  Let $\cC$ be a $\cV$-category and define a $\cW$-category $T_*\cC$ to have the same objects and to have mapping objects $T_*\cC(x,y) \coloneq T\cC(x,y)$. The composition and identity maps are given by the composites
+\begin{proof}
+    Let $\cC$ be a $\cV$-category and define a $\cW$-category $T_*\cC$ to have the same objects and to have mapping objects $T_*\cC(x,y) \coloneq T\cC(x,y)$. The composition and identity maps are given by the composites
 \begin{center}
 \begin{tikzcd}[column sep=small] T\cC(y,z)\times T\cC(x,y) \arrow[r, "\cong"] & T(\cC(y,z) \times \cC(x,y)) \arrow[r, "T\circ"] & T\cC(x,z) & 1 \arrow[r, "\cong"] & T1 \arrow[r, "T\id_x"] & T\cC(x,x)
 \end{tikzcd}
@@ -888,13 +890,14 @@ As an immediate consequence of the 2-functoriality of Remark \ref{rmk:change-of-
 Of course right adjoints always preserve products, so the adjoint pair of functors $F \dashv U$ defines an adjunction in the 2-category of cartesian closed categories and finite-product-preserving functors described in Remark \ref{rmk:change-of-base-2-fun}. The 2-functor $\cV \mapsto \eCat{\cV}$ then carries the adjunction displayed on the left to the adjunction displayed on the right.
 \end{proof}
 
-As a special case:
+As a special case we have a free-forgetful adjunction between $\Cat$ and $\eCat{\cV}$. Some pieces of this are in the enriched categories folder of Mathlib.
 
 \begin{corollary}\label{cor:free-underlying-2-adj}
   \uses{prop:change-of-base-adjunction}
-  \lean{CategoryTheory.categoryForgetEnrichment}
+%  \lean{CategoryTheory.categoryForgetEnrichment}
 %  \lean{CategoryTheory.EnrichedFunctor.forget}
-  \leanok For any cartesian closed category $\cV$ with coproducts, the underlying category construction and free category construction define  adjoint 2-functors
+%  \leanok
+ For any cartesian closed category $\cV$ with coproducts, the underlying category construction and free category construction define  adjoint 2-functors
 \begin{center}
 \begin{tikzcd}[column sep=large]
   \mathcal{C}at \arrow[r, bend left=20, hook, start anchor=10, end anchor=170] \arrow[r, phantom, "\bot"] & {\cV}\text{-}\mathcal{C}at \arrow[l, bend left=20, start anchor=190, end anchor=-10, "(-)_0"]
