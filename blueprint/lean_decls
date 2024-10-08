@@ -28,3 +28,6 @@ CategoryTheory.SimplicialCategory.cotensor_bifunctoriality
 CategoryTheory.IsSLimit
 CategoryTheory.InfinityCosmos
 CategoryTheory.LaxMonoidalFunctor
+CategoryTheory.instEnrichedCategoryTransportEnrichment
+CategoryTheory.categoryForgetEnrichment
+CategoryTheory.EnrichedFunctor.forget

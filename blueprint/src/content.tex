@@ -831,14 +831,16 @@ For example:
 \end{center} is finite-product-preserving.
 \end{ex}
 
-A finite-product-preserving functor may be used to change the base as follows
+A finite-product-preserving functor may be used to change the base as follows:
 
 \begin{proposition}\label{prop:change-of-base}
   \uses{defn:lax-monoidal-functor}
+  \lean{CategoryTheory.instEnrichedCategoryTransportEnrichment}
+  \leanok
   A finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories induces a change-of-base 2-functor \begin{center} \begin{tikzcd} {\cV}\text{-}\mathcal{C}at \arrow[r, "T_*"] & {\cW}\text{-}\mathcal{C}at\, . \end{tikzcd}\end{center}
 \end{proposition}
 
-An early observation along these lines was first stated as \cite[II.6.3]{EilenbergKelly:1966cc}, with the proof left to the reader. We adopt the same tactic and leave the diagram chases to the reader or to \cite[4.2.4]{Cruttwell:2008rr} and instead just give the construction of the change-of-base 2-functor, which is the important thing.
+An early observation along these lines was first stated as \cite[II.6.3]{EilenbergKelly:1966cc}, with the proof left to the reader. We adopt the same tactic and leave the diagram chases to the reader or to \cite[4.2.4]{Cruttwell:2008rr} and instead just give the construction of the change-of-base 2-functor, which is the important thing. The construction of a $\cW$-category $T_*\cC$ from a $\cV$-category $\cC$ exists in Mathlib in the more general setting of a lax monoidal functor $T$, but change of base for enriched functors or natural transformations has not been formalized.
 
 \begin{proof}  Let $\cC$ be a $\cV$-category and define a $\cW$-category $T_*\cC$ to have the same objects and to have mapping objects $T_*\cC(x,y) \coloneq T\cC(x,y)$. The composition and identity maps are given by the composites
 \begin{center}
@@ -888,10 +890,13 @@ Of course right adjoints always preserve products, so the adjoint pair of functo
 As a special case:
 
 \begin{corollary}\label{cor:free-underlying-2-adj}
-  \uses{prop:change-of-base-adjunction} For any cartesian closed category $\cV$ with coproducts, the underlying category construction and free category construction define  adjoint 2-functors
+  \uses{prop:change-of-base-adjunction}
+  \lean{CategoryTheory.categoryForgetEnrichment}
+  \lean{CategoryTheory.EnrichedFunctor.forget}
+  \leanok For any cartesian closed category $\cV$ with coproducts, the underlying category construction and free category construction define  adjoint 2-functors
 \begin{center}
 \begin{tikzcd}[column sep=large]
-\Cat \arrow[r, bend left=20, hook, start anchor=10, end anchor=170] \arrow[r, phantom, "\bot"] & \eCat{\cV} \arrow[l, bend left=20, start anchor=190, end anchor=-10, "(-)_0"]
+  \mathcal{C}at \arrow[r, bend left=20, hook, start anchor=10, end anchor=170] \arrow[r, phantom, "\bot"] & {\cV}\text{-}\mathcal{C}at \arrow[l, bend left=20, start anchor=190, end anchor=-10, "(-)_0"]
 \end{tikzcd}
 \end{center}
 \end{corollary}
