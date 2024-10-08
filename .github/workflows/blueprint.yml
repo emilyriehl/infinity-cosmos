@@ -3,14 +3,40 @@ name: Compile blueprint
 on:
   push:
     branches:
-      - main # Trigger on pushes to the default branch
-  workflow_dispatch:        # Allow manual triggering of the workflow from the GitHub Actions interface
+      - main
+    paths:
+      - '**/*.lean'
+      - '**/blueprint.yml'
+      - 'blueprint/**'
+      - 'home_page/**'
+      - 'lean-toolchain'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**/*.lean'
+      - '**/blueprint.yml'
+      - 'blueprint/**'
+      - 'home_page/**'
+      - 'lean-toolchain'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+  workflow_dispatch: # Allow manual triggering of the workflow from the GitHub Actions interface
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Cancel previous runs if a new commit is pushed to the same PR or branch
+concurrency:
+  group: ${{ github.ref }}  # Group runs by the ref (branch or PR)
+  cancel-in-progress: true  # Cancel any ongoing runs in the same group
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages and modify PR labels
 permissions:
-  contents: read  # Read access to repository contents
-  pages: write    # Write access to GitHub Pages
-  id-token: write # Write access to ID tokens
+  contents: read          # Read access to repository contents
+  pages: write            # Write access to GitHub Pages
+  id-token: write         # Write access to ID tokens
+  issues: write           # Write access to issues
+  pull-requests: write    # Write access to pull requests
 
 jobs:
   build_project:
@@ -35,17 +61,19 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            .lake/build/doc/Init
-            .lake/build/doc/Lake
-            .lake/build/doc/Lean
-            .lake/build/doc/Std
-            .lake/build/doc/Mathlib
-            .lake/build/doc/declarations
-            .lake/build/doc/find
-            .lake/build/doc/*.*
-            #!.lake/build/doc/declarations/declaration-data-InfinityCosmos*
+            .lake/build/doc
           key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
           restore-keys: MathlibDoc-
+
+      # .lake/build/doc/Init
+      # .lake/build/doc/Lake
+      # .lake/build/doc/Lean
+      # .lake/build/doc/Std
+      # .lake/build/doc/Mathlib
+      # .lake/build/doc/declarations
+      # .lake/build/doc/find
+      # .lake/build/doc/*.*
+      # !.lake/build/doc/declarations/declaration-data-InfinityCosmos*
 
       - name: Build project API documentation
         run: ~/.elan/bin/lake -R -Kenv=dev build InfinityCosmos:docs
