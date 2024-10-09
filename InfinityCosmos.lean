@@ -9,7 +9,6 @@ import InfinityCosmos.ForMathlib.InfinityCosmos.Prerequisites
 import InfinityCosmos.Mathlib.AlgebraicTopology.KanComplex
 import InfinityCosmos.Mathlib.AlgebraicTopology.Nerve
 import InfinityCosmos.Mathlib.AlgebraicTopology.Quasicategory
-import InfinityCosmos.Mathlib.AlgebraicTopology.SimplexCategory
 import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Cotensors
 import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Limits
