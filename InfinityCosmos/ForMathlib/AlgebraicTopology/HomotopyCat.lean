@@ -1562,4 +1562,38 @@ instance : Reflective nerveFunctor where
 instance : HasColimits Cat.{u, u} :=
   hasColimits_of_reflective nerveFunctor
 
+-- def hoFunctor.ofTwoTruncation.hom (V : SSet) :
+--     SSet.hoFunctor₂Obj ((SSet.truncation 2).obj V) ⥤ SSet.hoCat V := by
+--   unfold SSet.hoFunctor₂Obj hoCat
+--   let qmap : _ ⥤ (Quotient HoRel) :=
+--       Quotient.functor (C := Cat.freeRefl.obj (ReflQuiv.of (OneTruncation V))) (HoRel (V := V))
+--   simp at qmap
+--   let q₂map : _ ⥤ (Quotient HoRel₂) :=
+--       Quotient.functor
+--         (C := Cat.freeRefl.obj (ReflQuiv.of (OneTruncation₂ ((SSet.truncation 2).obj V))))
+--         (HoRel₂ (V := ((SSet.truncation 2).obj V)))
+--   simp at q₂map
+--   fapply Quotient.lift
+--   · exact (𝟭 (Cat.FreeRefl (OneTruncation₂ ((SSet.truncation 2).obj V)))) ⋙ qmap
+--   · intro x y f g rel
+--     cases rel
+--     simp
+--     unfold ev01₂ ev12₂ ev02₂ δ1₂ δ2₂ δ0₂ δ₂
+--     simp
+--     apply Quotient.sound
+--     unfold SSet.truncation SimplicialObject.truncation
+--     simp
+--     unfold ι0₂ ι2₂ δ₂
+--     unfold SimplexCategory.Truncated.inclusion
+--     simp
+--     dsimp
+--     sorry
+-- --  refine Quotient.lift
+-- --    (C := Cat.freeRefl.obj (ReflQuiv.of (OneTruncation₂ ((SSet.truncation 2).obj V)))) HoRel₂ ?_ ?_
+
+
+
+-- def hoFunctor.ofTwoTruncation.iso (V : SSet) :
+--     SSet.hoFunctor₂Obj ((SSet.truncation 2).obj V) ≅ SSet.hoCat V := by sorry
+
 end
