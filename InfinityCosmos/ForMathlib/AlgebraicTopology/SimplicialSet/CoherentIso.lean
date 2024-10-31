@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johns Hopkins Category Theory Seminar
 -/
 
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.ForMathlib.CategoryTheory.CodiscreteCat
-import InfinityCosmos.Mathlib.AlgebraicTopology.Nerve
-import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
 
 universe u v u' v'
 

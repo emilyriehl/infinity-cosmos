@@ -1,4 +1,4 @@
-import InfinityCosmos.Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 
 universe v₁ u₁ v u
 

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johns Hopkins Category Theory Seminar
 -/
 
-import InfinityCosmos.ForMathlib.AlgebraicTopology.CoherentIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 
 universe u v w
 
