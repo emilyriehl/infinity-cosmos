@@ -9,4 +9,3 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Wombat
 import InfinityCosmos.ForMathlib.CategoryTheory.CodiscreteCat
 import InfinityCosmos.ForMathlib.CategoryTheory.MorphismProperty
 import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
-import InfinityCosmos.ForMathlib.InfinityCosmos.Prerequisites
