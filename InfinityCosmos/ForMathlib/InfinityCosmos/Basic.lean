@@ -20,7 +20,7 @@ class InfinityCosmos extends SimplicialCategory K where
   iso_isIsoFibration {X Y : K} (e : X ≅ Y) : IsIsoFibration e.hom
   has_terminal : HasTerminal K
   all_objects_fibrant {X Y : K} (hY : IsTerminal Y) (f : X ⟶ Y) : IsIsoFibration f
-  has_products : HasBinaryProducts K
+  has_products : HasBinaryProducts K -- TODO: replace by HasConicalProducts
   prod_map_fibrant {X Y X' Y' : K} {f : X ⟶ Y} {g : X' ⟶ Y'} :
     IsIsoFibration f → IsIsoFibration g → IsIsoFibration (prod.map f g)
   [has_isoFibration_pullbacks {X Y Z : K} (f : X ⟶ Y) (g : Z ⟶ Y) :
