@@ -59,7 +59,7 @@ jobs:
         with:
           path: |
             .lake/build
-          key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}-${{ github.sha }}
+          key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
           restore-keys: LakeBuild-
 
       - name: Build project
