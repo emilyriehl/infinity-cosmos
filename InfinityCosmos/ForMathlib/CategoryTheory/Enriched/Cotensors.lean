@@ -447,28 +447,28 @@ open CotensoredCategory eOpposite
 
 def cotensor_bifunc [CotensoredCategory V C] : EnrichedFunctor V ((eOpposite V V) ⊗[V] C) C :=
   enrichedTensor.eBifuncConstr V (eOpposite V V) C
-    (fun v x ↦ (cotensor (unop V v) x).obj)
-    (fun v w x ↦ EhomPrecompose V (cotensor (unop V w) x) (cotensor (unop V v) x))
-    (fun v x y ↦ postcompose V (cotensor (unop V v) x) (cotensor (unop V v) y))
-    (fun v x ↦ precompose_id_eq V (cotensor (unop V v) x))
-    (fun v x ↦ postcompose_id_eq V (cotensor (unop V v) x))
+    (fun v x ↦ (cotensor (unop v) x).obj)
+    (fun v w x ↦ EhomPrecompose V (cotensor (unop w) x) (cotensor (unop v) x))
+    (fun v x y ↦ postcompose V (cotensor (unop v) x) (cotensor (unop v) y))
+    (fun v x ↦ precompose_id_eq V (cotensor (unop v) x))
+    (fun v x ↦ postcompose_id_eq V (cotensor (unop v) x))
     (fun u v w x ↦ by
-      have : eComp V u v w = (β_ _ _).hom ≫ eComp V (unop V w) (unop V v) (unop V u) := rfl
+      have : eComp V u v w = (β_ _ _).hom ≫ eComp V (unop w) (unop v) (unop u) := rfl
       simp only [this, Category.assoc]
       rw [SymmetricCategory.braiding_swap_eq_inv_braiding]
       apply (Iso.inv_comp_eq _).mpr
       rw [← BraidedCategory.braiding_naturality_assoc]
       exact precompose_comp_eq V
-        (cotensor (unop V w) x) (cotensor (unop V v) x) (cotensor (unop V u) x))
+        (cotensor (unop w) x) (cotensor (unop v) x) (cotensor (unop u) x))
     (fun v x y z ↦ postcompose_comp_eq V
-      (cotensor (unop V v) x)
-      (cotensor (unop V v) y)
-      (cotensor (unop V v) z))
+      (cotensor (unop v) x)
+      (cotensor (unop v) y)
+      (cotensor (unop v) z))
     (fun w v x y ↦ post_pre_eq_pre_post V
-      (cotensor (unop V v) x)
-      (cotensor (unop V v) y)
-      (cotensor (unop V w) x)
-      (cotensor (unop V w) y))
+      (cotensor (unop v) x)
+      (cotensor (unop v) y)
+      (cotensor (unop w) x)
+      (cotensor (unop w) y))
 
 end Cotensor
 
