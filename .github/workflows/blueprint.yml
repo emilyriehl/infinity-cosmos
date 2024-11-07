@@ -60,7 +60,7 @@ jobs:
           path: |
             .lake/build
           key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: LakeBuild-
+          #restore-keys: LakeBuild-
 
       - name: Build project
         run: ~/.elan/bin/lake build InfinityCosmos
