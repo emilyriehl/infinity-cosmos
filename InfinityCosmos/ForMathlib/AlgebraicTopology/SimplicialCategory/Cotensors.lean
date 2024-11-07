@@ -15,6 +15,7 @@ namespace SimplicialCategory
 variable [SimplicialCategory K]
 variable {K}
 
+-- In Enriched/Cotensors, this is Precotensor.coneNatTrans
 def coneNatTrans {A : SSet} {AX X : K} (Y : K) (cone : A ⟶ sHom AX X) :
   -- The notation `A ⟶[SSet] sHom Y X` is ambiguous, could mean both `ihom` or the enriched hom...
   -- Here we mean `ihom` so we write that explicitly.
@@ -26,6 +27,7 @@ def coneNatTrans {A : SSet} {AX X : K} (Y : K) (cone : A ⟶ sHom AX X) :
 structure IsCotensor {A : SSet} {X : K} (AX : K) (cone : A ⟶ sHom AX X) where
   uniq : ∀ (Y : K), (IsIso (coneNatTrans Y cone))
 
+-- structure Cotensor
 structure CotensorCone (A : SSet) (X : K) where
   /-- The object -/
   obj : K
@@ -47,6 +49,7 @@ def getCotensorCone (A : SSet) (X : K) [HasCotensor A X] : CotensorCone A X :=
   Classical.choice <| HasCotensor.exists_cotensor
 
 variable (K) in
+-- DC: CotensoredCategory
 /-- `K` has simplicial cotensors when cotensors with any simplicial set exist. -/
 class HasCotensors : Prop where
   /-- All `A : SSet` and `X : K` have a cotensor. -/
@@ -83,13 +86,16 @@ def cotensor.iso.underlying (A : SSet) (X : K) [HasCotensor A X] (Y : K) :
       (cotensor.iso A X Y)).toEquiv.trans
         (SimplicialCategory.homEquiv' A (sHom Y X)).symm
 
+-- DC: postcompose
 def cotensorCovMap [HasCotensors K] (A : SSet) {X Y : K} (f : X ⟶ Y) : A ⋔ X ⟶ A ⋔ Y :=
   (cotensor.iso.underlying A Y (A ⋔ X)).symm
     ((cotensor.cone A X) ≫ (sHomWhiskerLeft (A ⋔ X) f))
 
+-- DC: EhomPrecompose
 def cotensorContraMap [HasCotensors K] {A B : SSet} (i : A ⟶ B) (X : K) : B ⋔ X ⟶ A ⋔ X :=
   (cotensor.iso.underlying A X (B ⋔ X)).symm (i ≫ (cotensor.cone B X))
 
+-- DC: post_pre_eq_pre_post
 theorem cotensor_bifunctoriality [HasCotensors K] {A B : SSet} (i : A ⟶ B) {X Y : K} (f : X ⟶ Y) :
     (cotensorCovMap B f) ≫ (cotensorContraMap i Y) =
     (cotensorContraMap i X) ≫ (cotensorCovMap A f) := by sorry
