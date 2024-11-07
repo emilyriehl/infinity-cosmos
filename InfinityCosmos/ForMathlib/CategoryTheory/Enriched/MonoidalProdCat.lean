@@ -65,7 +65,9 @@ lemma comp_tensor_comp_eq_comp_mid_left_right {a b c d e : C} :
   simp only [Category.assoc, e_assoc, MonoidalCategory.whiskerLeft_comp]
   rw [← associator_naturality_right_assoc, e_assoc', ← tensorHom_def'_assoc]
 
-variable [SymmetricCategory V]
+section
+
+variable [BraidedCategory V]
 
 instance : EnrichedCategory V (C ⊗[V] D) where
   Hom := fun ⟨c, d⟩ ⟨c', d'⟩ => EnrichedCategory.Hom c c' ⊗ EnrichedCategory.Hom d d'
@@ -101,6 +103,10 @@ instance : EnrichedCategory V (C ⊗[V] D) where
     apply whisker_eq; apply whisker_eq
     rw [(Iso.inv_comp_eq _).mp (@EnrichedCategory.assoc V _ _ C _ c₁ c₂ c₃ c₄),
       (Iso.inv_comp_eq _).mp (@EnrichedCategory.assoc V _ _ D _ d₁ d₂ d₃ d₄)]
+
+end
+
+variable [SymmetricCategory V]
 
 -- Look up if there is an analogous lemma for the unenriched setting
 def eBifuncConstr {E : Type u₄} [EnrichedCategory V E]
