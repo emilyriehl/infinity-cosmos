@@ -15,7 +15,7 @@ namespace SimplicialCategory
 variable [SimplicialCategory K]
 variable {K}
 
--- In Enriched/Cotensors, this is Precotensor.coneNatTrans
+-- DC: In Enriched/Cotensors, this is Precotensor.coneNatTrans
 def coneNatTrans {A : SSet} {AX X : K} (Y : K) (cone : A ⟶ sHom AX X) :
   -- The notation `A ⟶[SSet] sHom Y X` is ambiguous, could mean both `ihom` or the enriched hom...
   -- Here we mean `ihom` so we write that explicitly.
@@ -27,7 +27,7 @@ def coneNatTrans {A : SSet} {AX X : K} (Y : K) (cone : A ⟶ sHom AX X) :
 structure IsCotensor {A : SSet} {X : K} (AX : K) (cone : A ⟶ sHom AX X) where
   uniq : ∀ (Y : K), (IsIso (coneNatTrans Y cone))
 
--- structure Cotensor
+-- DC: structure Cotensor
 structure CotensorCone (A : SSet) (X : K) where
   /-- The object -/
   obj : K
