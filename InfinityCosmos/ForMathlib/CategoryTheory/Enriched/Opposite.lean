@@ -30,20 +30,20 @@ structure eOpposite (V : Type u₁) (C : Type u) where
 
 namespace eOpposite
 
-def mk_op (V : Type u₁) {C : Type u} (x : C) : eOpposite V C := ⟨x⟩
+def op {V : Type u₁} {C : Type u} (x : C) : eOpposite V C := ⟨x⟩
 
-def unop (V : Type u₁) {C : Type u} (x : eOpposite V C) : C := x.as
-
-@[simp]
-theorem mk_op_of_unop (V : Type u₁) {C : Type u} (x : eOpposite V C) : mk_op V (unop V x) = x := rfl
+def unop {V : Type u₁} {C : Type u} (x : eOpposite V C) : C := x.as
 
 @[simp]
-theorem unop_of_mk_op (V : Type u₁) {C : Type u} (x : C) :  unop V (mk_op V x) = x := rfl
+theorem op_of_unop (V : Type u₁) {C : Type u} (x : eOpposite V C) : op (unop x) = x := rfl
+
+@[simp]
+theorem unop_of_op (V : Type u₁) {C : Type u} (x : C) :  unop (V := V) (op x) = x := rfl
 
 /-- The type-level equivalence between a type and its enriched opposite. -/
 def equivToEnrichedOpposite (V : Type u₁) (C : Type u) : C ≃ eOpposite V C where
-  toFun := mk_op V
-  invFun := unop V
+  toFun := op
+  invFun := unop
   left_inv := by aesop_cat
   right_inv := by aesop_cat
 
@@ -64,7 +64,6 @@ instance EnrichedCategory.opposite : EnrichedCategory V (eOpposite V C) where
       Category.assoc, Iso.inv_hom_id_assoc]
     exact EnrichedCategory.id_comp _ _
   assoc _ _ _ _ := by
-    dsimp
     simp only [braiding_naturality_left_assoc,
       MonoidalCategory.whiskerLeft_comp, Category.assoc]
     rw [← EnrichedCategory.assoc]
