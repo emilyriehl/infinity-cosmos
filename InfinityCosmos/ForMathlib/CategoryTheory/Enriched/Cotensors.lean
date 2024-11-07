@@ -8,20 +8,17 @@ open CategoryTheory MonoidalCategory MonoidalClosed BraidedCategory SymmetricCat
 
 open scoped MonoidalClosed
 
-/- My own namesapce for experimenting with enriched categories -/
 namespace CategoryTheory
 
 namespace Enriched
 
 --TODO: This is intended to be notation, but I'm having trouble with getting that to work
 -- so for now, this is a reducible definition
-@[reducible]
-def Ihom (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalClosed V] (x y : V) : V :=
+abbrev Ihom (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalClosed V] (x y : V) : V :=
   (ihom x).obj y
 
 -- The variable V is explicit here since trying to make it implicit throws errors in practice
-@[reducible]
-def Ehom (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalClosed V]
+abbrev Ehom (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalClosed V]
     (C : Type v) [EnrichedCategory V C] (x y : C) : V :=
   @EnrichedCategory.Hom V _ _ _ _ x y
 
@@ -54,7 +51,7 @@ lemma Precotensor.coneNatTrans_braid_eq {v : V} {x : C} (vx : Precotensor v x) (
   apply (Iso.inv_comp_eq (β_ v (Ehom V C y vx.obj))).mpr
   exact vx.coneNatTrans_eq y
 
-/-- A Cotensor is a Precotensor such that coneNatTransInv is an inverse to coneNatTrans. -/
+/-- A `Cotensor` is a `Precotensor` such that `coneNatTransInv` is an inverse to `coneNatTrans`. -/
 structure Cotensor (v : V) (x : C) extends (Precotensor v x) where
   coneNatTransInv (y : C) :
     (Ihom V v (Ehom V C y x)) ⟶ (Ehom V C y obj)
@@ -74,12 +71,6 @@ instance {v : V} {x : C} {vx : Cotensor v x} {y : C} : IsIso (vx.coneNatTrans y)
     left := vx.NatTrans_NatTransInv_eq y
     right := vx.NatTransInv_NatTrans_eq y
   }⟩
-
-end Enriched
-
-end CategoryTheory
-
-open Enriched
 
 namespace Cotensor
 
@@ -189,8 +180,8 @@ def IhomPrecompose {x : C} {w v : V} (wx : Cotensor w x) (vx : Cotensor v x) :
     Ihom V w v ⟶ Ehom V C vx.obj wx.obj :=
   (ihom w).map vx.cone ≫ wx.coneNatTransInv vx.obj
 
-def EhomPrecompose {x : C} {w v : V} (wx : Cotensor w x) (vx : Cotensor v x)
-    : Ehom V V w v ⟶ Ehom V C vx.obj wx.obj := IhomPrecompose V _ _
+def EhomPrecompose {x : C} {w v : V} (wx : Cotensor w x) (vx : Cotensor v x) :
+    Ehom V V w v ⟶ Ehom V C vx.obj wx.obj := IhomPrecompose V _ _
 
 lemma IhomPrecompose_coneNatTrans_eq {x : C} {w v : V} (wx : Cotensor w x) (vx : Cotensor v x) :
     IhomPrecompose V wx vx ≫ wx.coneNatTrans _ = (ihom w).map vx.cone :=
@@ -314,11 +305,6 @@ theorem precompose_id_eq {x : C} {v : V} (vx : Cotensor v x) :
     Category.assoc]
   rw [uncurry_eq]
 
-  -- apply (Iso.inv_comp_eq _).mp
-  -- Moving selfEval up on the LHS
-  -- rw [whisker_exchange_assoc]
-  -- rw [← rightUnitor_inv_naturality_assoc]
-  -- Moving up selfEval on the RHS
   rw [← whisker_exchange_assoc]
   rw [← leftUnitor_inv_naturality_assoc]
   simp only [e_id_comp, Category.comp_id]
@@ -336,7 +322,7 @@ theorem precompose_id_eq {x : C} {v : V} (vx : Cotensor v x) :
   --
   rw [uncurry_curry]
 
-/-- Commutativity of postcomposition with precoposition -/
+/-- Naturality of postcomposition with precoposition -/
 theorem post_pre_eq_pre_post {x y : C} {w v : V} (wx : Cotensor w x) (wy : Cotensor w y)
     (vx : Cotensor v x) (vy : Cotensor v y) :
   (EhomPrecompose V wx vx ⊗ postcompose V wx wy) ≫ eComp V vx.obj wx.obj wy.obj =
@@ -485,3 +471,7 @@ def cotensor_bifunc [CotensoredCategory V C] : EnrichedFunctor V ((eOpposite V V
       (cotensor (unop V w) y))
 
 end Cotensor
+
+end Enriched
+
+end CategoryTheory
