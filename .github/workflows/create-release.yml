@@ -1,4 +1,4 @@
-name: Tag Release
+name: Create Release
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  tag-release:
+  create-release:
     runs-on: ubuntu-latest
 
     steps:
