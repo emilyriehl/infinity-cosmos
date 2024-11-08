@@ -83,4 +83,6 @@ open Simplicial SimplicialCategory
 def coherentIso.pt (i : WalkingIso) : Δ[0] ⟶ coherentIso :=
   (yonedaEquiv coherentIso [0]).symm (WalkingIso.coev i)
 
+#check coherentIso.pt (.zero)
+
 end SSet
