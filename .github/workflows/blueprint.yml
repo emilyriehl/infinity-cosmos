@@ -145,3 +145,15 @@ jobs:
         if: github.event_name == 'push'
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # Enable status check to ensure all jobs succeeded
+  check:
+    if: always()
+    needs:
+    - build_project
+    runs-on: Ubuntu-latest
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        jobs: ${{ toJSON(needs) }}
