@@ -27,7 +27,6 @@ def trivialFibration : MorphismProperty SSet := fun _ _ p ↦ BoundaryInclusions
 
 end trivialFibration
 
-/-- Definition of isofibration via inner fibrations -/
 section isoFibration
 
 /-- Inductive definition of inner horn inclusions Λ[n, i] ⟶ Δ[n] 
