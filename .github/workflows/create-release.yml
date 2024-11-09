@@ -8,7 +8,7 @@ on:
       - 'lean-toolchain'
 
 jobs:
-  create-release:
+  create_release:
     runs-on: ubuntu-latest
 
     steps:
