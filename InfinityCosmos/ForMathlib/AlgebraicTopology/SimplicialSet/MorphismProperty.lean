@@ -29,26 +29,37 @@ end trivialFibration
 
 section isoFibration
 
-/-- Inductive definition of inner horn inclusions Λ[n, i] ⟶ Δ[n] 
+/-- Inductive definition of inner horn inclusions Λ[n, i] ⟶ Δ[n]
   by restricting general horn inclusions to 0 < i < n -/
-inductive InnerInclusion : {X Y : SSet} → (X ⟶ Y) → Prop
-  | mk (n i : ℕ) (low : 0 < i) (high : i < n) : InnerInclusion (hornInclusion n i)
+inductive InnerHornInclusion : {X Y : SSet} → (X ⟶ Y) → Prop
+  | mk (n i : ℕ) (low : 0 < i) (high : i < n) : InnerHornInclusion (hornInclusion n i)
 
 /-- The class of inner horn inclusions as a MorphismProperty -/
-def InnerInclusions : MorphismProperty SSet := fun _ _ p ↦ InnerInclusion p
+def InnerHornInclusions : MorphismProperty SSet := fun _ _ p ↦ InnerHornInclusion p
 
-/-- Inductive definition of being equal to the coherent iso -/
-inductive CoherentIsoInclusion : {X Y : SSet} → (X ⟶ Y) → Prop
-  | mk : CoherentIsoInclusion (coherentIso.pt .zero)
+/-- Inductive definition of being equal to the inclusion Δ[0]
+  into coherent iso picking 0 -/
+inductive ZeroCoherentIsoInclusion : {X Y : SSet} → (X ⟶ Y) → Prop
+  | mk : ZeroCoherentIsoInclusion (coherentIso.pt .zero)
 
-/-- The class of the inclusion into the coherent iso as a MorphismProperty -/
-def IsCoherentIso : MorphismProperty SSet := fun _ _ p ↦ CoherentIsoInclusion p
+/-- Inductive definition of being equal to the inclusion Δ[0]
+  into coherent iso picking 1 -/
+inductive OneCoherentIsoInclusion : {X Y : SSet} → (X ⟶ Y) → Prop
+  | mk : OneCoherentIsoInclusion (coherentIso.pt .one)
 
-/-- The union of inner horn inclusions and inclusion into coherent iso -/
+/-- The class of inclusions equal to the inclusion picking out zero in the
+  coherent iso as a MorphismProperty -/
+def IsZeroCoherentIsoInclusion : MorphismProperty SSet := fun _ _ p ↦ ZeroCoherentIsoInclusion p
+
+/-- The class of inclusions equal to the inclusion picking out one in the
+  coherent iso as a MorphismProperty -/
+def IsOneCoherentIsoInclusion : MorphismProperty SSet := fun _ _ p ↦ OneCoherentIsoInclusion p
+
+/-- The union of inner horn inclusions and the two inclusions into coherent iso -/
 def InnerIsoInclusion {X Y : SSet} (p : X ⟶ Y) : Prop :=
-  (InnerInclusions p) ∨ IsCoherentIso p
+  (InnerHornInclusions p) ∨ (IsZeroCoherentIsoInclusion p) ∨ (IsOneCoherentIsoInclusion p)
 
-/-- The union of the class of inner horn inclusions and the inclusion into coherent iso 
+/-- The union of the class of inner horn inclusions and the inclusion into coherent iso
   as a MorphismProperty -/
 def InnerIsoInclusions : MorphismProperty SSet := fun _ _ p ↦ InnerIsoInclusion p
 
