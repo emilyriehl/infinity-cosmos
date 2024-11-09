@@ -505,6 +505,8 @@ Quasi-categories define the fibrant objects in a model structure due to Joyal. W
 
 \begin{definition}[isofibration]\label{defn:qcat-isofibration}
   \uses{defn:coherent-isomorphism}
+  \lean{SSet.isoFibration}
+  \leanok
   A simplicial map $f \colon A \to B$ between quasi-categories is an \textbf{isofibration} if it lifts against the inner horn inclusions, as displayed below-left, and also against the inclusion of either vertex into the free-living isomorphism $\iso$.
   \begin{center}
   \begin{tikzcd}
