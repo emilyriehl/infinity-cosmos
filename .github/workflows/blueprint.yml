@@ -149,9 +149,10 @@ jobs:
   # Enable status check to ensure all jobs succeeded
   check:
     if: always()
+    name: Check
     needs:
-    - build_project
-    runs-on: Ubuntu-latest
+      - build_project
+    runs-on: ubuntu-latest
     steps:
     - name: Decide whether the needed jobs succeeded or failed
       uses: re-actors/alls-green@release/v1
