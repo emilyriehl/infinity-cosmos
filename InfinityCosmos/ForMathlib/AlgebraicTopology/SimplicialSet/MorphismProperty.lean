@@ -6,6 +6,7 @@ Authors: Jack McKoen
 import InfinityCosmos.ForMathlib.CategoryTheory.MorphismProperty
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+import Mathlib.AlgebraicTopology.SimplicialSet.Quasicategory
 
 namespace SSet
 
