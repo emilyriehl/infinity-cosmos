@@ -11,6 +11,14 @@ namespace SSet
 
 open CategoryTheory Simplicial MorphismProperty
 
+section morphismPropertyTargetQCat
+
+/-- A variation of `MorphismProperty` which assumes the target is a quasicategory. -/
+def QCatTargetMorphismProperty :=
+  ∀ ⦃X Y : SSet⦄ (_ : X ⟶ Y) [Quasicategory Y], Prop
+
+end morphismPropertyTargetQCat
+
 section trivialFibration
 
 /-- an inductive type defining boundary inclusions as a class of morphisms. Used to take advantage
@@ -63,9 +71,10 @@ def InnerIsoInclusion {X Y : SSet} (p : X ⟶ Y) : Prop :=
   as a MorphismProperty -/
 def InnerIsoInclusions : MorphismProperty SSet := fun _ _ p ↦ InnerIsoInclusion p
 
-/-- Definition of isofibration: An isofibration of quasi-categories is a morphism that
-has the rlp wrt inner horn inclusions and the inclusion into the walking coherent iso. -/
-def isoFibration : MorphismProperty SSet := fun _ _ p ↦ InnerIsoInclusions.rlp p
+/-- Definition of isofibration: A morphism of simplicial sets with target a quasi-category 
+  is an isofibration if it satisfies the rlp with wrt the inner horn inclusions and the two 
+  endpoint inclusion into the walking coherent iso. -/
+def isoFibration : QCatTargetMorphismProperty := fun _ _ p ↦ InnerIsoInclusions.rlp p
 
 end isoFibration
 
