@@ -111,9 +111,9 @@ theorem HasConicalLimit.mk {F : J ⥤ C} (d : ConicalLimitCone F) : HasConicalLi
 noncomputable def getConicalLimitCone (F : J ⥤ C) [HasConicalLimit F] : ConicalLimitCone F :=
   Classical.choice <| HasConicalLimit.exists_limit
 
-theorem HasConicalLimit_hasLimit (F : J ⥤ C) [HasConicalLimit F] : HasLimit F := by
-  have := ConicalLimitCone_isLimitCone _ (getConicalLimitCone F).isSLimit
-  exact HasLimit.mk { cone := (getConicalLimitCone F).cone, isLimit := this }
+instance HasConicalLimit_hasLimit (F : J ⥤ C) [HasConicalLimit F] : HasLimit F := HasLimit.mk
+  { cone := (getConicalLimitCone F).cone,
+    isLimit := ConicalLimitCone_isLimitCone _ (getConicalLimitCone F).isSLimit }
 
 variable (J C)
 
@@ -183,10 +183,9 @@ section ConicalProducts
 variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
 
 /-- An abbreviation for `HasSLimit (Discrete.functor f)`. -/
-abbrev HasConicalProduct { I : Type w} (f : I → C) :=
-  HasConicalLimit (Discrete.functor f)
+abbrev HasConicalProduct { I : Type w} (f : I → C) := HasConicalLimit (Discrete.functor f)
 
-theorem HasConicalProduct_hasProduct {I : Type w} (f : I → C) [HasConicalProduct f] :
+instance HasConicalProduct_hasProduct {I : Type w} (f : I → C) [HasConicalProduct f] :
     HasProduct f := HasConicalLimit_hasLimit (Discrete.functor f)
 
 variable (C) in
