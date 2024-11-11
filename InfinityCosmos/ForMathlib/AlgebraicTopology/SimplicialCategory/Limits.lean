@@ -123,11 +123,14 @@ class HasConicalLimitsOfShape : Prop where
   /-- All functors `F : J ⥤ C` from `J` have limits -/
   has_conical_limit : ∀ F : J ⥤ C, HasConicalLimit F := by infer_instance
 
+-- see Note [lower instance priority]
+instance (priority := 100) hasConicalLimitOfHasConicalLimitsOfShape {J : Type u₁} [Category.{v₁} J]
+    [SimplicialCategory C] [HasConicalLimitsOfShape J C] (F : J ⥤ C) : HasConicalLimit F :=
+  HasConicalLimitsOfShape.has_conical_limit F
+
 instance HasConicalLimitsOfShape_hasLimitsOfShape [HasConicalLimitsOfShape J C] :
     HasLimitsOfShape J C where
-  has_limit F := by
-    have : HasConicalLimit F := HasConicalLimitsOfShape.has_conical_limit F
-    exact HasConicalLimit_hasLimit F
+  has_limit _ := inferInstance
 
 /-- `C` has all conical limits of size `v₁ u₁` (`HasLimitsOfSize.{v₁ u₁} C`)
 if it has conical limits of every shape `J : Type u₁` with `[Category.{v₁} J]`.
@@ -138,18 +141,14 @@ class HasConicalLimitsOfSize (C : Type u) [Category.{v} C] [SimplicialCategory C
   has_conical_limits_of_shape : ∀ (J : Type u₁) [Category.{v₁} J], HasConicalLimitsOfShape J C := by
     infer_instance
 
+-- see Note [lower instance priority]
+instance (priority := 100) hasConicalLimitsOfShapeOfHasLimits {J : Type u₁} [Category.{v₁} J]
+    [SimplicialCategory C] [HasConicalLimitsOfSize.{v₁, u₁} C] : HasConicalLimitsOfShape J C :=
+  HasConicalLimitsOfSize.has_conical_limits_of_shape J
+
 instance HasConicalLimitsOfSize_hasLimitsOfSize [HasConicalLimitsOfSize.{v₂, u₂, v, u} C] :
     HasLimitsOfSize.{v₂, u₂, v, u} C where
-  has_limits_of_shape := by
-    intro J hyp
-    constructor
-    intro F
-    have lem1 : HasConicalLimitsOfSize.{v₂, u₂, v, u} C := by infer_instance
-    have lem2 : HasConicalLimitsOfShape J C := by
-      apply lem1.has_conical_limits_of_shape
-    have : HasConicalLimit F := by
-      apply lem2.has_conical_limit
-    exact HasConicalLimit_hasLimit F
+  has_limits_of_shape := inferInstance
 
 /-- `C` has all (small) conical limits if it has limits of every shape that is as big as its
 hom-sets.-/
@@ -165,17 +164,6 @@ instance HasConicalLimits.has_conical_limits_of_shape {C : Type u} [Category.{v}
   HasConicalLimitsOfSize.has_conical_limits_of_shape J
 
 variable {J C}
-
--- see Note [lower instance priority]
-instance (priority := 100) hasConicalLimitOfHasConicalLimitsOfShape {J : Type u₁} [Category.{v₁} J]
-    [SimplicialCategory C] [HasConicalLimitsOfShape J C] (F : J ⥤ C) : HasConicalLimit F :=
-  HasConicalLimitsOfShape.has_conical_limit F
-
--- see Note [lower instance priority]
-instance (priority := 100) hasConicalLimitsOfShapeOfHasLimits {J : Type u₁} [Category.{v₁} J]
-    [SimplicialCategory C]
-    [HasConicalLimitsOfSize.{v₁, u₁} C] : HasConicalLimitsOfShape J C :=
-  HasConicalLimitsOfSize.has_conical_limits_of_shape J
 
 end ConicalLimits
 
