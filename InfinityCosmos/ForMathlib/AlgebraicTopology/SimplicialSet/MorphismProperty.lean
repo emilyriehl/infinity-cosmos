@@ -5,6 +5,7 @@ Authors: Jack McKoen
 -/
 import InfinityCosmos.ForMathlib.CategoryTheory.MorphismProperty
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Quasicategory
 import Mathlib.AlgebraicTopology.SimplicialSet.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.Quasicategory
 
@@ -64,10 +65,10 @@ def InnerHornIsoInclusion {X Y : SSet} (p : X ⟶ Y) : Prop :=
   as a MorphismProperty -/
 def InnerHornIsoInclusions : MorphismProperty SSet := fun _ _ p ↦ InnerHornIsoInclusion p
 
-/-- Definition of isofibration: A simplicial map between quasi-categories is an 
-  \textbf{isofibration} if it lifts against the inner horn inclusions, as displayed 
+/-- Definition of isofibration: A simplicial map between quasi-categories is an
+  \textbf{isofibration} if it lifts against the inner horn inclusions, as displayed
   below-left, and also against the inclusion of either vertex into the coherent isomorphism. -/
-def IsoFibration : MorphismProperty SSet := fun _ _ p ↦ InnerHornIsoInclusions.rlp p
+def IsoFibration : MorphismProperty QCat := fun _ _ p ↦ InnerHornIsoInclusions.rlp p
 
 end isoFibration
 
