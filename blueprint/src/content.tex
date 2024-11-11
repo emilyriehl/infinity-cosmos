@@ -505,6 +505,8 @@ Quasi-categories define the fibrant objects in a model structure due to Joyal. W
 
 \begin{definition}[isofibration]\label{defn:qcat-isofibration}
   \uses{defn:coherent-isomorphism}
+  \lean{SSet.IsoFibration}
+  \leanok
   A simplicial map $f \colon A \to B$ between quasi-categories is an \textbf{isofibration} if it lifts against the inner horn inclusions, as displayed below-left, and also against the inclusion of either vertex into the free-living isomorphism $\iso$.
   \begin{center}
   \begin{tikzcd}
@@ -534,7 +536,7 @@ We now introduce the weak equivalences and trivial fibrations between fibrant ob
   \end{lemma}
 
   \begin{definition}\label{defn:qcat-trivial-fibration}
-    \lean{SSet.trivialFibration}\leanok
+    \lean{SSet.TrivialFibration}\leanok
      A map $f \colon X \to Y$ between simplicial sets is a \textbf{trivial fibration} if it admits lifts against the boundary inclusions for all simplices
   \begin{center}
   \begin{tikzcd}\partial\Delta[n] \arrow[r] \arrow[d, hook] & X \arrow[d, two heads, "\sim"', "f"]  \\ \Delta[n] \arrow[r] \arrow[ur, dashed] & Y
