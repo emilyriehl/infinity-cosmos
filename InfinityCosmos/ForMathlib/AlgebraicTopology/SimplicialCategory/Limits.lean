@@ -167,6 +167,17 @@ variable {J C}
 
 end ConicalLimits
 
+
+section ConicalTerminal
+variable (C : Type u) [Category.{v} C] [SimplicialCategory C]
+
+/-- An abbreviation for `HasSLimit (Discrete.functor f)`. -/
+abbrev HasConicalTerminal := HasConicalLimitsOfShape (Discrete.{0} PEmpty)
+
+instance HasConicalTerminal_hasTerminal [hyp : HasConicalTerminal C] : HasTerminal C := by
+  infer_instance
+
+end ConicalTerminal
 section ConicalProducts
 variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
 
@@ -195,15 +206,22 @@ instance HasConicalProducts_hasProducts [hyp : HasConicalProducts.{w, v, u} C] :
 
 end ConicalProducts
 
-section ConicalTerminalObject
-variable (C : Type u) [Category.{v} C] [SimplicialCategory C]
+section ConicalPullbacks
+variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
 
-/-- An abbreviation for `HasSLimit (Discrete.functor f)`. -/
-abbrev HasConicalTerminal := HasConicalLimitsOfShape (Discrete.{0} PEmpty)
+abbrev HasConicalPullback {X Y Z : C} (f : X ⟶ Z) (g : Y ⟶ Z) := HasConicalLimit (cospan f g)
 
-instance HasConicalTerminal_hasTerminal [hyp : HasConicalTerminal C] : HasTerminal C := by
+instance HasConicalPullback_hasPullback {X Y Z : C} (f : X ⟶ Z) (g : Y ⟶ Z)
+    [HasConicalPullback f g] : HasPullback f g := HasConicalLimit_hasLimit (cospan f g)
+
+variable (C) in
+abbrev HasConicalPullbacks : Prop := HasConicalLimitsOfShape WalkingCospan C
+
+instance HasConicalPullbacks_hasPullbacks [HasConicalPullbacks C] : HasPullbacks C := by
   infer_instance
 
-end ConicalTerminalObject
+end ConicalPullbacks
+
+-- TODO: Add something for conical inverse limits of towers?
 
 end CategoryTheory
