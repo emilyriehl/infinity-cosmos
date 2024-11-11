@@ -185,7 +185,7 @@ class HasConicalProducts : Prop where
 --    infer_instance
 
 instance HasConicalProducts_hasProducts [hyp : HasConicalProducts.{w, v, u} C] :
-     HasProducts.{w, v, u} C := by
+    HasProducts.{w, v, u} C := by
   intro I
   constructor
   intro f
@@ -194,5 +194,16 @@ instance HasConicalProducts_hasProducts [hyp : HasConicalProducts.{w, v, u} C] :
   exact HasConicalLimit_hasLimit f
 
 end ConicalProducts
+
+section ConicalTerminalObject
+variable (C : Type u) [Category.{v} C] [SimplicialCategory C]
+
+/-- An abbreviation for `HasSLimit (Discrete.functor f)`. -/
+abbrev HasConicalTerminal := HasConicalLimitsOfShape (Discrete.{0} PEmpty)
+
+instance HasConicalTerminal_hasTerminal [hyp : HasConicalTerminal C] : HasTerminal C := by
+  infer_instance
+
+end ConicalTerminalObject
 
 end CategoryTheory

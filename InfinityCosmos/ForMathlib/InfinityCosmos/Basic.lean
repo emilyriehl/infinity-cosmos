@@ -1,44 +1,51 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Limits
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
 import Mathlib.AlgebraicTopology.SimplicialSet.Quasicategory
 import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
 
 namespace CategoryTheory
 open Category Limits Functor MonoidalCategory Simplicial SimplicialCategory SSet
-universe v v₁ v₂ u u₁ u₂
+universe w v v₁ v₂ u u₁ u₂
 
 variable (K : Type u) [Category.{v} K]
 variable [SimplicialCategory K]
-
-variable {K} in
-noncomputable def representableMap' {X A B : K} (f : 𝟙_ SSet ⟶ EnrichedCategory.Hom A B) :
-    (EnrichedCategory.Hom X A : SSet) ⟶ (EnrichedCategory.Hom X B) :=
-  (ρ_ _).inv ≫ _ ◁ f ≫ EnrichedCategory.comp (V := SSet) X A B
-
-variable {K} in
-noncomputable def representableMap (X : K) {A B : K} (f : A ⟶ B) :
-    (EnrichedCategory.Hom X A : SSet) ⟶ (EnrichedCategory.Hom X B) :=
-  representableMap' ((homEquiv A B) f)
-
-def IsQCatIsoFibration {X Y : SSet} (f : X ⟶ Y) : Prop := sorry
 
 
 /-- A `PreInfinityCosmos` is a simplicially enriched category whose hom-spaces are quasi-categories
 and whose morphisms come equipped with a special class of isofibrations.-/
 class PreInfinityCosmos extends SimplicialCategory K where
   [has_qcat_homs : ∀ {X Y : K}, SSet.Quasicategory (EnrichedCategory.Hom X Y)]
-  IsIsoFibration {X Y : K} : (X ⟶ Y) → Prop
+  IsIsoFibration : MorphismProperty K
 
 namespace InfinityCosmos
 
-open PreInfinityCosmos
-
 variable {K : Type u} [Category.{v} K][SimplicialCategory K] [PreInfinityCosmos.{v} K]
 
+open PreInfinityCosmos
+
 /-- Common notation for the hom-spaces in a pre-∞-cosmos.-/
-abbrev Fun (X Y : K) := EnrichedCategory.Hom (V := SSet) X Y
+abbrev Fun (X Y : K) : QCat where
+  obj := EnrichedCategory.Hom (V := SSet) X Y
+  property := by
+    have : PreInfinityCosmos K := by infer_instance
+    have := this.has_qcat_homs (X := X) (Y := Y)
+    convert this
+    -- exact this
+    sorry
+
+noncomputable def representableMap' {X A B : K} (f : 𝟙_ SSet ⟶ EnrichedCategory.Hom A B) :
+    (EnrichedCategory.Hom X A : SSet) ⟶ (EnrichedCategory.Hom X B) :=
+  (ρ_ _).inv ≫ _ ◁ f ≫ EnrichedCategory.comp (V := SSet) X A B
+
+noncomputable def representableMap (X : K) {A B : K} (f : A ⟶ B) :
+    (EnrichedCategory.Hom X A : SSet) ⟶ (EnrichedCategory.Hom X B) :=
+  representableMap' ((homEquiv A B) f)
+
+noncomputable def representableQCatMap (X : K) {A B : K} (f : A ⟶ B) :
+    Fun X A ⟶ Fun X B := representableMap X f
 
 def IsoFibration (X Y : K) : Type v := {f : X ⟶ Y // IsIsoFibration f}
 
@@ -49,11 +56,11 @@ variable (K) in
 class InfinityCosmos' extends PreInfinityCosmos K where
   comp_isIsoFibration {X Y Z : K} (f : X ↠ Y) (g : Y ↠ Z) : IsIsoFibration (f.1 ≫ g.1)
   iso_isIsoFibration {X Y : K} (e : X ⟶ Y) [IsIso e] : IsIsoFibration e
-  [has_terminal : HasTerminal K] -- TODO: we need to say that K has a simplicial terminal object.
+  [has_terminal : HasConicalTerminal K]
   all_objects_fibrant {X Y : K} (hY : IsTerminal Y) (f : X ⟶ Y) : IsIsoFibration f
-  [has_products : HasConicalProducts K] -- TODO: should be all products, not just binary, replace by HasConicalProducts
-  prod_map_fibrant {X Y X' Y' : K} {f : X ⟶ Y} {g : X' ⟶ Y'} :
-    IsIsoFibration f → IsIsoFibration g → IsIsoFibration (prod.map f g) -- TODO: extend to arbitrary products
+  [has_products : HasConicalProducts K]
+  prod_map_fibrant {γ : Type w} {A B : γ → K} (f : ∀ i, A i ⟶ B i) :
+    (∀ i, IsIsoFibration (f i)) → IsIsoFibration (Limits.Pi.map f)
   [has_isoFibration_pullbacks {X Y Z : K} (f : X ⟶ Y) (g : Z ⟶ Y) :
     IsIsoFibration g → HasPullback f g] -- TODO: make simplicially enriched
   pullback_is_isoFibration {X Y Z P : K} (f : X ⟶ Z) (g : Y ⟶ Z)
@@ -71,7 +78,7 @@ class InfinityCosmos' extends PreInfinityCosmos K where
     IsIsoFibration (h.isLimit.lift <|
       PullbackCone.mk (cotensorCovMap B f) (cotensorContraMap i X) (cotensor_bifunctoriality i f))
   local_isoFibration {X A B : K} (f : A ⟶ B) (hf : IsIsoFibration f) :
-  IsQCatIsoFibration (representableMap X f)
+  SSet.IsoFibration (representableQCatMap X f)
 
 open InfinityCosmos'
 
@@ -80,8 +87,16 @@ open InfinityCosmos'
 --   · exact (f.1 ≫ g.1)
 --   · have := hyp.comp_isIsoFibration f g
 
+section tests
+variable {K : Type u} [Category.{v} K][SimplicialCategory K] [PreInfinityCosmos.{v} K]
+[InfinityCosmos' K]
+
+-- fails to synthesize HasBinaryProducts
+-- theorem prod_map_fibrant {X Y X' Y' : K} {f : X ⟶ Y} {g : X' ⟶ Y'} :
+--     IsIsoFibration f → IsIsoFibration g → IsIsoFibration (prod.map f g)
 
 
+end tests
 
 end InfinityCosmos
 
