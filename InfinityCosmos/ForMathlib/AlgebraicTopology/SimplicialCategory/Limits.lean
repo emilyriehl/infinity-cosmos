@@ -1,6 +1,6 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 
-universe v₁ u₁ v u
+universe v₁ u₁ v₂ u₂ w v u
 
 namespace CategoryTheory
 
@@ -111,9 +111,9 @@ theorem HasConicalLimit.mk {F : J ⥤ C} (d : ConicalLimitCone F) : HasConicalLi
 noncomputable def getConicalLimitCone (F : J ⥤ C) [HasConicalLimit F] : ConicalLimitCone F :=
   Classical.choice <| HasConicalLimit.exists_limit
 
-theorem HasConicalLimit_hasLimit (F : J ⥤ C) [HasConicalLimit F] : HasLimit F := by
-  have := ConicalLimitCone_isLimitCone _ (getConicalLimitCone F).isSLimit
-  exact HasLimit.mk { cone := (getConicalLimitCone F).cone, isLimit := this }
+instance HasConicalLimit_hasLimit (F : J ⥤ C) [HasConicalLimit F] : HasLimit F := HasLimit.mk
+  { cone := (getConicalLimitCone F).cone,
+    isLimit := ConicalLimitCone_isLimitCone _ (getConicalLimitCone F).isSLimit }
 
 variable (J C)
 
@@ -123,11 +123,14 @@ class HasConicalLimitsOfShape : Prop where
   /-- All functors `F : J ⥤ C` from `J` have limits -/
   has_conical_limit : ∀ F : J ⥤ C, HasConicalLimit F := by infer_instance
 
+-- see Note [lower instance priority]
+instance (priority := 100) hasConicalLimitOfHasConicalLimitsOfShape {J : Type u₁} [Category.{v₁} J]
+    [SimplicialCategory C] [HasConicalLimitsOfShape J C] (F : J ⥤ C) : HasConicalLimit F :=
+  HasConicalLimitsOfShape.has_conical_limit F
+
 instance HasConicalLimitsOfShape_hasLimitsOfShape [HasConicalLimitsOfShape J C] :
     HasLimitsOfShape J C where
-  has_limit F := by
-    have : HasConicalLimit F := HasConicalLimitsOfShape.has_conical_limit F
-    exact HasConicalLimit_hasLimit F
+  has_limit _ := inferInstance
 
 /-- `C` has all conical limits of size `v₁ u₁` (`HasLimitsOfSize.{v₁ u₁} C`)
 if it has conical limits of every shape `J : Type u₁` with `[Category.{v₁} J]`.
@@ -138,15 +141,14 @@ class HasConicalLimitsOfSize (C : Type u) [Category.{v} C] [SimplicialCategory C
   has_conical_limits_of_shape : ∀ (J : Type u₁) [Category.{v₁} J], HasConicalLimitsOfShape J C := by
     infer_instance
 
-instance HasConicalLimitsOfSize_hasLimitsOfSize [HasConicalLimitsOfSize C] :
-    HasLimitsOfSize C where
-  has_limits_of_shape := by
-    intro J F
-    have : HasConicalLimitsOfSize C := by infer_instance
-    have : HasConicalLimitsOfShape J C := by
-      sorry
-    refine HasConicalLimitsOfShape_hasLimitsOfShape J C
+-- see Note [lower instance priority]
+instance (priority := 100) hasConicalLimitsOfShapeOfHasLimits {J : Type u₁} [Category.{v₁} J]
+    [SimplicialCategory C] [HasConicalLimitsOfSize.{v₁, u₁} C] : HasConicalLimitsOfShape J C :=
+  HasConicalLimitsOfSize.has_conical_limits_of_shape J
 
+instance HasConicalLimitsOfSize_hasLimitsOfSize [HasConicalLimitsOfSize.{v₂, u₂, v, u} C] :
+    HasLimitsOfSize.{v₂, u₂, v, u} C where
+  has_limits_of_shape := inferInstance
 
 /-- `C` has all (small) conical limits if it has limits of every shape that is as big as its
 hom-sets.-/
@@ -163,36 +165,33 @@ instance HasConicalLimits.has_conical_limits_of_shape {C : Type u} [Category.{v}
 
 variable {J C}
 
--- see Note [lower instance priority]
-instance (priority := 100) hasConicalLimitOfHasConicalLimitsOfShape {J : Type u₁} [Category.{v₁} J]
-    [SimplicialCategory C] [HasConicalLimitsOfShape J C] (F : J ⥤ C) : HasConicalLimit F :=
-  HasConicalLimitsOfShape.has_conical_limit F
-
--- see Note [lower instance priority]
-instance (priority := 100) hasConicalLimitsOfShapeOfHasLimits {J : Type u₁} [Category.{v₁} J]
-    [SimplicialCategory C]
-    [HasConicalLimitsOfSize.{v₁, u₁} C] : HasConicalLimitsOfShape J C :=
-  HasConicalLimitsOfSize.has_conical_limits_of_shape J
-
 end ConicalLimits
 
 section ConicalProducts
 variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
 
 /-- An abbreviation for `HasSLimit (Discrete.functor f)`. -/
-abbrev HasConicalProduct { I : Type u₁} (f : I → C) :=
-  HasConicalLimit (Discrete.functor f)
+abbrev HasConicalProduct { I : Type w} (f : I → C) := HasConicalLimit (Discrete.functor f)
 
-theorem HasConicalProduct_hasProduct {I : Type u₁} (f : I → C) [HasConicalProduct f] :
+instance HasConicalProduct_hasProduct {I : Type w} (f : I → C) [HasConicalProduct f] :
     HasProduct f := HasConicalLimit_hasLimit (Discrete.functor f)
 
 variable (C) in
 class HasConicalProducts : Prop where
   /-- All discrete diagrams of bounded size have conical products.  -/
-  has_limits_of_shape : ∀ { I : Type v} (f : I → C), HasConicalProduct f := by
-    infer_instance
+  has_conical_limits_of_shape : ∀ J : Type w, HasConicalLimitsOfShape (Discrete J) C :=
+    by infer_instance
+--  has_limits_of_shape : ∀ { I : Type w} (f : I → C), HasConicalProduct f := by
+--    infer_instance
 
-instance HasConicalProducts_hasProducts [HasConicalProducts C] : HasProducts C := by sorry
+instance HasConicalProducts_hasProducts [hyp : HasConicalProducts.{w, v, u} C] :
+     HasProducts.{w, v, u} C := by
+  intro I
+  constructor
+  intro f
+  have := hyp.has_conical_limits_of_shape I
+  have : HasConicalLimit f := by infer_instance
+  exact HasConicalLimit_hasLimit f
 
 end ConicalProducts
 

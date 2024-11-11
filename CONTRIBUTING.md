@@ -1,10 +1,14 @@
 # Contributing to Infinity Cosmos
 
 * [Dagur Asgeirsson](https://github.com/dagurtomas)
+* [Alvaro Belmonte](https://github.com/AlvaroRBO)
 * [Mario Carneiro](https://github.com/digama0)
+* [Daniel Carranza](https://github.com/daniel-carranza)
 * [Johan Commelin](https://github.com/jcommelin)
 * [Jack McKoen](https://github.com/mckoen)
 * [Pietro Monticone](https://github.com/pitmonticone)
+* [Matej Penciak](https://github.com/mpenciak)
+* [Nima Rasekh](https://github.com/nimarasekh)
 * [Emily Riehl](https://github.com/emilyriehl)
 * [Joël Riou](https://github.com/joelriou)
 * [Joseph Tooby-Smith](https://github.com/jstoobysmith)

@@ -130,7 +130,7 @@ lemma nerve.horn_app_obj (n : ℕ) (i : Fin (n+3)) (σ : Λ[n+2, i] ⟶ nerve C)
     (σ.app m f).obj k = (σ.app (op [0]) (horn.const _ i (asOrderHom f.1 k) _)).obj 0 := by
   let φ : ([0] : SimplexCategory) ⟶ m.unop := Hom.mk ⟨Function.const _ k, fun _ _ _ ↦ le_rfl⟩
   have := σ.naturality φ.op
-  rw [Function.funext_iff] at this
+  rw [funext_iff] at this
   exact (congrArg (·.obj 0) <| this f).symm
 
 def horn.edge'' {n m : ℕ} {i : Fin (n+4)}
@@ -176,7 +176,7 @@ lemma nerve.horn_app_map (n : ℕ) (i : Fin (n+4)) (σ : Λ[n+3, i] ⟶ nerve C)
     rw [Fin.monotone_iff_le_succ]
     simpa [Fin.forall_fin_one, Fin.le_iff_val_le_val]
   have := σ.naturality φ.op
-  rw [Function.funext_iff] at this
+  rw [funext_iff] at this
   specialize this f
   have := congr_arg_heq arrow this
   apply eq_of_heq
