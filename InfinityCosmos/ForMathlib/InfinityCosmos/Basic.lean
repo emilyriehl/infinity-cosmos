@@ -22,19 +22,14 @@ class PreInfinityCosmos extends SimplicialCategory K where
 
 namespace InfinityCosmos
 
-variable {K : Type u} [Category.{v} K][SimplicialCategory K] [PreInfinityCosmos.{v} K]
+variable {K : Type u} [Category.{v} K] [PreInfinityCosmos.{v} K]
 
 open PreInfinityCosmos
 
 /-- Common notation for the hom-spaces in a pre-∞-cosmos.-/
 abbrev Fun (X Y : K) : QCat where
   obj := EnrichedCategory.Hom X Y
-  property := by
-    have : PreInfinityCosmos K := by infer_instance
-    have := this.has_qcat_homs (X := X) (Y := Y)
-    -- exact this
-    convert this
-    sorry
+  property := PreInfinityCosmos.has_qcat_homs (X := X) (Y := Y)
 
 noncomputable def representableMap' {X A B : K} (f : 𝟙_ SSet ⟶ EnrichedCategory.Hom A B) :
     (EnrichedCategory.Hom X A : SSet) ⟶ (EnrichedCategory.Hom X B) :=
