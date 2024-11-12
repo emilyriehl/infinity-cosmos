@@ -87,7 +87,7 @@ variable {K : Type u} [Category.{v} K] [InfinityCosmos' K]
 
 open InfinityCosmos PreInfinityCosmos
 
-theorem prod_map_fibrant {X Y X' Y' : K} {f : X ⟶ Y} {g : X' ⟶ Y'} :
+theorem binary_prod_map_fibrant {X Y X' Y' : K} {f : X ⟶ Y} {g : X' ⟶ Y'} :
     IsIsoFibration f → IsIsoFibration g → IsIsoFibration (prod.map f g) := sorry
 
 def compIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : A ↠ C :=
