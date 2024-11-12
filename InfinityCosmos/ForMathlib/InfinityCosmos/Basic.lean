@@ -22,19 +22,14 @@ class PreInfinityCosmos extends SimplicialCategory K where
 
 namespace InfinityCosmos
 
-variable {K : Type u} [Category.{v} K][SimplicialCategory K] [PreInfinityCosmos.{v} K]
+variable {K : Type u} [Category.{v} K] [PreInfinityCosmos.{v} K]
 
 open PreInfinityCosmos
 
 /-- Common notation for the hom-spaces in a pre-∞-cosmos.-/
 abbrev Fun (X Y : K) : QCat where
   obj := EnrichedCategory.Hom X Y
-  property := by
-    have : PreInfinityCosmos K := by infer_instance
-    have := this.has_qcat_homs (X := X) (Y := Y)
-    -- exact this
-    convert this
-    sorry
+  property := PreInfinityCosmos.has_qcat_homs (X := X) (Y := Y)
 
 noncomputable def representableMap' {X A B : K} (f : 𝟙_ SSet ⟶ EnrichedCategory.Hom A B) :
     (EnrichedCategory.Hom X A : SSet) ⟶ (EnrichedCategory.Hom X B) :=
@@ -85,19 +80,19 @@ class InfinityCosmos' extends PreInfinityCosmos K where
 
 open InfinityCosmos'
 
+attribute [instance] has_terminal has_products
+
 section tests
-variable {K : Type u} [Category.{v} K][SimplicialCategory K] [PreInfinityCosmos.{v} K]
-[InfinityCosmos' K]
+variable {K : Type u} [Category.{v} K] [InfinityCosmos' K]
 
--- -- fails to synthesize HasBinaryProducts
--- theorem prod_map_fibrant {X Y X' Y' : K} {f : X ⟶ Y} {g : X' ⟶ Y'} :
---     IsIsoFibration f → IsIsoFibration g → IsIsoFibration (prod.map f g)
+open InfinityCosmos PreInfinityCosmos
 
--- -- confused about an instance "toPreInfinityCosmos" in the type of g
--- def compIsofibration {hyp : InfinityCosmos' K} {A B C : K} (f : A ↠ B) (g : B ↠ C) : A ↠ C := by
---   fconstructor
---   · exact (f.1 ≫ g.1)
---   · have := hyp.comp_isIsoFibration f g
+theorem prod_map_fibrant {X Y X' Y' : K} {f : X ⟶ Y} {g : X' ⟶ Y'} :
+    IsIsoFibration f → IsIsoFibration g → IsIsoFibration (prod.map f g) := sorry
+
+def compIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : A ↠ C :=
+  ⟨(f.1 ≫ g.1), comp_isIsoFibration f g⟩
+
 end tests
 
 class InfinityCosmos extends SimplicialCategory K where
