@@ -83,4 +83,14 @@ open Simplicial SimplicialCategory
 def coherentIso.pt (i : WalkingIso) : Δ[0] ⟶ coherentIso :=
   (yonedaEquiv coherentIso [0]).symm (WalkingIso.coev i)
 
+section coherentIsoPrime
+
+-- Nima: Use Yoneda to construct various maps of representable simplicial sets! The last one needs maps of ordered sets?
+
+-- Matej: Use cocompleteness of SSet to construct pushouts!
+
+-- Use the constructed maps to define Cospans
+
+end coherentIsoPrime
+
 end SSet
