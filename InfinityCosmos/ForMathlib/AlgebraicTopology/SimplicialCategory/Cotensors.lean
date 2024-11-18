@@ -35,16 +35,14 @@ theorem cotensor_local_bifunctoriality {U V : SSet} {A B : K}
     (ua : Cotensor U A) (ub : Cotensor U B) (va : Cotensor V A) (vb : Cotensor V B)
     (i : U ⟶ V) (f : A ⟶ B) :
     (cotensorPostcompose va vb f) ≫ (cotensorPrecompose ub vb i) =
-    (cotensorPrecompose ua va i) ≫ (cotensorPostcompose ua ub f) := by
-  -- have thm := Cotensor.post_pre_eq_pre_post _ (getCotensor U A) (getCotensor U B) (getCotensor V A) (getCotensor V B)
-  -- let ff := (homEquiv A B) f
-  -- let ii := (homEquiv U V) i
-  -- let map := (Cotensor.EhomPrecompose SSet (getCotensor U A) (getCotensor V A) ⊗
-  --     Cotensor.postcompose SSet (getCotensor U A) (getCotensor U B))
-  -- have compeq := whisker_eq ((ρ_ _).inv ≫ (ii ⊗ ff)) thm
-  -- have ans := congrArg (homEquiv (V ⋔ A) (U ⋔ B)).symm compeq
-  -- simp at ans
-  -- sorry
+      (cotensorPrecompose ua va i) ≫ (cotensorPostcompose ua ub f) := by
+  have thm := Cotensor.post_pre_eq_pre_post _ ua ub va vb
+  have compeq := whisker_eq ((ρ_ _).inv ≫ ((homEquiv U V) i ⊗ (homEquiv A B) f)) thm
+  have ans := congrArg (homEquiv va.obj ub.obj).symm compeq
+  simp only [Category.assoc, braiding_naturality_assoc, EmbeddingLike.apply_eq_iff_eq,
+    Iso.cancel_iso_inv_left] at ans
+  unfold cotensorPrecompose cotensorPostcompose
+  sorry
 
 
 end
