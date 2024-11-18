@@ -116,30 +116,20 @@ instance (priority := 100) hasCotensorsOfHasCotensors {K : Type u} [Category.{v}
 section
 variable {K : Type u}[Category.{v} K][SimplicialCategory K][HasCotensors K]
 
--- DC: postcompose
+-- ER: I don't remember why I was considering an alternate form of this.
 noncomputable def cotensorCovMap (U : SSet) {A B : K} (f : A ⟶ B) : U ⋔ A ⟶ U ⋔ B :=
-  (cotensor.iso.underlying U B (U ⋔ A)).symm ((cotensor.cone U A) ≫ (sHomWhiskerLeft (U ⋔ A) f))
+  cotensorPostcompose _ _ f
+  -- (cotensor.iso.underlying U B (U ⋔ A)).symm ((cotensor.cone U A) ≫ (sHomWhiskerLeft (U ⋔ A) f))
 
-
-
-
--- DC: EhomPrecompose
+-- ER: I don't remember why I was considering an alternate form of this.
 noncomputable def cotensorContraMap {U V : SSet} (i : U ⟶ V) (A : K) : V ⋔ A ⟶ U ⋔ A :=
-  (cotensor.iso.underlying U A (V ⋔ A)).symm (i ≫ (cotensor.cone V A))
+  cotensorPrecompose _ _ i
+--  (cotensor.iso.underlying U A (V ⋔ A)).symm (i ≫ (cotensor.cone V A))
 
 -- DC: post_pre_eq_pre_post
 theorem cotensor_bifunctoriality {U V : SSet} (i : U ⟶ V) {A B : K} (f : A ⟶ B) :
     (cotensorCovMap V f) ≫ (cotensorContraMap i B) =
-    (cotensorContraMap i A) ≫ (cotensorCovMap U f) := by
-  have thm := Cotensor.post_pre_eq_pre_post _ (getCotensor U A) (getCotensor U B) (getCotensor V A) (getCotensor V B)
-  let ff := (homEquiv A B) f
-  let ii := (homEquiv U V) i
-  let map := (Cotensor.EhomPrecompose SSet (getCotensor U A) (getCotensor V A) ⊗
-      Cotensor.postcompose SSet (getCotensor U A) (getCotensor U B))
-  have compeq := whisker_eq ((ρ_ _).inv ≫ (ii ⊗ ff)) thm
-  have ans := congrArg (homEquiv (V ⋔ A) (U ⋔ B)).symm compeq
-  simp at ans
-  sorry
+    (cotensorContraMap i A) ≫ (cotensorCovMap U f) := cotensor_local_bifunctoriality _ _ _ _ i f
 
 end
 
