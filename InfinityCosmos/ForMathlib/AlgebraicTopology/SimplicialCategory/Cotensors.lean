@@ -30,20 +30,32 @@ def cotensorPrecompose {U V : SSet} {A : K} (ua : Cotensor U A) (va : Cotensor V
     va.obj ⟶ ua.obj :=
   (homEquiv _ _).symm ((homEquiv U V) i ≫ Cotensor.EhomPrecompose _ ua va)
 
--- DC: post_pre_eq_pre_post
+lemma cotensorPostcompose_homEquiv {U : SSet} {A B : K} (ua : Cotensor U A) (ub : Cotensor U B)
+    (f : A ⟶ B) : homEquiv _ _ (cotensorPostcompose ua ub f) =
+      (homEquiv A B) f ≫ Cotensor.postcompose _ ua ub := by
+  unfold cotensorPostcompose; simp
+
+lemma cotensorPrecompose_homEquiv {U V : SSet} {A : K} (ua : Cotensor U A) (va : Cotensor V A)
+    (i : U ⟶ V) : homEquiv _ _ (cotensorPrecompose ua va i) =
+      (homEquiv U V) i ≫ Cotensor.EhomPrecompose _ ua va  := by
+  unfold cotensorPrecompose; simp
+
 theorem cotensor_local_bifunctoriality {U V : SSet} {A B : K}
     (ua : Cotensor U A) (ub : Cotensor U B) (va : Cotensor V A) (vb : Cotensor V B)
     (i : U ⟶ V) (f : A ⟶ B) :
     (cotensorPostcompose va vb f) ≫ (cotensorPrecompose ub vb i) =
       (cotensorPrecompose ua va i) ≫ (cotensorPostcompose ua ub f) := by
+  apply (homEquiv _ _).injective
+  rw [homEquiv_comp, homEquiv_comp]
   have thm := Cotensor.post_pre_eq_pre_post _ ua ub va vb
-  have compeq := whisker_eq ((ρ_ _).inv ≫ ((homEquiv U V) i ⊗ (homEquiv A B) f)) thm
-  have ans := congrArg (homEquiv va.obj ub.obj).symm compeq
-  simp only [Category.assoc, braiding_naturality_assoc, EmbeddingLike.apply_eq_iff_eq,
-    Iso.cancel_iso_inv_left] at ans
-  unfold cotensorPrecompose cotensorPostcompose
-  sorry
-
+  have compeq := whisker_eq ((λ_ _).inv ≫ ((homEquiv U V) i ⊗ (homEquiv A B) f)) thm
+  rw [Category.assoc, ← tensor_comp_assoc] at compeq
+  rw [← cotensorPostcompose_homEquiv, ← cotensorPrecompose_homEquiv] at compeq
+  rw [compeq]
+  slice_rhs 2 3 => rw [← tensor_comp, ← cotensorPostcompose_homEquiv, ← cotensorPrecompose_homEquiv]
+  simp only [braiding_naturality, braiding_tensorUnit_right, Category.assoc,
+    Iso.cancel_iso_inv_left]
+  monoidal
 
 end
 
