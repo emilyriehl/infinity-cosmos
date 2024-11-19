@@ -205,6 +205,15 @@ instance HasConicalProducts_hasProducts [hyp : HasConicalProducts.{w, v, u} C] :
   have : HasConicalLimit f := by infer_instance
   exact HasConicalLimit_hasLimit f
 
+instance HasConicalProducts_hasConicalTerminal [hyp : HasConicalProducts.{0, v, u} C] :
+    HasConicalTerminal C := hyp.has_conical_limits_of_shape PEmpty.{1}
+
+instance HasConicalProducts_hasConicalTerminal' [hyp : HasConicalProducts C] :
+    HasConicalTerminal C :=
+  have inst := hyp.has_conical_limits_of_shape PEmpty
+  sorry
+
+
 end ConicalProducts
 
 section ConicalPullbacks
