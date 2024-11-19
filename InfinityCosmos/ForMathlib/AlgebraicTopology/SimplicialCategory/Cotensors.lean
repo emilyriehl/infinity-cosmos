@@ -24,20 +24,20 @@ noncomputable section
 
 def cotensorPostcompose {U : SSet} {A B : K} (ua : Cotensor U A) (ub : Cotensor U B) (f : A ⟶ B) :
     ua.obj ⟶ ub.obj :=
-  (homEquiv _ _).symm ((homEquiv A B) f ≫ Cotensor.postcompose _ ua ub)
+  (eHomEquiv SSet).symm (eHomEquiv SSet f ≫ Cotensor.postcompose _ ua ub)
 
 def cotensorPrecompose {U V : SSet} {A : K} (ua : Cotensor U A) (va : Cotensor V A) (i : U ⟶ V) :
     va.obj ⟶ ua.obj :=
-  (homEquiv _ _).symm ((homEquiv U V) i ≫ Cotensor.EhomPrecompose _ ua va)
+  (eHomEquiv SSet).symm (eHomEquiv SSet i ≫ Cotensor.EhomPrecompose _ ua va)
 
 lemma cotensorPostcompose_homEquiv {U : SSet} {A B : K} (ua : Cotensor U A) (ub : Cotensor U B)
-    (f : A ⟶ B) : homEquiv _ _ (cotensorPostcompose ua ub f) =
-      (homEquiv A B) f ≫ Cotensor.postcompose _ ua ub := by
+    (f : A ⟶ B) : eHomEquiv SSet (cotensorPostcompose ua ub f) =
+      eHomEquiv SSet f ≫ Cotensor.postcompose _ ua ub := by
   unfold cotensorPostcompose; simp
 
 lemma cotensorPrecompose_homEquiv {U V : SSet} {A : K} (ua : Cotensor U A) (va : Cotensor V A)
-    (i : U ⟶ V) : homEquiv _ _ (cotensorPrecompose ua va i) =
-      (homEquiv U V) i ≫ Cotensor.EhomPrecompose _ ua va  := by
+    (i : U ⟶ V) : eHomEquiv SSet (cotensorPrecompose ua va i) =
+      eHomEquiv SSet i ≫ Cotensor.EhomPrecompose _ ua va  := by
   unfold cotensorPrecompose; simp
 
 theorem cotensor_local_bifunctoriality {U V : SSet} {A B : K}
@@ -45,10 +45,10 @@ theorem cotensor_local_bifunctoriality {U V : SSet} {A B : K}
     (i : U ⟶ V) (f : A ⟶ B) :
     (cotensorPostcompose va vb f) ≫ (cotensorPrecompose ub vb i) =
       (cotensorPrecompose ua va i) ≫ (cotensorPostcompose ua ub f) := by
-  apply (homEquiv _ _).injective
-  rw [homEquiv_comp, homEquiv_comp]
+  apply (eHomEquiv SSet).injective
+  rw [eHomEquiv_comp, eHomEquiv_comp]
   have thm := Cotensor.post_pre_eq_pre_post _ ua ub va vb
-  have compeq := whisker_eq ((λ_ _).inv ≫ ((homEquiv U V) i ⊗ (homEquiv A B) f)) thm
+  have compeq := whisker_eq ((λ_ _).inv ≫ (eHomEquiv SSet i ⊗ eHomEquiv SSet f)) thm
   rw [Category.assoc, ← tensor_comp_assoc] at compeq
   rw [← cotensorPostcompose_homEquiv, ← cotensorPrecompose_homEquiv] at compeq
   rw [compeq]
@@ -111,7 +111,9 @@ class HasCotensors : Prop where
   /-- All `U : SSet` and `A : K` have a cotensor. -/
   has_cotensors : ∀ U : SSet, ∀ A : K, HasCotensor U A := by infer_instance
 
-instance (priority := 100) hasCotensorsOfHasCotensors {K : Type u} [Category.{v} K] [SimplicialCategory K] [HasCotensors K] (U : SSet) (A : K) : HasCotensor U A := HasCotensors.has_cotensors U A
+instance (priority := 100) hasCotensorsOfHasCotensors {K : Type u} [Category.{v} K]
+[SimplicialCategory K] [HasCotensors K] (U : SSet) (A : K) : HasCotensor U A :=
+  HasCotensors.has_cotensors U A
 
 section
 variable {K : Type u}[Category.{v} K][SimplicialCategory K][HasCotensors K]

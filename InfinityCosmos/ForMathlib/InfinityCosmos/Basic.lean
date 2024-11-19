@@ -37,7 +37,7 @@ noncomputable def representableMap' {X A B : K} (f : 𝟙_ SSet ⟶ EnrichedCate
 
 noncomputable def representableMap (X : K) {A B : K} (f : A ⟶ B) :
     (EnrichedCategory.Hom X A : SSet) ⟶ (EnrichedCategory.Hom X B) :=
-  representableMap' ((homEquiv A B) f)
+  representableMap' (eHomEquiv SSet f)
 
 noncomputable def toFunMap (X : K) {A B : K} (f : A ⟶ B) :
     Fun X A ⟶ Fun X B := representableMap X f
