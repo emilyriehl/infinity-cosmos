@@ -36,7 +36,7 @@ cone in `A` is a simplicially enriched limit if and only if the comparison map i
 for every `X : A`.
 -/
 
--- Adjunsting the size of `J` would also work, but this is more universe polymorphic.
+-- Adjusting the size of `J` would also work, but this is more universe polymorphic.
 variable [HasLimitsOfShape J SSet]
 
 noncomputable def limitComparison (X : C)  :
@@ -70,9 +70,10 @@ noncomputable def isSLimitOfIsIsoLimitComparison [∀ X, IsIso (limitComparison 
         limitComparison c X := by
       apply limit.hom_ext
       intro j
-      simp only [sHomFunctor_obj_obj, Functor.comp_obj, limit.post_π, sHomFunctor_obj_map,
-        limit.cone_x, limitComparison, Category.assoc, limit.lift_π, Functor.mapCone_pt,
-        Functor.mapCone_π_app, ← sHomWhiskerLeft_comp, IsLimit.conePointUniqueUpToIso_hom_comp,
+      simp only [eHomFunctor_obj_obj, Functor.comp_obj, limit.post_π, eHomFunctor_obj_map,
+        limit.cone_x, Category.assoc, limitComparison, Category.assoc, limit.lift_π,
+        Functor.mapCone_pt, Functor.mapCone_π_app,
+        ← sHomWhiskerLeft_comp, IsLimit.conePointUniqueUpToIso_hom_comp,
         limit.cone_x, limit.cone_π]
     rw [this]
     infer_instance
