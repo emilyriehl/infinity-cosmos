@@ -18,17 +18,44 @@ noncomputable def Sq := Limits.pushout map1 map2
 
 #check Limits.coprod.desc
 
-def map3'_1 : ([1] : SimplexCategory) ⟶ [0] := SimplexCategory.const [1] [0] 0
-def map3'_1' : Δ[1] ⟶ Δ[0] := SSet.standardSimplex.map map3'_1
-def map3'_2 : Δ[0] ⟶ Δ[0] ⨿ Δ[0] := sorry
+open Limits in
+noncomputable def map_on_components {C} [Category C] {X Y Z W : C} [HasColimits C] (f : X ⟶ Z) (g : Y ⟶ W)
+    : (X ⨿ Y ⟶ Z ⨿ W : Type u) := coprod.desc (f ≫ coprod.inl) (g ≫ coprod.inr)
 
-def map3' : Δ[1] ⟶ Δ[0] ⨿ Δ[0] := by sorry
-def map3'' : Δ[1] ⟶ Δ[0] ⨿ Δ[0] := by sorry
+#check CategoryTheory.opOp_obj
+#check SSet.standardSimplex.objEquiv [1] (Opposite.op [0]) |>.toFun (SSet.standardSimplex.const 1 0 (Opposite.op [0]))
 
-noncomputable def map3 : (Δ[1] ⨿ Δ[1] ⟶ Δ[0] ⨿ Δ[0] : Type u) :=
-  Limits.coprod.desc map3' map3''
+def asdfasdf {n m : ℕ} (map_on_fin : Fin (m + 1) →o Fin (n + 1)) : ([m] : SimplexCategory) ⟶ [n] := SimplexCategory.mkHom map_on_fin
 
-def map4 : (Δ[1] ⨿ Δ[1] ⟶ Sq : Type u) := by sorry
+#check SSet.asOrderHom
+
+def simplex_from_map {n m : ℕ} (map : ([m] : SimplexCategory) ⟶ [n]) : Δ[n] _[m] := by
+  refine SSet.standardSimplex.objMk ?_
+  refine ?f.toOrdHom
+  unfold SimplexCategory.smallCategory at map
+  unfold SimplexCategory.Hom at map
+  simp at map
+  exact map
+
+def map_from_simplex {n m : ℕ} (simplex : Δ[n] _[m]) : Δ[m] ⟶ Δ[n] := SSet.yonedaEquiv Δ[n] [m] |>.invFun simplex
+
+#check SSet.standardSimplex.const 0 0
+
+#check SSet.standardSimplex.prod'
+
+noncomputable def map3 : (Δ[1] ⨿ Δ[1] ⟶ Δ[0] ⨿ Δ[0] : Type u) := by
+  refine map_on_components ?_ ?_
+  · sorry
+  · sorry
+
+#check Limits.pushout
+
+open Limits in
+noncomputable def map4 : (Δ[1] ⨿ Δ[1] ⟶ Sq : Type u) := by
+  refine coprod.desc ?_ ?_
+  · unfold Sq
+    sorry
+  · sorry
 
 noncomputable def Iso' := Limits.pushout map3 map4
 
