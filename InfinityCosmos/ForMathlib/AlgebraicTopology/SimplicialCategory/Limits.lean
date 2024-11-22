@@ -116,6 +116,39 @@ instance HasConicalLimit_hasLimit (F : J ⥤ C) [HasConicalLimit F] : HasLimit F
   { cone := (getConicalLimitCone F).cone,
     isLimit := ConicalLimitCone_isLimitCone _ (getConicalLimitCone F).isSLimit }
 
+-- Interface to the `HasConicalLimit` class.
+/-- An arbitrary choice of limit cone for a functor. -/
+noncomputable def conicalLimit.cone (F : J ⥤ C) [HasConicalLimit F] : Cone F :=
+  (getConicalLimitCone F).cone
+
+/-- An arbitrary choice of conical limit object of a functor. -/
+noncomputable def conicalLimit (F : J ⥤ C) [HasConicalLimit F] :=
+  (conicalLimit.cone F).pt
+
+/-- The projection from the conical limit object to a value of the functor. -/
+noncomputable def conicalLimit.π (F : J ⥤ C) [HasConicalLimit F] (j : J) :
+    conicalLimit F ⟶ F.obj j := (conicalLimit.cone F).π.app j
+
+
+@[reassoc (attr := simp)]
+theorem conicalLimit.w (F : J ⥤ C) [HasConicalLimit F] {j j' : J} (f : j ⟶ j') :
+    conicalLimit.π F j ≫ F.map f = conicalLimit.π F j' :=
+  (conicalLimit.cone F).w f
+
+/-- Evidence that the arbitrary choice of cone provided by `conicalLimit.cone F` is a conical
+limit cone. -/
+noncomputable def conicalLimit.isConicalLimit (F : J ⥤ C) [HasConicalLimit F] :
+    IsSLimit (conicalLimit.cone F) := (getConicalLimitCone F).isSLimit
+
+/-- The morphism from the cone point of any other cone to the limit object. -/
+noncomputable def conicalLimit.lift (F : J ⥤ C) [HasConicalLimit F] (c : Cone F) :
+    c.pt ⟶ conicalLimit F := (conicalLimit.isConicalLimit F).isLimit.lift c
+
+@[reassoc (attr := simp)]
+theorem conicalLimit.lift_π {F : J ⥤ C} [HasConicalLimit F] (c : Cone F) (j : J) :
+    conicalLimit.lift F c ≫ conicalLimit.π F j = c.π.app j :=
+  IsLimit.fac _ c j
+
 variable (J C)
 
 /-- `C` has conical limits of shape `J` if there exists a conical limit for every functor
@@ -132,6 +165,62 @@ instance (priority := 100) hasConicalLimitOfHasConicalLimitsOfShape {J : Type u�
 instance HasConicalLimitsOfShape_hasLimitsOfShape [HasConicalLimitsOfShape J C] :
     HasLimitsOfShape J C where
   has_limit _ := inferInstance
+
+
+section equivalence
+variable {K : Type u₂} [Category.{v₂} K]
+variable {J : Type u₁} [Category.{v₁} J]
+variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
+
+
+def hasConicalLimitOfIso.coneIso {F G : J ⥤ C} (α : F ≅ G) (c : Cone F) (X : C) :
+    ((sHomFunctor C).obj (op X)).mapCone ((Cones.postcompose α.hom).obj c) ≅
+      (Cones.postcompose (isoWhiskerRight α ((sHomFunctor C).obj (op X))).hom).obj
+        (((sHomFunctor C).obj (op X)).mapCone c) := sorry
+
+/-- If a functor `F` has a limit, so does any naturally isomorphic functor.
+-/
+theorem hasConicalLimitOfIso {F G : J ⥤ C} [HasConicalLimit F] (α : F ≅ G) : HasConicalLimit G :=
+  HasConicalLimit.mk
+    { cone := (Cones.postcompose α.hom).obj (conicalLimit.cone F)
+      isSLimit := {
+        isLimit := (IsLimit.postcomposeHomEquiv _ _).symm (conicalLimit.isConicalLimit F).isLimit
+        isSLimit := fun X ↦ by
+          let iso := hasConicalLimitOfIso.coneIso α (conicalLimit.cone F) X
+          have :=
+            (IsLimit.postcomposeHomEquiv (isoWhiskerRight α ((sHomFunctor C).obj (op X))) _ ).symm
+              ((conicalLimit.isConicalLimit F).isSLimit X)
+          exact this.ofIsoLimit (id iso.symm)
+      }
+    }
+
+instance hasConicalLimitEquivalenceComp {F : J ⥤ C} (e : K ≌ J) [HasConicalLimit F] :
+    HasConicalLimit (e.functor ⋙ F) :=
+  HasConicalLimit.mk
+    { cone := Cone.whisker e.functor (conicalLimit.cone F)
+      isSLimit := {
+        isLimit := IsLimit.whiskerEquivalence (conicalLimit.isConicalLimit F).isLimit e
+        isSLimit := fun X ↦
+          IsLimit.whiskerEquivalence ((conicalLimit.isConicalLimit F).isSLimit X) e
+        }
+    }
+
+/-- If a `E ⋙ F` has a limit, and `E` is an equivalence, we can construct a limit of `F`.
+-/
+theorem hasConicalLimitOfEquivalenceComp  {F : J ⥤ C} (e : K ≌ J) [HasConicalLimit (e.functor ⋙ F)] :
+    HasConicalLimit F := by
+  haveI : HasConicalLimit (e.inverse ⋙ e.functor ⋙ F) := hasConicalLimitEquivalenceComp e.symm
+  apply hasConicalLimitOfIso (e.invFunIdAssoc F)
+
+/-- We can transport conical limits of shape `J` along an equivalence `J ≌ J'`.
+-/
+theorem hasConicalLimitsOfShape_of_equivalence {J' : Type u₂} [Category.{v₂} J'] (e : J ≌ J')
+    [HasConicalLimitsOfShape J C] : HasConicalLimitsOfShape J' C := by
+  constructor
+  intro F
+  apply hasConicalLimitOfEquivalenceComp e
+
+end equivalence
 
 /-- `C` has all conical limits of size `v₁ u₁` (`HasLimitsOfSize.{v₁ u₁} C`)
 if it has conical limits of every shape `J : Type u₁` with `[Category.{v₁} J]`.
@@ -150,6 +239,12 @@ instance (priority := 100) hasConicalLimitsOfShapeOfHasLimits {J : Type u₁} [C
 instance HasConicalLimitsOfSize_hasLimitsOfSize [HasConicalLimitsOfSize.{v₂, u₂, v, u} C] :
     HasLimitsOfSize.{v₂, u₂, v, u} C where
   has_limits_of_shape := inferInstance
+
+/-- A category that has larger conical limits also has smaller conical limits. -/
+theorem hasConicalLimitsOfSizeOfUnivLE [UnivLE.{v₂, v₁}] [UnivLE.{u₂, u₁}]
+    [HasConicalLimitsOfSize.{v₁, u₁} C] : HasConicalLimitsOfSize.{v₂, u₂} C where
+  has_conical_limits_of_shape J {_} := hasConicalLimitsOfShape_of_equivalence
+    ((ShrinkHoms.equivalence J).trans <| Shrink.equivalence _).symm
 
 /-- `C` has all (small) conical limits if it has limits of every shape that is as big as its
 hom-sets.-/
@@ -208,11 +303,15 @@ instance HasConicalProducts_hasProducts [hyp : HasConicalProducts.{w, v, u} C] :
 instance HasConicalProducts_hasConicalTerminal [hyp : HasConicalProducts.{0, v, u} C] :
     HasConicalTerminal C := hyp.has_conical_limits_of_shape PEmpty.{1}
 
-instance HasConicalProducts_hasConicalTerminal' [hyp : HasConicalProducts C] :
-    HasConicalTerminal C :=
+instance HasConicalProducts_hasConicalTerminal' [hyp : HasConicalProducts.{w, v, u} C] :
+    HasConicalTerminal C := by
+  unfold HasConicalTerminal
   have inst := hyp.has_conical_limits_of_shape PEmpty
+  let eq : PEmpty.{w + 1} ≃ PEmpty.{1} := Equiv.equivPEmpty PEmpty.{w + 1}
+  let eq' : Discrete PEmpty.{w + 1} ≃ Discrete PEmpty.{1} :=
+    Equiv.equivOfIsEmpty (Discrete PEmpty.{w + 1}) (Discrete PEmpty.{1})
+  refine hasConicalLimitsOfShape_of_equivalence (J := Discrete PEmpty.{w+1}) ?_
   sorry
-
 
 end ConicalProducts
 
