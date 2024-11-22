@@ -1,6 +1,10 @@
 import Mathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
 
+universe u
+
+open CategoryTheory Limits Simplicial
+
 namespace SSet
 
 /-- The object `Δ[0]` is terminal in `SSet`.-/
