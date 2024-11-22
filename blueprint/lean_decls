@@ -20,8 +20,11 @@ CategoryTheory.SSet.hoCat
 CategoryTheory.nerveCounit_isIso
 CategoryTheory.nerveAdjunction
 CategoryTheory.nerveFunctor.fullyfaithful
-SSet.trivialFibration
+SSet.coherentIso
+SSet.IsoFibration
+SSet.TrivialFibration
 CategoryTheory.SimplicialCategory
+CategoryTheory.categoryForgetEnrichment
 CategoryTheory.SimplicialCategory.HasCotensor
 CategoryTheory.SimplicialCategory.HasCotensors
 CategoryTheory.SimplicialCategory.cotensor_bifunctoriality
@@ -29,5 +32,3 @@ CategoryTheory.IsSLimit
 CategoryTheory.InfinityCosmos
 CategoryTheory.LaxMonoidalFunctor
 CategoryTheory.instEnrichedCategoryTransportEnrichment
-CategoryTheory.categoryForgetEnrichment
-CategoryTheory.EnrichedFunctor.forget

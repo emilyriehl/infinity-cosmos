@@ -637,7 +637,7 @@ By the enriched Yoneda lemma, these objects represent the same simplicial functo
 
 
 \begin{lemma}\label{lem:cotensor-bifunctor}
-\lean{CategoryTheory.SimplicialCategory.cotensor_bifunctoriality}
+\lean{CategoryTheory.SimplicialCategory.cotensor_bifunctoriality}\leanok
 \uses{defn:simplicial-cotensors}
   Assuming such objects exist, the simplicial cotensor defines a bifunctor
   \begin{center}
@@ -646,6 +646,7 @@ By the enriched Yoneda lemma, these objects represent the same simplicial functo
   \end{tikzcd}\end{center} in a unique way making the isomorphism \eqref{eq:cotensor-defn} natural in $U$ and $A$ as well.
 \end{lemma}
 \begin{proof}
+  \leanok
   Functoriality in each variable follows from the universal property.
 \end{proof}
 
@@ -671,7 +672,7 @@ properties that are familiar from abstract homotopy theory.\footnote{More specif
 
 
 \begin{definition}[$\infty$-cosmos]\label{defn:cosmos}
-\lean{CategoryTheory.InfinityCosmos}
+\lean{CategoryTheory.InfinityCosmos}\leanok
 \uses{defn:simplicial-cotensors, defn:simplicial-conical-limit, lem:cotensor-bifunctor}
   An $\infty$-\textbf{cosmos} $\cK$ is a category that is enriched over quasi-categories,\footnote{This is to say $\cK$ is a simplicially enriched category (see Definition \ref{defn:simplicial-category}) whose hom spaces are all quasi-categories.} meaning in particular that\begin{itemize}
   \item its morphisms $f \colon A \to B$ define the vertices of a quasi-category denoted $\Fun(A,B)$ and referred to as a \textbf{functor space},
