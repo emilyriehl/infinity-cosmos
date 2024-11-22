@@ -172,13 +172,7 @@ variable {K : Type u₂} [Category.{v₂} K]
 variable {J : Type u₁} [Category.{v₁} J]
 variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
 
-
-def hasConicalLimitOfIso.coneIso {F G : J ⥤ C} (α : F ≅ G) (c : Cone F) (X : C) :
-    ((sHomFunctor C).obj (op X)).mapCone ((Cones.postcompose α.hom).obj c) ≅
-      (Cones.postcompose (isoWhiskerRight α ((sHomFunctor C).obj (op X))).hom).obj
-        (((sHomFunctor C).obj (op X)).mapCone c) := sorry
-
-/-- If a functor `F` has a limit, so does any naturally isomorphic functor.
+/-- If a functor `F` has a conical limit, so does any naturally isomorphic functor.
 -/
 theorem hasConicalLimitOfIso {F G : J ⥤ C} [HasConicalLimit F] (α : F ≅ G) : HasConicalLimit G :=
   HasConicalLimit.mk
@@ -186,7 +180,8 @@ theorem hasConicalLimitOfIso {F G : J ⥤ C} [HasConicalLimit F] (α : F ≅ G) 
       isSLimit := {
         isLimit := (IsLimit.postcomposeHomEquiv _ _).symm (conicalLimit.isConicalLimit F).isLimit
         isSLimit := fun X ↦ by
-          let iso := hasConicalLimitOfIso.coneIso α (conicalLimit.cone F) X
+          let iso := Functor.mapConePostcompose ((sHomFunctor C).obj (op X)) (α := α.hom)
+            (c := conicalLimit.cone F)
           have :=
             (IsLimit.postcomposeHomEquiv (isoWhiskerRight α ((sHomFunctor C).obj (op X))) _ ).symm
               ((conicalLimit.isConicalLimit F).isSLimit X)
@@ -207,8 +202,8 @@ instance hasConicalLimitEquivalenceComp {F : J ⥤ C} (e : K ≌ J) [HasConicalL
 
 /-- If a `E ⋙ F` has a limit, and `E` is an equivalence, we can construct a limit of `F`.
 -/
-theorem hasConicalLimitOfEquivalenceComp  {F : J ⥤ C} (e : K ≌ J) [HasConicalLimit (e.functor ⋙ F)] :
-    HasConicalLimit F := by
+theorem hasConicalLimitOfEquivalenceComp {F : J ⥤ C} (e : K ≌ J)
+    [HasConicalLimit (e.functor ⋙ F)] : HasConicalLimit F := by
   haveI : HasConicalLimit (e.inverse ⋙ e.functor ⋙ F) := hasConicalLimitEquivalenceComp e.symm
   apply hasConicalLimitOfIso (e.invFunIdAssoc F)
 
@@ -313,13 +308,8 @@ instance HasConicalProducts_hasConicalTerminal [hyp : HasConicalProducts.{0, v, 
 
 instance HasConicalProducts_hasConicalTerminal' [hyp : HasConicalProducts.{w, v, u} C] :
     HasConicalTerminal C := by
-  unfold HasConicalTerminal
   have inst := hyp.has_conical_limits_of_shape PEmpty
-  let eq : PEmpty.{w + 1} ≃ PEmpty.{1} := Equiv.equivPEmpty PEmpty.{w + 1}
-  let eq' : Discrete PEmpty.{w + 1} ≃ Discrete PEmpty.{1} :=
-    Equiv.equivOfIsEmpty (Discrete PEmpty.{w + 1}) (Discrete PEmpty.{1})
-  refine hasConicalLimitsOfShape_of_equivalence (J := Discrete PEmpty.{w+1}) ?_
-  sorry
+  exact hasConicalLimitsOfShape_of_equivalence (J := Discrete PEmpty.{w+1}) emptyEquivalence
 
 end ConicalProducts
 
