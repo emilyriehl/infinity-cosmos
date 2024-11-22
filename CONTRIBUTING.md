@@ -14,3 +14,5 @@
 * [Joseph Tooby-Smith](https://github.com/jstoobysmith)
 * [Adam Topaz](https://github.com/adamtopaz)
 * [Dominic Verity](https://github.com/dom-verity)
+* [Nick Ward](https://github.com/gio256)
+* [Zeyi Zhao](https://github.com/Georjez)
