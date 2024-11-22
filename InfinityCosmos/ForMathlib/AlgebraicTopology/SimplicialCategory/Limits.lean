@@ -246,10 +246,19 @@ theorem hasConicalLimitsOfSizeOfUnivLE [UnivLE.{v₂, v₁}] [UnivLE.{u₂, u₁
   has_conical_limits_of_shape J {_} := hasConicalLimitsOfShape_of_equivalence
     ((ShrinkHoms.equivalence J).trans <| Shrink.equivalence _).symm
 
+/-- `hasConicalLimitsOfSizeShrink.{v u} C` tries to obtain `HasLimitsOfSize.{v u} C`
+from some other `HasLimitsOfSize C`.
+-/
+theorem hasConicalLimitsOfSizeShrink [HasConicalLimitsOfSize.{max v₁ v₂, max u₁ u₂} C] :
+    HasConicalLimitsOfSize.{v₁, u₁} C := hasConicalLimitsOfSizeOfUnivLE.{max v₁ v₂, max u₁ u₂} C
+
 /-- `C` has all (small) conical limits if it has limits of every shape that is as big as its
 hom-sets.-/
 abbrev HasConicalLimits (C : Type u) [Category.{v} C] [SimplicialCategory C]  : Prop :=
   HasConicalLimitsOfSize.{v, v} C
+
+instance (priority := 100) hasSmallestConicalLimitsOfHasConicalLimits [HasConicalLimits C] :
+    HasConicalLimitsOfSize.{0, 0} C := hasConicalLimitsOfSizeShrink.{0, 0} C
 
 instance HasConicalLimits_hasLimits [HasConicalLimits C] : HasLimits C :=
   HasConicalLimitsOfSize_hasLimitsOfSize C
@@ -262,7 +271,6 @@ instance HasConicalLimits.has_conical_limits_of_shape {C : Type u} [Category.{v}
 variable {J C}
 
 end ConicalLimits
-
 
 section ConicalTerminal
 variable (C : Type u) [Category.{v} C] [SimplicialCategory C]
