@@ -72,10 +72,10 @@ variable [BraidedCategory V]
 instance : EnrichedCategory V (C ⊗[V] D) where
   Hom := fun ⟨c, d⟩ ⟨c', d'⟩ => EnrichedCategory.Hom c c' ⊗ EnrichedCategory.Hom d d'
   id := fun ⟨c, d⟩ => (λ_ (𝟙_ V)).inv ≫ (EnrichedCategory.id c ⊗ EnrichedCategory.id d)
-  comp := fun ⟨c, d⟩ ⟨c', d'⟩ ⟨c'', d''⟩ => tensor_μ _ _ _ _ ≫
-    (EnrichedCategory.comp _ _ _ ⊗ EnrichedCategory.comp _ _ _)
+  comp := fun ⟨c, d⟩ ⟨c', d'⟩ ⟨c'', d''⟩ =>
+    tensorμ _ _ _ _ ≫ (EnrichedCategory.comp c c' c'' ⊗ EnrichedCategory.comp d d' d'')
   id_comp := fun ⟨c, d⟩ ⟨c', d'⟩ => by
-    simp only [comp_whiskerRight_assoc, tensor_μ_natural_left_assoc]
+    simp only [comp_whiskerRight_assoc, tensorμ_natural_left_assoc]
     have := tensor_left_unitality (EnrichedCategory.Hom c c' : V) (EnrichedCategory.Hom d d')
     rw [← Category.assoc] at this
     have := (Iso.comp_inv_eq
@@ -85,7 +85,7 @@ instance : EnrichedCategory V (C ⊗[V] D) where
     rw [← tensor_comp, ← tensor_comp, EnrichedCategory.id_comp, EnrichedCategory.id_comp]
     exact tensor_id (EnrichedCategory.Hom c c') (EnrichedCategory.Hom d d')
   comp_id := fun ⟨c, d⟩ ⟨c', d'⟩ => by
-    simp only [MonoidalCategory.whiskerLeft_comp_assoc, tensor_μ_natural_right_assoc]
+    simp only [MonoidalCategory.whiskerLeft_comp_assoc, tensorμ_natural_right_assoc]
     have := tensor_right_unitality (EnrichedCategory.Hom c c' : V) (EnrichedCategory.Hom d d')
     rw [← Category.assoc] at this
     have := (Iso.comp_inv_eq
@@ -96,7 +96,7 @@ instance : EnrichedCategory V (C ⊗[V] D) where
     exact tensor_id (EnrichedCategory.Hom c c') (EnrichedCategory.Hom d d')
   assoc := fun ⟨c₁, d₁⟩ ⟨c₂, d₂⟩ ⟨c₃, d₃⟩ ⟨c₄, d₄⟩ => by
     simp only [comp_whiskerRight_assoc, MonoidalCategory.whiskerLeft_comp_assoc,
-      tensor_μ_natural_left_assoc, tensor_μ_natural_right_assoc]
+      tensorμ_natural_left_assoc, tensorμ_natural_right_assoc]
     apply (Iso.inv_comp_eq _).mpr
     rw [← tensor_associativity_assoc]
     repeat rw [← tensor_comp]
@@ -136,7 +136,7 @@ def eBifuncConstr {E : Type u₄} [EnrichedCategory V E]
     rw [← leftUnitor_inv_naturality_assoc, e_id_comp]
     exact Category.comp_id (eId V (F_obj p.pr₁ p.pr₂))
   map_comp p q r := by
-    have : eComp V p q r = tensor_μ _ _ _ _ ≫
+    have : eComp V p q r = tensorμ _ _ _ _ ≫
       (tensorHom (eComp V p.pr₁ q.pr₁ r.pr₁) (eComp V p.pr₂ q.pr₂ r.pr₂)) := rfl
     simp only [this, Category.assoc]
     rw [← tensor_comp_assoc, F_comp_left, F_comp_right]
@@ -160,7 +160,7 @@ def eBifuncConstr {E : Type u₄} [EnrichedCategory V E]
     rw [tensor_comp]
     --
     simp only [id_tensorHom, tensorHom_id]
-    unfold tensor_μ
+    unfold tensorμ
     simp only [Category.assoc]
     simp only [Iso.inv_hom_id_assoc, whiskerLeft_hom_inv_assoc]
     nth_rw 2 [← MonoidalCategory.whiskerLeft_comp_assoc]
