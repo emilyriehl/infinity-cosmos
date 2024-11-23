@@ -62,9 +62,9 @@ noncomputable def isSLimitOfIsIsoLimitComparison [∀ X, IsIso (limitComparison 
     (hc : IsLimit c) : IsSLimit c where
   isLimit := hc
   isSLimit X := by
-    suffices PreservesLimit F ((sHomFunctor C).obj (op X)) from this.preserves hc
+    suffices PreservesLimit F ((sHomFunctor C).obj (op X)) from Classical.choice (this.preserves hc)
     have : HasLimit F := ⟨c, hc⟩
-    apply (config := { allowSynthFailures := true } ) preservesLimitOfIsIsoPost
+    apply (config := { allowSynthFailures := true } ) preservesLimit_of_isIso_post
     have : limit.post F ((sHomFunctor C).obj (op X)) =
       (((sHomFunctor C).obj (op X)).map ((limit.isLimit F).conePointUniqueUpToIso hc).hom) ≫
         limitComparison c X := by
