@@ -4,10 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jack McKoen
 -/
 import InfinityCosmos.ForMathlib.CategoryTheory.MorphismProperty
+import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Quasicategory
 import Mathlib.AlgebraicTopology.SimplicialSet.Basic
-import Mathlib.AlgebraicTopology.SimplicialSet.Quasicategory
 
 namespace SSet
 
