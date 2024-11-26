@@ -79,28 +79,21 @@ section
 
 open SimplexCategory
 
-/-
-def ParallelPair {A : SSet.{u}} (x y : Δ[0] ⟶ A) := Homotopy (I := Δ[1]) x y
--/
-
-structure ParallelPair {A : SSet.{u}} (x y : Δ[0] ⟶ A) where
-  hom : Δ[1] ⟶ A
-  src : Interval.src ≫ hom = x
-  tgt : Interval.tgt ≫ hom = y
-
-variable {A : SSet.{u}} {x y : Δ[0] ⟶ A} (f g : ParallelPair x y)
+variable {A : SSet.{u}} (f g : Δ[1] ⟶ A)
 
 structure HomotopyL where
   homotopy : Δ[2] ⟶ A
-  face0 : standardSimplex.map (δ 0) ≫ homotopy = standardSimplex.map (σ 0) ≫ y
-  face1 : standardSimplex.map (δ 1) ≫ homotopy = g.hom
-  face2 : standardSimplex.map (δ 2) ≫ homotopy = f.hom
+  face0 : standardSimplex.map (δ 0) ≫ homotopy =
+    standardSimplex.map (σ 0) ≫ standardSimplex.map (δ 0) ≫ f
+  face1 : standardSimplex.map (δ 1) ≫ homotopy = g
+  face2 : standardSimplex.map (δ 2) ≫ homotopy = f
 
 structure HomotopyR where
   homotopy : Δ[2] ⟶ A
-  face0 : standardSimplex.map (δ 0) ≫ homotopy = f.hom
-  face1 : standardSimplex.map (δ 1) ≫ homotopy = g.hom
-  face2 : standardSimplex.map (δ 2) ≫ homotopy = standardSimplex.map (σ 0) ≫ x
+  face0 : standardSimplex.map (δ 0) ≫ homotopy = f
+  face1 : standardSimplex.map (δ 1) ≫ homotopy = g
+  face2 : standardSimplex.map (δ 2) ≫ homotopy =
+    standardSimplex.map (σ 0) ≫ standardSimplex.map (δ 1) ≫ f
 
 def HomotopicL : Prop :=
     Nonempty (HomotopyL f g)
@@ -109,7 +102,7 @@ def HomotopicR : Prop :=
     Nonempty (HomotopyR f g)
 
 def HomotopyR.refl : HomotopyR f f where
-  homotopy := standardSimplex.map (σ 0) ≫ f.hom
+  homotopy := standardSimplex.map (σ 0) ≫ f
   face0 := by
     rw [← Category.assoc, ← Functor.map_comp, δ_comp_σ_self' (by simp)]
     simp
@@ -117,13 +110,12 @@ def HomotopyR.refl : HomotopyR f f where
     rw [← Category.assoc, ← Functor.map_comp, δ_comp_σ_succ' (by simp)]
     simp
   face2 := by
-    simp [← f.src, Interval.src]
     rw [← Category.assoc, ← Functor.map_comp, ← Category.assoc, ← Functor.map_comp,
         ← δ_comp_σ_of_gt (by simp)]
     rfl
 
 lemma HomotopyR.equiv : --[Quasicategory A] :
-    Equivalence (fun f g : ParallelPair x y ↦ HomotopicR f g) where
+    Equivalence (fun f g : Δ[1] ⟶ A ↦ HomotopicR f g) where
   refl f := ⟨HomotopyR.refl f⟩
   symm := sorry
   trans := sorry
@@ -132,7 +124,7 @@ lemma homotopicL_iff_homotopicR : --[Quasicategory A]
     HomotopicL f g ↔ HomotopicR f g := sorry
 
 lemma HomotopyL.equiv : --[Quasicategory A]
-    Equivalence (fun f g : ParallelPair x y ↦ HomotopicL f g) := by
+    Equivalence (fun f g : Δ[1] ⟶ A ↦ HomotopicL f g) := by
   simp [homotopicL_iff_homotopicR]
   exact HomotopyR.equiv
 
