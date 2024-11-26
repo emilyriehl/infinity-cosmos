@@ -225,10 +225,12 @@ Categories also provide examples of quasi-categories via the nerve construction.
 
  In the book that is the primary source this text \cite{RiehlVerity:2022eo}, as in much of the $\infty$-categories literature, we decline to introduce explicit notation for the nerve functor, preferring instead to identify 1-categories with their nerves. As we shall discover the theory of 1-categories extends to $\infty$-categories modeled as quasi-categories in such a way that the restriction of each $\infty$-categorical concept along the nerve embedding recovers the corresponding 1-categorical concept. For instance, the standard simplex $\Delta[n]$ is isomorphic to the nerve of the ordinal category $\catnone$, and we frequently adopt the latter notation --- writing $\catone \coloneq \Delta[0]$, $\cattwo \coloneq \Delta[1]$, $\catthree \coloneq \Delta[2]$, and so on --- to suggest the correct categorical intuition. However, Mathlib notates nerves explicitly, so at some point this document should be adapted to follow that convention.
 
- To begin down this path, we must first verify the implicit assertion that has just been made. A proof of the following result, due to Johan Commelin, will appear in Mathlib soon (see \texttt{Wombat.lean} for now).
+ To begin down this path, we must first verify the implicit assertion that has just been made.
 
  \begin{proposition}[nerves are quasi-categories]\label{prop:nerve-qcat}
   \uses{defn:nerve, defn:quasi-category}
+  \lean{Nerve.quasicategory}
+  \leanok
   Nerves of categories are quasi-categories.
  \end{proposition}
 
