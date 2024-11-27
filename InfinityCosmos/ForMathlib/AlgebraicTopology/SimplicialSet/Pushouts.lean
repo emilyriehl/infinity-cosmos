@@ -63,17 +63,35 @@ noncomputable def map00p00 : (Δ[1] ⨿ Δ[1] ⟶ Δ[0] ⨿ Δ[0] : Type u) := b
 
 #check SSet.yonedaEquiv Sq [1] |>.invFun
 
+#check evaluation
+
+#check Limits.colimit
+
 open Limits in
 noncomputable def map4 : (Δ[1] ⨿ Δ[1] ⟶ Sq : Type u) := by
   refine coprod.desc ?_ ?_
   · refine SSet.yonedaEquiv Sq [1] |>.invFun ?_
     refine CategoryTheory.Limits.colimitObjIsoColimitCompEvaluation (Limits.span chain12 chain01) (Opposite.op [1]) |>.toEquiv |>.invFun ?_
+    let asdf := CategoryTheory.Limits.Types.colimitEquivQuot (span chain12 chain01 ⋙ evaluation SimplexCategoryᵒᵖ (Type u) _[1])
+    refine asdf.invFun ?_
+    apply Quot.mk
+    refine ⟨.some .left, ?_⟩
+    exact SSet.standardSimplex.edge 2 0 1 (by decide)
 
+  · refine SSet.yonedaEquiv Sq [1] |>.invFun ?_
+    refine CategoryTheory.Limits.colimitObjIsoColimitCompEvaluation (Limits.span chain12 chain01) (Opposite.op [1]) |>.toEquiv |>.invFun ?_
+    let asdf := CategoryTheory.Limits.Types.colimitEquivQuot (span chain12 chain01 ⋙ evaluation SimplexCategoryᵒᵖ (Type u) _[1])
+    refine asdf.invFun ?_
+    apply Quot.mk
+    refine ⟨.some .right, ?_⟩
+    exact SSet.standardSimplex.edge 2 1 2 (by decide)
 
-    · refine SSet.yonedaEquiv Sq [1] |>.invFun ?_
-
-
-    sorry
+open Limits
+#check CategoryTheory.Limits.Types.colimitEquivQuot (span chain12 chain01 ⋙ evaluation SimplexCategoryᵒᵖ (Type u) _[1])
+#check Types.Quot
+#check WalkingSpan
+#check Sigma
+#check SSet.standardSimplex.edge
 
 noncomputable def Iso' := Limits.pushout map00p00 map4
 
