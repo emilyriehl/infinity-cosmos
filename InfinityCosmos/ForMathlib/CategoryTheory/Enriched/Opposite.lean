@@ -44,8 +44,8 @@ theorem unop_of_op (V : Type u₁) {C : Type u} (x : C) :  unop (V := V) (op x) 
 def equivToEnrichedOpposite (V : Type u₁) (C : Type u) : C ≃ eOpposite V C where
   toFun := op
   invFun := unop
-  left_inv := by aesop_cat
-  right_inv := by aesop_cat
+  left_inv := congrFun rfl
+  right_inv := congrFun rfl
 
 variable (V : Type u₁) [Category.{v₁} V] [MonoidalCategory V] [BraidedCategory V]
 variable (C : Type u) [EnrichedCategory V C]
@@ -58,14 +58,13 @@ instance EnrichedCategory.opposite : EnrichedCategory V (eOpposite V C) where
   id_comp _ _ := by
     simp only [braiding_naturality_left_assoc, braiding_tensorUnit_left,
       Category.assoc, Iso.inv_hom_id_assoc]
-    exact EnrichedCategory.comp_id _ _
+    exact EnrichedCategory.comp_id ..
   comp_id _ _ := by
     simp only [braiding_naturality_right_assoc, braiding_tensorUnit_right,
       Category.assoc, Iso.inv_hom_id_assoc]
-    exact EnrichedCategory.id_comp _ _
+    exact EnrichedCategory.id_comp ..
   assoc _ _ _ _ := by
-    simp only [braiding_naturality_left_assoc,
-      MonoidalCategory.whiskerLeft_comp, Category.assoc]
+    simp only [braiding_naturality_left_assoc, MonoidalCategory.whiskerLeft_comp, Category.assoc]
     rw [← EnrichedCategory.assoc]
     simp only [braiding_tensor_left, Category.assoc, Iso.inv_hom_id_assoc,
       braiding_naturality_right_assoc, braiding_tensor_right]
