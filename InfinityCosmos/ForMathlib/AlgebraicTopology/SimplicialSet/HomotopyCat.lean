@@ -93,7 +93,7 @@ def mkOfLeComp {n} (i j k : Fin (n+1)) (h₁ : i ≤ j) (h₂ : j ≤ k): [2] �
 /-- The fully faithful inclusion of the truncated simplex category into the usual
 simplex category.
 -/
-abbrev Δ.ι (k) : Δ k ⥤ SimplexCategory := SimplexCategory.Truncated.inclusion
+abbrev Δ.ι (k) : Δ k ⥤ SimplexCategory := SimplexCategory.Truncated.inclusion k
 
 -- NB: Next three definitions exist already in simplex category (without the abbrevation). Final instance had to be made "noncomputable."
 
