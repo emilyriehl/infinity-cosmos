@@ -81,6 +81,8 @@ noncomputable def map4 : (Δ[1] ⨿ Δ[1] ⟶ Sq : Type u) := by
     -- maps from end points of the diagram?
     -- Using the explicit description via quotients is perfectly correct, however, not the most formal
     -- thing one could do here.
+    -- Concretely chain01 ≫ (Limits.pushout.inl chain12 chain01) is a map out of Δ[1] and we want to precompose
+    -- with its composition with evaluation.
     let asdf := CategoryTheory.Limits.Types.colimitEquivQuot (span chain12 chain01 ⋙ evaluation SimplexCategoryᵒᵖ (Type u) _[1])
     refine asdf.invFun ?_
     apply Quot.mk
@@ -94,6 +96,26 @@ noncomputable def map4 : (Δ[1] ⨿ Δ[1] ⟶ Sq : Type u) := by
     apply Quot.mk
     refine ⟨.some .right, ?_⟩
     exact SSet.standardSimplex.edge 2 1 2 (by decide)
+
+def chain0 : Δ[0] ⟶ Δ[1] :=
+  SSet.yonedaEquiv Δ[1] [0] |>.invFun
+   (SSet.standardSimplex.const 1 0 (Opposite.op [0]))
+
+def chain1 : Δ[0] ⟶ Δ[1] :=
+  SSet.yonedaEquiv Δ[1] [0] |>.invFun
+   (SSet.standardSimplex.const 1 1 (Opposite.op [0]))
+
+noncomputable def Cospan00 := Limits.pushout chain0 chain0
+
+noncomputable def Cospan0011 := Limits.pushout (chain1 ≫ (Limits.pushout.inl chain0 chain0)) chain1
+
+
+#check chain1 ≫ (Limits.pushout.inl chain0 chain0)
+
+-- Need to find an effective way to define this.
+noncomputable def map5 : (Cospan0011 ⟶ Δ[3] : Type u) := by sorry
+
+noncomputable def map6 : (Cospan0011 ⟶ Δ[1] : Type u) := by sorry
 
 open Limits
 #check CategoryTheory.Limits.Types.colimitEquivQuot (span chain12 chain01 ⋙ evaluation SimplexCategoryᵒᵖ (Type u) _[1])
