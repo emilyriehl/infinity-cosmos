@@ -26,10 +26,13 @@ noncomputable def map_on_components {C} [Category C] {X Y Z W : C} [HasColimits 
 #check CategoryTheory.opOp_obj
 #check SSet.standardSimplex.objEquiv [1] (Opposite.op [0]) |>.toFun (SSet.standardSimplex.const 1 0 (Opposite.op [0]))
 
+-- This seems to be the direct definition so does that really need a separate def?
 def simplexmap_from_fin {n m : ℕ} (map_on_fin : Fin (m + 1) →o Fin (n + 1)) : ([m] : SimplexCategory) ⟶ [n] := SimplexCategory.mkHom map_on_fin
 
 #check SSet.asOrderHom
 
+-- I would have expected this to be around , but also didn't find it.
+-- I think if it really merits a proof, it shouldn't be here and in fact could be a lemma?
 def simplex_from_map {n m : ℕ} (map : ([m] : SimplexCategory) ⟶ [n]) : Δ[n] _[m] := by
   refine SSet.standardSimplex.objMk ?_
   refine ?f.toOrdHom
@@ -40,6 +43,7 @@ def simplex_from_map {n m : ℕ} (map : ([m] : SimplexCategory) ⟶ [n]) : Δ[n]
 
 #check SSet
 
+-- This definition again feels like overkill to me?
 def map_from_simplex {n m : ℕ} (simplex : Δ[n] _[m]) : Δ[m] ⟶ Δ[n] := SSet.yonedaEquiv Δ[n] [m] |>.invFun simplex
 
 #check SSet.standardSimplex.const 0 0
@@ -48,6 +52,7 @@ def map_from_simplex {n m : ℕ} (simplex : Δ[n] _[m]) : Δ[m] ⟶ Δ[n] := SSe
 
 #check OrderHom.const (Fin 1) (β := Fin 0) ⟨0, _⟩
 
+-- map00p00 should probably better be map00plus00
 noncomputable def map00p00 : (Δ[1] ⨿ Δ[1] ⟶ Δ[0] ⨿ Δ[0] : Type u) := by
   refine map_on_components ?_ ?_
   · refine map_from_simplex ?_
@@ -72,6 +77,10 @@ noncomputable def map4 : (Δ[1] ⨿ Δ[1] ⟶ Sq : Type u) := by
   refine coprod.desc ?_ ?_
   · refine SSet.yonedaEquiv Sq [1] |>.invFun ?_
     refine CategoryTheory.Limits.colimitObjIsoColimitCompEvaluation (Limits.span chain12 chain01) (Opposite.op [1]) |>.toEquiv |>.invFun ?_
+    -- Here I have a question: Shouldn't the definition of the colimit not entail inclusion
+    -- maps from end points of the diagram?
+    -- Using the explicit description via quotients is perfectly correct, however, not the most formal
+    -- thing one could do here.
     let asdf := CategoryTheory.Limits.Types.colimitEquivQuot (span chain12 chain01 ⋙ evaluation SimplexCategoryᵒᵖ (Type u) _[1])
     refine asdf.invFun ?_
     apply Quot.mk
