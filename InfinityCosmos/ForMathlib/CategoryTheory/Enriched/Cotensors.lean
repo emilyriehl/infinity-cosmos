@@ -1,5 +1,5 @@
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Opposite
+import Mathlib.CategoryTheory.Enriched.Opposite
 import Mathlib.CategoryTheory.Closed.Enrichment
 
 universe u u₁ v w
@@ -373,32 +373,32 @@ class CotensoredCategory (V : Type u) [Category.{u₁} V] [MonoidalCategory V] [
     [SymmetricCategory V] (C : Type v) [EnrichedCategory V C] where
   cotensor : (v : V) → (x : C) → Cotensor v x
 
-open CotensoredCategory eOpposite
+open CotensoredCategory
 
-def cotensor_bifunc [CotensoredCategory V C] : EnrichedFunctor V ((eOpposite V V) ⊗[V] C) C :=
-  enrichedTensor.eBifuncConstr V (eOpposite V V) C
-    (fun v x ↦ (cotensor (unop v) x).obj)
-    (fun v w x ↦ EhomPrecompose V (cotensor (unop w) x) (cotensor (unop v) x))
-    (fun v x y ↦ postcompose V (cotensor (unop v) x) (cotensor (unop v) y))
-    (fun v x ↦ precompose_id_eq V (cotensor (unop v) x))
-    (fun v x ↦ postcompose_id_eq V (cotensor (unop v) x))
+def cotensor_bifunc [CotensoredCategory V C] : EnrichedFunctor V (Vᵒᵖ ⊗[V] C) C :=
+  enrichedTensor.eBifuncConstr V Vᵒᵖ C
+    (fun v x ↦ (cotensor v.unop x).obj)
+    (fun v w x ↦ EhomPrecompose V (cotensor w.unop x) (cotensor v.unop x))
+    (fun v x y ↦ postcompose V (cotensor v.unop x) (cotensor v.unop y))
+    (fun v x ↦ precompose_id_eq V (cotensor v.unop x))
+    (fun v x ↦ postcompose_id_eq V (cotensor v.unop x))
     (fun u v w x ↦ by
-      have : eComp V u v w = (β_ _ _).hom ≫ eComp V (unop w) (unop v) (unop u) := rfl
+      have : eComp V u v w = (β_ _ _).hom ≫ eComp V w.unop v.unop u.unop := rfl
       simp only [this, Category.assoc]
       rw [SymmetricCategory.braiding_swap_eq_inv_braiding]
       apply (Iso.inv_comp_eq _).mpr
       rw [← BraidedCategory.braiding_naturality_assoc]
       exact precompose_comp_eq V
-        (cotensor (unop w) x) (cotensor (unop v) x) (cotensor (unop u) x))
+        (cotensor w.unop x) (cotensor v.unop x) (cotensor u.unop x))
     (fun v x y z ↦ postcompose_comp_eq V
-      (cotensor (unop v) x)
-      (cotensor (unop v) y)
-      (cotensor (unop v) z))
+      (cotensor v.unop x)
+      (cotensor v.unop y)
+      (cotensor v.unop z))
     (fun w v x y ↦ post_pre_eq_pre_post V
-      (cotensor (unop v) x)
-      (cotensor (unop v) y)
-      (cotensor (unop w) x)
-      (cotensor (unop w) y))
+      (cotensor v.unop x)
+      (cotensor v.unop y)
+      (cotensor w.unop x)
+      (cotensor w.unop y))
 
 end Cotensor
 
