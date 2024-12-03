@@ -95,9 +95,6 @@ instance : HasTerminal K := by infer_instance
 
 instance : HasProducts K := by infer_instance
 
-def compIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : A ↠ C :=
-  ⟨(f.1 ≫ g.1), comp_isIsofibration f g⟩
-
 end InfinityCosmos
 
 end CategoryTheory
