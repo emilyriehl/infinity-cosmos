@@ -13,3 +13,4 @@ import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
 import InfinityCosmos.ForMathlib.CategoryTheory.MorphismProperty
 import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+import InfinityCosmos.ForMathlib.InfinityCosmos.Isofibrations
