@@ -11,6 +11,5 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Opposite
 import InfinityCosmos.ForMathlib.CategoryTheory.MorphismProperty
 import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
