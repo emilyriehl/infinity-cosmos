@@ -54,16 +54,16 @@ variable (K : Type u) [Category.{v} K][PreInfinityCosmos.{v} K]
 
 /-- An `InfinityCosmos` extends a `PreInfinityCosmos` with limit and isofibration axioms..-/
 class InfinityCosmos extends PreInfinityCosmos K where
-  comp_isIsofibration {X Y Z : K} (f : X ↠ Y) (g : Y ↠ Z) : IsIsofibration (f.1 ≫ g.1)
+  comp_isIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : IsIsofibration (f.1 ≫ g.1)
   iso_isIsofibration {X Y : K} (e : X ⟶ Y) [IsIso e] : IsIsofibration e
   all_objects_fibrant {X Y : K} (hY : IsTerminal Y) (f : X ⟶ Y) : IsIsofibration f
         -- TODO: replace by IsConicalTerminal?
   [has_products : HasConicalProducts K]
   prod_map_fibrant {γ : Type w} {A B : γ → K} (f : ∀ i, A i ↠ B i) :
     IsIsofibration (Limits.Pi.map (λ i ↦ (f i).1))
-  [has_isoFibration_pullbacks {A B E : K} (f : A ⟶ B) (g : E ↠ B) : HasConicalPullback f g.1]
-  pullback_is_isoFibration {A B E P : K} (f : A ⟶ B) (g : E ↠ B)
-    (fst : P ⟶ A) (snd : P ⟶ E) (h : IsPullback fst snd f g.1) : IsIsofibration fst
+  [has_isoFibration_pullbacks {E B A : K} (p : E ↠ B) (f : A ⟶ B)  : HasConicalPullback p.1 f]
+  pullback_is_isoFibration {E B A P : K} (p : E ↠ B) (f : A ⟶ B)
+    (fst : P ⟶ E) (snd : P ⟶ A) (h : IsPullback fst snd p.1 f) : IsIsofibration snd
   [has_limits_of_towers (F : ℕᵒᵖ ⥤ K) :
     (∀ n : ℕ, IsIsofibration (F.map (homOfLE (Nat.le_succ n)).op)) → HasConicalLimit F]
   has_limits_of_towers_isIsofibration (F : ℕᵒᵖ ⥤ K) (hf) :
@@ -71,13 +71,12 @@ class InfinityCosmos extends PreInfinityCosmos K where
     IsIsofibration (limit.π F (.op 0))
   [has_cotensors : HasCotensors K]
   leibniz_cotensor  {U V : SSet} (i : U ⟶ V) [Mono i] {A B : K} (f : A ↠ B) {P : K}
-    (fst : P ⟶ V ⋔ B) (snd : P ⟶ U ⋔ A)
-    (h : IsPullback fst snd (cotensorContraMap i B) (cotensorCovMap U f)) :
+    (fst : P ⟶ U ⋔ A) (snd : P ⟶ V ⋔ B)
+    (h : IsPullback fst snd (cotensorCovMap U f.1) (cotensorContraMap i B)) :
     IsIsofibration (h.isLimit.lift <|
-      PullbackCone.mk (cotensorCovMap V f.1) (cotensorContraMap i A)
+      PullbackCone.mk (cotensorContraMap i A) (cotensorCovMap V f.1)
         (cotensor_bifunctoriality i f.1)) --TODO : Prove that these pullbacks exist.
   local_isoFibration {X A B : K} (f : A ↠ B) : Isofibration (toFunMap X f.1)
-
 
 attribute [instance] has_products has_isoFibration_pullbacks has_limits_of_towers has_cotensors
 
