@@ -66,8 +66,8 @@ def InnerHornIsoInclusions : MorphismProperty SSet := fun _ _ p ↦ InnerHornIso
 
 /-- Definition of isofibration: A simplicial map between quasi-categories is an
   \textbf{isofibration} if it lifts against the inner horn inclusions, as displayed
-  below-left, and also against the inclusion of either vertex into the coherent isomorphism. -/
-def IsoFibration : MorphismProperty QCat := fun _ _ p ↦ InnerHornIsoInclusions.rlp p
+  belowleft, and also against the inclusion of either vertex into the coherent isomorphism. -/
+def Isofibration : MorphismProperty QCat := fun _ _ p ↦ InnerHornIsoInclusions.rlp p
 
 end isoFibration
 
