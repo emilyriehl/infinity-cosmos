@@ -26,7 +26,7 @@ def compIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : A ↠ C :=
   ⟨(f.1 ≫ g.1), comp_isIsofibration f g⟩
 
 theorem toTerminal_fibrant (A : K) : IsIsofibration (terminal.from A) :=
-  all_objects_fibrant terminalIsTerminal _
+  all_objects_fibrant terminalIsConicalTerminal _
 
 noncomputable def toTerminalIsofibration (A : K) : A ↠ (⊤_ K) :=
   ⟨terminal.from A, toTerminal_fibrant A⟩
@@ -53,20 +53,27 @@ lemma cotensorCovMapInitial_isIso {A B : K} (f : A ⟶ B) : IsIso (cotensorCovMa
     (cotensorCovMap (⊥_ SSet) f)
 
 -- TODO: replace `cotensor.iso.underlying` with something for general cotensor API.
-noncomputable def cotensorToTerminalIso (U : SSet) {T : K} (hT : IsTerminal T) : U ⋔ T ≅ ⊤_ K where
+noncomputable def cotensorToTerminalIso (U : SSet) {T : K} (hT : IsConicalTerminal T) :
+    U ⋔ T ≅ ⊤_ K where
   hom := terminal.from _
-  inv := (cotensor.iso.underlying U T (⊤_ K)).symm (by sorry)
-  hom_inv_id := (cotensor.iso.underlying U T (U ⋔ T)).injective
-    (by sorry)
+  inv := by
+    refine (cotensor.iso.underlying U T (⊤_ K)).symm ?_
+    exact (terminal.from U) ≫ (IsConicalTerminal.sHomIso hT (⊤_ K)).inv
+  hom_inv_id := by
+    apply (cotensor.iso.underlying U T (U ⋔ T)).injective
+    have : IsTerminal (sHom (U ⋔ T) T) :=
+      terminalIsTerminal.ofIso (IsConicalTerminal.sHomIso hT (U ⋔ T)).symm
+    apply IsTerminal.hom_ext this
   inv_hom_id := terminal.hom_ext _ _
 
-noncomputable instance cotensorToTerminal_isTerminal (U : SSet) {T : K} (hT : IsTerminal T) :
-    IsTerminal (U ⋔ T) := terminalIsTerminal.ofIso (cotensorToTerminalIso U hT).symm
+noncomputable instance cotensorToConicalTerminal_isTerminal
+    (U : SSet) {T : K} (hT : IsConicalTerminal T) : IsTerminal (U ⋔ T) :=
+  terminalIsTerminal.ofIso (cotensorToTerminalIso U hT).symm
 
-lemma cotensorContraMapToTerminal_isIso {U V : SSet} (i : U ⟶ V) {T : K} (hT : IsTerminal T) :
-    IsIso (cotensorContraMap i T) :=
-  isIso_of_isTerminal (cotensorToTerminal_isTerminal V hT) (cotensorToTerminal_isTerminal U hT)
-    (cotensorContraMap i T)
+lemma cotensorContraMapToTerminal_isIso {U V : SSet} (i : U ⟶ V)
+    {T : K} (hT : IsConicalTerminal T) : IsIso (cotensorContraMap i T) :=
+  isIso_of_isTerminal (cotensorToConicalTerminal_isTerminal V hT)
+    (cotensorToConicalTerminal_isTerminal U hT) (cotensorContraMap i T)
 
 end terminal
 
@@ -87,12 +94,13 @@ theorem cotensorCovMap_fibrant (V : SSet.{v}) {A B : K} (f : A ↠ B) :
   exact (leibniz_cotensor (initial.to V) f _ _ (cotensorInitialSquare_isPullback V f))
 
 lemma cotensorTerminalSquare_isPullback {U V : SSet.{v}} (i : U ⟶ V) (A : K) :
-    IsPullback (𝟙 _) (terminal.from (U ⋔ A) ≫ (cotensorToTerminalIso V terminalIsTerminal).inv)
+    IsPullback
+      (𝟙 _) (terminal.from (U ⋔ A) ≫ (cotensorToTerminalIso V terminalIsConicalTerminal).inv)
       (cotensorCovMap U (terminal.from A)) (cotensorContraMap i (⊤_ K)) := by
-  have := cotensorContraMapToTerminal_isIso i (T := ⊤_ K) terminalIsTerminal
+  have := cotensorContraMapToTerminal_isIso i (T := ⊤_ K) terminalIsConicalTerminal
   refine IsPullback.of_horiz_isIso ?_
   constructor
-  apply IsTerminal.hom_ext (cotensorToTerminal_isTerminal U terminalIsTerminal)
+  apply IsTerminal.hom_ext (cotensorToConicalTerminal_isTerminal U terminalIsConicalTerminal)
 
 theorem cotensorContraMap_fibrant {U V : SSet} (i : U ⟶ V) [Mono i] (A : K) :
     IsIsofibration (cotensorContraMap i A) := by

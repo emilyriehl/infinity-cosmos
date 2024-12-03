@@ -3,6 +3,7 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.IsConicalTerminal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Limits
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy

@@ -1,6 +1,5 @@
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Limits
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.IsConicalTerminal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
 import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
@@ -56,8 +55,7 @@ variable (K : Type u) [Category.{v} K][PreInfinityCosmos.{v} K]
 class InfinityCosmos extends PreInfinityCosmos K where
   comp_isIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : IsIsofibration (f.1 ≫ g.1)
   iso_isIsofibration {X Y : K} (e : X ⟶ Y) [IsIso e] : IsIsofibration e
-  all_objects_fibrant {X Y : K} (hY : IsTerminal Y) (f : X ⟶ Y) : IsIsofibration f
-        -- TODO: replace by IsConicalTerminal?
+  all_objects_fibrant {X Y : K} (hY : IsConicalTerminal Y) (f : X ⟶ Y) : IsIsofibration f
   [has_products : HasConicalProducts K]
   prod_map_fibrant {γ : Type w} {A B : γ → K} (f : ∀ i, A i ↠ B i) :
     IsIsofibration (Limits.Pi.map (λ i ↦ (f i).1))
@@ -84,13 +82,17 @@ namespace InfinityCosmos
 
 variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
 
-open InfinityCosmos PreInfinityCosmos
+open InfinityCosmos PreInfinityCosmos SimplicialCategory
 
 instance : HasConicalTerminal K := by infer_instance
 
-instance : HasCotensors K := by infer_instance
-
 instance : HasTerminal K := by infer_instance
+
+/-- The terminal object in an ∞-cosmos is a conical terminal object. -/
+def terminalIsConicalTerminal : IsConicalTerminal (⊤_ K) :=
+  HasConicalTerminal.terminalIsConicalTerminal terminalIsTerminal
+
+instance : HasCotensors K := by infer_instance
 
 instance : HasProducts K := by infer_instance
 
