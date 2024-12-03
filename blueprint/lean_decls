@@ -14,7 +14,7 @@ SSet.KanComplex
 CategoryTheory.nerve
 CategoryTheory.nerveFunctor
 CategoryTheory.Nerve.cosk2Iso
-Nerve.quasicategory
+CategoryTheory.Nerve.quasicategory
 CategoryTheory.SSet.oneTruncation
 CategoryTheory.ReflQuiv.adj
 CategoryTheory.SSet.hoCat
