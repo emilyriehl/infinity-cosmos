@@ -28,6 +28,9 @@ def compIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : A ↠ C :=
 theorem toTerminal_fibrant (A : K) : IsIsofibration (terminal.from A) :=
   all_objects_fibrant terminalIsTerminal _
 
+noncomputable def toTerminalIsofibration (A : K) : A ↠ (⊤_ K) :=
+  ⟨terminal.from A, toTerminal_fibrant A⟩
+
 theorem binary_prod_map_fibrant {X Y X' Y' : K} {f : X ↠ Y} {g : X' ↠ Y'} :
     IsIsofibration (prod.map f.1 g.1) := by sorry
 
@@ -45,6 +48,10 @@ noncomputable def cotensorInitialIso (A : K) : (⊥_ SSet ) ⋔ A ≅ ⊤_ K whe
 noncomputable instance cotensorInitial_isTerminal (A : K) : IsTerminal ((⊥_ SSet ) ⋔ A) :=
   terminalIsTerminal.ofIso (cotensorInitialIso A).symm
 
+lemma cotensorCovMapInitial_isIso {A B : K} (f : A ⟶ B) : IsIso (cotensorCovMap (⊥_ SSet) f) :=
+  isIso_of_isTerminal (cotensorInitial_isTerminal A) (cotensorInitial_isTerminal B)
+    (cotensorCovMap (⊥_ SSet) f)
+
 -- TODO: replace `cotensor.iso.underlying` with something for general cotensor API.
 noncomputable def cotensorToTerminalIso (U : SSet) {T : K} (hT : IsTerminal T) : U ⋔ T ≅ ⊤_ K where
   hom := terminal.from _
@@ -56,39 +63,43 @@ noncomputable def cotensorToTerminalIso (U : SSet) {T : K} (hT : IsTerminal T) :
 noncomputable instance cotensorToTerminal_isTerminal (U : SSet) {T : K} (hT : IsTerminal T) :
     IsTerminal (U ⋔ T) := terminalIsTerminal.ofIso (cotensorToTerminalIso U hT).symm
 
+lemma cotensorContraMapToTerminal_isIso {U V : SSet} (i : U ⟶ V) {T : K} (hT : IsTerminal T) :
+    IsIso (cotensorContraMap i T) :=
+  isIso_of_isTerminal (cotensorToTerminal_isTerminal V hT) (cotensorToTerminal_isTerminal U hT)
+    (cotensorContraMap i T)
+
 end terminal
 
-lemma initialSquare_isIso {A B : K} (f : A ⟶ B) : IsIso (cotensorCovMap (⊥_ SSet) f) :=
-  isIso_of_isTerminal (cotensorInitial_isTerminal A) (cotensorInitial_isTerminal B)
-    (cotensorCovMap (⊥_ SSet) f)
-
-lemma initialSquare_isPullback (V : SSet.{v}) {A B : K} (f : A ↠ B) :
+lemma cotensorInitialSquare_isPullback (V : SSet.{v}) {A B : K} (f : A ↠ B) :
     IsPullback (terminal.from (V ⋔ B) ≫ (cotensorInitialIso A).inv) (𝟙 _)
       (cotensorCovMap (⊥_ SSet) f.1) (cotensorContraMap (initial.to V) B) := by
-  have := initialSquare_isIso f.1
+  have := cotensorCovMapInitial_isIso f.1
   refine IsPullback.of_vert_isIso ?_
   constructor
   apply IsTerminal.hom_ext (cotensorInitial_isTerminal _)
 
 theorem cotensorCovMap_fibrant (V : SSet.{v}) {A B : K} (f : A ↠ B) :
     IsIsofibration (cotensorCovMap V f.1) := by
-  have := Initial.mono_to V
-  have := leibniz_cotensor (initial.to V) f _ _ (initialSquare_isPullback V f)
-  have := IsPullback.lift_snd (initialSquare_isPullback V f) (cotensorContraMap (initial.to V) A)
+  have := IsPullback.lift_snd
+    (cotensorInitialSquare_isPullback V f) (cotensorContraMap (initial.to V) A)
     (cotensorCovMap V f.1) (cotensor_bifunctoriality (initial.to V) f.1)
-  rw [comp_id] at this
-  rw [← this]
-  exact (leibniz_cotensor (initial.to V) f _ _ (initialSquare_isPullback V f))
+  rw [← this, comp_id]
+  exact (leibniz_cotensor (initial.to V) f _ _ (cotensorInitialSquare_isPullback V f))
+
+lemma cotensorTerminalSquare_isPullback {U V : SSet.{v}} (i : U ⟶ V) (A : K) :
+    IsPullback (𝟙 _) (terminal.from (U ⋔ A) ≫ (cotensorToTerminalIso V terminalIsTerminal).inv)
+      (cotensorCovMap U (terminal.from A)) (cotensorContraMap i (⊤_ K)) := by
+  have := cotensorContraMapToTerminal_isIso i (T := ⊤_ K) terminalIsTerminal
+  refine IsPullback.of_horiz_isIso ?_
+  constructor
+  apply IsTerminal.hom_ext (cotensorToTerminal_isTerminal U terminalIsTerminal)
 
 theorem cotensorContraMap_fibrant {U V : SSet} (i : U ⟶ V) [Mono i] (A : K) :
-    IsIsofibration (cotensorContraMap i A) := sorry
-
-  -- leibniz_cotensor  {U V : SSet} (i : U ⟶ V) [Mono i] {A B : K} (f : A ↠ B) {P : K}
-  --   (fst : P ⟶ U ⋔ A) (snd : P ⟶ V ⋔ B)
-  --   (h : IsPullback fst snd (cotensorCovMap U f.1) (cotensorContraMap i B)) :
-  --   IsIsofibration (h.isLimit.lift <|
-  --     PullbackCone.mk (cotensorContraMap i A) (cotensorCovMap V f.1)
-  --       (cotensor_bifunctoriality i f.1)) --TODO : Prove that these pullbacks exist.
-
+    IsIsofibration (cotensorContraMap i A) := by
+  have := IsPullback.lift_fst
+    (cotensorTerminalSquare_isPullback i A) (cotensorContraMap i A)
+    (cotensorCovMap V (terminal.from A)) (cotensor_bifunctoriality i (terminal.from A))
+  rw [← this, comp_id]
+  exact (leibniz_cotensor i (toTerminalIsofibration A) _ _ (cotensorTerminalSquare_isPullback i A))
 
 end InfinityCosmos
