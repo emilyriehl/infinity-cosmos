@@ -1,13 +1,7 @@
-/-
-Copyright (c) 2024 Nick Ward. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Nick Ward
--/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StrictSegal
-import Mathlib.AlgebraicTopology.Quasicategory.Basic
-import Mathlib.AlgebraicTopology.SimplicialSet.StrictSegal
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialObject.Basic
 
 universe u
 
@@ -42,9 +36,43 @@ instance (S : SSet.{u}) [StrictSegal S] : Category.{u} (OneTruncation S) where
         change S.δ 0 _ = Z
         rw [δ_zero_spineToDiagonal]
   id_comp {X Y} f := by
-    sorry
+    have hrfl := HomotopyR.refl f.val
+    apply Subtype.ext
+    have : spineToDiagonal (S.spine 2 hrfl.simplex) = f.val := by
+      simp only [spineToDiagonal, spineToSimplex_spine]
+      rw [← SimplicialObject.δ_one_one]
+      exact hrfl.δ₁
+    rw [← this]
+    apply congr_arg spineToDiagonal
+    ext i
+    fin_cases i
+    · simp only [Fin.zero_eta, spine_arrow]
+      rw [← SimplicialObject.δ_one_two, hrfl.δ₂]
+      change _ = S.σ _ (OneTruncation.src f.val)
+      rw [f.property.left]
+      rfl
+    · simp only [Fin.mk_one, spine_arrow]
+      rw [← SimplicialObject.δ_one_zero]
+      exact hrfl.δ₀.symm
   comp_id {X Y} f := by
-    sorry
+    have hrfl := HomotopyL.refl f.val
+    apply Subtype.ext
+    have : spineToDiagonal (S.spine 2 hrfl.simplex) = f.val := by
+      simp only [spineToDiagonal, spineToSimplex_spine]
+      rw [← SimplicialObject.δ_one_one]
+      exact hrfl.δ₁
+    rw [← this]
+    apply congr_arg spineToDiagonal
+    ext i
+    fin_cases i
+    · simp only [Fin.zero_eta, spine_arrow]
+      rw [← SimplicialObject.δ_one_two]
+      exact hrfl.δ₂.symm
+    · simp only [Fin.mk_one, spine_arrow]
+      rw [← SimplicialObject.δ_one_zero, hrfl.δ₀]
+      change _ = S.σ _ (OneTruncation.tgt f.val)
+      rw [f.property.right]
+      rfl
   assoc {W X Y Z} f g h := by
     sorry
 
