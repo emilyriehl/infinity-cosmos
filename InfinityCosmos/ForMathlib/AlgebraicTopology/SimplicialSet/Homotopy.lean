@@ -6,6 +6,7 @@ Authors: Johns Hopkins Category Theory Seminar
 
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialObject.Basic
 import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 import Mathlib.AlgebraicTopology.SimplicialSet.StrictSegal
 
@@ -118,7 +119,7 @@ def HomotopyL.refl : HomotopyL f f where
   δ₂ := by
     rw [← types_comp_apply (A.σ _) (A.δ _)]
     rw [← Fin.succ_one_eq_two]
-    rw [SimplicialObject.δ_comp_σ_succ A]
+    rw [SimplicialObject.δ_comp_σ_succ]
     rfl
 
 def HomotopyR.refl : HomotopyR f f where
@@ -136,20 +137,6 @@ def HomotopyR.refl : HomotopyR f f where
     rw [← Fin.succ_one_eq_two, ← Fin.castSucc_zero]
     rw [SimplicialObject.δ_comp_σ_of_gt A (by simp)]
 
-private lemma spine₂_arrow₀ (s : A _[2]) : (A.spine 2 s).arrow 0 = A.δ 2 s := by
-  simp only [SimplicialObject.δ, spine_arrow]
-  have : SimplexCategory.mkOfSucc 0 = SimplexCategory.δ 2 := by
-    ext i
-    fin_cases i <;> rfl
-  rw [this]
-
-private lemma spine₂_arrow₁ (s : A _[2]) : (A.spine 2 s).arrow 1 = A.δ 0 s := by
-  simp only [SimplicialObject.δ, spine_arrow]
-  have : SimplexCategory.mkOfSucc 1 = SimplexCategory.δ 0 := by
-    ext i
-    fin_cases i <;> rfl
-  rw [this]
-
 lemma StrictSegal.homotopic_iff_eq [StrictSegal A] : HomotopicL f g ↔ f = g := by
   have hrfl := HomotopyL.refl f
   apply Iff.intro <;> intro h
@@ -160,10 +147,12 @@ lemma StrictSegal.homotopic_iff_eq [StrictSegal A] : HomotopicL f g ↔ f = g :=
       rw [this]
     ext i
     fin_cases i
-    · simp only [spine₂_arrow₀, Fin.zero_eta]
+    · simp only [Fin.zero_eta, spine_arrow]
+      rw [← SimplicialObject.δ_one_two]
       rw [h.δ₂]
       exact hrfl.δ₂
-    · simp only [spine₂_arrow₁, Fin.mk_one]
+    · simp only [Fin.mk_one, spine_arrow]
+      rw [← SimplicialObject.δ_one_zero]
       rw [h.δ₀]
       exact hrfl.δ₀
   · rw [← h]

@@ -9,14 +9,16 @@ namespace SimplexCategory
 def isTerminalZero : IsTerminal ([0] : SimplexCategory) :=
   IsTerminal.ofUniqueHom (fun _ ↦ const _ [0] 0) (fun _ _ => eq_const_to_zero _)
 
-lemma δ_one_diag {n : ℕ} : δ 1 ≫ diag n = const [0] [n] 0 := by
-  ext x
-  fin_cases x
-  rfl
+lemma δ_one_zero : δ (n := 1) 0 = mkOfSucc 1 := by
+  ext i
+  fin_cases i <;> rfl
 
-lemma δ_zero_diag {n : ℕ} : δ 0 ≫ diag n = const [0] [n] n := by
-  ext x
-  fin_cases x
-  rfl
+lemma δ_one_one : δ (n := 1) 1 = diag 2 := by
+  ext i
+  fin_cases i <;> rfl
+
+lemma δ_one_two : δ (n := 1) 2 = mkOfSucc 0 := by
+  ext i
+  fin_cases i <;> rfl
 
 end SimplexCategory
