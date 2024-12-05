@@ -121,6 +121,21 @@ def HomotopyL.refl : HomotopyL f f where
     rw [SimplicialObject.δ_comp_σ_succ A]
     rfl
 
+def HomotopyR.refl : HomotopyR f f where
+  simplex := A.σ 0 f
+  δ₀ := by
+    rw [← types_comp_apply (A.σ _) (A.δ _)]
+    rw [SimplicialObject.δ_comp_σ_self' A (by rfl)]
+    rfl
+  δ₁ := by
+    rw [← types_comp_apply (A.σ _) (A.δ _)]
+    rw [SimplicialObject.δ_comp_σ_succ' A (by rfl)]
+    rfl
+  δ₂ := by
+    rw [← types_comp_apply (A.σ _) (A.δ _), ← types_comp_apply (A.δ _) (A.σ _)]
+    rw [← Fin.succ_one_eq_two, ← Fin.castSucc_zero]
+    rw [SimplicialObject.δ_comp_σ_of_gt A (by simp)]
+
 private lemma spine₂_arrow₀ (s : A _[2]) : (A.spine 2 s).arrow 0 = A.δ 2 s := by
   simp only [SimplicialObject.δ, spine_arrow]
   have : SimplexCategory.mkOfSucc 0 = SimplexCategory.δ 2 := by
