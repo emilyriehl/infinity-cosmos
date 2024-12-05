@@ -84,4 +84,42 @@ structure Equiv (A B : SSet.{u}) : Type u where
 
 end
 
+section
+
+variable {A : SSet.{u}} (f g : A _[1])
+
+structure HomotopyL where
+  simplex : A _[2]
+  δ₀ : A.δ 0 simplex = A.σ 0 (A.δ 0 f)
+  δ₁ : A.δ 1 simplex = g
+  δ₂ : A.δ 2 simplex = f
+
+def HomotopicL : Prop := Nonempty (HomotopyL f g)
+
+structure HomotopyR where
+  simplex : A _[2]
+  δ₀ : A.δ 0 simplex = f
+  δ₁ : A.δ 1 simplex = g
+  δ₂ : A.δ 2 simplex = A.σ 0 (A.δ 1 f)
+
+def HomotopicR : Prop := Nonempty (HomotopyR f g)
+
+def HomotopyL.refl : HomotopyL f f where
+  simplex := A.σ 1 f
+  δ₀ := by
+    rw [← types_comp_apply (A.σ _) (A.δ _), ← types_comp_apply (A.δ _) (A.σ _)]
+    rw [← Fin.succ_zero_eq_one, ← Fin.castSucc_zero]
+    rw [SimplicialObject.δ_comp_σ_of_le A (by rfl)]
+  δ₁ := by
+    rw [← types_comp_apply (A.σ _) (A.δ _)]
+    rw [SimplicialObject.δ_comp_σ_self' A (by rfl)]
+    rfl
+  δ₂ := by
+    rw [← types_comp_apply (A.σ _) (A.δ _)]
+    rw [← Fin.succ_one_eq_two]
+    rw [SimplicialObject.δ_comp_σ_succ A]
+    rfl
+
+end
+
 end SSet
