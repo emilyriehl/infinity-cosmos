@@ -84,4 +84,59 @@ structure Equiv (A B : SSet.{u}) : Type u where
 
 end
 
+section
+
+open SimplexCategory
+
+variable {A : SSet.{u}} (f g : Δ[1] ⟶ A)
+
+structure HomotopyL where
+  homotopy : Δ[2] ⟶ A
+  face0 : standardSimplex.map (δ 0) ≫ homotopy =
+    standardSimplex.map (σ 0) ≫ standardSimplex.map (δ 0) ≫ f
+  face1 : standardSimplex.map (δ 1) ≫ homotopy = g
+  face2 : standardSimplex.map (δ 2) ≫ homotopy = f
+
+structure HomotopyR where
+  homotopy : Δ[2] ⟶ A
+  face0 : standardSimplex.map (δ 0) ≫ homotopy = f
+  face1 : standardSimplex.map (δ 1) ≫ homotopy = g
+  face2 : standardSimplex.map (δ 2) ≫ homotopy =
+    standardSimplex.map (σ 0) ≫ standardSimplex.map (δ 1) ≫ f
+
+def HomotopicL : Prop :=
+    Nonempty (HomotopyL f g)
+
+def HomotopicR : Prop :=
+    Nonempty (HomotopyR f g)
+
+def HomotopyR.refl : HomotopyR f f where
+  homotopy := standardSimplex.map (σ 0) ≫ f
+  face0 := by
+    rw [← Category.assoc, ← Functor.map_comp, δ_comp_σ_self' (by simp)]
+    simp
+  face1 := by
+    rw [← Category.assoc, ← Functor.map_comp, δ_comp_σ_succ' (by simp)]
+    simp
+  face2 := by
+    rw [← Category.assoc, ← Functor.map_comp, ← Category.assoc, ← Functor.map_comp,
+        ← δ_comp_σ_of_gt (by simp)]
+    rfl
+
+lemma HomotopyR.equiv : --[Quasicategory A] :
+    Equivalence (fun f g : Δ[1] ⟶ A ↦ HomotopicR f g) where
+  refl f := ⟨HomotopyR.refl f⟩
+  symm := sorry
+  trans := sorry
+
+lemma homotopicL_iff_homotopicR : --[Quasicategory A]
+    HomotopicL f g ↔ HomotopicR f g := sorry
+
+lemma HomotopyL.equiv : --[Quasicategory A]
+    Equivalence (fun f g : Δ[1] ⟶ A ↦ HomotopicL f g) := by
+  simp [homotopicL_iff_homotopicR]
+  exact HomotopyR.equiv
+
+end
+
 end SSet
