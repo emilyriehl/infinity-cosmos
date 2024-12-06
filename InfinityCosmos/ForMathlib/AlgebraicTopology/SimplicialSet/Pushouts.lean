@@ -1,5 +1,6 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 
 open CategoryTheory Simplicial
 
@@ -117,12 +118,57 @@ noncomputable def map6 : (Cospan0011 ⟶ Δ[1] : Type u) := by
 
 noncomputable def secondEquiv := Limits.pushout map5 map6
 
+#check Nat.reduceLeDiff
+
+def test : 0 ≤ 1 := by
+  simp only [zero_le]
+
+#check zero_le
+#check CategoryTheory.homOfLE (Nat.zero_le 1)
+
 open Limits in
 noncomputable def someMap : secondEquiv ⟶ SSet.coherentIso := by
--- Why do the following four lines generate an error?
   refine pushout.desc ?_ ?_ ?_
-  · sorry
-  · sorry
+  · apply (SSet.yonedaEquiv _ _ |>.invFun)
+    unfold SSet.coherentIso
+    unfold nerve
+    simp only [SimplexCategory.len_mk]
+    unfold ComposableArrows
+    simp only [Nat.reduceAdd]
+  -- Up until this point is reasonable
+  -- For the rest, I don't know the best way to proceed, am trying some stuff.
+    refine {
+    obj := ?_
+    map := ?_
+    map_comp := ?_
+    map_id := ?_
+    }
+    · exact fun
+      | 0 => WalkingIso.zero
+      | 1 => WalkingIso.one
+      | 2 => WalkingIso.zero
+      | 3 => WalkingIso.one
+    · sorry
+    · sorry
+    · sorry
+  · apply (SSet.yonedaEquiv _ _ |>.invFun)
+    unfold SSet.coherentIso
+    unfold nerve
+    simp only [SimplexCategory.len_mk]
+    unfold ComposableArrows
+    simp only [Nat.reduceAdd]
+    refine {
+      obj := ?_
+      map := ?_
+      map_comp := ?_
+      map_id := ?_
+    }
+    · exact fun
+      | 0 => WalkingIso.zero
+      | 1 => WalkingIso.one
+    · sorry
+    · sorry
+    · sorry
   · sorry
 
 open Limits in
@@ -131,34 +177,37 @@ refine pushout.desc ?_ ?_ ?_
 · refine pushout.desc ?_ ?_ ?_
   · exact (SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.triangle 0 1 2 (by decide) (by decide))) ≫ (Limits.pushout.inl map5 map6)
   · exact (SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.triangle 1 2 3 (by decide) (by decide))) ≫ (Limits.pushout.inl map5 map6)
-  · sorry --tried aeasop_cat didn't work
+  · sorry
+    -- have test := SSet.yonedaEquiv secondEquiv [1] ((SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.triangle 0 1 2 (by decide) (by decide))) ≫ (Limits.pushout.inl map5 map6) ≫ map6)
+    -- sorry
+
 · refine coprod.desc ?_ ?_
   · exact ((SSet.yonedaEquiv Δ[3] [0] |>.invFun (SSet.standardSimplex.const 3 1 (Opposite.op [0]))) ≫ (Limits.pushout.inl map5 map6))
   · exact ((SSet.yonedaEquiv Δ[3] [0] |>.invFun (SSet.standardSimplex.const 3 2 (Opposite.op [0]))) ≫ (Limits.pushout.inl map5 map6))
 · sorry
 
 
-#check evaluation
+-- #check evaluation
 
-open Limits
-#check CategoryTheory.Limits.Types.colimitEquivQuot (span chain12 chain01 ⋙ evaluation SimplexCategoryᵒᵖ (Type u) _[1])
-#check Types.Quot
-#check WalkingSpan
-#check Sigma
-#check SSet.standardSimplex.edge
+-- open Limits
+-- #check CategoryTheory.Limits.Types.colimitEquivQuot (span chain12 chain01 ⋙ evaluation SimplexCategoryᵒᵖ (Type u) _[1])
+-- #check Types.Quot
+-- #check WalkingSpan
+-- #check Sigma
+-- #check SSet.standardSimplex.edge
 
-noncomputable def Iso' := Limits.pushout map00p00 map4
+-- noncomputable def Iso' := Limits.pushout map00p00 map4
 
-#check Limits.coprod Δ[1] Δ[1]
+-- #check Limits.coprod Δ[1] Δ[1]
 
-open SimplexCategory
+-- open SimplexCategory
 
-#check SSet.yonedaEquiv Δ[2] [1] |>.invFun (SSet.standardSimplex.edge 2 1 2 (by simp only [Nat.reduceAdd,
-  Fin.isValue, Fin.reduceLE]))
--- #check yoneda.map (SSet.standardSimplex.edge 2 1 2 (by simp only [Nat.reduceAdd, Fin.isValue, Fin.reduceLE]))
+-- #check SSet.yonedaEquiv Δ[2] [1] |>.invFun (SSet.standardSimplex.edge 2 1 2 (by simp only [Nat.reduceAdd,
+--   Fin.isValue, Fin.reduceLE]))
+-- -- #check yoneda.map (SSet.standardSimplex.edge 2 1 2 (by simp only [Nat.reduceAdd, Fin.isValue, Fin.reduceLE]))
 
-#check SSet.yonedaEquiv
-#check SSet.standardSimplex.map_id
+-- #check SSet.yonedaEquiv
+-- #check SSet.standardSimplex.map_id
 
-#check Limits.cospan
-#check CategoryTheory.Limits.colimitObjIsoColimitCompEvaluation (Limits.cospan chain12 chain01) (Opposite.op [1]) |>.toEquiv |>.invFun
+-- #check Limits.cospan
+-- #check CategoryTheory.Limits.colimitObjIsoColimitCompEvaluation (Limits.cospan chain12 chain01) (Opposite.op [1]) |>.toEquiv |>.invFun
