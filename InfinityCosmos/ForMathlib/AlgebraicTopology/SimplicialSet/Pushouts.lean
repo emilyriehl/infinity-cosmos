@@ -117,9 +117,26 @@ noncomputable def map6 : (Cospan0011 ⟶ Δ[1] : Type u) := by
 
 noncomputable def secondEquiv := Limits.pushout map5 map6
 
-def someMap : secondEquiv ⟶ SSet.coherentIso := by sorry
+open Limits in
+noncomputable def someMap : secondEquiv ⟶ SSet.coherentIso := by
+-- Why do the following four lines generate an error?
+  refine pushout.desc ?_ ?_ ?_
+  · sorry
+  · sorry
+  · sorry
 
-def someMap' : firstEquiv ⟶ secondEquiv := by sorry
+open Limits in
+noncomputable def someMap' : firstEquiv ⟶ secondEquiv := by
+refine pushout.desc ?_ ?_ ?_
+· refine pushout.desc ?_ ?_ ?_
+  · exact (SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.triangle 0 1 2 (by decide) (by decide))) ≫ (Limits.pushout.inl map5 map6)
+  · exact (SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.triangle 1 2 3 (by decide) (by decide))) ≫ (Limits.pushout.inl map5 map6)
+  · sorry --tried aeasop_cat didn't work
+· refine coprod.desc ?_ ?_
+  · exact ((SSet.yonedaEquiv Δ[3] [0] |>.invFun (SSet.standardSimplex.const 3 1 (Opposite.op [0]))) ≫ (Limits.pushout.inl map5 map6))
+  · exact ((SSet.yonedaEquiv Δ[3] [0] |>.invFun (SSet.standardSimplex.const 3 2 (Opposite.op [0]))) ≫ (Limits.pushout.inl map5 map6))
+· sorry
+
 
 #check evaluation
 
