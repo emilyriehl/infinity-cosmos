@@ -141,10 +141,9 @@ lemma StrictSegal.homotopic_iff_eq [StrictSegal A] : HomotopicL f g ↔ f = g :=
   have hrfl := HomotopyL.refl f
   apply Iff.intro <;> intro h
   · have h := Classical.choice h
-    suffices A.spine 2 hrfl.simplex = A.spine 2 h.simplex by
-      rw [← hrfl.δ₁, ← h.δ₁]
-      rw [← spineToSimplex_spine hrfl.simplex, ← spineToSimplex_spine h.simplex]
-      rw [this]
+    rw [← hrfl.δ₁, ← h.δ₁]
+    rw [← spineToSimplex_spine hrfl.simplex, ← spineToSimplex_spine h.simplex]
+    apply congr_arg <| spineToSimplex ≫ A.δ 1
     ext i
     fin_cases i
     · simp only [Fin.zero_eta, spine_arrow]
