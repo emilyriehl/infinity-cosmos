@@ -7,7 +7,7 @@ Authors: Johns Hopkins Category Theory Seminar
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
-import Mathlib.AlgebraicTopology.SimplicialSet.Quasicategory
+import Mathlib.AlgebraicTopology.Quasicategory.Basic
 
 universe u v w
 
