@@ -5,6 +5,7 @@ Authors: Johns Hopkins Category Theory Seminar
 -/
 
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+import Mathlib.AlgebraicTopology.SimplicialSet.Quasicategory
 
 universe u v w
 
@@ -79,21 +80,19 @@ section
 
 open SimplexCategory
 
-variable {A : SSet.{u}} (f g : Δ[1] ⟶ A)
+variable {A : SSet.{u}} (f g : A _[1])
 
 structure HomotopyL where
-  homotopy : Δ[2] ⟶ A
-  face0 : standardSimplex.map (δ 0) ≫ homotopy =
-    standardSimplex.map (σ 0) ≫ standardSimplex.map (δ 0) ≫ f
-  face1 : standardSimplex.map (δ 1) ≫ homotopy = g
-  face2 : standardSimplex.map (δ 2) ≫ homotopy = f
+  x : A _[2]
+  face0 : A.δ 0 x = A.σ 0 (A.δ 0 f)
+  face1 : A.δ 1 x = g
+  face2 : A.δ 2 x = f
 
 structure HomotopyR where
-  homotopy : Δ[2] ⟶ A
-  face0 : standardSimplex.map (δ 0) ≫ homotopy = f
-  face1 : standardSimplex.map (δ 1) ≫ homotopy = g
-  face2 : standardSimplex.map (δ 2) ≫ homotopy =
-    standardSimplex.map (σ 0) ≫ standardSimplex.map (δ 1) ≫ f
+  x : A _[2]
+  face0 : A.δ 0 x = f
+  face1 : A.δ 1 x = g
+  face2 : A.δ 2 x = A.σ 0 (A.δ 1 f)
 
 def HomotopicL : Prop :=
     Nonempty (HomotopyL f g)
@@ -101,32 +100,61 @@ def HomotopicL : Prop :=
 def HomotopicR : Prop :=
     Nonempty (HomotopyR f g)
 
-def HomotopyR.refl : HomotopyR f f where
-  homotopy := standardSimplex.map (σ 0) ≫ f
+def HomotopyL.refl : HomotopyL f f where
+  x := A.σ 1 f
   face0 := by
-    rw [← Category.assoc, ← Functor.map_comp, δ_comp_σ_self' (by simp)]
-    simp
+    change _ = (A.δ 0 ≫ A.σ 0) _
+    rw [← A.δ_comp_σ_of_le (by simp)]; simp
   face1 := by
-    rw [← Category.assoc, ← Functor.map_comp, δ_comp_σ_succ' (by simp)]
-    simp
+    change (A.σ 1 ≫ A.δ 1) _ = _
+    rw [A.δ_comp_σ_self' (by simp)]; simp
   face2 := by
-    rw [← Category.assoc, ← Functor.map_comp, ← Category.assoc, ← Functor.map_comp,
-        ← δ_comp_σ_of_gt (by simp)]
+    change (A.σ 1 ≫ A.δ 2) _ = _
+    rw [A.δ_comp_σ_succ' (by simp)]
     rfl
 
-lemma HomotopyR.equiv : --[Quasicategory A] :
-    Equivalence (fun f g : Δ[1] ⟶ A ↦ HomotopicR f g) where
-  refl f := ⟨HomotopyR.refl f⟩
-  symm := sorry
-  trans := sorry
+variable [A.Quasicategory]
 
-lemma homotopicL_iff_homotopicR : --[Quasicategory A]
+-- need a better name
+noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _[1]}
+  (H₁ : HomotopyL f g) (H₂ : HomotopyL f h) :
+    HomotopyL g h := by
+  let σ : Λ[3, 1] ⟶ A := sorry
+  let τ : A _[3] :=
+    A.yonedaEquiv _ (Classical.choose $ Quasicategory.hornFilling
+      (by simp) (by simp [Fin.lt_iff_val_lt_val]) σ)
+  have τ₀ : A.δ 0 τ = (A.δ 0 ≫ A.σ 0≫ A.σ 0) g := sorry
+  have τ₂ : A.δ 2 τ = H₂.x := sorry
+  have τ₃ : A.δ 3 τ = H₁.x := sorry
+  use A.δ 1 τ
+  . change (A.δ 1 ≫ A.δ 0) _ = _
+    rw [A.δ_comp_δ' (by simp)]; simp [τ₀]
+    change (A.σ 0 ≫ A.δ 0) _ = _
+    rw [A.δ_comp_σ_self' (by simp)]; simp
+  . rw [← H₂.face1, ← τ₂]
+    change _ = (A.δ 2 ≫ A.δ 1) _
+    rw [A.δ_comp_δ' (by simp)]; rfl
+  . rw [← H₁.face1, ← τ₃]
+    change _ = (A.δ 3 ≫ A.δ 1) _
+    rw [A.δ_comp_δ' (by simp)]; rfl
+
+lemma HomotopyL.equiv :
+    Equivalence (fun f g : A _[1] ↦ HomotopicL f g) where
+  refl f := ⟨HomotopyL.refl f⟩
+  symm := by
+    intro f g ⟨H⟩
+    exact ⟨H.ofHomotopyLOfHomotopyL (HomotopyL.refl f)⟩
+  trans := by
+    intro f g h ⟨H₁⟩ ⟨H₂⟩
+    exact ⟨(H₁.ofHomotopyLOfHomotopyL (HomotopyL.refl f)).ofHomotopyLOfHomotopyL H₂⟩
+
+lemma homotopicL_iff_homotopicR [Quasicategory A] :
     HomotopicL f g ↔ HomotopicR f g := sorry
 
-lemma HomotopyL.equiv : --[Quasicategory A]
-    Equivalence (fun f g : Δ[1] ⟶ A ↦ HomotopicL f g) := by
-  simp [homotopicL_iff_homotopicR]
-  exact HomotopyR.equiv
+lemma HomotopyR.equiv :
+    Equivalence (fun f g : A _[1] ↦ HomotopicR f g) := by
+  simp only [← homotopicL_iff_homotopicR]
+  exact HomotopyL.equiv
 
 end
 
