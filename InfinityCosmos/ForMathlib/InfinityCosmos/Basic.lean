@@ -2,7 +2,6 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Limits
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
-import Mathlib.AlgebraicTopology.SimplicialSet.Quasicategory
 import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
 
@@ -10,15 +9,13 @@ namespace CategoryTheory
 open Category Limits Functor MonoidalCategory Simplicial SimplicialCategory SSet
 universe w v v₁ v₂ u u₁ u₂
 
-variable (K : Type u) [Category.{v} K]
-variable [SimplicialCategory K]
-
+variable (K : Type u) [Category.{v} K] [SimplicialCategory K]
 
 /-- A `PreInfinityCosmos` is a simplicially enriched category whose hom-spaces are quasi-categories
 and whose morphisms come equipped with a special class of isofibrations.-/
 class PreInfinityCosmos extends SimplicialCategory K where
   [has_qcat_homs : ∀ {X Y : K}, SSet.Quasicategory (EnrichedCategory.Hom X Y)]
-  IsIsoFibration : MorphismProperty K
+  IsIsofibration : MorphismProperty K
 
 namespace InfinityCosmos
 
@@ -43,65 +40,60 @@ noncomputable def toFunMap (X : K) {A B : K} (f : A ⟶ B) :
     Fun X A ⟶ Fun X B := representableMap X f
 
 -- Arguments of this type have the form `⟨ f hf ⟩`
-def IsoFibration (X Y : K) : Type v := {f : X ⟶ Y // IsIsoFibration f}
+def Isofibration (X Y : K) : Type v := {f : X ⟶ Y // IsIsofibration f}
 
 -- Type with "\rr".
-infixr:25  " ↠ " => IsoFibration
+infixr:25  " ↠ " => Isofibration
 
 instance (A B : K) : Coe (A ↠ B) (A ⟶ B) := ⟨ λ f ↦ f.1 ⟩
 
 end InfinityCosmos
 
-open InfinityCosmos
-variable (K : Type u) [Category.{v} K][SimplicialCategory K] [PreInfinityCosmos.{v} K]
+open PreInfinityCosmos InfinityCosmos
+variable (K : Type u) [Category.{v} K][PreInfinityCosmos.{v} K]
 
-/-- Experimenting with some changes.-/
+/-- An `InfinityCosmos` extends a `PreInfinityCosmos` with limit and isofibration axioms..-/
 class InfinityCosmos extends PreInfinityCosmos K where
-  comp_isIsoFibration {X Y Z : K} (f : X ↠ Y) (g : Y ↠ Z) : IsIsoFibration (f.1 ≫ g.1)
-  iso_isIsoFibration {X Y : K} (e : X ⟶ Y) [IsIso e] : IsIsoFibration e
-  all_objects_fibrant {X Y : K} (hY : IsTerminal Y) (f : X ⟶ Y) : IsIsoFibration f
+  comp_isIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : IsIsofibration (f.1 ≫ g.1)
+  iso_isIsofibration {X Y : K} (e : X ⟶ Y) [IsIso e] : IsIsofibration e
+  all_objects_fibrant {X Y : K} (hY : IsTerminal Y) (f : X ⟶ Y) : IsIsofibration f
         -- TODO: replace by IsConicalTerminal?
   [has_products : HasConicalProducts K]
   prod_map_fibrant {γ : Type w} {A B : γ → K} (f : ∀ i, A i ↠ B i) :
-    IsIsoFibration (Limits.Pi.map (λ i ↦ (f i).1))
-  [has_isoFibration_pullbacks {A B E : K} (f : A ⟶ B) (g : E ↠ B) : HasConicalPullback f g.1]
-  pullback_is_isoFibration {A B E P : K} (f : A ⟶ B) (g : E ↠ B)
-    (fst : P ⟶ A) (snd : P ⟶ E) (h : IsPullback fst snd f g.1) : IsIsoFibration fst
+    IsIsofibration (Limits.Pi.map (λ i ↦ (f i).1))
+  [has_isoFibration_pullbacks {E B A : K} (p : E ↠ B) (f : A ⟶ B)  : HasConicalPullback p.1 f]
+  pullback_is_isoFibration {E B A P : K} (p : E ↠ B) (f : A ⟶ B)
+    (fst : P ⟶ E) (snd : P ⟶ A) (h : IsPullback fst snd p.1 f) : IsIsofibration snd
   [has_limits_of_towers (F : ℕᵒᵖ ⥤ K) :
-    (∀ n : ℕ, IsIsoFibration (F.map (homOfLE (Nat.le_succ n)).op)) → HasConicalLimit F]
-  has_limits_of_towers_isIsoFibration (F : ℕᵒᵖ ⥤ K) (hf) :
+    (∀ n : ℕ, IsIsofibration (F.map (homOfLE (Nat.le_succ n)).op)) → HasConicalLimit F]
+  has_limits_of_towers_isIsofibration (F : ℕᵒᵖ ⥤ K) (hf) :
     haveI := has_limits_of_towers F hf
-    IsIsoFibration (limit.π F (.op 0))
+    IsIsofibration (limit.π F (.op 0))
   [has_cotensors : HasCotensors K]
   leibniz_cotensor  {U V : SSet} (i : U ⟶ V) [Mono i] {A B : K} (f : A ↠ B) {P : K}
-    (fst : P ⟶ V ⋔ B) (snd : P ⟶ U ⋔ A)
-    (h : IsPullback fst snd (cotensorContraMap i B) (cotensorCovMap U f)) :
-    IsIsoFibration (h.isLimit.lift <|
-      PullbackCone.mk (cotensorCovMap V f.1) (cotensorContraMap i A)
+    (fst : P ⟶ U ⋔ A) (snd : P ⟶ V ⋔ B)
+    (h : IsPullback fst snd (cotensorCovMap U f.1) (cotensorContraMap i B)) :
+    IsIsofibration (h.isLimit.lift <|
+      PullbackCone.mk (cotensorContraMap i A) (cotensorCovMap V f.1)
         (cotensor_bifunctoriality i f.1)) --TODO : Prove that these pullbacks exist.
-  local_isoFibration {X A B : K} (f : A ↠ B) : IsoFibration (toFunMap X f.1)
-
-open InfinityCosmos
+  local_isoFibration {X A B : K} (f : A ↠ B) : Isofibration (toFunMap X f.1)
 
 attribute [instance] has_products has_isoFibration_pullbacks has_limits_of_towers has_cotensors
 
-section tests
+namespace InfinityCosmos
+
 variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
 
 open InfinityCosmos PreInfinityCosmos
 
 instance : HasConicalTerminal K := by infer_instance
 
+instance : HasCotensors K := by infer_instance
+
 instance : HasTerminal K := by infer_instance
 
 instance : HasProducts K := by infer_instance
 
-theorem binary_prod_map_fibrant {X Y X' Y' : K} {f : X ↠ Y} {g : X' ↠ Y'} :
-    IsIsoFibration (prod.map f.1 g.1) := sorry
-
-def compIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : A ↠ C :=
-  ⟨(f.1 ≫ g.1), comp_isIsoFibration f g⟩
-
-end tests
+end InfinityCosmos
 
 end CategoryTheory

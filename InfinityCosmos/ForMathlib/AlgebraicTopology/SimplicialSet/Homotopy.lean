@@ -5,13 +5,15 @@ Authors: Johns Hopkins Category Theory Seminar
 -/
 
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
+import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 import Mathlib.AlgebraicTopology.SimplicialSet.Quasicategory
 
 universe u v w
 
 namespace SSet
 
-open CategoryTheory Simplicial SimplicialCategory
+open CategoryTheory Simplicial SimplicialCategory Limits
 
 /-- An interval is a simplicial set equipped with two endpoints.-/
 class Interval (I : SSet.{u}) : Type u where
@@ -30,20 +32,27 @@ instance isoInterval : Interval coherentIso where
 
 
 open MonoidalCategory
-def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) := by sorry
+noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=
+  IsTerminal.uniqueUpToIso isTerminalDeltaZero (IsTerminal.ofUnique (𝟙_ SSet))
 
 noncomputable def expUnitNatIso : ihom (𝟙_ SSet) ≅ 𝟭 SSet :=
   (conjugateIsoEquiv (Adjunction.id (C := SSet)) (ihom.adjunction _)
     (leftUnitorNatIso _)).symm
 
-def expPointNatIso : ihom Δ[0] ≅ 𝟭 SSet := by sorry
---   refine ?_ ≪≫ expUnitNatIso
---   have := pointIsUnit.symm.op
---   sorry
+noncomputable def expPointNatIso : ihom Δ[0] ≅ 𝟭 SSet := by
+  refine ?_ ≪≫ expUnitNatIso
+  exact {
+    hom := MonoidalClosed.pre pointIsUnit.inv
+    inv := MonoidalClosed.pre pointIsUnit.hom
+    hom_inv_id := by
+      rw [← MonoidalClosed.pre_map, pointIsUnit.hom_inv_id]
+      exact MonoidalClosed.pre_id _
+    inv_hom_id := by
+      rw [← MonoidalClosed.pre_map, pointIsUnit.inv_hom_id]
+      exact MonoidalClosed.pre_id _
+  }
 
-/-- Once we've proven that `Δ[0]` is terminal, this will follow from something just PRed to mathlib.-/
-def expPointIsoSelf (X : SSet) : sHom Δ[0] X ≅ X := sorry
-
+noncomputable def expPointIsoSelf (X : SSet) : sHom Δ[0] X ≅ X := expPointNatIso.app X
 section
 
 variable {I : SSet.{u}} [Interval I]

@@ -49,8 +49,8 @@ def equivToEnrichedOpposite (V : Type u₁) (C : Type u₂) (D : Type u₃) :
     C × D ≃ C ⊗[V] D where
   toFun := of_prod V
   invFun := to_prod V
-  left_inv := by aesop_cat
-  right_inv := by aesop_cat
+  left_inv := congrFun rfl
+  right_inv := congrFun rfl
 
 variable (V : Type u₁) [Category.{v₁} V] [MonoidalCategory V]
 variable (C : Type u₂) [EnrichedCategory V C]
@@ -100,7 +100,6 @@ instance : EnrichedCategory V (C ⊗[V] D) where
     apply (Iso.inv_comp_eq _).mpr
     rw [← tensor_associativity_assoc]
     repeat rw [← tensor_comp]
-    apply whisker_eq; apply whisker_eq
     rw [(Iso.inv_comp_eq _).mp (@EnrichedCategory.assoc V _ _ C _ c₁ c₂ c₃ c₄),
       (Iso.inv_comp_eq _).mp (@EnrichedCategory.assoc V _ _ D _ d₁ d₂ d₃ d₄)]
 
@@ -120,20 +119,19 @@ def eBifuncConstr {E : Type u₄} [EnrichedCategory V E]
     (F_id_right : (c : C) → (d : D) →
       eId V d ≫ F_map_right c d d = eId V _)
     (F_comp_left : (c c' c'' : C) → (d : D) →
-      eComp V c c' c'' ≫ F_map_left c c'' d = ((F_map_left c c' d) ⊗ (F_map_left c' c'' d)) ≫ eComp V _ _ _)
+      eComp V c c' c'' ≫ F_map_left c c'' d = ((F_map_left c c' d) ⊗ (F_map_left c' c'' d)) ≫ eComp V ..)
     (F_comp_right : (c : C) → (d d' d'' : D) →
-      eComp V d d' d'' ≫ F_map_right c d d'' = ((F_map_right c d d') ⊗ (F_map_right c d' d'')) ≫ eComp V _ _ _)
+      eComp V d d' d'' ≫ F_map_right c d d'' = ((F_map_right c d d') ⊗ (F_map_right c d' d'')) ≫ eComp V ..)
     (F_left_right_naturality : (c c' : C) → (d d' : D) →
-      ((F_map_left c c' d) ⊗ (F_map_right c' d d')) ≫ eComp V _ _ _ = ((F_map_left c c' d') ⊗ (F_map_right c d d')) ≫ (β_ _ _).hom ≫ eComp V _ _ _)
+      ((F_map_left c c' d) ⊗ (F_map_right c' d d')) ≫ eComp V _ _ _ = ((F_map_left c c' d') ⊗ (F_map_right c d d')) ≫ (β_ _ _).hom ≫ eComp V ..)
     : EnrichedFunctor V (C ⊗[V] D) E where
   obj p := F_obj p.pr₁ p.pr₂
-  map p q := ((F_map_left p.pr₁ q.pr₁ p.pr₂) ⊗ (F_map_right q.pr₁ p.pr₂ q.pr₂)) ≫ eComp V _ _ _
+  map p q := ((F_map_left p.pr₁ q.pr₁ p.pr₂) ⊗ (F_map_right q.pr₁ p.pr₂ q.pr₂)) ≫ eComp V ..
   map_id p := by
     have : eId V p = (λ_ _).inv ≫ ((eId V p.pr₁) ⊗ (eId V p.pr₂)) := rfl
     simp only [this, Category.assoc]
-    rw [← tensor_comp_assoc]
-    simp only [F_id_left, F_id_right, tensorHom_def', Category.assoc]
-    rw [← leftUnitor_inv_naturality_assoc, e_id_comp]
+    rw [← tensor_comp_assoc, F_id_left, F_id_right, tensorHom_def', Category.assoc,
+      ← leftUnitor_inv_naturality_assoc, e_id_comp]
     exact Category.comp_id (eId V (F_obj p.pr₁ p.pr₂))
   map_comp p q r := by
     have : eComp V p q r = tensorμ _ _ _ _ ≫
@@ -143,65 +141,42 @@ def eBifuncConstr {E : Type u₄} [EnrichedCategory V E]
     simp only [tensor_comp_assoc]
     rw [comp_tensor_comp_eq_comp_mid_left_right]
     simp only [associator_naturality_assoc]
-    rw [← id_tensorHom]
-    rw [← tensor_comp_assoc]
-    rw [associator_inv_naturality]
-    have F_left_id : F_map_left p.pr₁ q.pr₁ p.pr₂ ≫ 𝟙 _ = 𝟙 _ ≫ F_map_left p.pr₁ q.pr₁ p.pr₂ := by aesop_cat
-    rw [F_left_id, tensor_comp_assoc]
-    rw [← tensorHom_id, ← id_tensorHom]
+    rw [← id_tensorHom, ← tensor_comp_assoc, associator_inv_naturality]
+    have F_left_id : F_map_left p.pr₁ q.pr₁ p.pr₂ ≫ 𝟙 _ = 𝟙 _ ≫ F_map_left p.pr₁ q.pr₁ p.pr₂ := by
+      aesop_cat
+    rw [F_left_id, tensor_comp_assoc, ← tensorHom_id, ← id_tensorHom]
     nth_rw 2 [← tensor_comp_assoc]
     rw [← tensor_comp]
     simp only [F_left_right_naturality]
     rw [BraidedCategory.braiding_naturality_assoc]
-    have F_right_id : F_map_right r.pr₁ q.pr₂ r.pr₂ ≫ 𝟙 _ = 𝟙 _ ≫ F_map_right r.pr₁ q.pr₂ r.pr₂ := by aesop_cat
-    rw [F_right_id]
-    rw [tensor_comp]
-    rw [F_left_id]
-    rw [tensor_comp]
-    --
+    have F_right_id : F_map_right r.pr₁ q.pr₂ r.pr₂ ≫ 𝟙 _ = 𝟙 _ ≫ F_map_right r.pr₁ q.pr₂ r.pr₂ := by
+      aesop_cat
+    rw [F_right_id, tensor_comp, F_left_id, tensor_comp]
     simp only [id_tensorHom, tensorHom_id]
     unfold tensorμ
     simp only [Category.assoc]
-    simp only [Iso.inv_hom_id_assoc, whiskerLeft_hom_inv_assoc]
+    rw [Iso.inv_hom_id_assoc, whiskerLeft_hom_inv_assoc]
     nth_rw 2 [← MonoidalCategory.whiskerLeft_comp_assoc]
-    rw [← MonoidalCategory.comp_whiskerRight]
-    rw [SymmetricCategory.symmetry]
+    rw [← MonoidalCategory.comp_whiskerRight, SymmetricCategory.symmetry]
     simp only [id_whiskerRight, MonoidalCategory.whiskerLeft_id, Category.id_comp]
-
-    rw [tensorHom_def]
-    rw [@tensorHom_def' V _ _ _ _ _ _
-                    ((F_map_right q.pr₁ p.pr₂ q.pr₂ ⊗ F_map_left q.pr₁ r.pr₁ q.pr₂) ≫
-                      eComp V (F_obj q.pr₁ p.pr₂) (F_obj q.pr₁ q.pr₂) (F_obj r.pr₁ q.pr₂))
-                    (F_map_right r.pr₁ q.pr₂ r.pr₂)]
-    simp only [comp_whiskerRight]
-    -- simp only [Category.assoc]
-    simp only [MonoidalCategory.whiskerLeft_comp, Category.assoc]
+    rw [tensorHom_def, @tensorHom_def' V _ _ _ _ _ _
+      ((F_map_right q.pr₁ p.pr₂ q.pr₂ ⊗ F_map_left q.pr₁ r.pr₁ q.pr₂) ≫
+        eComp V (F_obj q.pr₁ p.pr₂) (F_obj q.pr₁ q.pr₂) (F_obj r.pr₁ q.pr₂))
+          (F_map_right r.pr₁ q.pr₂ r.pr₂)]
+    simp only [comp_whiskerRight, MonoidalCategory.whiskerLeft_comp, Category.assoc]
     nth_rw 3 [← MonoidalCategory.whiskerLeft_comp_assoc]
-
-    rw [← e_assoc']
-    rw [MonoidalCategory.whiskerLeft_comp_assoc]
-    rw [MonoidalCategory.whiskerLeft_comp_assoc]
-    nth_rw 2 [← MonoidalCategory.whiskerLeft_comp_assoc]
-    nth_rw 2 [← tensorHom_id]
-    rw [associator_naturality]
-    rw [MonoidalCategory.whiskerLeft_comp_assoc]
-    rw [← MonoidalCategory.whiskerLeft_comp_assoc]
-    rw [associator_naturality_right]
-    rw [MonoidalCategory.whiskerLeft_comp_assoc]
-    rw [← whisker_exchange_assoc]
-    rw [← MonoidalCategory.whiskerLeft_comp_assoc]
-    simp only [Iso.inv_hom_id, MonoidalCategory.whiskerLeft_id, Category.id_comp]
-
-    rw [← e_assoc]
-    rw [associator_inv_naturality_right_assoc]
+    rw [← e_assoc', MonoidalCategory.whiskerLeft_comp_assoc, MonoidalCategory.whiskerLeft_comp_assoc]
+    nth_rw 2 [← MonoidalCategory.whiskerLeft_comp_assoc, ← tensorHom_id]
+    rw [associator_naturality, MonoidalCategory.whiskerLeft_comp_assoc,
+      ← MonoidalCategory.whiskerLeft_comp_assoc, associator_naturality_right,
+        MonoidalCategory.whiskerLeft_comp_assoc, ← whisker_exchange_assoc,
+          ← MonoidalCategory.whiskerLeft_comp_assoc, Iso.inv_hom_id,
+            MonoidalCategory.whiskerLeft_id, Category.id_comp, ← e_assoc,
+              associator_inv_naturality_right_assoc]
     nth_rw 4 [← id_tensorHom]
-    rw [associator_inv_naturality_assoc]
-    rw [associator_inv_naturality_right_assoc]
-    rw [associator_inv_naturality_left_assoc]
-    simp only [Iso.hom_inv_id_assoc]
-
-    rw [← tensorHom_id, ← tensorHom_id, ← id_tensorHom, ← id_tensorHom]
-    rw [← tensor_comp_assoc, ← tensor_comp_assoc]
+    rw [associator_inv_naturality_assoc, associator_inv_naturality_right_assoc,
+      associator_inv_naturality_left_assoc, Iso.hom_inv_id_assoc, ← tensorHom_id, ← tensorHom_id,
+        ← id_tensorHom, ← id_tensorHom, ← tensor_comp_assoc, ← tensor_comp_assoc]
     simp only [Category.comp_id, Category.id_comp, id_tensorHom, tensorHom_id]
     rw [← tensorHom_def, ← tensorHom_def', ← tensorHom_def'_assoc]
 

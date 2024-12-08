@@ -43,8 +43,8 @@ lemma cotensorPrecompose_homEquiv {U V : SSet} {A : K} (ua : Cotensor U A) (va :
 theorem cotensor_local_bifunctoriality {U V : SSet} {A B : K}
     (ua : Cotensor U A) (ub : Cotensor U B) (va : Cotensor V A) (vb : Cotensor V B)
     (i : U ⟶ V) (f : A ⟶ B) :
-    (cotensorPostcompose va vb f) ≫ (cotensorPrecompose ub vb i) =
-      (cotensorPrecompose ua va i) ≫ (cotensorPostcompose ua ub f) := by
+    (cotensorPrecompose ua va i) ≫ (cotensorPostcompose ua ub f) =
+      (cotensorPostcompose va vb f) ≫ (cotensorPrecompose ub vb i) := by
   apply (eHomEquiv SSet).injective
   rw [eHomEquiv_comp, eHomEquiv_comp]
   have thm := Cotensor.post_pre_eq_pre_post _ ua ub va vb
@@ -52,7 +52,7 @@ theorem cotensor_local_bifunctoriality {U V : SSet} {A B : K}
   rw [Category.assoc, ← tensor_comp_assoc] at compeq
   rw [← cotensorPostcompose_homEquiv, ← cotensorPrecompose_homEquiv] at compeq
   rw [compeq]
-  slice_rhs 2 3 => rw [← tensor_comp, ← cotensorPostcompose_homEquiv, ← cotensorPrecompose_homEquiv]
+  slice_lhs 2 3 => rw [← tensor_comp, ← cotensorPostcompose_homEquiv, ← cotensorPrecompose_homEquiv]
   simp only [braiding_naturality, braiding_tensorUnit_right, Category.assoc,
     Iso.cancel_iso_inv_left]
   monoidal
@@ -130,9 +130,8 @@ noncomputable def cotensorContraMap {U V : SSet} (i : U ⟶ V) (A : K) : V ⋔ A
 
 -- DC: post_pre_eq_pre_post
 theorem cotensor_bifunctoriality {U V : SSet} (i : U ⟶ V) {A B : K} (f : A ⟶ B) :
-    (cotensorCovMap V f) ≫ (cotensorContraMap i B) =
-    (cotensorContraMap i A) ≫ (cotensorCovMap U f) := cotensor_local_bifunctoriality _ _ _ _ i f
-
+    (cotensorContraMap i A) ≫ (cotensorCovMap U f) =
+      (cotensorCovMap V f) ≫ (cotensorContraMap i B) := cotensor_local_bifunctoriality _ _ _ _ i f
 end
 
 
