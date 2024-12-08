@@ -26,17 +26,8 @@ noncomputable def IsConicalTerminal.sHomIso {T : C} (hT : IsConicalTerminal T)
 noncomputable def IsConicalTerminal.ofIso {Y Z : C} (hY : IsConicalTerminal Y) (i : Y ≅ Z) :
     IsConicalTerminal Z where
   isLimit := IsTerminal.ofIso hY.isTerminal i
-  isSLimit X := by
-    apply hY.isSLimit X |>.ofIsoLimit
-    refine Cones.ext ?_ (by simp)
-    exact {
-      hom := sHomWhiskerLeft X i.hom
-      inv := sHomWhiskerLeft X i.inv
-      hom_inv_id := by
-        simp [← sHomWhiskerLeft_comp, i.hom_inv_id, sHomWhiskerLeft_id X Y]
-      inv_hom_id := by
-        simp [← sHomWhiskerLeft_comp, i.inv_hom_id, sHomWhiskerLeft_id X Z]
-    }
+  isSLimit X :=
+    hY.isSLimit X |>.ofIsoLimit <| Cones.ext (sHomWhiskerLeftIso X i) (by simp)
 
 namespace HasConicalTerminal
 variable [HasConicalTerminal C]

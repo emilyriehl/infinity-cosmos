@@ -3,6 +3,7 @@ Copyright (c) 2024 Joël Riou. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joël Riou
 -/
+import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary
 import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Closed.FunctorToTypes
@@ -45,6 +46,9 @@ variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
 noncomputable abbrev sHomWhiskerRight {K K' : C} (f : K ⟶ K') (L : C) :
     sHom K' L ⟶ sHom K L := eHomWhiskerRight SSet f L
 
+noncomputable abbrev sHomWhiskerRightIso {K K' : C} (i : K ≅ K') (L : C) :
+    sHom K' L ≅ sHom K L := eHomWhiskerRightIso SSet i L
+
 @[simp]
 lemma sHomWhiskerRight_id (K L : C) : sHomWhiskerRight (𝟙 K) L = 𝟙 _ :=
   eHomWhiskerRight_id _ K L
@@ -57,6 +61,9 @@ lemma sHomWhiskerRight_comp {K K' K'' : C} (f : K ⟶ K') (f' : K' ⟶ K'') (L :
 /-- The morphism `sHom K L ⟶ sHom K L'` induced by a morphism `L ⟶ L'`. -/
 noncomputable abbrev sHomWhiskerLeft (K : C) {L L' : C} (g : L ⟶ L') :
     sHom K L ⟶ sHom K L' := eHomWhiskerLeft SSet K g
+
+noncomputable abbrev sHomWhiskerLeftIso (K : C) {L L' : C} (i : L ≅ L') :
+    sHom K L ≅ sHom K L' := eHomWhiskerLeftIso SSet K i
 
 @[simp]
 lemma sHomWhiskerLeft_id (K L : C) : sHomWhiskerLeft K (𝟙 L) = 𝟙 _ :=
