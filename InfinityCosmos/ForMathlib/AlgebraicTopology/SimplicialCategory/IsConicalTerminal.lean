@@ -17,9 +17,10 @@ abbrev IsConicalTerminal (T : C) := IsSLimit (asEmptyCone T)
 def IsConicalTerminal.isTerminal {T : C} (hT : IsConicalTerminal T) : IsTerminal T := hT.isLimit
 
 /-- The defining universal property of a conical terminal object gives an isomorphism of homs.-/
-def IsConicalTerminal.sHomIso {T : C} (hT : IsConicalTerminal T) (X : C) : sHom X T ≅ ⊤_ SSet := by
-  let iso : sHom X T ≅ _ := limitComparisonIso _ X hT
-  sorry
+noncomputable def IsConicalTerminal.sHomIso {T : C} (hT : IsConicalTerminal T)
+    (X : C) : sHom X T ≅ ⊤_ SSet :=
+  limitComparisonIso _ X hT ≪≫
+    HasLimit.isoOfEquivalence (by rfl) (Functor.emptyExt _ _)
 
 /-- Transport a term of type `IsTerminal` across an isomorphism. -/
 def IsConicalTerminal.ofIso {Y Z : C} (hY : IsConicalTerminal Y) (i : Y ≅ Z) :
