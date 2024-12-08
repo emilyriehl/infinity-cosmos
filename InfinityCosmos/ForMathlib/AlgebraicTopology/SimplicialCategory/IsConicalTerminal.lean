@@ -42,10 +42,8 @@ noncomputable def conicalTerminalIsConicalTerminal :
     exact h.isLimit.ofIsoLimit <| Cones.ext (by rfl) (by simp)
   isSLimit X := by
     let h := conicalLimit.isConicalLimit (Functor.empty.{0} C)
-    apply h.isSLimit X |>.ofIsoLimit
-    refine Cones.ext ?_ (by simp)
-    dsimp only [Functor.mapCone_pt]
-    rfl
+    refine h.isSLimit X |>.ofIsoLimit (Cones.ext ?_ (by simp))
+    exact Iso.refl <| sHomFunctor C |>.obj _ |>.obj _
 
 noncomputable def terminalIsConicalTerminal {T : C} (hT : IsTerminal T) :
     IsConicalTerminal T := by
