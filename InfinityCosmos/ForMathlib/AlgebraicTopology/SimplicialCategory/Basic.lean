@@ -3,7 +3,6 @@ Copyright (c) 2024 Joël Riou. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joël Riou
 -/
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary
 import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Closed.FunctorToTypes
@@ -67,9 +66,6 @@ lemma sHomWhiskerLeft_id (K L : C) : sHomWhiskerLeft K (𝟙 L) = 𝟙 _ :=
 lemma sHomWhiskerLeft_comp (K : C) {L L' L'' : C} (g : L ⟶ L') (g' : L' ⟶ L'') :
     sHomWhiskerLeft K (g ≫ g') = sHomWhiskerLeft K g ≫ sHomWhiskerLeft K g' :=
   eHomWhiskerLeft_comp _ _ _ _
-
-noncomputable abbrev sHomCongr {K K' L L' : C} (α : K ≅ K') (β : L ≅ L') :
-    sHom K L ≅ sHom K' L' := eHomCongr SSet α β
 
 @[reassoc]
 lemma sHom_whisker_exchange {K K' L L' : C} (f : K ⟶ K') (g : L ⟶ L') :
