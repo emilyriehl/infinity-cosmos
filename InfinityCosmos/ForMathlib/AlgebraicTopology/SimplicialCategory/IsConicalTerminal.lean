@@ -23,11 +23,9 @@ noncomputable def IsConicalTerminal.sHomIso {T : C} (hT : IsConicalTerminal T)
     HasLimit.isoOfEquivalence (by rfl) (Functor.emptyExt _ _)
 
 /-- Transport a term of type `IsConicalTerminal` across an isomorphism. -/
-noncomputable def IsConicalTerminal.ofIso {Y Z : C} (hY : IsConicalTerminal Y) (i : Y ≅ Z) :
-    IsConicalTerminal Z where
-  isLimit := IsTerminal.ofIso hY.isTerminal i
-  isSLimit X :=
-    hY.isSLimit X |>.ofIsoLimit <| Cones.ext (sHomCongr (Iso.refl X) i) (by simp)
+noncomputable def IsConicalTerminal.ofIso {Y Z : C} (hY : IsConicalTerminal Y)
+    (i : Y ≅ Z) : IsConicalTerminal Z :=
+  hY.ofIsoSLimit <| Cones.ext i (by simp)
 
 namespace HasConicalTerminal
 variable [HasConicalTerminal C]
@@ -36,14 +34,8 @@ variable (C) in
 noncomputable def conicalTerminal : C := conicalLimit (Functor.empty.{0} C)
 
 noncomputable def conicalTerminalIsConicalTerminal :
-    IsConicalTerminal (conicalTerminal C) where
-  isLimit := by
-    let h := conicalLimit.isConicalLimit (Functor.empty.{0} C)
-    exact h.isLimit.ofIsoLimit <| Cones.ext (by rfl) (by simp)
-  isSLimit X := by
-    let h := conicalLimit.isConicalLimit (Functor.empty.{0} C)
-    refine h.isSLimit X |>.ofIsoLimit (Cones.ext ?_ (by simp))
-    exact Iso.refl <| sHomFunctor C |>.obj _ |>.obj _
+    IsConicalTerminal (conicalTerminal C) :=
+  conicalLimit.isConicalLimit _ |>.ofIsoSLimit <| Cones.ext (by rfl) (by simp)
 
 noncomputable def terminalIsConicalTerminal {T : C} (hT : IsTerminal T) :
     IsConicalTerminal T := by
