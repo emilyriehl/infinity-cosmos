@@ -46,9 +46,6 @@ variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
 noncomputable abbrev sHomWhiskerRight {K K' : C} (f : K ⟶ K') (L : C) :
     sHom K' L ⟶ sHom K L := eHomWhiskerRight SSet f L
 
-noncomputable abbrev sHomWhiskerRightIso {K K' : C} (i : K ≅ K') (L : C) :
-    sHom K' L ≅ sHom K L := eHomWhiskerRightIso SSet i L
-
 @[simp]
 lemma sHomWhiskerRight_id (K L : C) : sHomWhiskerRight (𝟙 K) L = 𝟙 _ :=
   eHomWhiskerRight_id _ K L
@@ -62,9 +59,6 @@ lemma sHomWhiskerRight_comp {K K' K'' : C} (f : K ⟶ K') (f' : K' ⟶ K'') (L :
 noncomputable abbrev sHomWhiskerLeft (K : C) {L L' : C} (g : L ⟶ L') :
     sHom K L ⟶ sHom K L' := eHomWhiskerLeft SSet K g
 
-noncomputable abbrev sHomWhiskerLeftIso (K : C) {L L' : C} (i : L ≅ L') :
-    sHom K L ≅ sHom K L' := eHomWhiskerLeftIso SSet K i
-
 @[simp]
 lemma sHomWhiskerLeft_id (K L : C) : sHomWhiskerLeft K (𝟙 L) = 𝟙 _ :=
   eHomWhiskerLeft_id _ _ _
@@ -73,6 +67,9 @@ lemma sHomWhiskerLeft_id (K L : C) : sHomWhiskerLeft K (𝟙 L) = 𝟙 _ :=
 lemma sHomWhiskerLeft_comp (K : C) {L L' L'' : C} (g : L ⟶ L') (g' : L' ⟶ L'') :
     sHomWhiskerLeft K (g ≫ g') = sHomWhiskerLeft K g ≫ sHomWhiskerLeft K g' :=
   eHomWhiskerLeft_comp _ _ _ _
+
+noncomputable abbrev sHomCongr {K K' L L' : C} (α : K ≅ K') (β : L ≅ L') :
+    sHom K L ≅ sHom K' L' := eHomCongr SSet α β
 
 @[reassoc]
 lemma sHom_whisker_exchange {K K' L L' : C} (f : K ⟶ K') (g : L ⟶ L') :

@@ -9,22 +9,18 @@ namespace CategoryTheory
 variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
   {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
 
-def eHomWhiskerLeftIso (X : C) {Y Y' : C} (i : Y ≅ Y') :
-    (X ⟶[V] Y) ≅ (X ⟶[V] Y') where
-  hom := eHomWhiskerLeft V X i.hom
-  inv := eHomWhiskerLeft V X i.inv
+@[simps]
+def eHomCongr {X X' Y Y' : C} (α : X ≅ X') (β : Y ≅ Y') :
+    (X ⟶[V] Y) ≅ (X' ⟶[V] Y') where
+  hom := eHomWhiskerLeft V X β.hom ≫ eHomWhiskerRight V α.inv Y'
+  inv := eHomWhiskerLeft V X' β.inv ≫ eHomWhiskerRight V α.hom Y
   hom_inv_id := by
-    rw [← eHomWhiskerLeft_comp, i.hom_inv_id, eHomWhiskerLeft_id]
+    rw [eHom_whisker_exchange, assoc, ← assoc (eHomWhiskerLeft V X' β.hom)]
+    rw [← eHomWhiskerLeft_comp, β.hom_inv_id, eHomWhiskerLeft_id, id_comp]
+    rw [← eHomWhiskerRight_comp, α.hom_inv_id, eHomWhiskerRight_id]
   inv_hom_id := by
-    rw [← eHomWhiskerLeft_comp, i.inv_hom_id, eHomWhiskerLeft_id]
-
-def eHomWhiskerRightIso {X X' : C} (i : X ≅ X') (Y : C) :
-    (X' ⟶[V] Y) ≅ (X ⟶[V] Y) where
-  hom := eHomWhiskerRight V i.hom Y
-  inv := eHomWhiskerRight V i.inv Y
-  hom_inv_id := by
-    rw [← eHomWhiskerRight_comp, i.inv_hom_id, eHomWhiskerRight_id]
-  inv_hom_id := by
-    rw [← eHomWhiskerRight_comp, i.hom_inv_id, eHomWhiskerRight_id]
+    rw [eHom_whisker_exchange, assoc, ← assoc (eHomWhiskerLeft V X β.inv)]
+    rw [← eHomWhiskerLeft_comp, β.inv_hom_id, eHomWhiskerLeft_id, id_comp]
+    rw [← eHomWhiskerRight_comp, α.inv_hom_id, eHomWhiskerRight_id]
 
 end CategoryTheory
