@@ -26,6 +26,19 @@ structure IsSLimit where
 /-- Conical simplicial limits are also limits in the unenriched sense.-/
 def IsSLimit_islimit (slim : IsSLimit c) : IsLimit c := slim.isLimit
 
+/-- Transport evidence that a cone is a simplicially enriched limit cone across
+an isomorphism of cones. -/
+noncomputable def IsSLimit.ofIsoSLimit {r t : Cone F} (h : IsSLimit r)
+    (i : r ≅ t) : IsSLimit t where
+  isLimit := h.isLimit.ofIsoLimit i
+  isSLimit X := h.isSLimit X |>.ofIsoLimit
+    { hom := Functor.mapConeMorphism _ i.hom
+      inv := Functor.mapConeMorphism _ i.inv
+      hom_inv_id := by
+        simp only [Functor.mapCone, Functor.mapConeMorphism, Iso.map_hom_inv_id]
+      inv_hom_id := by
+        simp only [Functor.mapCone, Functor.mapConeMorphism, Iso.map_inv_hom_id] }
+
 namespace SimplicialCategory
 
 /-!
