@@ -89,7 +89,7 @@ instance : HasConicalTerminal K := by infer_instance
 instance : HasTerminal K := by infer_instance
 
 /-- The terminal object in an ∞-cosmos is a conical terminal object. -/
-def terminalIsConicalTerminal : IsConicalTerminal (⊤_ K) :=
+noncomputable def terminalIsConicalTerminal : IsConicalTerminal (⊤_ K) :=
   HasConicalTerminal.terminalIsConicalTerminal terminalIsTerminal
 
 instance : HasCotensors K := by infer_instance
