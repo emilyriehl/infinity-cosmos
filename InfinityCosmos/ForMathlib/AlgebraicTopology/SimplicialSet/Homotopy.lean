@@ -92,16 +92,16 @@ open SimplexCategory
 variable {A : SSet.{u}} (f g : A _[1])
 
 structure HomotopyL where
-  x : A _[2]
-  face0 : A.δ 0 x = A.σ 0 (A.δ 0 f)
-  face1 : A.δ 1 x = g
-  face2 : A.δ 2 x = f
+  simplex : A _[2]
+  δ₀_eq : A.δ 0 simplex = A.σ 0 (A.δ 0 f)
+  δ₁_eq : A.δ 1 simplex = g
+  δ₂_eq : A.δ 2 simplex = f
 
 structure HomotopyR where
-  x : A _[2]
-  face0 : A.δ 0 x = f
-  face1 : A.δ 1 x = g
-  face2 : A.δ 2 x = A.σ 0 (A.δ 1 f)
+  simplex : A _[2]
+  δ₀_eq : A.δ 0 simplex = f
+  δ₁_eq : A.δ 1 simplex = g
+  δ₂_eq : A.δ 2 simplex = A.σ 0 (A.δ 1 f)
 
 def HomotopicL : Prop :=
     Nonempty (HomotopyL f g)
@@ -110,14 +110,14 @@ def HomotopicR : Prop :=
     Nonempty (HomotopyR f g)
 
 def HomotopyL.refl : HomotopyL f f where
-  x := A.σ 1 f
-  face0 := by
+  simplex := A.σ 1 f
+  δ₀_eq := by
     change _ = (A.δ 0 ≫ A.σ 0) _
     rw [← A.δ_comp_σ_of_le (by simp)]; simp
-  face1 := by
+  δ₁_eq := by
     change (A.σ 1 ≫ A.δ 1) _ = _
     rw [A.δ_comp_σ_self' (by simp)]; simp
-  face2 := by
+  δ₂_eq := by
     change (A.σ 1 ≫ A.δ 2) _ = _
     rw [A.δ_comp_σ_succ' (by simp)]
     rfl
@@ -133,17 +133,17 @@ noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _[1]}
     A.yonedaEquiv _ (Classical.choose $ Quasicategory.hornFilling
       (by simp) (by simp [Fin.lt_iff_val_lt_val]) σ)
   have τ₀ : A.δ 0 τ = (A.δ 0 ≫ A.σ 0≫ A.σ 0) g := sorry
-  have τ₂ : A.δ 2 τ = H₂.x := sorry
-  have τ₃ : A.δ 3 τ = H₁.x := sorry
+  have τ₂ : A.δ 2 τ = H₂.simplex := sorry
+  have τ₃ : A.δ 3 τ = H₁.simplex := sorry
   use A.δ 1 τ
   . change (A.δ 1 ≫ A.δ 0) _ = _
     rw [A.δ_comp_δ' (by simp)]; simp [τ₀]
     change (A.σ 0 ≫ A.δ 0) _ = _
     rw [A.δ_comp_σ_self' (by simp)]; simp
-  . rw [← H₂.face1, ← τ₂]
+  . rw [← H₂.δ₁_eq, ← τ₂]
     change _ = (A.δ 2 ≫ A.δ 1) _
     rw [A.δ_comp_δ' (by simp)]; rfl
-  . rw [← H₁.face1, ← τ₃]
+  . rw [← H₁.δ₁_eq, ← τ₃]
     change _ = (A.δ 3 ≫ A.δ 1) _
     rw [A.δ_comp_δ' (by simp)]; rfl
 
