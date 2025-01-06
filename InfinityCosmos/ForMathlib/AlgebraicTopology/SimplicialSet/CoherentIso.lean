@@ -53,17 +53,7 @@ def fromIso {X Y : C} (e : X ≅ Y) : WalkingIso ⥤ C where
     | zero, one,  _ => e.hom
     | one,  zero, _ => e.inv
     | one,  one,  _ => 𝟙 _
-  map_comp := by
-    intro X Y Z f g
-    match X, Y, Z with
-    | zero, zero, zero => simp
-    | zero, zero, one => simp
-    | zero, one, zero => simp
-    | zero, one, one => simp
-    | one, zero, zero => simp
-    | one, zero, one => simp
-    | one, one, zero => simp
-    | one, one, one => simp
+  map_comp := by rintro (_ | _) (_ | _) (_ | _) _ _ <;> simp
 
 def equiv : (WalkingIso ⥤ C) ≃ Σ (X : C) (Y : C), (X ≅ Y) where
   toFun F := ⟨F.obj zero, F.obj one, toIso F⟩
