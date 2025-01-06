@@ -129,9 +129,10 @@ noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _[1]}
   (H₁ : HomotopyL f g) (H₂ : HomotopyL f h) :
     HomotopyL g h := by
   let σ : Λ[3, 1] ⟶ A := sorry
-  let τ : A _[3] :=
-    A.yonedaEquiv _ (Classical.choose $ Quasicategory.hornFilling
-      (by simp) (by simp [Fin.lt_iff_val_lt_val]) σ)
+  let τ : A _[3] := sorry
+    -- BUILD FAILS:
+    -- A.yonedaEquiv _ (Classical.choose $ Quasicategory.hornFilling
+    --   (by simp) (by simp [Fin.lt_iff_val_lt_val]) σ)
   have τ₀ : A.δ 0 τ = (A.δ 0 ≫ A.σ 0≫ A.σ 0) g := sorry
   have τ₂ : A.δ 2 τ = H₂.simplex := sorry
   have τ₃ : A.δ 3 τ = H₁.simplex := sorry
