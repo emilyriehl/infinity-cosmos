@@ -684,7 +684,7 @@ def SSet.OneTruncation.ofNerve.natIso : nerveFunctor.{u,u} ⋙ SSet.oneTruncatio
     · exact fun _ ↦ rfl
     · intro X Y f
       obtain ⟨f, rfl, rfl⟩ := f
-      unfold SSet.oneTruncation nerveFunctor mapComposableArrows toReflPrefunctor
+      unfold SSet.oneTruncation nerveMap mapComposableArrows toReflPrefunctor
       simp [ReflQuiv.comp_eq_comp, ofNerve, ofNerve.hom, ofNerve.map]
 
 local notation (priority := high) "[" n "]" => SimplexCategory.mk n
