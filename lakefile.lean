@@ -11,7 +11,7 @@ package «InfinityCosmos» where
   ]
 
 /- Specify external dependencies required for this project. -/
-require mathlib from git "https://github.com/leanprover-community/mathlib4.git"
+require mathlib from git "https://github.com/leanprover-community/mathlib4.git" @ "v4.15.0"
 
 /- Define the default Lean library target for the project.
 This can be customized with additional library configuration options.
@@ -23,5 +23,4 @@ lean_lib «InfinityCosmos» where
 require checkdecls from git "https://github.com/PatrickMassot/checkdecls.git"
 
 meta if get_config? env = some "dev" then
-require «doc-gen4» from git
-  "https://github.com/leanprover/doc-gen4" @ "main"
+require «doc-gen4» from git "https://github.com/leanprover/doc-gen4" @ "v4.15.0"
