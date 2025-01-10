@@ -90,6 +90,7 @@ noncomputable def Cospan00 := Limits.pushout chain0 chain0
 
 noncomputable def Cospan0011 := Limits.pushout (chain1 ≫ (Limits.pushout.inl chain0 chain0)) chain1
 
+#check Limits.pushout
 
 #check chain1 ≫ (Limits.pushout.inl chain0 chain0)
 
@@ -126,6 +127,8 @@ def test : 0 ≤ 1 := by
 #check zero_le
 #check CategoryTheory.homOfLE (Nat.zero_le 1)
 
+#check Unit
+
 open Limits in
 noncomputable def someMap : secondEquiv ⟶ SSet.coherentIso := by
   refine pushout.desc ?_ ?_ ?_
@@ -138,19 +141,15 @@ noncomputable def someMap : secondEquiv ⟶ SSet.coherentIso := by
   -- Up until this point is reasonable
   -- For the rest, I don't know the best way to proceed, am trying some stuff.
     refine {
-    obj := ?_
-    map := ?_
-    map_comp := ?_
-    map_id := ?_
+    obj := λ n => match n with
+      | 0 => WalkingIso.one
+      | 1 => WalkingIso.zero
+      | 2 => WalkingIso.one
+      | 3 => WalkingIso.zero
+    map := λ _ => Unit.unit
+    map_comp := λ _  _ => rfl
+    map_id := λ _ => rfl
     }
-    · exact fun
-      | 0 => WalkingIso.zero
-      | 1 => WalkingIso.one
-      | 2 => WalkingIso.zero
-      | 3 => WalkingIso.one
-    · sorry
-    · sorry
-    · sorry
   · apply (SSet.yonedaEquiv _ _ |>.invFun)
     unfold SSet.coherentIso
     unfold nerve
@@ -158,18 +157,34 @@ noncomputable def someMap : secondEquiv ⟶ SSet.coherentIso := by
     unfold ComposableArrows
     simp only [Nat.reduceAdd]
     refine {
-      obj := ?_
-      map := ?_
-      map_comp := ?_
-      map_id := ?_
+      obj := fun
+        | 0 => WalkingIso.zero
+        | 1 => WalkingIso.one
+      map := fun _ => Unit.unit
+      map_comp := λ _ _ => rfl
+      map_id := λ _ => rfl
     }
-    · exact fun
-      | 0 => WalkingIso.zero
-      | 1 => WalkingIso.one
-    · sorry
-    · sorry
-    · sorry
-  · sorry
+  · apply CategoryTheory.Limits.colimit.hom_ext
+    intro j
+    rcases j with (_ | (_ | _)) <;> simp [map5, map6, chain1, SSet.coherentIso]
+    · rfl
+    · apply CategoryTheory.Limits.colimit.hom_ext
+      intros j
+      rcases j with (_ | (_ | _))
+      · aesop
+      · apply (SSet.coherentIso.yonedaEquiv [1]).injective
+        sorry
+      · sorry
+    · apply (SSet.yonedaEquiv SSet.coherentIso [1]).injective
+      sorry
+
+    --ext a b
+    --simp only [id, NatTrans.app_]
+#check Equiv
+#check SSet.yonedaEquiv SSet.coherentIso [1]
+#check Yoneda.ext
+
+#check SSet.standardSimplex
 
 open Limits in
 noncomputable def someMap' : firstEquiv ⟶ secondEquiv := by
@@ -184,7 +199,10 @@ refine pushout.desc ?_ ?_ ?_
 · refine coprod.desc ?_ ?_
   · exact ((SSet.yonedaEquiv Δ[3] [0] |>.invFun (SSet.standardSimplex.const 3 1 (Opposite.op [0]))) ≫ (Limits.pushout.inl map5 map6))
   · exact ((SSet.yonedaEquiv Δ[3] [0] |>.invFun (SSet.standardSimplex.const 3 2 (Opposite.op [0]))) ≫ (Limits.pushout.inl map5 map6))
-· sorry
+· apply CategoryTheory.Limits.colimit.hom_ext
+  intro j
+  simp [map5, map6]
+  aesop_cat
 
 
 -- #check evaluation
