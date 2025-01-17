@@ -1,11 +1,22 @@
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
-import ProofWidgets
+/-
+Copyright (c) 2025 Jon Eugster. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Emily Riehl, Dagur Asgeirsson, Jon Eugster
+-/
+import Mathlib.CategoryTheory.Enriched.Ordinary
+import Mathlib.CategoryTheory.Limits.Preserves.Limits
+
+/-!
+# Conical limits / enriched limits
+
+
+-/
 
 universe v₁ u₁ v₂ u₂ w v' v u u'
 
 namespace CategoryTheory
 
-open Limits SimplicialCategory Opposite
+open Limits EnrichedOrdinaryCategory Opposite
 
 variable {J : Type u₁} [Category.{v₁} J]
 variable {C : Type u} [Category.{v} C]
@@ -16,23 +27,23 @@ section
 variable {F : J ⥤ C} (c : Cone F)
 
 /--
-A limit cone `c` in a `V`-enriched category `C` is an *`V`-enriched limit* if for every
+A limit cone `c` in a `V`-enriched ordinary category `C` is a *`V`-enriched limit* if for every
 `X : C`, the cone obtained by applying the coyoneda functor `(X ⟶[V] -)` to `c` is a
 limit cone in `V`.
 -/
-structure IsSLimit where
+structure IsConicalLimit where
   isLimit : IsLimit c
-  isSLimit (X : C) : IsLimit <| ((eHomFunctor V C).obj (op X)).mapCone c
+  isConicalLimit (X : C) : IsLimit <| ((eHomFunctor V C).obj (op X)).mapCone c
 
-/-- Conical simplicial limits are also limits in the unenriched sense.-/
-def IsSLimit_islimit (slim : IsSLimit V c) : IsLimit c := slim.isLimit
+/-- Conical simplicial limits are also limits in the unenriched sense. -/
+def IsConicalLimit_islimit (slim : IsConicalLimit V c) : IsLimit c := slim.isLimit
 
-/-- Transport evidence that a cone is a simplicially enriched limit cone across
+/-- Transport evidence that a cone is a `V`-enriched limit cone across
 an isomorphism of cones. -/
-noncomputable def IsSLimit.ofIsoSLimit {r t : Cone F} (h : IsSLimit V r)
-    (i : r ≅ t) : IsSLimit V t where
+noncomputable def IsConicalLimit.ofIsoConicalLimit {r t : Cone F} (h : IsConicalLimit V r)
+    (i : r ≅ t) : IsConicalLimit V t where
   isLimit := h.isLimit.ofIsoLimit i
-  isSLimit X := h.isSLimit X |>.ofIsoLimit
+  isConicalLimit X := h.isConicalLimit X |>.ofIsoLimit
     { hom := Functor.mapConeMorphism _ i.hom
       inv := Functor.mapConeMorphism _ i.inv
       hom_inv_id := by
@@ -40,14 +51,14 @@ noncomputable def IsSLimit.ofIsoSLimit {r t : Cone F} (h : IsSLimit V r)
       inv_hom_id := by
         simp only [Functor.mapCone, Functor.mapConeMorphism, Iso.map_inv_hom_id] }
 
-namespace SimplicialCategory
+namespace EnrichedOrdinaryCategory
 
 /-!
 # Characterization in terms of the comparison map.
 
-There is a canonical comparison map with the limit in `SSet`, the following proves that a limit
-cone in `A` is a simplicially enriched limit if and only if the comparison map is an isomorphism
-for every `X : A`.
+There is a canonical comparison map with the limit in `V`, the following proves that a limit
+cone in `C` is a simplicially enriched limit if and only if the comparison map is an isomorphism
+for every `X : C`.
 -/
 
 -- Adjusting the size of `J` would also work, but this is more universe polymorphic.
@@ -57,25 +68,25 @@ noncomputable def limitComparison (X : C)  :
     (X ⟶[V] c.pt) ⟶ limit (F ⋙ (eHomFunctor V C).obj (op X)) :=
   limit.lift _ (((eHomFunctor V C).obj (op X)).mapCone c)
 
-lemma limitComparison_eq_conePointUniqueUpToIso (X : C) (h : IsSLimit V c)
+lemma limitComparison_eq_conePointUniqueUpToIso (X : C) (h : IsConicalLimit V c)
     [HasLimit (F ⋙ (eHomFunctor V C).obj (op X))] :
-    limitComparison V c X = ((h.isSLimit X).conePointUniqueUpToIso (limit.isLimit _)).hom := by
+    limitComparison V c X = ((h.isConicalLimit X).conePointUniqueUpToIso (limit.isLimit _)).hom := by
   apply limit.hom_ext
   simp [limitComparison]
 
-lemma isIso_limitComparison (X : C) (h : IsSLimit V c) : IsIso (limitComparison V c X) := by
+lemma isIso_limitComparison (X : C) (h : IsConicalLimit V c) : IsIso (limitComparison V c X) := by
   rw [limitComparison_eq_conePointUniqueUpToIso (h := h)]
   infer_instance
 
-noncomputable def limitComparisonIso (X : C) (h : IsSLimit V c) :
+noncomputable def limitComparisonIso (X : C) (h : IsConicalLimit V c) :
     (X ⟶[V] c.pt) ≅ (limit (F ⋙ (eHomFunctor V C).obj (op X))) := by
   have := isIso_limitComparison V c X h
-  exact (asIso (SimplicialCategory.limitComparison V c X))
+  exact (asIso (EnrichedOrdinaryCategory.limitComparison V c X))
 
-noncomputable def isSLimitOfIsIsoLimitComparison [∀ X, IsIso (limitComparison V c X)]
-    (hc : IsLimit c) : IsSLimit V c where
+noncomputable def isConicalLimitOfIsIsoLimitComparison [∀ X, IsIso (limitComparison V c X)]
+    (hc : IsLimit c) : IsConicalLimit V c where
   isLimit := hc
-  isSLimit X := by
+  isConicalLimit X := by
     suffices PreservesLimit F ((eHomFunctor V C).obj (op X)) from Classical.choice (this.preserves hc)
     have : HasLimit F := ⟨c, hc⟩
     apply (config := { allowSynthFailures := true } ) preservesLimit_of_isIso_post
@@ -92,8 +103,7 @@ noncomputable def isSLimitOfIsIsoLimitComparison [∀ X, IsIso (limitComparison 
     rw [this]
     infer_instance
 
-
-end SimplicialCategory
+end EnrichedOrdinaryCategory
 
 end
 
@@ -105,10 +115,10 @@ structure ConicalLimitCone (F : J ⥤ C) where
   /-- The cone itself -/
   cone : Cone F
   /-- The proof that is the limit cone -/
-  isSLimit : IsSLimit V cone
+  isConicalLimit : IsConicalLimit V cone
 
 /-- A conical limit cone is a limit cone. -/
-def ConicalLimitCone_isLimitCone {F : J ⥤ C} (cone : Cone F) (slim : IsSLimit V cone) :
+def ConicalLimitCone_isLimitCone {F : J ⥤ C} (cone : Cone F) (slim : IsConicalLimit V cone) :
     IsLimit cone := slim.isLimit
 
 /-- `HasConicalLimit F` represents the mere existence of a limit for `F`. -/
@@ -129,7 +139,7 @@ noncomputable def getConicalLimitCone : ConicalLimitCone V F :=
 def HasConicalLimit_hasLimit : HasLimit F :=
   HasLimit.mk {
     cone := (getConicalLimitCone V F).cone,
-    isLimit := ConicalLimitCone_isLimitCone V _ (getConicalLimitCone V F).isSLimit
+    isLimit := ConicalLimitCone_isLimitCone V _ (getConicalLimitCone V F).isConicalLimit
     }
 
 -- Interface to the `HasConicalLimit` class.
@@ -154,7 +164,7 @@ theorem conicalLimit.w (F : J ⥤ C) [HasConicalLimit V F] {j j' : J} (f : j ⟶
 /-- Evidence that the arbitrary choice of cone provided by `conicalLimit.cone F` is a conical
 limit cone. -/
 noncomputable def conicalLimit.isConicalLimit (F : J ⥤ C) [HasConicalLimit V F] :
-    IsSLimit V (conicalLimit.cone V F) := (getConicalLimitCone V F).isSLimit
+    IsConicalLimit V (conicalLimit.cone V F) := (getConicalLimitCone V F).isConicalLimit
 
 /-- The morphism from the cone point of any other cone to the limit object. -/
 noncomputable def conicalLimit.lift (F : J ⥤ C) [HasConicalLimit V F] (c : Cone F) :
@@ -185,8 +195,8 @@ def HasConicalLimitsOfShape_hasLimitsOfShape [h : HasConicalLimitsOfShape J C V]
     have := h.has_conical_limit
     HasConicalLimit_hasLimit V F
 
+section Equivalence
 
-section equivalence
 variable {K : Type u₂} [Category.{v₂} K]
 variable {J : Type u₁} [Category.{v₁} J]
 variable {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
@@ -196,14 +206,14 @@ variable {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
 theorem hasConicalLimitOfIso {F G : J ⥤ C} [HasConicalLimit V F] (α : F ≅ G) : HasConicalLimit V G :=
   HasConicalLimit.mk V
     { cone := (Cones.postcompose α.hom).obj (conicalLimit.cone V F)
-      isSLimit := {
+      isConicalLimit := {
         isLimit := (IsLimit.postcomposeHomEquiv _ _).symm (conicalLimit.isConicalLimit V F).isLimit
-        isSLimit := fun X ↦ by
+        isConicalLimit := fun X ↦ by
           let iso := Functor.mapConePostcompose ((eHomFunctor V C).obj (op X)) (α := α.hom)
             (c := conicalLimit.cone V F)
           have :=
             (IsLimit.postcomposeHomEquiv (isoWhiskerRight α ((eHomFunctor V C).obj (op X))) _ ).symm
-              ((conicalLimit.isConicalLimit V F).isSLimit X)
+              ((conicalLimit.isConicalLimit V F).isConicalLimit X)
           exact this.ofIsoLimit (id iso.symm)
       }
     }
@@ -212,10 +222,10 @@ instance hasConicalLimitEquivalenceComp {F : J ⥤ C} (e : K ≌ J) [HasConicalL
     HasConicalLimit V (e.functor ⋙ F) :=
   HasConicalLimit.mk V
     { cone := Cone.whisker e.functor (conicalLimit.cone V F)
-      isSLimit := {
+      isConicalLimit := {
         isLimit := IsLimit.whiskerEquivalence (conicalLimit.isConicalLimit V F).isLimit e
-        isSLimit := fun X ↦
-          IsLimit.whiskerEquivalence ((conicalLimit.isConicalLimit V F).isSLimit X) e
+        isConicalLimit := fun X ↦
+          IsLimit.whiskerEquivalence ((conicalLimit.isConicalLimit V F).isConicalLimit X) e
         }
     }
 
@@ -234,7 +244,7 @@ theorem hasConicalLimitsOfShape_of_equivalence {J' : Type u₂} [Category.{v₂}
   intro F
   apply hasConicalLimitOfEquivalenceComp V e
 
-end equivalence
+end Equivalence
 
 /-- `C` has all conical limits of size `v₁ u₁` (`HasLimitsOfSize.{v₁ u₁} C`)
 if it has conical limits of every shape `J : Type u₁` with `[Category.{v₁} J]`.
@@ -247,7 +257,7 @@ class HasConicalLimitsOfSize (C : Type u) [Category.{v} C] [EnrichedOrdinaryCate
 
 -- see Note [lower instance priority]
 instance (priority := 100) hasConicalLimitsOfShapeOfHasLimits {J : Type u₁} [Category.{v₁} J]
-    [SimplicialCategory C] [HasConicalLimitsOfSize.{v₁, u₁} V C] : HasConicalLimitsOfShape J C V :=
+    [EnrichedOrdinaryCategory V C] [HasConicalLimitsOfSize.{v₁, u₁} V C] : HasConicalLimitsOfShape J C V :=
   HasConicalLimitsOfSize.has_conical_limits_of_shape J
 
 -- TODO: instance
@@ -288,14 +298,13 @@ instance HasConicalLimits.has_conical_limits_of_shape {C : Type u} [Category.{v}
     [Category.{v} J] : HasConicalLimitsOfShape J C V :=
   HasConicalLimitsOfSize.has_conical_limits_of_shape J
 
-variable {J C}
-
 end ConicalLimits
 
 section ConicalTerminal
+
 variable (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C]
 
-/-- An abbreviation for `HasSLimit (Discrete.functor f)`. -/
+/-- An abbreviation for `HasConicalLimit (Discrete.functor f)`. -/
 abbrev HasConicalTerminal := HasConicalLimitsOfShape (Discrete.{0} PEmpty)
 
 -- TODO: instance
@@ -305,9 +314,10 @@ def HasConicalTerminal_hasTerminal [hyp : HasConicalTerminal C V] : HasTerminal 
 
 end ConicalTerminal
 section ConicalProducts
+
 variable {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
 
-/-- An abbreviation for `HasSLimit (Discrete.functor f)`. -/
+/-- An abbreviation for `HasConicalLimit (Discrete.functor f)`. -/
 abbrev HasConicalProduct { I : Type w} (f : I → C) := HasConicalLimit V (Discrete.functor f)
 
 -- TODO: instance
@@ -343,6 +353,7 @@ instance HasConicalProducts_hasConicalTerminal' [hyp : HasConicalProducts.{w, v'
 end ConicalProducts
 
 section ConicalPullbacks
+
 variable {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
 
 abbrev HasConicalPullback {X Y Z : C} (f : X ⟶ Z) (g : Y ⟶ Z) := HasConicalLimit V (cospan f g)
