@@ -15,8 +15,8 @@ variable {C : Type u} [Category.{v} C] [SimplicialCategory C]
 variable {F : J ⥤ C} (c : Cone F)
 
 /--
-A limit cone `c` in a simplicial category `A` is a *simplicially enriched limit* if for every
-`X : C`, the cone obtained by applying the simplicial coyoneda functor `(X ⟶[A] -)` to `c` is a
+A limit cone `c` in a simplicial category `C` is a *simplicially enriched limit* if for every
+`X : C`, the cone obtained by applying the simplicial coyoneda functor `(X ⟶[SSet] -)` to `c` is a
 limit cone in `SSet`.
 -/
 structure IsSLimit where

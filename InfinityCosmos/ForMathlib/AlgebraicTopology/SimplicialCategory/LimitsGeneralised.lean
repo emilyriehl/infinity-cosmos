@@ -300,9 +300,8 @@ abbrev HasConicalTerminal := HasConicalLimitsOfShape (Discrete.{0} PEmpty)
 
 -- TODO: instance
 def HasConicalTerminal_hasTerminal [hyp : HasConicalTerminal C V] : HasTerminal C := by
-  have := hyp.has_conical_limit
-  sorry
-  --infer_instance
+  apply HasConicalLimitsOfShape_hasLimitsOfShape at hyp
+  infer_instance
 
 end ConicalTerminal
 section ConicalProducts
@@ -356,10 +355,9 @@ variable (C) in
 abbrev HasConicalPullbacks : Prop := HasConicalLimitsOfShape WalkingCospan C V
 
 -- TODO: instance
-def HasConicalPullbacks_hasPullbacks [HasConicalPullbacks V C] : HasPullbacks C := by
-
-  sorry
-  --infer_instance
+def HasConicalPullbacks_hasPullbacks [hyp : HasConicalPullbacks V C] : HasPullbacks C := by
+  apply HasConicalLimitsOfShape_hasLimitsOfShape at hyp
+  infer_instance
 
 end ConicalPullbacks
 
