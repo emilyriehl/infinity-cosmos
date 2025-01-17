@@ -1,11 +1,13 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.IsConicalTerminal
+-- import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.IsConicalTerminal
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Limits
+import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary.IsConicalTerminal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
 import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
 
 namespace CategoryTheory
-open Category Limits Functor MonoidalCategory Simplicial SimplicialCategory SSet
+open Category Limits Functor MonoidalCategory Simplicial SimplicialCategory EnrichedOrdinaryCategory SSet
 universe w v v₁ v₂ u u₁ u₂
 
 variable (K : Type u) [Category.{v} K] [SimplicialCategory K]
@@ -55,17 +57,19 @@ variable (K : Type u) [Category.{v} K][PreInfinityCosmos.{v} K]
 class InfinityCosmos extends PreInfinityCosmos K where
   comp_isIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : IsIsofibration (f.1 ≫ g.1)
   iso_isIsofibration {X Y : K} (e : X ⟶ Y) [IsIso e] : IsIsofibration e
-  all_objects_fibrant {X Y : K} (hY : IsConicalTerminal Y) (f : X ⟶ Y) : IsIsofibration f
-  [has_products : HasConicalProducts K]
+  all_objects_fibrant {X Y : K} (hY : IsConicalTerminal SSet Y) (f : X ⟶ Y) : IsIsofibration f
+  [has_products : HasConicalProducts SSet K]
   prod_map_fibrant {γ : Type w} {A B : γ → K} (f : ∀ i, A i ↠ B i) :
+    -- haveI := HasConicalProducts_hasProducts SSet (C := K) -- TODO
     IsIsofibration (Limits.Pi.map (λ i ↦ (f i).1))
-  [has_isoFibration_pullbacks {E B A : K} (p : E ↠ B) (f : A ⟶ B)  : HasConicalPullback p.1 f]
+  [has_isoFibration_pullbacks {E B A : K} (p : E ↠ B) (f : A ⟶ B)  : HasConicalPullback SSet p.1 f]
   pullback_is_isoFibration {E B A P : K} (p : E ↠ B) (f : A ⟶ B)
     (fst : P ⟶ E) (snd : P ⟶ A) (h : IsPullback fst snd p.1 f) : IsIsofibration snd
   [has_limits_of_towers (F : ℕᵒᵖ ⥤ K) :
-    (∀ n : ℕ, IsIsofibration (F.map (homOfLE (Nat.le_succ n)).op)) → HasConicalLimit F]
+    (∀ n : ℕ, IsIsofibration (F.map (homOfLE (Nat.le_succ n)).op)) → HasConicalLimit SSet F]
   has_limits_of_towers_isIsofibration (F : ℕᵒᵖ ⥤ K) (hf) :
     haveI := has_limits_of_towers F hf
+    -- haveI := HasConicalLimit_hasLimit SSet F -- TODO
     IsIsofibration (limit.π F (.op 0))
   [has_cotensors : HasCotensors K]
   leibniz_cotensor  {U V : SSet} (i : U ⟶ V) [Mono i] {A B : K} (f : A ↠ B) {P : K}
@@ -84,13 +88,13 @@ variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
 
 open InfinityCosmos PreInfinityCosmos SimplicialCategory
 
-instance : HasConicalTerminal K := by infer_instance
+instance : HasConicalTerminal SSet K := by infer_instance
 
 instance : HasTerminal K := by infer_instance
 
 /-- The terminal object in an ∞-cosmos is a conical terminal object. -/
-noncomputable def terminalIsConicalTerminal : IsConicalTerminal (⊤_ K) :=
-  HasConicalTerminal.terminalIsConicalTerminal terminalIsTerminal
+noncomputable def terminalIsConicalTerminal : IsConicalTerminal SSet (⊤_ K) :=
+  HasConicalTerminal.terminalIsConicalTerminal SSet terminalIsTerminal
 
 instance : HasCotensors K := by infer_instance
 
