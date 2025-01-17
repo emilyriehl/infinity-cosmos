@@ -19,8 +19,8 @@ namespace CategoryTheory
 open Limits EnrichedOrdinaryCategory Opposite
 
 variable {J : Type u₁} [Category.{v₁} J]
-variable {C : Type u} [Category.{v} C]
-variable (V : Type u') [Category.{v'} V] [MonoidalCategory V] [EnrichedOrdinaryCategory V C]
+variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
+variable {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
 
 section
 
@@ -185,11 +185,11 @@ class HasConicalLimitsOfShape : Prop where
 
 -- see Note [lower instance priority]
 instance (priority := 100) hasConicalLimitOfHasConicalLimitsOfShape {J : Type u₁} [Category.{v₁} J]
-    [EnrichedOrdinaryCategory V C] [HasConicalLimitsOfShape J C V] (F : J ⥤ C) : HasConicalLimit V F :=
+    [EnrichedOrdinaryCategory V C] [HasConicalLimitsOfShape J V C] (F : J ⥤ C) : HasConicalLimit V F :=
   HasConicalLimitsOfShape.has_conical_limit F
 
 -- TODO; not an instance anymore
-def HasConicalLimitsOfShape_hasLimitsOfShape [h : HasConicalLimitsOfShape J C V] :
+def HasConicalLimitsOfShape_hasLimitsOfShape [h : HasConicalLimitsOfShape J V C] :
     HasLimitsOfShape J C where
   has_limit F :=
     have := h.has_conical_limit
@@ -239,7 +239,7 @@ theorem hasConicalLimitOfEquivalenceComp {F : J ⥤ C} (e : K ≌ J)
 /-- We can transport conical limits of shape `J` along an equivalence `J ≌ J'`.
 -/
 theorem hasConicalLimitsOfShape_of_equivalence {J' : Type u₂} [Category.{v₂} J'] (e : J ≌ J')
-    [HasConicalLimitsOfShape J C V] : HasConicalLimitsOfShape J' C V := by
+    [HasConicalLimitsOfShape J V C] : HasConicalLimitsOfShape J' V C := by
   constructor
   intro F
   apply hasConicalLimitOfEquivalenceComp V e
@@ -252,12 +252,12 @@ if it has conical limits of every shape `J : Type u₁` with `[Category.{v₁} J
 @[pp_with_univ]
 class HasConicalLimitsOfSize (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C] : Prop where
   /-- All functors `F : J ⥤ C` from all small `J` have conical limits -/
-  has_conical_limits_of_shape : ∀ (J : Type u₁) [Category.{v₁} J], HasConicalLimitsOfShape J C V := by
+  has_conical_limits_of_shape : ∀ (J : Type u₁) [Category.{v₁} J], HasConicalLimitsOfShape J V C := by
     infer_instance
 
 -- see Note [lower instance priority]
 instance (priority := 100) hasConicalLimitsOfShapeOfHasLimits {J : Type u₁} [Category.{v₁} J]
-    [EnrichedOrdinaryCategory V C] [HasConicalLimitsOfSize.{v₁, u₁} V C] : HasConicalLimitsOfShape J C V :=
+    [EnrichedOrdinaryCategory V C] [HasConicalLimitsOfSize.{v₁, u₁} V C] : HasConicalLimitsOfShape J V C :=
   HasConicalLimitsOfSize.has_conical_limits_of_shape J
 
 -- TODO: instance
@@ -265,7 +265,7 @@ def HasConicalLimitsOfSize_hasLimitsOfSize [h : HasConicalLimitsOfSize.{v₂, u�
     HasLimitsOfSize.{v₂, u₂} C where
   has_limits_of_shape := fun J ↦
     have := h.has_conical_limits_of_shape J
-    HasConicalLimitsOfShape_hasLimitsOfShape J C V
+    HasConicalLimitsOfShape_hasLimitsOfShape J V C
 
 /-- A category that has larger conical limits also has smaller conical limits. -/
 theorem hasConicalLimitsOfSizeOfUnivLE [UnivLE.{v₂, v₁}] [UnivLE.{u₂, u₁}]
@@ -279,7 +279,7 @@ theorem hasConicalLimitsOfSizeOfUnivLE [UnivLE.{v₂, v₁}] [UnivLE.{u₂, u₁
 from some other `HasLimitsOfSize C`.
 -/
 theorem hasConicalLimitsOfSizeShrink [HasConicalLimitsOfSize.{max v₁ v₂, max u₁ u₂} V C] :
-    HasConicalLimitsOfSize.{v₁, u₁} V C := hasConicalLimitsOfSizeOfUnivLE.{max v₁ v₂, max u₁ u₂} C V
+    HasConicalLimitsOfSize.{v₁, u₁} V C := hasConicalLimitsOfSizeOfUnivLE.{max v₁ v₂, max u₁ u₂} V C
 
 /-- `C` has all (small) conical limits if it has limits of every shape that is as big as its
 hom-sets.-/
@@ -287,15 +287,15 @@ abbrev HasConicalLimits (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory 
   HasConicalLimitsOfSize.{v, v} V C
 
 instance (priority := 100) hasSmallestConicalLimitsOfHasConicalLimits [HasConicalLimits V C] :
-    HasConicalLimitsOfSize.{0, 0} V C := hasConicalLimitsOfSizeShrink.{0, 0} C V
+    HasConicalLimitsOfSize.{0, 0} V C := hasConicalLimitsOfSizeShrink.{0, 0} V C
 
 -- TODO: instance
 def HasConicalLimits_hasLimits [HasConicalLimits V C] : HasLimits C :=
-  HasConicalLimitsOfSize_hasLimitsOfSize C V
+  HasConicalLimitsOfSize_hasLimitsOfSize V C
 
 instance HasConicalLimits.has_conical_limits_of_shape {C : Type u} [Category.{v} C]
     [EnrichedOrdinaryCategory V C] [HasConicalLimits V C] (J : Type v)
-    [Category.{v} J] : HasConicalLimitsOfShape J C V :=
+    [Category.{v} J] : HasConicalLimitsOfShape J V C :=
   HasConicalLimitsOfSize.has_conical_limits_of_shape J
 
 end ConicalLimits
@@ -308,7 +308,7 @@ variable (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C]
 abbrev HasConicalTerminal := HasConicalLimitsOfShape (Discrete.{0} PEmpty)
 
 -- TODO: instance
-def HasConicalTerminal_hasTerminal [hyp : HasConicalTerminal C V] : HasTerminal C := by
+def HasConicalTerminal_hasTerminal [hyp : HasConicalTerminal V C] : HasTerminal C := by
   apply HasConicalLimitsOfShape_hasLimitsOfShape at hyp
   infer_instance
 
@@ -327,7 +327,7 @@ def HasConicalProduct_hasProduct {I : Type w} (f : I → C) [HasConicalProduct V
 variable (C) in
 class HasConicalProducts : Prop where
   /-- All discrete diagrams of bounded size have conical products.  -/
-  has_conical_limits_of_shape : ∀ J : Type w, HasConicalLimitsOfShape (Discrete J) C V :=
+  has_conical_limits_of_shape : ∀ J : Type w, HasConicalLimitsOfShape (Discrete J) V C :=
     by infer_instance
 --  has_limits_of_shape : ∀ { I : Type w} (f : I → C), HasConicalProduct f := by
 --    infer_instance
@@ -343,10 +343,10 @@ def HasConicalProducts_hasProducts [hyp : HasConicalProducts.{w, v', v, u} V C] 
   exact HasConicalLimit_hasLimit V f
 
 instance HasConicalProducts_hasConicalTerminal [hyp : HasConicalProducts.{0, v', v, u} V C] :
-    HasConicalTerminal C V := hyp.has_conical_limits_of_shape PEmpty.{1}
+    HasConicalTerminal V C := hyp.has_conical_limits_of_shape PEmpty.{1}
 
 instance HasConicalProducts_hasConicalTerminal' [hyp : HasConicalProducts.{w, v', v, u} V C] :
-    HasConicalTerminal C V := by
+    HasConicalTerminal V C := by
   have inst := hyp.has_conical_limits_of_shape PEmpty
   exact hasConicalLimitsOfShape_of_equivalence V (J := Discrete PEmpty.{w+1}) emptyEquivalence
 
@@ -363,7 +363,7 @@ def HasConicalPullback_hasPullback {X Y Z : C} (f : X ⟶ Z) (g : Y ⟶ Z)
     [HasConicalPullback V f g] : HasPullback f g := HasConicalLimit_hasLimit V (cospan f g)
 
 variable (C) in
-abbrev HasConicalPullbacks : Prop := HasConicalLimitsOfShape WalkingCospan C V
+abbrev HasConicalPullbacks : Prop := HasConicalLimitsOfShape WalkingCospan V C
 
 -- TODO: instance
 def HasConicalPullbacks_hasPullbacks [hyp : HasConicalPullbacks V C] : HasPullbacks C := by
