@@ -16,7 +16,7 @@ namespace InfinityCosmos
 
 universe u v
 
-open CategoryTheory Category PreInfinityCosmos SimplicialCategory Limits InfinityCosmos
+open CategoryTheory Category PreInfinityCosmos SimplicialCategory EnrichedOrdinaryCategory Limits InfinityCosmos
 
 variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
 
@@ -53,25 +53,25 @@ lemma cotensorCovMapInitial_isIso {A B : K} (f : A ⟶ B) : IsIso (cotensorCovMa
     (cotensorCovMap (⊥_ SSet) f)
 
 -- TODO: replace `cotensor.iso.underlying` with something for general cotensor API.
-noncomputable def cotensorToTerminalIso (U : SSet) {T : K} (hT : IsConicalTerminal T) :
+noncomputable def cotensorToTerminalIso (U : SSet) {T : K} (hT : IsConicalTerminal SSet T) :
     U ⋔ T ≅ ⊤_ K where
   hom := terminal.from _
   inv := by
     refine (cotensor.iso.underlying U T (⊤_ K)).symm ?_
-    exact (terminal.from U) ≫ (IsConicalTerminal.sHomIso hT (⊤_ K)).inv
+    exact (terminal.from U) ≫ (IsConicalTerminal.eHomIso SSet hT (⊤_ K)).inv
   hom_inv_id := by
     apply (cotensor.iso.underlying U T (U ⋔ T)).injective
     have : IsTerminal (sHom (U ⋔ T) T) :=
-      terminalIsTerminal.ofIso (IsConicalTerminal.sHomIso hT (U ⋔ T)).symm
+      terminalIsTerminal.ofIso (IsConicalTerminal.eHomIso SSet hT (U ⋔ T)).symm
     apply IsTerminal.hom_ext this
   inv_hom_id := terminal.hom_ext _ _
 
 noncomputable instance cotensorToConicalTerminal_isTerminal
-    (U : SSet) {T : K} (hT : IsConicalTerminal T) : IsTerminal (U ⋔ T) :=
+    (U : SSet) {T : K} (hT : IsConicalTerminal SSet T) : IsTerminal (U ⋔ T) :=
   terminalIsTerminal.ofIso (cotensorToTerminalIso U hT).symm
 
 lemma cotensorContraMapToTerminal_isIso {U V : SSet} (i : U ⟶ V)
-    {T : K} (hT : IsConicalTerminal T) : IsIso (cotensorContraMap i T) :=
+    {T : K} (hT : IsConicalTerminal SSet T) : IsIso (cotensorContraMap i T) :=
   isIso_of_isTerminal (cotensorToConicalTerminal_isTerminal V hT)
     (cotensorToConicalTerminal_isTerminal U hT) (cotensorContraMap i T)
 
