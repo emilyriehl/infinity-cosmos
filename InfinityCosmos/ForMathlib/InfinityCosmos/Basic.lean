@@ -1,6 +1,4 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
--- import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.IsConicalTerminal
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Limits
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary.IsConicalTerminal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
 import Mathlib.CategoryTheory.Closed.Cartesian
