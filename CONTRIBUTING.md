@@ -6,6 +6,7 @@
 * [Daniel Carranza](https://github.com/daniel-carranza)
 * [Johan Commelin](https://github.com/jcommelin)
 * [Jack McKoen](https://github.com/mckoen)
+* [Yuma Mizuno](https://github.com/yuma-mizuno)
 * [Pietro Monticone](https://github.com/pitmonticone)
 * [Matej Penciak](https://github.com/mpenciak)
 * [Nima Rasekh](https://github.com/nimarasekh)
