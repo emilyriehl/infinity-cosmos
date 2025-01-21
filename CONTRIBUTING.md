@@ -5,6 +5,7 @@
 * [Mario Carneiro](https://github.com/digama0)
 * [Daniel Carranza](https://github.com/daniel-carranza)
 * [Johan Commelin](https://github.com/jcommelin)
+* [Jon Eugster](https://github.com/joneugster)
 * [Jack McKoen](https://github.com/mckoen)
 * [Yuma Mizuno](https://github.com/yuma-mizuno)
 * [Pietro Monticone](https://github.com/pitmonticone)
