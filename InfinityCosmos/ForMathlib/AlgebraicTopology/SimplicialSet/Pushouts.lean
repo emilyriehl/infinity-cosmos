@@ -1,173 +1,171 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
-import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 
-open CategoryTheory Simplicial
+open CategoryTheory Simplicial SSet standardSimplex Limits
 
 universe u
 
-def chain12 : Δ[1] ⟶ Δ[2] :=
-  SSet.yonedaEquiv Δ[2] [1] |>.invFun
-   (SSet.standardSimplex.edge 2 1 2
-     (by decide))
+/-- Defines a map between standard simplices by using the definin property of -/
+def mapFromSimplex {n m : ℕ} (simplex : Δ[n] _[m]) : Δ[m] ⟶ Δ[n] :=
+    SSet.yonedaEquiv Δ[n] [m] |>.invFun simplex
 
-def chain01 : Δ[1] ⟶ Δ[2] :=
-  SSet.yonedaEquiv Δ[2] [1] |>.invFun
-   (SSet.standardSimplex.edge 2 0 1
-     (by decide))
+/-- The edge in Δ[2] from vertex 1 to 2 -/
+def chain12 : Δ[1] ⟶ Δ[2] := mapFromSimplex (edge 2 1 2 (by decide))
 
-noncomputable def Sq := Limits.pushout chain12 chain01
+/-- The edge in Δ[2] from vertex 0 to 1 -/
+def chain01 : Δ[1] ⟶ Δ[2] := mapFromSimplex (edge 2 0 1 (by decide))
 
-#check Limits.coprod.desc
+/-- The pushout of the diagram
+  Δ[1] --> Δ[2]
+   |        |
+   |        |
+   v        v
+  Δ[2] -->  Sq
+representing commutative squares -/
+noncomputable def Sq := pushout chain12 chain01
 
-open Limits in
-noncomputable def map_on_components {C} [Category C] {X Y Z W : C} [HasColimits C] (f : X ⟶ Z) (g : Y ⟶ W)
+/-- The map X ⨿ Y ⟶ Z ⨿ W defined by maps X ⟶ Z and Y ⟶ W -/
+noncomputable def mapOnComponents {C} [Category C] {X Y Z W : C} [HasColimits C] (f : X ⟶ Z) (g : Y ⟶ W)
     : (X ⨿ Y ⟶ Z ⨿ W : Type u) := coprod.desc (f ≫ coprod.inl) (g ≫ coprod.inr)
 
-#check CategoryTheory.opOp_obj
-#check SSet.standardSimplex.objEquiv [1] (Opposite.op [0]) |>.toFun (SSet.standardSimplex.const 1 0 (Opposite.op [0]))
+/-- the constant map of any Δ[n] into Δ[0] corresponding to the unique degenerate n-simplex -/
+def constantMap (n : ℕ) : Δ[n] ⟶ Δ[0] := mapFromSimplex (const 0 0 _)
 
--- This seems to be the direct definition so does that really need a separate def?
-def simplexmap_from_fin {n m : ℕ} (map_on_fin : Fin (m + 1) →o Fin (n + 1)) : ([m] : SimplexCategory) ⟶ [n] := SimplexCategory.mkHom map_on_fin
+noncomputable def map0Plus0 : (Δ[1] ⨿ Δ[1] ⟶ Δ[0] ⨿ Δ[0] : Type u) :=
+  mapOnComponents (constantMap 1) (constantMap 1)
 
-#check SSet.asOrderHom
+/--
+The map Δ[1] ⨿ Δ[1] defined by the the maps
 
-#check ULift
--- I would have expected this to be around , but also didn't find it.
--- I think if it really merits a proof, it shouldn't be here and in fact could be a lemma?
-def simplex_from_map {n m : ℕ} (map : ([m] : SimplexCategory) ⟶ [n]) : Δ[n] _[m] := .up map
+     chain01          ι₁
+Δ[1] -------> Δ[2] -------> Sq
 
-#check SSet
+     chain01          ι₂
+Δ[1] -------> Δ[2] -------> Sq
+-/
+noncomputable def map1 : (Δ[1] ⨿ Δ[1] ⟶ Sq : Type u) :=
+    coprod.desc (chain01 ≫ (pushout.inl chain12 chain01)) (chain01 ≫ (pushout.inr chain12 chain01))
 
--- This definition again feels like overkill to me?
-def map_from_simplex {n m : ℕ} (simplex : Δ[n] _[m]) : Δ[m] ⟶ Δ[n] := SSet.yonedaEquiv Δ[n] [m] |>.invFun simplex
+/-- The 0-simplex at vertex 0 of Δ[1] -/
+def chain0 : Δ[0] ⟶ Δ[1] := mapFromSimplex (const 1 0 (Opposite.op [0]))
 
-#check SSet.standardSimplex.const 0 0
+/-- The 0-simplex at vertex 1 of Δ[1] -/
+def chain1 : Δ[0] ⟶ Δ[1] := mapFromSimplex (const 1 1 (Opposite.op [0]))
 
-#check SSet.standardSimplex.prod'
+/--
+The pushout of the diagram
 
-#check OrderHom.const (Fin 1) (β := Fin 0) ⟨0, _⟩
+                      map4
+      Δ[1] ⨿ Δ[1] ---------> Sq
+           |                 |
+ map0Plus0 |                 |
+           v                 v
+      Δ[0] ⨿ Δ[0] -----> firstEquiv
 
--- map00p00 should probably better be map00plus00
-noncomputable def map00p00 : (Δ[1] ⨿ Δ[1] ⟶ Δ[0] ⨿ Δ[0] : Type u) := by
-  refine map_on_components ?_ ?_
-  · refine map_from_simplex ?_
-    refine simplex_from_map ?_
-    refine simplexmap_from_fin ?_
-    exact OrderHom.const (Fin 2) ⟨0, by decide⟩
-  · refine map_from_simplex ?_
-    refine simplex_from_map ?_
-    refine simplexmap_from_fin ?_
-    exact OrderHom.const (Fin 2) ⟨0, by decide⟩
+-/
+noncomputable def firstEquiv := pushout map1 map0Plus0
 
-#check Limits.pushout
+/--
+The pushout of the diagram
 
-#check SSet.yonedaEquiv Sq [1] |>.invFun
+    Δ[0] -----> Δ[1]
+     |           |
+     |           |
+     v           v
+    Δ[1] ---> Cospan00
+-/
+noncomputable def Cospan00 := pushout chain0 chain0
 
-#check evaluation
+/--
+The pushout of the diagram
 
-#check Limits.colimit
+        ι₁
+  Δ[0] ---> Δ[1] --> Cospan00
+   |                    |
+   |                    |
+   v                    v
+  Δ[1] ------------> Cospan0011
 
-open Limits in
-noncomputable def map4 : (Δ[1] ⨿ Δ[1] ⟶ Sq : Type u) :=
-  coprod.desc (chain01 ≫ (Limits.pushout.inl chain12 chain01)) (chain01 ≫ (Limits.pushout.inr chain12 chain01))
+-/
+noncomputable def Cospan0011 := pushout (chain1 ≫ (pushout.inl chain0 chain0)) chain1
 
-def chain0 : Δ[0] ⟶ Δ[1] :=
-  SSet.yonedaEquiv Δ[1] [0] |>.invFun
-   (SSet.standardSimplex.const 1 0 (Opposite.op [0]))
+/--
+The map Cospan00 ----> Δ[3] defined by the map on component
 
-def chain1 : Δ[0] ⟶ Δ[1] :=
-  SSet.yonedaEquiv Δ[1] [0] |>.invFun
-   (SSet.standardSimplex.const 1 1 (Opposite.op [0]))
+edge₁₂ : Δ[1] -----> Δ[3]
 
-noncomputable def firstEquiv := Limits.pushout map4 map00p00
+edge₁₃ : Δ[1] -----> Δ[3]
+-/
+noncomputable def map2 : (Cospan00 ⟶ Δ[3]: Type u) :=
+  pushout.desc (mapFromSimplex (edge 3 1 2 (by decide))) (mapFromSimplex (edge 3 1 3 (by decide))) rfl
 
-#check Limits.WidePullbackShape.wideCospan
+/--
+The map Cospan0011 ⟶ Δ[3] defined by the map on components
 
-abbrev J := Fin 3
+map3 : Cospan00 -----> Δ[3]
 
-noncomputable def Cospan00 := Limits.pushout chain0 chain0
+edge₀₂ : Δ[1] -------> Δ[3]
+-/
+noncomputable def map3 : (Cospan0011 ⟶ Δ[3] : Type u) :=
+  pushout.desc map2 (mapFromSimplex (edge 3 0 2 (by decide))) (by ext; unfold map2; aesop_cat)
 
-noncomputable def Cospan0011 := Limits.pushout (chain1 ≫ (Limits.pushout.inl chain0 chain0)) chain1
+/--
+The map Cospan00 ⟶ Δ[1] defined by the map on components
 
-#check Limits.pushout
+edge₀₁: Δ[1] ----> Δ[1]
+edge₀₀: Δ[1] ----> Δ[1]
+-/
+noncomputable def map4 : (Cospan00 ⟶ Δ[1] : Type u) :=
+  pushout.desc (mapFromSimplex (edge 1 0 1 (by decide))) (mapFromSimplex (edge 1 0 0 (by decide))) rfl
 
-#check chain1 ≫ (Limits.pushout.inl chain0 chain0)
+/--
+The map Cospan0011 ⟶ Δ[1] defined by the map on components
 
--- Need to find an effective way to define this.
-open Limits in
-noncomputable def map5 : (Cospan0011 ⟶ Δ[3] : Type u) := by
-  refine pushout.desc ?_ ?_ ?_
-  · refine pushout.desc ?_ ?_ ?_
-    · exact SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.edge 3 1 2 (by decide))
-    · exact SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.edge 3 1 3 (by decide))
-    · rfl
-  · exact SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.edge 3 0 2 (by decide))
-  · ext
-    aesop_cat
+map4: Cospan00 -----> Δ[1]
+edge₁₁: Δ[1] ------> Δ[1] -- TODO: Is this right? This seems like a degenerate edge
+-/
+noncomputable def map5 : (Cospan0011 ⟶ Δ[1] : Type u) :=
+  pushout.desc map4 (mapFromSimplex (edge 1 1 1 (by decide))) (by ext; unfold map4; aesop_cat)
 
-open Limits in
-noncomputable def map6 : (Cospan0011 ⟶ Δ[1] : Type u) := by
-  refine pushout.desc ?_ ?_ ?_
-  · refine pushout.desc ?_ ?_ ?_
-    · exact SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.edge 1 0 1 (by decide))
-    · exact SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.edge 1 0 0 (by decide))
-    · rfl
-  · exact SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.edge 1 1 1 (by decide))
-  · ext
-    aesop_cat
+/--
+The pushout of the diagram
 
-noncomputable def secondEquiv := Limits.pushout map5 map6
+             map3
+  Cospan0011 ----> Δ[3]
+     |              |
+map6 |              |
+     |              |
+     v              v
+    Δ[1] -----> secondEquiv
+-/
+noncomputable def secondEquiv := pushout map3 map5
 
-#check Nat.reduceLeDiff
-
-def test : 0 ≤ 1 := by
-  simp only [zero_le]
-
-#check zero_le
-#check CategoryTheory.homOfLE (Nat.zero_le 1)
-
-#check Unit
-
-open Limits in
-noncomputable def someMap : secondEquiv ⟶ SSet.coherentIso := by
-  refine pushout.desc ?_ ?_ ?_
-  · apply (SSet.yonedaEquiv _ _ |>.invFun)
-    unfold SSet.coherentIso
-    unfold nerve
-    simp only [SimplexCategory.len_mk]
-    unfold ComposableArrows
-    simp only [Nat.reduceAdd]
-  -- Up until this point is reasonable
-  -- For the rest, I don't know the best way to proceed, am trying some stuff.
-    refine {
-    obj := λ n => match n with
+noncomputable def someMap : secondEquiv ⟶ coherentIso :=
+  pushout.desc
+  -- Δ[3] ---> coherentIso
+  (yonedaEquiv _ _ |>.invFun {
+      obj := λ
       | 0 => WalkingIso.one
       | 1 => WalkingIso.zero
       | 2 => WalkingIso.one
       | 3 => WalkingIso.zero
-    map := λ _ => Unit.unit
-    map_comp := λ _  _ => rfl
-    map_id := λ _ => rfl
-    }
-  · apply (SSet.yonedaEquiv _ _ |>.invFun)
-    unfold SSet.coherentIso
-    unfold nerve
-    simp only [SimplexCategory.len_mk]
-    unfold ComposableArrows
-    simp only [Nat.reduceAdd]
-    refine {
-      obj := fun
+      map := λ _ => Unit.unit
+      map_comp := λ _  _ => rfl
+      map_id := λ _ => rfl })
+  -- Δ[1] ---> coherentIso
+  (yonedaEquiv _ _ |>.invFun {
+      obj := λ
         | 0 => WalkingIso.zero
         | 1 => WalkingIso.one
       map := fun _ => Unit.unit
       map_comp := λ _ _ => rfl
-      map_id := λ _ => rfl
-    }
-  · apply CategoryTheory.Limits.colimit.hom_ext
+      map_id := λ _ => rfl })
+  (by
+    apply CategoryTheory.Limits.colimit.hom_ext
     intro j
-    rcases j with (_ | (_ | _)) <;> simp [map5, map6, chain1, SSet.coherentIso]
+    rcases j with (_ | (_ | _)) <;> simp [map1, map2, map3, map4, map5, chain1, SSet.coherentIso]
+    -- none
     · rfl
+    -- left
     · apply CategoryTheory.Limits.colimit.hom_ext
       intros j
       rcases j with (_ | (_ | _))
@@ -175,57 +173,27 @@ noncomputable def someMap : secondEquiv ⟶ SSet.coherentIso := by
       · apply (SSet.coherentIso.yonedaEquiv [1]).injective
         sorry
       · sorry
+    -- right
     · apply (SSet.yonedaEquiv SSet.coherentIso [1]).injective
-      sorry
+      sorry)
 
-    --ext a b
-    --simp only [id, NatTrans.app_]
-#check Equiv
-#check SSet.yonedaEquiv SSet.coherentIso [1]
-#check Yoneda.ext
-
-#check SSet.standardSimplex
-
-open Limits in
-noncomputable def someMap' : firstEquiv ⟶ secondEquiv := by
-refine pushout.desc ?_ ?_ ?_
-· refine pushout.desc ?_ ?_ ?_
-  · exact (SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.triangle 0 1 2 (by decide) (by decide))) ≫ (Limits.pushout.inl map5 map6)
-  · exact (SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.triangle 1 2 3 (by decide) (by decide))) ≫ (Limits.pushout.inl map5 map6)
-  · sorry
-    -- have test := SSet.yonedaEquiv secondEquiv [1] ((SSet.yonedaEquiv _ _ |>.invFun (SSet.standardSimplex.triangle 0 1 2 (by decide) (by decide))) ≫ (Limits.pushout.inl map5 map6) ≫ map6)
-    -- sorry
-
-· refine coprod.desc ?_ ?_
-  · exact ((SSet.yonedaEquiv Δ[3] [0] |>.invFun (SSet.standardSimplex.const 3 1 (Opposite.op [0]))) ≫ (Limits.pushout.inl map5 map6))
-  · exact ((SSet.yonedaEquiv Δ[3] [0] |>.invFun (SSet.standardSimplex.const 3 2 (Opposite.op [0]))) ≫ (Limits.pushout.inl map5 map6))
-· apply CategoryTheory.Limits.colimit.hom_ext
-  intro j
-  simp [map5, map6]
-  aesop_cat
-
-
--- #check evaluation
-
--- open Limits
--- #check CategoryTheory.Limits.Types.colimitEquivQuot (span chain12 chain01 ⋙ evaluation SimplexCategoryᵒᵖ (Type u) _[1])
--- #check Types.Quot
--- #check WalkingSpan
--- #check Sigma
--- #check SSet.standardSimplex.edge
-
--- noncomputable def Iso' := Limits.pushout map00p00 map4
-
--- #check Limits.coprod Δ[1] Δ[1]
-
--- open SimplexCategory
-
--- #check SSet.yonedaEquiv Δ[2] [1] |>.invFun (SSet.standardSimplex.edge 2 1 2 (by simp only [Nat.reduceAdd,
---   Fin.isValue, Fin.reduceLE]))
--- -- #check yoneda.map (SSet.standardSimplex.edge 2 1 2 (by simp only [Nat.reduceAdd, Fin.isValue, Fin.reduceLE]))
-
--- #check SSet.yonedaEquiv
--- #check SSet.standardSimplex.map_id
-
--- #check Limits.cospan
--- #check CategoryTheory.Limits.colimitObjIsoColimitCompEvaluation (Limits.cospan chain12 chain01) (Opposite.op [1]) |>.toEquiv |>.invFun
+noncomputable def someMap' : firstEquiv ⟶ secondEquiv :=
+  pushout.desc
+    -- chain01 ---> secondEquiv
+    (pushout.desc
+      -- Δ[2] ---> secondEquiv
+      ((yonedaEquiv _ _ |>.invFun (triangle 0 1 2 (by decide) (by decide))) ≫ (pushout.inl map3 map5))
+      -- Δ[2] ---> secondEquiv
+      ((yonedaEquiv _ _ |>.invFun (triangle 1 2 3 (by decide) (by decide))) ≫ (pushout.inl map3 map5))
+      (sorry))
+    -- Δ[0] ⨿ Δ[0] ---> seconEquiv
+    (coprod.desc
+      -- Δ[0] ---> secondEquiv
+     ((yonedaEquiv Δ[3] [0] |>.invFun (const 3 1 (Opposite.op [0]))) ≫ (pushout.inl map3 map5))
+      -- Δ[0] ---> secondEquiv
+     ((yonedaEquiv Δ[3] [0] |>.invFun (const 3 2 (Opposite.op [0]))) ≫ (pushout.inl map3 map5)))
+   (sorry)
+    -- apply CategoryTheory.Limits.colimit.hom_ext
+    -- intro j
+    -- simp [map3, map5]
+    -- aesop_cat)
