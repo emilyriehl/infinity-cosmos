@@ -1,9 +1,27 @@
 /-
 Copyright (c) 2025 Jon Eugster. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Emily Riehl, Dagur Asgeirsson, Jon Eugster
+Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
 -/
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary.Limits
+
+/-!
+# Conical terminal objects in enriched ordinary categories
+
+An object `T` in an enriched ordinary category `C` is a conical terminal object if the empty cone
+with summit `T` is a conical limit cone. By `IsConicalTerminal.isTerminal` this implies that `T` is
+a terminal object in the underlying ordinary category of `C`. When the ambient enriching category
+`V` has a terminal object, this provides a natural family of isomorphisms:
+
+`IsConicalTerminal.eHomIso {T : C} (hT : IsConicalTerminal V T) (X : C) : (X ⟶[V] T) ≅ ⊤_ V`
+
+In general the universal property of being terminal is weaker than the universal property of being
+conical terminal, but if `HasConicalTerminal V C` any terminal object in `C` is conical terminal:
+
+`terminalIsConicalTerminal {T : C} (hT : IsTerminal T) : IsConicalTerminal V T `.
+
+TODO: Develop similar API for other conical limit and colimit shapes.
+-/
 
 namespace CategoryTheory
 

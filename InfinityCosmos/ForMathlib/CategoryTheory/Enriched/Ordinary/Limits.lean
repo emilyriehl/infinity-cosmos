@@ -1,13 +1,33 @@
 /-
 Copyright (c) 2025 Jon Eugster. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Emily Riehl, Dagur Asgeirsson, Jon Eugster
+Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
 -/
 import Mathlib.CategoryTheory.Enriched.Ordinary
 import Mathlib.CategoryTheory.Limits.Preserves.Limits
 
 /-!
-# Conical limits / enriched limits
+# Conical limits in enriched ordinary categories
+
+A limit cone in the underlying category of an enriched ordinary category is a *conical limit* if
+it is a limit cone in the underlying ordinary category and moreover this limit cone is preserved
+by covariant enriched representable functors. These conditions are encoded in the structure
+`IsConicalLimit`.
+
+The universal property of a conical limit is enriched as follows: the canonical comparison map
+defines an isomorphism in the enriching category:
+
+`limitComparisonIso (h : IsConicalLimit V c) : (X ⟶[V] c.pt) ≅ (limit (F ⋙ eCoyoneda V X))`
+
+Conversely, if the canonical maps define isomorphisms for all `X` then `c` is a conical limit cone:
+
+`ofIsIsoLimitComparison [∀ X, IsIso (IsConicalLimit.limitComparison V c X)]`
+`(hc : IsLimit c) : IsConicalLimit V c`
+
+This file develops some general API for conical limits in enriched ordinary categories.
+
+TODO: Dualize everything to define conical colimits.
+
 -/
 
 universe v₁ u₁ v₂ u₂ w v' v u u'
@@ -42,8 +62,7 @@ namespace IsConicalLimit
 
 variable {V}
 
-/-- Transport evidence that a cone is a `V`-enriched limit cone across
-an isomorphism of cones. -/
+/-- Transport evidence that a cone is a `V`-enriched limit cone across an isomorphism of cones. -/
 noncomputable def ofIso {r₁ r₂ : Cone F} (h : IsConicalLimit V r₁)
     (i : r₁ ≅ r₂) : IsConicalLimit V r₂ where
   isLimit := h.isLimit.ofIsoLimit i
@@ -65,8 +84,7 @@ for every `X : C`.
 variable (V) [HasLimitsOfShape J V]
 
 /-- The canonical comparison map with the limit in `V`. -/
-noncomputable def limitComparison :
-    (X ⟶[V] c.pt) ⟶ limit (F ⋙ eCoyoneda V X) :=
+noncomputable def limitComparison : (X ⟶[V] c.pt) ⟶ limit (F ⋙ eCoyoneda V X) :=
   limit.lift _ <| (eCoyoneda V X).mapCone c
 
 variable {V}
@@ -90,7 +108,7 @@ noncomputable def limitComparisonIso (h : IsConicalLimit V c) :
   exact (asIso (limitComparison V c X))
 
 variable (V) in
-/-- Reverse direction: if the comparison map is an isomporphism, then `c` is a conical limit. -/
+/-- Reverse direction: if the comparison map is an isomorphism, then `c` is a conical limit. -/
 noncomputable def ofIsIsoLimitComparison
     [∀ X, IsIso (IsConicalLimit.limitComparison V c X)]
     (hc : IsLimit c) : IsConicalLimit V c where
@@ -134,7 +152,6 @@ structure ConicalLimitCone where
   /-- The proof that is the limit cone -/
   isConicalLimit : IsConicalLimit V cone
 
-
 /-- `HasConicalLimit F` represents the mere existence of a limit for `F`. -/
 class HasConicalLimit : Prop where mk' ::
   /-- There is some limit cone for `F` -/
@@ -150,10 +167,9 @@ variable [HasConicalLimit V F]
 noncomputable def getConicalLimitCone : ConicalLimitCone V F :=
   Classical.choice <| HasConicalLimit.exists_conicalLimitCone
 
-/--
-Interface to the `HasConicalLimit` class.
-An arbitrary choice of conical limit cone for a functor.
--/
+/-! Interface to the `HasConicalLimit` class. -/
+
+/-- An arbitrary choice of conical limit cone for a functor. -/
 noncomputable def conicalLimitCone : ConicalLimitCone V F :=
   (getConicalLimitCone V F)
 
@@ -168,18 +184,17 @@ instance HasConicalLimit.hasLimit : HasLimit F :=
 namespace conicalLimit
 
 /-- The projection from the conical limit object to a value of the functor. -/
-protected noncomputable def π (j : J) :
-    conicalLimit V F ⟶ F.obj j := (conicalLimitCone V F).cone.π.app j
+protected noncomputable def π (j : J) : conicalLimit V F ⟶ F.obj j :=
+  (conicalLimitCone V F).cone.π.app j
 
 @[reassoc (attr := simp)]
 protected theorem w {j j' : J} (f : j ⟶ j') :
-    conicalLimit.π V F j ≫ F.map f = conicalLimit.π V F j' :=
-  (conicalLimitCone V F).cone.w f
+    conicalLimit.π V F j ≫ F.map f = conicalLimit.π V F j' := (conicalLimitCone V F).cone.w f
 
 /-- Evidence that the arbitrary choice of cone provided by `(conicalLimitCone V F).cone` is a
 conical limit cone. -/
-noncomputable def isConicalLimit :
-    IsConicalLimit V (conicalLimitCone V F).cone := (getConicalLimitCone V F).isConicalLimit
+noncomputable def isConicalLimit : IsConicalLimit V (conicalLimitCone V F).cone :=
+  (getConicalLimitCone V F).isConicalLimit
 
 /-- The morphism from the cone point of any other cone to the limit object. -/
 noncomputable def lift :
