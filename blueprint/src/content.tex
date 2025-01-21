@@ -655,7 +655,7 @@ By the enriched Yoneda lemma, these objects represent the same simplicial functo
 The other simplicial limit notions postulated by axiom \ref{defn:cosmos}\ref{itm:cosmos-limits} are \textbf{conical}, which is the term used for ordinary 1-categorical limit shapes that satisfy an enriched analog of the usual universal property.   Such limits also define limits in the underlying category, but the usual universal property is strengthened.
 
 \begin{definition}[simplicial conical limits]\label{defn:simplicial-conical-limit}
-  \lean{CategoryTheory.IsSLimit}\leanok
+  \lean{CategoryTheory.IsConicalLimit}\leanok
 \uses{defn:simplicial-category}
   Consider a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in the underlying category $\cA_0$ of a simplicially-enriched category $\cA$.  By applying the covariant rep\-re\-sentable functor $\cA(X,-) \colon \cA_0 \to \sSet$ to a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in $\cA_0$, we obtain a natural comparison map
   \begin{equation}\label{eq:simplicial-limit-map} \cA(X,\lim_{j \in J}A_j) \to \lim_{j \in J}\cA(X,A_j).
@@ -664,7 +664,8 @@ The other simplicial limit notions postulated by axiom \ref{defn:cosmos}\ref{itm
 \end{definition}
 
 \begin{rmk}
-  The notion of cotensors and conical limits could be introduced for categories enriched over arbitrary cartesian monoidal categories or more generally for categories enriched over symmetric monoidal categories. This might be worth doing as a service to the broader Mathlib.
+  For Mathlib, these conical limits have been defined more generally for
+  enriched ordinary categories over arbitrary monoidal categories.
 \end{rmk}
 
 \section{\texorpdfstring{$\infty$}{Infinity}-Cosmoi}\label{sec:cosmos}
