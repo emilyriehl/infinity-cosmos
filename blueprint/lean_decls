@@ -22,7 +22,7 @@ CategoryTheory.nerveCounit_isIso
 CategoryTheory.nerveAdjunction
 CategoryTheory.nerveFunctor.fullyfaithful
 SSet.coherentIso
-SSet.IsoFibration
+SSet.Isofibration
 SSet.TrivialFibration
 CategoryTheory.SimplicialCategory
 CategoryTheory.categoryForgetEnrichment

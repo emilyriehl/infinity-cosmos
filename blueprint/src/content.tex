@@ -735,7 +735,7 @@ We know in each case that the maps in question are isofibrations in the $\infty$
 
 
 \begin{lemma}[representable trivial fibrations]\label{lem:trivial-fib-representability}
-  \uses{defn:qcat-trivial-fibration, defn:cosmos}
+  \uses{defn:qcat-trivial-fibration, defn:trivial-fibration}
 If $E \trvfib B$ is a trivial fibration in an $\infty$-cosmos, then is $\Fun(X,E)\trvfib\Fun(X,B)$ is a trivial fibration of quasi-categories.
 \end{lemma}
 \begin{proof}
@@ -763,7 +763,8 @@ The converse is easy: the simplicial cotensor construction commutes with $\Fun(X
 \end{proof}
 
 
-  \begin{lemma}\label{lem:equivalence-2-of-3} The equivalences in an $\infty$-cosmos are closed under retracts and satisfy the \textbf{2-of-3 property}: given a composable pair of functors and their composite, if any two of these are equivalences so is the third.
+  \begin{lemma}\label{lem:equivalence-2-of-3}
+    \uses{defn:equivalence} The equivalences in an $\infty$-cosmos are closed under retracts and satisfy the \textbf{2-of-3 property}: given a composable pair of functors and their composite, if any two of these are equivalences so is the third.
 \end{lemma}
 
 
@@ -773,6 +774,7 @@ By the representable definition of equivalences and functoriality, Lemma \ref{le
 
 
 \begin{proof}
+  \uses{lemma:equiv-htpy-equiv}
 Let $f \colon A \we B$ be an equivalence equipped with the data described in the statement of Lemma \ref{lem:equiv-htpy-equiv} and consider a retract diagram
 \begin{center}
 \begin{tikzcd} C \arrow[r, "u"'] \arrow[rr, bend left, equals] \arrow[d, "h"'] & A \arrow[d, "\sim", "f"'] \arrow[r, "v"'] & C \arrow[d, "h"] \\ D \arrow[r, "s"] \arrow[rr, bend right, equals] & B \arrow[r, "t"] & D
@@ -808,7 +810,9 @@ The proof of stability of equivalence under left cancelation is dual.
 
 The trivial fibrations admit a similar characterization as split fiber homotopy equivalences.
 
-\begin{lem}[trivial fibrations split]\label{lem:split-triv-fib} Every trivial fibration admits a section
+\begin{lem}[trivial fibrations split]\label{lem:split-triv-fib}
+  \uses{defn:trivial-fibration, defn:cosmos}
+  Every trivial fibration admits a section
 \begin{center}
 \begin{tikzcd} & E \arrow[d, two heads, "\sim"', "p"] \\ B \arrow[ur, dashed, "s"] \arrow[r, equals] & B
 \end{tikzcd}
@@ -837,6 +841,7 @@ to find a map $s \colon B \to E$ so that $ps = \id_B$, and then solve the liftin
 A classical construction in abstract homotopy theory proves the following:
 
 \begin{lemma}[Brown factorization lemma]\label{lem:brown-fact}
+  \uses{defn:cosmos, defn:equivalence, defn:trivial-fibration}
   Any functor $f\colon A \to B$ in an $\infty$-cosmos may be factored as an equivalence followed by an isofibration, where this equivalence is constructed as a section of a trivial fibration.
 \begin{center}
 \begin{tikzcd}
@@ -870,129 +875,6 @@ if $gf$ and $hg$ are equivalences then $f$, $g$, $h$, and $hgf$ are too. An argu
 \end{rmk}
 
 
-\section{Examples of \texorpdfstring{$\infty$}{infinity}-cosmoi}\label{sec:examples}
-
-We briefly tour a few examples of $\infty$-cosmoi. %While the most important example, for our purposes, is the $\infty$-cosmos of quasi-categories, we devote more attention (for now) to the construction of the $\infty$-cosmos of categories, which should be easier to formalize.
-The following theorem should be quite difficult to formalize:
-
-\begin{proposition}[the $\infty$-cosmos of quasi-categories]\label{prop:qcat-cosmos}
-  \uses{defn:cosmos, defn:quasi-category, defn:equivalence, defn:trivial-fibration, defn:qcat-equivalence, defn:qcat-trivial-fibration}
-  The full subcategory $\qCat\subset\sSet$ of quasi-categories defines an $\infty$-cosmos in which the isofibrations, equivalences, and trivial fibrations coincide with the classes  already bearing these names.
-\end{proposition}
-\begin{proof}
-\uses{defn:qcat-isofibration} The proof requires myriad combinatorial results about the class of isofibrations between quasi-categories. See \cite[\S D]{RiehlVerity:2022eo}.
-\end{proof}
-
-
-Two further examples fit into a common paradigm: both arise as full subcategories of the $\infty$-cosmos of quasi-categories and inherit their $\infty$-cosmos structures from this inclusion (see Lemma \cite[6.1.4]{RiehlVerity:2022eo}), but it is also instructive, and ultimately takes less work, to describe the resulting $\infty$-cosmos structures directly.
-
-\begin{proposition}[the $\infty$-cosmos of categories]\label{prop:cat-cosmos}
-\uses{defn:cosmos, defn:equivalence, defn:trivial-fibration}
- The category $\Cat$ of 1-cat\-e\-go\-ri\-es defines an $\infty$-cosmos whose isofibrations are the \textbf{isofibrations}: functors satisfying the displayed right lifting property:
-\begin{center}
-\begin{tikzcd}
-\catone \arrow[d, hook] \arrow[r] & A \arrow[d, "f", two heads] \\ \iso \arrow[r] \arrow[ur, dashed] & B
-\end{tikzcd}
-\end{center}
-The equivalences are the equivalences of categories and the trivial fibrations are \textbf{surjective equivalences}: equivalences of categories that are also surjective on objects.
-\end{proposition}
-\begin{proof}
-It is well-known that the 2-category of categories is complete (and in fact also cocomplete) as a $\Cat$-enriched category (see %Definition \ref{defn:enriched-completeness} or
-  \cite{Kelly:1989eo}). The categorically enriched category of categories becomes a quasi-categorically enriched category by applying the nerve functor to the hom-categories (see \S\ref{sec:change-of-base}). Since the nerve functor is a right adjoint, it follows formally that these 2-categorical limits become simplicially enriched limits. In particular, as proscribed in Proposition \ref{prop:cob-adjunction}, the cotensor of a category $A$ by a simplicial set $U$ is defined to be the functor category $A^{\ho{U}}$. This completes the verification of axiom \ref{itm:cosmos-limits}.
-
-Since the class of isofibrations is characterized by a right lifting property, %Lemma \ref{lem:fib-closure} implies that
-  the isofibrations are closed under all of the limit constructions of  \ref{defn:cosmos}\ref{itm:cosmos-isofib} except for the last two. %and by Exercise \ref{exc:degenerate-leibniz},
-  For these, the Leibniz closure subsumes the closure under exponentiation.
-
-To verify that isofibrations of categories $f \colon A \fib B$ are stable under forming Leibniz cotensors with monomorphisms of simplicial sets $i \colon U \inc V$, we must solve the lifting problem below-left
-\begin{center}
-\begin{tikzcd} \catone \arrow[r, "s"] \arrow[d, hook, "j"'] & A^{\ho{V}} \arrow[d, "{\ho{i}\leib\pwr f}"] \arrow[dr, phantom, "\leftrightsquigarrow"] & \ho{U} \times \iso \cup_{\ho{U}} \ho{V} \arrow[r, "{\langle \alpha, s\rangle}"] \arrow[d, hook, "\ho{i} \leib\times j"'] & A \arrow[d, two heads, "f"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "{\langle \beta, \alpha \rangle}"'] & B^{\ho V} \times_{B^{\ho U}} A^{\ho U} & \ho{V} \times \iso \arrow[r, "\beta"'] \arrow[ur, dashed, "\gamma"'] & B
-\end{tikzcd}
-\end{center}
-which transposes to the lifting problem above-right, which we can solve by hand. Here the map $\beta$ defines a natural isomorphism between $fs \colon \ho{V} \to B$ and a second functor. Our task is to lift this to a natural isomorphism $\gamma$ from $s$ to another functor that extends the natural isomorphism $\alpha$ along $\ho{i} \colon \ho{U} \to \ho{V}$. Note this functor $\ho{i}$ need not be an inclusion, but it is injective on objects, which is enough.
-
-We define the components of $\gamma$ by cases. If an object $v \in \ho{V}$ is equal to $i(u)$ for some $u \in \ho{U}$ define $\gamma_{i(u)} \coloneq \alpha_u$; otherwise, use the fact that $f$ is an isofibration to define $\gamma_v$ to be any lift of the isomorphism $\beta_v$ to an isomorphism in $A$ with domain $s(v)$. The data of the map $\gamma \colon \ho{V} \times \iso \to A$ also entails the specification of the functor $\ho{V} \to A$ that is the codomain of the natural isomorphism $\gamma$. On objects, this functor is given by $v \mapsto \cod(\gamma_v)$. On morphisms, this functor defined in the unique way that makes $\gamma$ into a natural transformation:
-\[ (k \colon v \to v') \mapsto  \gamma_{v'} \circ s(k) \circ \gamma_v^{-1}.\]
-
-This completes the proof that $\Cat$ defines an $\infty$-cosmos. Since the nerve of a functor category, such as $A^\iso$, is isomorphic to the exponential between their nerves, the equivalences of categories coincide with the equivalences of Definition \ref{defn:qcat-equivalence}. It follows that the equivalences in the $\infty$-cosmos of categories coincide with equivalences of categories, and since the surjective equivalences are the intersection of the equivalences and the isofibrations, this completes the proof.
-\end{proof}
-
-Similarly:
-
-\begin{proposition}[the $\infty$-cosmos of Kan complexes]\label{prop:kan-cosmos}
-  \uses{defn:cosmos, defn:kan-complex, defn:equivalence, defn:trivial-fibration} The category $\Kan$ of Kan complexes defines an $\infty$-cosmos whose isofibrations are the \textbf{Kan fibrations}: maps that lift against all horn inclusions $\Lambda^k[n] \inc \Delta[n]$ for $n \geq 1$ and $0 \leq k \leq n$.
-\end{proposition}
-
-One of the key advantages of the $\infty$-cosmological approach to abstract category theory is that there are a myriad varieties of ``fibered'' $\infty$-cosmoi that can be built from a given $\infty$-cosmos, which means that any theorem proven in this axiomatic framework specializes and generalizes to those contexts. The most basic of these derived $\infty$-cosmoi is the $\infty$-cosmos of isofibrations over a fixed base, which we introduce now. %Other examples of $\infty$-cosmoi are developed in Chapter \ref{ch:new-cosmoi}, once we have a deeper understanding of the cosmological limits of axiom \ref{defn:cosmos}\ref{itm:cosmos-limits}.
-
-\begin{proposition}[sliced $\infty$-cosmoi]\label{prop:sliced-cosmoi} \uses{defn:cosmos}
-  For any $\infty$-cosmos $\cK$ and any $\infty$-cat\-e\-gory $B \in \cK$ there is an \textbf{$\infty$-cosmos $\cK_{/B}$ of isofibrations over $B$} whose
-\begin{enumerate}
-\item\label{itm:sliced-objects} objects are isofibrations $p \colon E \fib B$ with codomain $B$
-\item\label{itm:sliced-functor-space} functor spaces, say from $p \colon E \fib B$ to $q \colon F \fib B$, are defined by pullback
-\begin{center}
-\begin{tikzcd}[column sep=small] \Fun_B(p \colon E \fib B,q\colon F\fib B) \arrow[r] \arrow[d, two heads] \arrow[dr, phantom, "\lrcorner" very near start] & \Fun(E,F) \arrow[d, two heads, "{q_*}"] \\ \catone \arrow[r, "p"] & \Fun(E,B)
-\end{tikzcd}
-\end{center}
-and abbreviated to $\Fun_B(E,F)$ when the specified isofibrations are clear from context
-\item\label{itm:sliced-isofibrations} isofibrations are commutative triangles of isofibrations over $B$
-\begin{center}
-\begin{tikzcd}[row sep=small, column sep=small]
-E \arrow[rr,two heads, "r"] \arrow[dr, two heads, "p"'] & & F \arrow[dl, two heads, "q"] \\ & B
-\end{tikzcd}
-\end{center}
-\item\label{itm:sliced-products} terminal object is $\id \colon B \fib B$ and products are defined by the pullback along the diagonal
-\begin{center}
-\begin{tikzcd} \times^B_i E_i \arrow[r] \arrow[d, two heads] \arrow[dr, phantom, "\lrcorner" very near start] & \prod_i E_i \arrow[d, two heads, "\prod_i p_i"] \\ B \arrow[r, "\Delta"] & \prod_i B
-\end{tikzcd}
-\end{center}
-\item\label{itm:sliced-pullbacks} pullbacks and limits of towers of isofibrations are created by the forgetful functor $\cK_{/B} \to \cK$
-\item\label{itm:sliced-cotensors} simplicial cotensor of $p \colon E \fib B$ with $U \in \sSet$ is constructed by the pullback
-\begin{center}
-\begin{tikzcd} U \pwr_B p \arrow[d, two heads] \arrow[r] \arrow[dr, phantom, "\lrcorner" very near start] & E^U \arrow[d, two heads, "p^U"] \\ B \arrow[r, "\Delta"] & B^U
-\end{tikzcd}
-\end{center}
-\item\label{itm:fibered-equivalence} and in which a map over $B$
-\begin{center}
-\begin{tikzcd}[row sep=small, column sep=small]
-E \arrow[rr, "f"] \arrow[dr, two heads, "p"'] & & F \arrow[dl, two heads, "q"] \\ & B
-\end{tikzcd}
-\end{center}
-is an equivalence in the $\infty$-cosmos $\cK_{/B}$ if and only if $f$ is an equivalence in $\cK$.
-\end{enumerate}
-\end{proposition}
-\begin{proof}
-  \uses{lem:trivial-fib-conical, lem:brown-fact}
-The functor spaces are quasi-categories since axiom \ref{defn:cosmos}\ref{itm:cosmos-isofib} asserts that for any isofibration $q \colon F \fib B$ in $\cK$ the map $q_* \colon \Fun(E,F) \fib \Fun(E,B)$ is an isofibration of quasi-categories. Other parts of this axiom imply that each of the limit constructions --- such as the products and cotensors constructed in \ref{itm:sliced-products} and \ref{itm:sliced-cotensors} --- define isofibrations over $B$. The closure properties of the isofibrations in $\cK_{/B}$ follow from the corresponding ones in $\cK$. The most complicated of these is the Leibniz cotensor stability of the isofibrations in $\cK_{/B}$, which follows from the corresponding property in $\cK$, since for a monomorphism of simplicial sets $i \colon X\inc Y$ and an isofibration $r$ over $B$ as in \ref{itm:sliced-isofibrations} above, the map $i \leib{\pwr_B} r$ is constructed by pulling back $i \leib\pwr r$ along $\Delta \colon B \to B^Y$.
-
-The fact that the above constructions define simplicially enriched limits in a simplicially enriched slice category are standard from enriched category theory. It remains only to verify that the equivalences in the $\infty$-cosmos of isofibrations are created by the forgetful functor $\cK_{/B} \to \cK$. Suppose first that the map $f$ displayed in \ref{itm:fibered-equivalence} defines an equivalence in $\cK$. Then for any isofibration $s \colon A \fib B$ the induced map on functor spaces in $\cK_{/B}$ is defined by the pullback:
-\begin{center}
-\begin{tikzcd}
-\Fun_B(A,E) \arrow[dr, "{f_*}", dashed, "\sim"'] \arrow[dd, two heads] \arrow[ddr, phantom, "\lrcorner" pos=.001] \arrow[rr] & & \Fun(A,E) \arrow[dd, two heads, "{p_*}"' near start] \arrow[dr, "{f_*}", "\sim"'] \\ & \Fun_B(A,F) \arrow[dl, two heads] \arrow[dr, phantom, "\lrcorner" very near start] \arrow[rr, crossing over] & & \Fun(A,F) \arrow[dl, two heads, "{q_*}"] \\ \catone \arrow[rr, "s"'] & ~& \Fun(A,B)
-\end{tikzcd}
-\end{center}
-Since $f$ is an equivalence in $\cK$, the map $f_* \colon \Fun(A,E) \to \Fun(A,F)$ is an equivalence, and so it follows that the induced map on fibers over $s$ is an equivalence as well.\footnote{The stability of equivalences between isofibrations under pullback can be proven either as a consequence of Lemmas \ref{lem:trivial-fib-conical} and \ref{lem:brown-fact} using standard techniques from simplicial homotopy theory %(see Lemma \ref{lem:pullback-of-fibered-equiv})
- or by arguing 2-categorically.} %(see Proposition \ref{prop:dual-gluing-lemma}).}
-
-For the converse implication, we appeal to  Lemma \ref{lem:equiv-htpy-equiv}. If $f \colon E \to F$ is an equivalence in $\cK_{/B}$ then it admits a homotopy inverse in $\cK_{/B}$. The inverse equivalence $g \colon F \to E$ also defines an inverse equivalence in $\cK$ and the required simplicial homotopies in $\cK$
-\begin{center}
-\begin{tikzcd}
-E \arrow[r, "\alpha"] & \iso\pwr_Bp \arrow[r] & E^\iso & F \arrow[r, "\beta"] & \iso \pwr_Bq \to F^\iso
-\end{tikzcd}
-\end{center}
-are defined by composing with the top horizontal leg of the pullback defining the cotensor in $\cK_{/B}$.
-\end{proof}
-
-Many, though not all, of the $\infty$-cosmoi we encounter ``in the wild'' satisfy an additional axiom:\footnote{Note, however, that this axiom is not inherited by the sliced $\infty$-cosmoi of Proposition \ref{prop:sliced-cosmoi}, which is one of the reasons it was not included in Definition \ref{defn:cosmos}.}
-
-\begin{definition}[cartesian closed $\infty$-cosmoi]\label{defn:closed-cosmos}
-  \uses{defn:cosmos} An $\infty$-cosmos $\cK$ is \textbf{cartesian closed} if the product bifunctor
-$- \times -\colon \cK \times \cK \to \cK$ extends to a simplicially enriched two-variable adjunction
-\[ \Fun(A \times B,C) \cong \Fun(A,C^B) \cong \Fun(B,C^A)\]
-in which the right adjoints $(-)^A \colon \cK \to \cK$ preserve isofibrations for all $A \in \cK$.
-\end{definition}
-
-For instance, the $\infty$-cosmos of quasi-categories is cartesian closed, with the exponentials defined as (special cases of) simplicial cotensors. This is one of the reasons that we use the same notation for cotensor and for exponential. Note in this case the functor spaces and the exponentials coincide. The same is true for the cartesian closed $\infty$-cosmoi of categories and of Kan complexes. In general, the functor space from $A$ to $B$ is the ``underlying quasi-category'' of the exponential $B^A$ whenever it exists. % (see Remark \ref{rmk:underlying-internal-hom}).
 
 \section{Change of base}\label{sec:change-of-base}
 
@@ -1235,6 +1117,137 @@ s\mathcal{C}at  \arrow[r, bend left=20, start anchor=7, end anchor=170, "\ho_*"]
 that act identically on objects and act by applying the homotopy category functor or nerve functor, respectively, on homs. %By Lemma \ref{lem:right-of-monoidal-adj-ucats},
   The right adjoint, which builds a simplicially enriched category from a 2-category, respects the underlying category: the underlying category of objects and 1-cells is identified with the underlying category of objects and 0-arrows. In this case, the functor $\ho \colon \sSet \to \Cat$ commutes with the underlying set functors, so in fact both adjoints preserve underlying categories, as is evident from direct computation. In particular, the homotopy 2-category of an $\infty$-cosmos has the same underlying 1-category. Since the nerve embedding is fully faithful, 2-categories can be identified as a full subcategory comprised of those simplicial categories whose hom spaces are nerves of categories.
 \end{example}
+
+\section{Examples of \texorpdfstring{$\infty$}{infinity}-cosmoi}\label{sec:examples}
+
+We briefly tour a few examples of $\infty$-cosmoi. %While the most important example, for our purposes, is the $\infty$-cosmos of quasi-categories, we devote more attention (for now) to the construction of the $\infty$-cosmos of categories, which should be easier to formalize.
+The following theorem should be quite difficult to formalize:
+
+\begin{proposition}[the $\infty$-cosmos of quasi-categories]\label{prop:qcat-cosmos}
+  \uses{defn:cosmos, defn:quasi-category, defn:equivalence, defn:trivial-fibration, defn:qcat-equivalence, defn:qcat-trivial-fibration}
+  The full subcategory $\qCat\subset\sSet$ of quasi-categories defines an $\infty$-cosmos in which the isofibrations, equivalences, and trivial fibrations coincide with the classes  already bearing these names.
+\end{proposition}
+\begin{proof}
+\uses{defn:qcat-isofibration} The proof requires myriad combinatorial results about the class of isofibrations between quasi-categories. See \cite[\S D]{RiehlVerity:2022eo}.
+\end{proof}
+
+
+Two further examples fit into a common paradigm: both arise as full subcategories of the $\infty$-cosmos of quasi-categories and inherit their $\infty$-cosmos structures from this inclusion (see Lemma \cite[6.1.4]{RiehlVerity:2022eo}), but it is also instructive, and ultimately takes less work, to describe the resulting $\infty$-cosmos structures directly.
+
+\begin{definition}[isofibrations of categories]\label{defn:cat-isofibration}
+An \textbf{isofibration} between categories is a functor $f \colon A \fib B$ satisfying the displayed right lifting property for the inclusion of both endpoints of the free-living isomorphism:
+\begin{center}
+  \begin{tikzcd}
+  \catone \arrow[d, hook] \arrow[r] & A \arrow[d, "f", two heads] \\ \iso \arrow[r] \arrow[ur, dashed] & B
+  \end{tikzcd}
+  \end{center}
+\end{definition}
+
+As the inclusion the domain of the free-living isomorphism is a retract of the inclusion of the codomain, and vice versa, lifting against either endpoints implies lifting against both endpoints.
+
+\begin{proposition}[the $\infty$-cosmos of categories]\label{prop:cat-cosmos}
+\uses{defn:cosmos, defn:equivalence, defn:trivial-fibration, defn:cat-isofibration}
+ The category $\Cat$ of 1-cat\-e\-go\-ri\-es defines an $\infty$-cosmos whose isofibrations are the isofibrations.
+The equivalences are the equivalences of categories and the trivial fibrations are \textbf{surjective equivalences}: equivalences of categories that are also surjective on objects.
+\end{proposition}
+\begin{proof}
+It is well-known that the 2-category of categories is complete (and in fact also cocomplete) as a $\Cat$-enriched category (see %Definition \ref{defn:enriched-completeness} or
+  \cite{Kelly:1989eo}). The categorically enriched category of categories becomes a quasi-categorically enriched category by applying the nerve functor to the hom-categories (see \S\ref{sec:change-of-base}). Since the nerve functor is a right adjoint, it follows formally that these 2-categorical limits become simplicially enriched limits. In particular, as proscribed in Proposition \ref{prop:cob-adjunction}, the cotensor of a category $A$ by a simplicial set $U$ is defined to be the functor category $A^{\ho{U}}$. This completes the verification of axiom \ref{itm:cosmos-limits}.
+
+Since the class of isofibrations is characterized by a right lifting property, %Lemma \ref{lem:fib-closure} implies that
+  the isofibrations are closed under all of the limit constructions of  \ref{defn:cosmos}\ref{itm:cosmos-isofib} except for the last two. %and by Exercise \ref{exc:degenerate-leibniz},
+  For these, the Leibniz closure subsumes the closure under exponentiation.
+
+To verify that isofibrations of categories $f \colon A \fib B$ are stable under forming Leibniz cotensors with monomorphisms of simplicial sets $i \colon U \inc V$, we must solve the lifting problem below-left
+\begin{center}
+\begin{tikzcd} \catone \arrow[r, "s"] \arrow[d, hook, "j"'] & A^{\ho{V}} \arrow[d, "{\widehat{\{\ho{i}, f\}}}"] \arrow[dr, phantom, "\leftrightsquigarrow"] & \ho{U} \times \iso \cup_{\ho{U}} \ho{V} \arrow[r, "{\langle \alpha, s\rangle}"] \arrow[d, hook, "\ho{i} \leib\times j"'] & A \arrow[d, two heads, "f"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "{\langle \beta, \alpha \rangle}"'] & B^{\ho V} \times_{B^{\ho U}} A^{\ho U} & \ho{V} \times \iso \arrow[r, "\beta"'] \arrow[ur, dashed, "\gamma"'] & B
+\end{tikzcd}
+\end{center}
+which transposes to the lifting problem above-right, which we can solve by hand. Here the map $\beta$ defines a natural isomorphism between $fs \colon \ho{V} \to B$ and a second functor. Our task is to lift this to a natural isomorphism $\gamma$ from $s$ to another functor that extends the natural isomorphism $\alpha$ along $\ho{i} \colon \ho{U} \to \ho{V}$. Note this functor $\ho{i}$ need not be an inclusion, but it is injective on objects, which is enough.
+
+We define the components of $\gamma$ by cases. If an object $v \in \ho{V}$ is equal to $i(u)$ for some $u \in \ho{U}$ define $\gamma_{i(u)} \coloneq \alpha_u$; otherwise, use the fact that $f$ is an isofibration to define $\gamma_v$ to be any lift of the isomorphism $\beta_v$ to an isomorphism in $A$ with domain $s(v)$. The data of the map $\gamma \colon \ho{V} \times \iso \to A$ also entails the specification of the functor $\ho{V} \to A$ that is the codomain of the natural isomorphism $\gamma$. On objects, this functor is given by $v \mapsto \cod(\gamma_v)$. On morphisms, this functor defined in the unique way that makes $\gamma$ into a natural transformation:
+\[ (k \colon v \to v') \mapsto  \gamma_{v'} \circ s(k) \circ \gamma_v^{-1}.\]
+
+This completes the proof that $\Cat$ defines an $\infty$-cosmos. Since the nerve of a functor category, such as $A^\iso$, is isomorphic to the exponential between their nerves, the equivalences of categories coincide with the equivalences of Definition \ref{defn:qcat-equivalence}. It follows that the equivalences in the $\infty$-cosmos of categories coincide with equivalences of categories, and since the surjective equivalences are the intersection of the equivalences and the isofibrations, this completes the proof.
+\end{proof}
+
+Similarly:
+
+\begin{proposition}[the $\infty$-cosmos of Kan complexes]\label{prop:kan-cosmos}
+  \uses{defn:cosmos, defn:kan-complex, defn:equivalence, defn:trivial-fibration} The category $\Kan$ of Kan complexes defines an $\infty$-cosmos whose isofibrations are the \textbf{Kan fibrations}: maps that lift against all horn inclusions $\Lambda^k[n] \inc \Delta[n]$ for $n \geq 1$ and $0 \leq k \leq n$.
+\end{proposition}
+
+One of the key advantages of the $\infty$-cosmological approach to abstract category theory is that there are a myriad varieties of ``fibered'' $\infty$-cosmoi that can be built from a given $\infty$-cosmos, which means that any theorem proven in this axiomatic framework specializes and generalizes to those contexts. The most basic of these derived $\infty$-cosmoi is the $\infty$-cosmos of isofibrations over a fixed base, which we introduce now. %Other examples of $\infty$-cosmoi are developed in Chapter \ref{ch:new-cosmoi}, once we have a deeper understanding of the cosmological limits of axiom \ref{defn:cosmos}\ref{itm:cosmos-limits}.
+
+\begin{proposition}[sliced $\infty$-cosmoi]\label{prop:sliced-cosmoi} \uses{defn:cosmos}
+  For any $\infty$-cosmos $\cK$ and any $\infty$-cat\-e\-gory $B \in \cK$ there is an \textbf{$\infty$-cosmos $\cK_{/B}$ of isofibrations over $B$} whose
+\begin{enumerate}
+\item\label{itm:sliced-objects} objects are isofibrations $p \colon E \fib B$ with codomain $B$
+\item\label{itm:sliced-functor-space} functor spaces, say from $p \colon E \fib B$ to $q \colon F \fib B$, are defined by pullback
+\begin{center}
+\begin{tikzcd}[column sep=small] \Fun_B(p \colon E \fib B,q\colon F\fib B) \arrow[r] \arrow[d, two heads] \arrow[dr, phantom, "\lrcorner" very near start] & \Fun(E,F) \arrow[d, two heads, "{q_*}"] \\ \catone \arrow[r, "p"] & \Fun(E,B)
+\end{tikzcd}
+\end{center}
+and abbreviated to $\Fun_B(E,F)$ when the specified isofibrations are clear from context
+\item\label{itm:sliced-isofibrations} isofibrations are commutative triangles of isofibrations over $B$
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+E \arrow[rr,two heads, "r"] \arrow[dr, two heads, "p"'] & & F \arrow[dl, two heads, "q"] \\ & B
+\end{tikzcd}
+\end{center}
+\item\label{itm:sliced-products} terminal object is $\id \colon B \fib B$ and products are defined by the pullback along the diagonal
+\begin{center}
+\begin{tikzcd} \times^B_i E_i \arrow[r] \arrow[d, two heads] \arrow[dr, phantom, "\lrcorner" very near start] & \prod_i E_i \arrow[d, two heads, "\prod_i p_i"] \\ B \arrow[r, "\Delta"] & \prod_i B
+\end{tikzcd}
+\end{center}
+\item\label{itm:sliced-pullbacks} pullbacks and limits of towers of isofibrations are created by the forgetful functor $\cK_{/B} \to \cK$
+\item\label{itm:sliced-cotensors} simplicial cotensor of $p \colon E \fib B$ with $U \in \sSet$ is constructed by the pullback
+\begin{center}
+\begin{tikzcd} U \pwr_B p \arrow[d, two heads] \arrow[r] \arrow[dr, phantom, "\lrcorner" very near start] & E^U \arrow[d, two heads, "p^U"] \\ B \arrow[r, "\Delta"] & B^U
+\end{tikzcd}
+\end{center}
+\item\label{itm:fibered-equivalence} and in which a map over $B$
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+E \arrow[rr, "f"] \arrow[dr, two heads, "p"'] & & F \arrow[dl, two heads, "q"] \\ & B
+\end{tikzcd}
+\end{center}
+is an equivalence in the $\infty$-cosmos $\cK_{/B}$ if and only if $f$ is an equivalence in $\cK$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+  \uses{lem:trivial-fib-conical, lem:brown-fact}
+The functor spaces are quasi-categories since axiom \ref{defn:cosmos}\ref{itm:cosmos-isofib} asserts that for any isofibration $q \colon F \fib B$ in $\cK$ the map $q_* \colon \Fun(E,F) \fib \Fun(E,B)$ is an isofibration of quasi-categories. Other parts of this axiom imply that each of the limit constructions --- such as the products and cotensors constructed in \ref{itm:sliced-products} and \ref{itm:sliced-cotensors} --- define isofibrations over $B$. The closure properties of the isofibrations in $\cK_{/B}$ follow from the corresponding ones in $\cK$. The most complicated of these is the Leibniz cotensor stability of the isofibrations in $\cK_{/B}$, which follows from the corresponding property in $\cK$, since for a monomorphism of simplicial sets $i \colon X\inc Y$ and an isofibration $r$ over $B$ as in \ref{itm:sliced-isofibrations} above, the map $i \leib{\pwr_B} r$ is constructed by pulling back $\widehat{\{i , r\}}$ along $\Delta \colon B \to B^Y$.
+
+The fact that the above constructions define simplicially enriched limits in a simplicially enriched slice category are standard from enriched category theory. It remains only to verify that the equivalences in the $\infty$-cosmos of isofibrations are created by the forgetful functor $\cK_{/B} \to \cK$. Suppose first that the map $f$ displayed in \ref{itm:fibered-equivalence} defines an equivalence in $\cK$. Then for any isofibration $s \colon A \fib B$ the induced map on functor spaces in $\cK_{/B}$ is defined by the pullback:
+\begin{center}
+\begin{tikzcd}
+\Fun_B(A,E) \arrow[dr, "{f_*}", dashed, "\sim"'] \arrow[dd, two heads] \arrow[ddr, phantom, "\lrcorner" pos=.001] \arrow[rr] & & \Fun(A,E) \arrow[dd, two heads, "{p_*}"' near start] \arrow[dr, "{f_*}", "\sim"'] \\ & \Fun_B(A,F) \arrow[dl, two heads] \arrow[dr, phantom, "\lrcorner" very near start] \arrow[rr, crossing over] & & \Fun(A,F) \arrow[dl, two heads, "{q_*}"] \\ \catone \arrow[rr, "s"'] & ~& \Fun(A,B)
+\end{tikzcd}
+\end{center}
+Since $f$ is an equivalence in $\cK$, the map $f_* \colon \Fun(A,E) \to \Fun(A,F)$ is an equivalence, and so it follows that the induced map on fibers over $s$ is an equivalence as well.\footnote{The stability of equivalences between isofibrations under pullback can be proven either as a consequence of Lemmas \ref{lem:trivial-fib-conical} and \ref{lem:brown-fact} using standard techniques from simplicial homotopy theory %(see Lemma \ref{lem:pullback-of-fibered-equiv})
+ or by arguing 2-categorically.} %(see Proposition \ref{prop:dual-gluing-lemma}).}
+
+For the converse implication, we appeal to  Lemma \ref{lem:equiv-htpy-equiv}. If $f \colon E \to F$ is an equivalence in $\cK_{/B}$ then it admits a homotopy inverse in $\cK_{/B}$. The inverse equivalence $g \colon F \to E$ also defines an inverse equivalence in $\cK$ and the required simplicial homotopies in $\cK$
+\begin{center}
+\begin{tikzcd}
+E \arrow[r, "\alpha"] & \iso\pwr_Bp \arrow[r] & E^\iso & F \arrow[r, "\beta"] & \iso \pwr_Bq \to F^\iso
+\end{tikzcd}
+\end{center}
+are defined by composing with the top horizontal leg of the pullback defining the cotensor in $\cK_{/B}$.
+\end{proof}
+
+Many, though not all, of the $\infty$-cosmoi we encounter ``in the wild'' satisfy an additional axiom:\footnote{Note, however, that this axiom is not inherited by the sliced $\infty$-cosmoi of Proposition \ref{prop:sliced-cosmoi}, which is one of the reasons it was not included in Definition \ref{defn:cosmos}.}
+
+\begin{definition}[cartesian closed $\infty$-cosmoi]\label{defn:closed-cosmos}
+  \uses{defn:cosmos} An $\infty$-cosmos $\cK$ is \textbf{cartesian closed} if the product bifunctor
+$- \times -\colon \cK \times \cK \to \cK$ extends to a simplicially enriched two-variable adjunction
+\[ \Fun(A \times B,C) \cong \Fun(A,C^B) \cong \Fun(B,C^A)\]
+in which the right adjoints $(-)^A \colon \cK \to \cK$ preserve isofibrations for all $A \in \cK$.
+\end{definition}
+
+For instance, the $\infty$-cosmos of quasi-categories is cartesian closed, with the exponentials defined as (special cases of) simplicial cotensors. This is one of the reasons that we use the same notation for cotensor and for exponential. Note in this case the functor spaces and the exponentials coincide. The same is true for the cartesian closed $\infty$-cosmoi of categories and of Kan complexes. In general, the functor space from $A$ to $B$ is the ``underlying quasi-category'' of the exponential $B^A$ whenever it exists. % (see Remark \ref{rmk:underlying-internal-hom}).
+
 
 \section{The homotopy 2-category}\label{sec:htpy-2-cat}
 

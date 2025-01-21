@@ -60,8 +60,8 @@ class InfinityCosmos extends PreInfinityCosmos K where
   prod_map_fibrant {γ : Type w} {A B : γ → K} (f : ∀ i, A i ↠ B i) :
     -- haveI := HasConicalProducts_hasProducts SSet (C := K) -- TODO
     IsIsofibration (Limits.Pi.map (λ i ↦ (f i).1))
-  [has_isoFibration_pullbacks {E B A : K} (p : E ↠ B) (f : A ⟶ B)  : HasConicalPullback SSet p.1 f]
-  pullback_is_isoFibration {E B A P : K} (p : E ↠ B) (f : A ⟶ B)
+  [has_isofibration_pullbacks {E B A : K} (p : E ↠ B) (f : A ⟶ B) : HasConicalPullback SSet p.1 f]
+  pullback_isIsofibration {E B A P : K} (p : E ↠ B) (f : A ⟶ B)
     (fst : P ⟶ E) (snd : P ⟶ A) (h : IsPullback fst snd p.1 f) : IsIsofibration snd
   [has_limits_of_towers (F : ℕᵒᵖ ⥤ K) :
     (∀ n : ℕ, IsIsofibration (F.map (homOfLE (Nat.le_succ n)).op)) → HasConicalLimit SSet F]
@@ -70,16 +70,15 @@ class InfinityCosmos extends PreInfinityCosmos K where
     -- haveI := HasConicalLimit_hasLimit SSet F -- TODO
     IsIsofibration (limit.π F (.op 0))
   [has_cotensors : HasCotensors K]
-  leibniz_cotensor  {U V : SSet} (i : U ⟶ V) [Mono i] {A B : K} (f : A ↠ B) {P : K}
+  leibniz_cotensor_isIsofibration  {U V : SSet} (i : U ⟶ V) [Mono i] {A B : K} (f : A ↠ B) {P : K}
     (fst : P ⟶ U ⋔ A) (snd : P ⟶ V ⋔ B)
     (h : IsPullback fst snd (cotensorCovMap U f.1) (cotensorContraMap i B)) :
     IsIsofibration (h.isLimit.lift <|
       PullbackCone.mk (cotensorContraMap i A) (cotensorCovMap V f.1)
-        (cotensor_bifunctoriality i f.1)) --TODO : Prove that these pullbacks exist.
+        (cotensor_bifunctoriality i f.1))
   local_isoFibration {X A B : K} (f : A ↠ B) : Isofibration (toFunMap X f.1)
 
-attribute [instance] has_products has_isoFibration_pullbacks has_limits_of_towers has_cotensors
-
+attribute [instance] has_products has_isofibration_pullbacks has_limits_of_towers has_cotensors
 namespace InfinityCosmos
 
 variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
@@ -97,6 +96,8 @@ noncomputable def terminalIsConicalTerminal : IsConicalTerminal SSet (⊤_ K) :=
 instance : HasCotensors K := by infer_instance
 
 instance : HasProducts K := by infer_instance
+
+instance {E B A : K} (p : E ↠ B) (f : A ⟶ B) : HasPullback p.1 f := by infer_instance
 
 end InfinityCosmos
 
