@@ -29,7 +29,7 @@ CategoryTheory.categoryForgetEnrichment
 CategoryTheory.SimplicialCategory.HasCotensor
 CategoryTheory.SimplicialCategory.HasCotensors
 CategoryTheory.SimplicialCategory.cotensor_bifunctoriality
-CategoryTheory.IsConicalLimit
+CategoryTheory.Enriched.IsConicalLimit
 CategoryTheory.InfinityCosmos
 CategoryTheory.LaxMonoidalFunctor
 CategoryTheory.instEnrichedCategoryTransportEnrichment
