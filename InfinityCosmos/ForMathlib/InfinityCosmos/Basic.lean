@@ -85,19 +85,24 @@ variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
 open InfinityCosmos PreInfinityCosmos SimplicialCategory
 
 set_option trace.Meta.synthInstance true in
-instance : HasConicalTerminal SSet K := by infer_instance
+/-- an ∞-cosmos has a conical terminal object as `SSet`-enriched limit. -/
+example : HasConicalTerminal SSet K := inferInstance
 
-instance : HasTerminal K := by infer_instance
+/-- an ∞-cosmos has a terminal object. -/
+example : HasTerminal K := inferInstance
 
 /-- The terminal object in an ∞-cosmos is a conical terminal object. -/
 noncomputable def terminalIsConicalTerminal : IsConicalTerminal SSet (⊤_ K) :=
   HasConicalTerminal.terminalIsConicalTerminal SSet terminalIsTerminal
 
-instance : HasCotensors K := by infer_instance
+/-- an ∞-cosmos has cotensors -/
+example : HasCotensors K := inferInstance
 
-instance : HasProducts K := by infer_instance
+/-- an ∞-cosmos has products -/
+example : HasProducts K := inferInstance
 
-instance {E B A : K} (p : E ↠ B) (f : A ⟶ B) : HasPullback p.1 f := by infer_instance
+/-- an ∞-cosmos has pullbacks -/
+example {E B A : K} (p : E ↠ B) (f : A ⟶ B) : HasPullback p.1 f := inferInstance
 
 end InfinityCosmos
 

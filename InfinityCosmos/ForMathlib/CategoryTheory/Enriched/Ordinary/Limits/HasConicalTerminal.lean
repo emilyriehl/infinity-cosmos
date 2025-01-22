@@ -23,7 +23,8 @@ variable (F : J ⥤ C)
 
 variable [HasConicalLimit V F]
 
-/-- An abbreviation for `HasConicalLimit (Discrete.functor f)`. -/
+/-- A category has a conical terminal object
+if it has a conical limit over the empty diagram. -/
 abbrev HasConicalTerminal := HasConicalLimitsOfShape (Discrete.{0} PEmpty)
 
 instance HasConicalTerminal_hasTerminal [hyp : HasConicalTerminal V C] : HasTerminal C :=
