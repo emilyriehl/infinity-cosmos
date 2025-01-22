@@ -15,37 +15,31 @@ namespace CategoryTheory.Enriched
 
 open Limits
 
-variable {J : Type u₁} [Category.{v₁} J] {K : Type u₂} [Category.{v₂} K]
-variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
-variable {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
-variable (F : J ⥤ C) (c : Cone F)
-
 /-- An abbreviation for `HasConicalLimit (Discrete.functor f)`. -/
-abbrev HasConicalProduct {I : Type w} (f : I → C) := HasConicalLimit V (Discrete.functor f)
+abbrev HasConicalProduct (V : Type u') [Category.{v'} V] [MonoidalCategory V]
+    {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C] {I : Type w} (f : I → C) :=
+  HasConicalLimit V (Discrete.functor f)
 
-instance HasConicalProduct_hasProduct {I : Type w} (f : I → C) [HasConicalProduct V f] :
-    HasProduct f := inferInstance
-
-variable (C)
-
--- TODO: remove this. looks like an `abbrev` works just fine
--- The class needs `V` as `outParam`.
-variable (V : outParam <| Type u') [Category.{v'} V] [MonoidalCategory V] in
-variable (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C] (F : J ⥤ C) in
+-- -- TODO: unecessary?
+-- instance HasConicalProduct.hasProduct {I : Type w} (f : I → C) [HasConicalProduct V f] :
+--     HasProduct f := inferInstance
+example (V : Type u') [Category.{v'} V] [MonoidalCategory V]
+    {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C] {I : Type w} (f : I → C)
+    [HasConicalProduct V f] :
+    HasProduct f :=
+  inferInstance
 
 /-- Has conical products if all discrete diagrams of bounded size have conical products. -/
-class HasConicalProducts : Prop where
+class HasConicalProducts (V : outParam <| Type u') [Category.{v'} V] [MonoidalCategory V]
+    (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C] : Prop where
   /-- All discrete diagrams of bounded size have conical products. -/
   hasConicalLimitsOfShape : ∀ J : Type w, HasConicalLimitsOfShape (Discrete J) V C := by
     infer_instance
-
--- -- The class needs `V` as `outParam`.
--- variable (V : outParam <| Type u') [Category.{v'} V] [MonoidalCategory V] in
--- variable (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C] (F : J ⥤ C) in
-
--- abbrev HasConicalProducts := ∀ J : Type w, HasConicalLimitsOfShape (Discrete J) V C
-
+-- TODO: is the `:= by infer_instance` good for anything?
 namespace HasConicalProducts
+
+variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
+variable (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C]
 
 instance hasProducts [hyp : HasConicalProducts.{w, v', v, u} V C] :
     HasProducts.{w, v, u} C := by

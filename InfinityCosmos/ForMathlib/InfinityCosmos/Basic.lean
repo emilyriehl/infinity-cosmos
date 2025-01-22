@@ -84,7 +84,6 @@ variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
 
 open InfinityCosmos PreInfinityCosmos SimplicialCategory
 
-set_option trace.Meta.synthInstance true in
 /-- an ∞-cosmos has a conical terminal object as `SSet`-enriched limit. -/
 example : HasConicalTerminal SSet K := inferInstance
 
