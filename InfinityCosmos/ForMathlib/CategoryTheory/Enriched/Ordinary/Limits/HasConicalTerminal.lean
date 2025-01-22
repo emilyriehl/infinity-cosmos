@@ -49,6 +49,8 @@ noncomputable def terminalIsConicalTerminal {T : C} (hT : IsTerminal T) :
 
 end HasConicalTerminal
 
+/-! ## Conical Products -/
+
 namespace HasConicalProducts
 
 instance hasConicalTerminal [hyp : HasConicalProducts.{0, v', v, u} V C] :
