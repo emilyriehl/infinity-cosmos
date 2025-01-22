@@ -58,7 +58,6 @@ class InfinityCosmos extends PreInfinityCosmos K where
   all_objects_fibrant {X Y : K} (hY : IsConicalTerminal SSet Y) (f : X ⟶ Y) : IsIsofibration f
   [has_products : HasConicalProducts SSet K]
   prod_map_fibrant {γ : Type w} {A B : γ → K} (f : ∀ i, A i ↠ B i) :
-    -- haveI := HasConicalProducts_hasProducts SSet (C := K) -- TODO
     IsIsofibration (Limits.Pi.map (λ i ↦ (f i).1))
   [has_isofibration_pullbacks {E B A : K} (p : E ↠ B) (f : A ⟶ B) : HasConicalPullback SSet p.1 f]
   pullback_isIsofibration {E B A P : K} (p : E ↠ B) (f : A ⟶ B)
@@ -67,7 +66,6 @@ class InfinityCosmos extends PreInfinityCosmos K where
     (∀ n : ℕ, IsIsofibration (F.map (homOfLE (Nat.le_succ n)).op)) → HasConicalLimit SSet F]
   has_limits_of_towers_isIsofibration (F : ℕᵒᵖ ⥤ K) (hf) :
     haveI := has_limits_of_towers F hf
-    -- haveI := HasConicalLimit_hasLimit SSet F -- TODO
     IsIsofibration (limit.π F (.op 0))
   [has_cotensors : HasCotensors K]
   leibniz_cotensor_isIsofibration  {U V : SSet} (i : U ⟶ V) [Mono i] {A B : K} (f : A ↠ B) {P : K}
