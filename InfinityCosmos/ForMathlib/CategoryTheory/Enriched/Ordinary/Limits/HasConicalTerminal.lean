@@ -41,7 +41,7 @@ noncomputable def conicalTerminalIsConicalTerminal :
     IsConicalTerminal V (conicalTerminal V C) :=
   conicalLimit.isConicalLimit V _ |>.ofIso <| Cones.ext (by rfl) (by simp)
 
-noncomputable def terminalIsConicalTerminal' {T : C} (hT : IsTerminal T) :
+noncomputable def isTerminalIsConicalTerminal {T : C} (hT : IsTerminal T) :
     IsConicalTerminal V T := by
   let TT := conicalLimit V (Functor.empty.{0} C)
   let slim : IsConicalTerminal V TT := conicalTerminalIsConicalTerminal V
@@ -53,7 +53,7 @@ variable {V} in
 
 /-- The terminal object is a conical terminal object. -/
 noncomputable def terminalIsConicalTerminal : IsConicalTerminal V (⊤_ C) :=
-  terminalIsConicalTerminal' V terminalIsTerminal
+  isTerminalIsConicalTerminal V terminalIsTerminal
 
 end HasConicalTerminal
 
