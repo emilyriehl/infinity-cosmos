@@ -5,7 +5,7 @@ import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
 
 namespace CategoryTheory
-open Category Limits Functor MonoidalCategory Simplicial SimplicialCategory EnrichedOrdinaryCategory SSet
+open Category Limits Functor MonoidalCategory Simplicial SimplicialCategory EnrichedOrdinaryCategory Enriched SSet
 universe w v v₁ v₂ u u₁ u₂
 
 variable (K : Type u) [Category.{v} K] [SimplicialCategory K]
@@ -48,7 +48,7 @@ instance (A B : K) : Coe (A ↠ B) (A ⟶ B) := ⟨ λ f ↦ f.1 ⟩
 
 end InfinityCosmos
 
-open PreInfinityCosmos InfinityCosmos
+open PreInfinityCosmos InfinityCosmos Enriched
 variable (K : Type u) [Category.{v} K][PreInfinityCosmos.{v} K]
 
 /-- An `InfinityCosmos` extends a `PreInfinityCosmos` with limit and isofibration axioms..-/
@@ -83,6 +83,7 @@ variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
 
 open InfinityCosmos PreInfinityCosmos SimplicialCategory
 
+set_option trace.Meta.synthInstance true in
 instance : HasConicalTerminal SSet K := by infer_instance
 
 instance : HasTerminal K := by infer_instance

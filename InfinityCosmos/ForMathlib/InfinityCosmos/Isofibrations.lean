@@ -30,7 +30,7 @@ namespace InfinityCosmos
 
 universe u v
 
-open CategoryTheory Category PreInfinityCosmos SimplicialCategory EnrichedOrdinaryCategory Limits InfinityCosmos
+open CategoryTheory Category PreInfinityCosmos SimplicialCategory Enriched Limits InfinityCosmos
 
 variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
 

@@ -23,9 +23,7 @@ conical terminal, but if `HasConicalTerminal V C` any terminal object in `C` is 
 TODO: Develop similar API for other conical limit and colimit shapes.
 -/
 
-namespace CategoryTheory
-
-namespace EnrichedOrdinaryCategory
+namespace CategoryTheory.Enriched
 
 universe v' v u u'
 
@@ -43,7 +41,7 @@ def IsConicalTerminal.isTerminal {T : C} (hT : IsConicalTerminal V T) : IsTermin
 /-- The defining universal property of a conical terminal object gives an isomorphism of homs.-/
 noncomputable def IsConicalTerminal.eHomIso {T : C} (hT : IsConicalTerminal V T)
     (X : C) : (X ⟶[V] T) ≅ ⊤_ V :=
-  IsConicalLimit.limitComparisonIso _ X hT ≪≫
+  IsConicalLimit.limitComparisonIso X hT ≪≫
     HasLimit.isoOfEquivalence (by rfl) (Functor.emptyExt _ _)
 
 variable {V} in
@@ -73,6 +71,4 @@ noncomputable def terminalIsConicalTerminal {T : C} (hT : IsTerminal T) :
 
 end HasConicalTerminal
 
-end EnrichedOrdinaryCategory
-
-end CategoryTheory
+end CategoryTheory.Enriched
