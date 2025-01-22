@@ -31,6 +31,7 @@ namespace InfinityCosmos
 universe u v
 
 open CategoryTheory Category PreInfinityCosmos SimplicialCategory Enriched Limits InfinityCosmos
+open HasConicalTerminal
 
 variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
 

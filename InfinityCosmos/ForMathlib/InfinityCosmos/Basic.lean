@@ -91,10 +91,6 @@ example : HasConicalTerminal SSet K := inferInstance
 /-- an ∞-cosmos has a terminal object. -/
 example : HasTerminal K := inferInstance
 
-/-- The terminal object in an ∞-cosmos is a conical terminal object. -/
-noncomputable def terminalIsConicalTerminal : IsConicalTerminal SSet (⊤_ K) :=
-  HasConicalTerminal.terminalIsConicalTerminal SSet terminalIsTerminal
-
 /-- an ∞-cosmos has cotensors -/
 example : HasCotensors K := inferInstance
 

@@ -14,7 +14,7 @@ universe v₁ u₁ v₂ u₂ w v' v u u'
 
 namespace CategoryTheory.Enriched
 
-open Limits
+open Limits HasConicalLimit
 
 variable {J : Type u₁} [Category.{v₁} J] {K : Type u₂} [Category.{v₂} K]
 variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
@@ -41,12 +41,19 @@ noncomputable def conicalTerminalIsConicalTerminal :
     IsConicalTerminal V (conicalTerminal V C) :=
   conicalLimit.isConicalLimit V _ |>.ofIso <| Cones.ext (by rfl) (by simp)
 
-noncomputable def terminalIsConicalTerminal {T : C} (hT : IsTerminal T) :
+noncomputable def terminalIsConicalTerminal' {T : C} (hT : IsTerminal T) :
     IsConicalTerminal V T := by
   let TT := conicalLimit V (Functor.empty.{0} C)
   let slim : IsConicalTerminal V TT := conicalTerminalIsConicalTerminal V
   let lim : IsTerminal TT := IsConicalTerminal.isTerminal V slim
   exact IsConicalTerminal.ofIso slim (hT.uniqueUpToIso lim).symm
+
+-- note: `V` implicit because of how this is used in practise, see `Isofibrations.lean`
+variable {V} in
+
+/-- The terminal object is a conical terminal object. -/
+noncomputable def terminalIsConicalTerminal : IsConicalTerminal V (⊤_ C) :=
+  terminalIsConicalTerminal' V terminalIsTerminal
 
 end HasConicalTerminal
 
@@ -61,7 +68,7 @@ instance hasConicalTerminal [hyp : HasConicalProducts.{0, v', v, u} V C] :
 instance hasConicalTerminal' [hyp : HasConicalProducts.{w, v', v, u} V C] :
     HasConicalTerminal V C := by
   have inst := hyp.hasConicalLimitsOfShape PEmpty
-  exact hasConicalLimitsOfShape_of_equivalence V (J := Discrete PEmpty.{w + 1}) emptyEquivalence
+  exact HasConicalLimitsOfShape.of_equiv V (J := Discrete PEmpty.{w + 1}) emptyEquivalence
 
 end HasConicalProducts
 

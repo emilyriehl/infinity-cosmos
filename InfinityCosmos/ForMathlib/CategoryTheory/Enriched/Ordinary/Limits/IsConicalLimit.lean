@@ -145,4 +145,14 @@ theorem nonempty_isConicalLimit_iff (hc : IsLimit c) : Nonempty (IsConicalLimit 
 
 end IsConicalLimit
 
+variable (F)
+
+/-- `ConicalLimitCone V F` contains a cone over `F` together with the information that it is a
+conical limit. -/
+structure ConicalLimitCone where
+  /-- The cone itself -/
+  cone : Cone F
+  /-- The proof that is the limit cone -/
+  isConicalLimit : IsConicalLimit V cone
+
 end CategoryTheory.Enriched
