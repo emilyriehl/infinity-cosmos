@@ -3,7 +3,7 @@ Copyright (c) 2025 Jon Eugster. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
 -/
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary.Limits
+import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary.Limits.IsConicalLimit
 
 /-!
 # Conical terminal objects in enriched ordinary categories
@@ -50,25 +50,5 @@ variable {V} in
 noncomputable def IsConicalTerminal.ofIso {Y Z : C} (hY : IsConicalTerminal V Y)
     (i : Y ≅ Z) : IsConicalTerminal V Z :=
   IsConicalLimit.ofIso hY <| Cones.ext i (by simp)
-
-namespace HasConicalTerminal
-
-variable [HasConicalTerminal V C]
-
-variable (C) in
-noncomputable def conicalTerminal : C := conicalLimit V (Functor.empty.{0} C)
-
-noncomputable def conicalTerminalIsConicalTerminal :
-    IsConicalTerminal V (conicalTerminal V C) :=
-  conicalLimit.isConicalLimit V _ |>.ofIso <| Cones.ext (by rfl) (by simp)
-
-noncomputable def terminalIsConicalTerminal {T : C} (hT : IsTerminal T) :
-    IsConicalTerminal V T := by
-  let TT := conicalLimit V (Functor.empty.{0} C)
-  let slim : IsConicalTerminal V TT := conicalTerminalIsConicalTerminal V
-  let lim : IsTerminal TT := IsConicalTerminal.isTerminal V slim
-  exact IsConicalTerminal.ofIso slim (hT.uniqueUpToIso lim).symm
-
-end HasConicalTerminal
 
 end CategoryTheory.Enriched

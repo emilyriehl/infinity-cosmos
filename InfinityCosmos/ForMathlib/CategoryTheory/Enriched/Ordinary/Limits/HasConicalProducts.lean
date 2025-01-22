@@ -3,7 +3,7 @@ Copyright (c) 2025 Jon Eugster. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
 -/
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary.Limits.HasConicalTerminal
+import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary.Limits.HasConicalLimits
 
 /-!
 TODO: module docstring
@@ -55,15 +55,6 @@ instance hasProducts [hyp : HasConicalProducts.{w, v', v, u} V C] :
   have := hyp.hasConicalLimitsOfShape I
   have : HasConicalLimit V f := inferInstance
   infer_instance
-
-instance hasConicalTerminal [hyp : HasConicalProducts.{0, v', v, u} V C] :
-    HasConicalTerminal V C := by
-      exact hyp.hasConicalLimitsOfShape PEmpty.{1}
-
-instance hasConicalTerminal' [hyp : HasConicalProducts.{w, v', v, u} V C] :
-    HasConicalTerminal V C := by
-  have inst := hyp.hasConicalLimitsOfShape PEmpty
-  exact hasConicalLimitsOfShape_of_equivalence V (J := Discrete PEmpty.{w + 1}) emptyEquivalence
 
 end HasConicalProducts
 
