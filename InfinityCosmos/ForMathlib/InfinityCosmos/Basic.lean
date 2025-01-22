@@ -1,6 +1,6 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary.Limits.HasConicalTerminal
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary.Limits.HasConicalPullbacks
+import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
+import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalPullbacks
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
 import Mathlib.CategoryTheory.Closed.Cartesian
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq

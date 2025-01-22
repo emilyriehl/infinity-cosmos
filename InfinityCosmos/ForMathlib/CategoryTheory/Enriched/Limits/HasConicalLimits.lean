@@ -3,7 +3,7 @@ Copyright (c) 2025 Jon Eugster. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
 -/
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Ordinary.Limits.IsConicalLimit
+import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalLimit
 
 /-!
 # HasConicalLimits
@@ -112,8 +112,6 @@ instance hasConicalLimitEquivalenceComp (e : K ≌ J) :
           IsLimit.whiskerEquivalence ((conicalLimit.isConicalLimit V F).isConicalLimit X) e
         }
     }
-
--- variable [HasConicalLimit V F]
 
 omit [HasConicalLimit V F] in
 
