@@ -22,14 +22,13 @@ class Interval (I : SSet.{u}) : Type u where
 
 /-- The interval relevant to the theory of Kan complexes.-/
 instance arrowInterval : Interval Δ[1] where
-  src := standardSimplex.map (SimplexCategory.δ (n := 0) (1))
-  tgt := standardSimplex.map (SimplexCategory.δ (n := 0) (0))
+  src := stdSimplex.δ (n := 0) (1)
+  tgt := stdSimplex.δ (n := 0) (0)
 
 /-- The interval relevant to the theory of quasi-categories. -/
 instance isoInterval : Interval coherentIso where
-  src :=   (yonedaEquiv coherentIso [0]).symm (WalkingIso.coev WalkingIso.zero)
-  tgt :=   (yonedaEquiv coherentIso [0]).symm (WalkingIso.coev WalkingIso.one)
-
+  src := (yonedaEquiv coherentIso [0]).symm (WalkingIso.coev WalkingIso.zero)
+  tgt := (yonedaEquiv coherentIso [0]).symm (WalkingIso.coev WalkingIso.one)
 
 open MonoidalCategory
 noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=
