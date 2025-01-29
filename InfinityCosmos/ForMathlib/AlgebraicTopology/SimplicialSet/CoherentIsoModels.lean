@@ -69,8 +69,8 @@ noncomputable def map01Coprod34 : (Δ[1] ⨿ Δ[1] ⟶ Sq : Type u) :=
   coprod.desc (delta01 ≫ (pushout.inl delta12 delta01)) (delta01 ≫ (pushout.inr delta12 delta01))
 noncomputable def map01Coprod34' : (Δ[1] ⨿ Δ[1] ⟶ Sq' : Type u) :=
   coprod.desc
-    ((stdSimplex.δ 1) ≫ (pushout.inl delta12' delta01'))
-    ((stdSimplex.δ 1) ≫ (pushout.inr delta12' delta01'))
+    ((stdSimplex.δ 1) ≫ (pushout.inl (stdSimplex.δ 0) (stdSimplex.δ 2)))
+    ((stdSimplex.δ 1) ≫ (pushout.inr (stdSimplex.δ 0) (stdSimplex.δ 2)))
 
 /--
 The pushout of the diagram
@@ -105,12 +105,10 @@ noncomputable def map2dModel'toCoherentIso : Model2dCoherentIso' ⟶ coherentIso
   · exact coprod.desc (coherentIso.pt WalkingIso.zero) (coherentIso.pt WalkingIso.one)
   · unfold map0Coprod0' map01Coprod34'
     apply coprod.hom_ext
-    · unfold delta01' delta12'
-      simp only [coprod.desc_comp, Category.assoc, colimit.ι_desc, PushoutCocone.mk_pt,
+    · simp only [coprod.desc_comp, Category.assoc, colimit.ι_desc, PushoutCocone.mk_pt,
         PushoutCocone.mk_ι_app, BinaryCofan.ι_app_left, BinaryCofan.mk_inl, coprod.map_desc]
       rw [coherentIso.twoSimplex_δ1 _ _ _, ← coherentIso.oneSimplex_const]
-    · unfold delta01' delta12'
-      simp only [coprod.desc_comp, Category.assoc, colimit.ι_desc,
+    · simp only [coprod.desc_comp, Category.assoc, colimit.ι_desc,
         PushoutCocone.mk_pt, PushoutCocone.mk_ι_app,
         BinaryCofan.mk_pt, BinaryCofan.ι_app_right, BinaryCofan.mk_inr, coprod.map_desc]
       rw [coherentIso.twoSimplex_δ1 _ _ _, ← coherentIso.oneSimplex_const]

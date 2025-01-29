@@ -115,8 +115,6 @@ theorem twoSimplex_δ2 (X₀ X₁ X₂ : WalkingIso) :
   unfold twoSimplex oneSimplex
   sorry
 
-
-
 theorem twoSimplex_ext {X₀ X₁ X₂ Y₀ Y₁ Y₂ : WalkingIso}
     (e₀ : X₀ = Y₀) (e₁ : X₁ = Y₁) (e₂ : X₂ = Y₂) : twoSimplex X₀ X₁ X₂ = twoSimplex Y₀ Y₁ Y₂ :=
   congrArg (yonedaEquiv coherentIso _).symm (ComposableArrows.ext₂ e₀ e₁ e₂ rfl rfl)
