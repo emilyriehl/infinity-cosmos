@@ -82,9 +82,29 @@ namespace coherentIso
 
 open Simplicial SimplicialCategory SSet SimplexCategory Truncated Functor
 
+/-- Because the coherent iso is 0-coskeletal, an n-simplex in it can be defined by a sequence
+of objects. -/
+def simplex {n : ℕ} (obj : Fin (n + 1) → WalkingIso) : Δ[n] ⟶ coherentIso := by
+  refine (yonedaEquiv coherentIso _).symm ?_
+  exact {
+    obj := obj
+    map := fun _ => ⟨⟩
+  }
+
+theorem simplex_ext {n : ℕ} (obj obj' : Fin (n + 1) → WalkingIso) (e : obj = obj') :
+    simplex obj = simplex obj' :=
+  congrArg (yonedaEquiv coherentIso _).symm
+    (ComposableArrows.ext (fun i => congrFun e i) (fun _ _ => rfl))
+
+theorem simplex_map {n m : ℕ}
+    (obj : Fin (n + 1) → WalkingIso) (α : ([m] : SimplexCategory) ⟶ [n]) :
+    stdSimplex.map α ≫ simplex obj = simplex (obj ∘ α.toOrderHom) := sorry
+
+/-- A special case of `simplex` that perhaps we should just cut. -/
 def pt (i : WalkingIso) : Δ[0] ⟶ coherentIso :=
   (yonedaEquiv coherentIso _).symm (WalkingIso.coev i)
 
+/-- A special case of `simplex` that perhaps we should just cut. -/
 def oneSimplex (X₀ X₁ : WalkingIso) : Δ[1] ⟶ coherentIso :=
   (yonedaEquiv coherentIso _).symm
     (ComposableArrows.mk₁ (X₀ := X₀) (X₁ := X₁) ⟨⟩)
@@ -93,14 +113,19 @@ theorem oneSimplex_ext {X₀ X₁ Y₀ Y₁ : WalkingIso} (e₀ : X₀ = Y₀) (
     oneSimplex X₀ X₁ = oneSimplex Y₀ Y₁ :=
   congrArg (yonedaEquiv coherentIso _).symm (ComposableArrows.ext₁ e₀ e₁ rfl)
 
-def twoSimplex (X₀ X₁ X₂ : WalkingIso) : Δ[2] ⟶ coherentIso :=
-  (yonedaEquiv coherentIso _).symm
-    (ComposableArrows.mk₂ (X₀ := X₀) (X₁ := X₁) (X₂ := X₂) ⟨⟩ ⟨⟩)
-
 theorem oneSimplex_const (X₀ : WalkingIso) :
     oneSimplex X₀ X₀ = stdSimplex.map ([1].const [0] 0) ≫ pt X₀ := by
   unfold oneSimplex pt
   sorry
+
+/-- A special case of `simplex` that perhaps we should just cut. -/
+def twoSimplex (X₀ X₁ X₂ : WalkingIso) : Δ[2] ⟶ coherentIso :=
+  (yonedaEquiv coherentIso _).symm
+    (ComposableArrows.mk₂ (X₀ := X₀) (X₁ := X₁) (X₂ := X₂) ⟨⟩ ⟨⟩)
+
+theorem twoSimplex_ext {X₀ X₁ X₂ Y₀ Y₁ Y₂ : WalkingIso}
+    (e₀ : X₀ = Y₀) (e₁ : X₁ = Y₁) (e₂ : X₂ = Y₂) : twoSimplex X₀ X₁ X₂ = twoSimplex Y₀ Y₁ Y₂ :=
+  congrArg (yonedaEquiv coherentIso _).symm (ComposableArrows.ext₂ e₀ e₁ e₂ rfl rfl)
 
 theorem twoSimplex_δ0 (X₀ X₁ X₂ : WalkingIso) :
     stdSimplex.δ 0 ≫ twoSimplex X₀ X₁ X₂ = oneSimplex X₁ X₂ := rfl
@@ -115,23 +140,15 @@ theorem twoSimplex_δ2 (X₀ X₁ X₂ : WalkingIso) :
   unfold twoSimplex oneSimplex
   sorry
 
-theorem twoSimplex_ext {X₀ X₁ X₂ Y₀ Y₁ Y₂ : WalkingIso}
-    (e₀ : X₀ = Y₀) (e₁ : X₁ = Y₁) (e₂ : X₂ = Y₂) : twoSimplex X₀ X₁ X₂ = twoSimplex Y₀ Y₁ Y₂ :=
-  congrArg (yonedaEquiv coherentIso _).symm (ComposableArrows.ext₂ e₀ e₁ e₂ rfl rfl)
+def hom : Δ[1] ⟶ coherentIso := oneSimplex WalkingIso.zero WalkingIso.one
 
-def hom : Δ[1] ⟶ coherentIso :=
-  (yonedaEquiv coherentIso _).symm
-    (ComposableArrows.mk₁ (X₀ := WalkingIso.zero) (X₁ := WalkingIso.one) ⟨⟩)
+def inv : Δ[1] ⟶ coherentIso := oneSimplex WalkingIso.one WalkingIso.zero
 
-def inv : Δ[1] ⟶ coherentIso :=
-  (yonedaEquiv coherentIso _).symm
-    (ComposableArrows.mk₁ (X₀ := WalkingIso.one) (X₁ := WalkingIso.zero) ⟨⟩)
+def homInvId : Δ[2] ⟶ coherentIso := twoSimplex WalkingIso.zero WalkingIso.one WalkingIso.zero
 
-def homInvId : Δ[2] ⟶ coherentIso :=
-  (yonedaEquiv coherentIso _).symm
-    (ComposableArrows.mk₂
-      (X₀ := WalkingIso.zero) (X₁ := WalkingIso.one) (X₂ := WalkingIso.zero) ⟨⟩ ⟨⟩)
+def invHomId : Δ[2] ⟶ coherentIso := twoSimplex WalkingIso.one WalkingIso.zero WalkingIso.one
 
+/-- If we wanted to prove that `coherentIso` is 0-coskeletal, we should start here. -/
 noncomputable def isPointwiseRightKanExtensionAt (n : ℕ) :
     (rightExtensionInclusion coherentIso 0).IsPointwiseRightKanExtensionAt ⟨[n]⟩ where
   lift s x := sorry
@@ -149,11 +166,6 @@ theorem isRightKanExtension :
 
 theorem is0Coskeletal : SimplicialObject.IsCoskeletal (n := 0) (coherentIso) where
   isRightKanExtension := isRightKanExtension
-
-def simplex {n : ℕ} (obj : Fin n → WalkingIso) : Δ[n] ⟶ coherentIso := sorry
-
-def simplex_ext {n : ℕ} (obj obj' : Fin n → WalkingIso)
-  (hyp : (i : Fin n) → obj i = obj' i) : coherentIso.simplex obj = coherentIso.simplex obj' := sorry
 
 end coherentIso
 
