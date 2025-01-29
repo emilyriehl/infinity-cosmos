@@ -1,6 +1,6 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 
-open CategoryTheory Simplicial SSet standardSimplex Limits
+open CategoryTheory Simplicial SSet stdSimplex Limits
 
 universe u
 
@@ -16,6 +16,7 @@ def mapFromSimplex {n m : ℕ} (simplex : Δ[n] _[m]) : Δ[m] ⟶ Δ[n] :=
 
 /-- The edge in Δ[2] from vertex 1 to 2 -/
 def delta12 : Δ[1] ⟶ Δ[2] := mapFromSimplex (edge 2 1 2 (by decide))
+def delta12' : Δ[1] ⟶ Δ[2] := stdSimplex.δ 0 --TODO: Figure out if this is a better way to define
 
 /-- The edge in Δ[2] from vertex 0 to 1 -/
 def delta01 : Δ[1] ⟶ Δ[2] := mapFromSimplex (edge 2 0 1 (by decide))
