@@ -5,8 +5,8 @@ Authors: Johns Hopkins Category Theory Seminar
 -/
 
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
-import Mathlib.CategoryTheory.CodiscreteCategory
 import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
+import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 
 universe u v u' v'
 
