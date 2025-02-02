@@ -98,16 +98,30 @@ theorem simplex_ext {n : ℕ} (obj obj' : Fin (n + 1) → WalkingIso) (e : obj =
 
 theorem simplex_map {n m : ℕ}
     (obj : Fin (n + 1) → WalkingIso) (α : ([m] : SimplexCategory) ⟶ [n]) :
-    stdSimplex.map α ≫ simplex obj = simplex (obj ∘ α.toOrderHom) := sorry
+    stdSimplex.map α ≫ simplex obj = simplex (obj ∘ α.toOrderHom) := rfl
 
 /-- A special case of `simplex` that perhaps we should just cut. -/
 def pt (i : WalkingIso) : Δ[0] ⟶ coherentIso :=
   (yonedaEquiv coherentIso _).symm (WalkingIso.coev i)
 
+theorem pt_as_simplex (X₀ : WalkingIso) : pt X₀ = simplex (fun _ => X₀) := rfl
+
 /-- A special case of `simplex` that perhaps we should just cut. -/
 def oneSimplex (X₀ X₁ : WalkingIso) : Δ[1] ⟶ coherentIso :=
   (yonedaEquiv coherentIso _).symm
     (ComposableArrows.mk₁ (X₀ := X₀) (X₁ := X₁) ⟨⟩)
+
+def f₀₁ (X₀ X₁ : WalkingIso) : Fin (1 + 1) → WalkingIso := fun
+  | 0 => X₀
+  | 1 => X₁
+
+theorem oneSimplex_as_simplex (X₀ X₁ : WalkingIso) : oneSimplex X₀ X₁ = simplex (f₀₁ X₀ X₁) := by
+  unfold oneSimplex simplex
+  congr 1
+  unfold ComposableArrows.mk₁
+  congr
+  ext n
+  fin_cases n <;> rfl
 
 theorem oneSimplex_ext {X₀ X₁ Y₀ Y₁ : WalkingIso} (e₀ : X₀ = Y₀) (e₁ : X₁ = Y₁) :
     oneSimplex X₀ X₁ = oneSimplex Y₀ Y₁ :=
@@ -115,8 +129,10 @@ theorem oneSimplex_ext {X₀ X₁ Y₀ Y₁ : WalkingIso} (e₀ : X₀ = Y₀) (
 
 theorem oneSimplex_const (X₀ : WalkingIso) :
     oneSimplex X₀ X₀ = stdSimplex.map ([1].const [0] 0) ≫ pt X₀ := by
-  unfold oneSimplex pt
-  sorry
+  rw [pt_as_simplex, simplex_map]
+  apply simplex_ext
+  ext n
+  fin_cases n <;> rfl
 
 /-- A special case of `simplex` that perhaps we should just cut. -/
 def twoSimplex (X₀ X₁ X₂ : WalkingIso) : Δ[2] ⟶ coherentIso :=
