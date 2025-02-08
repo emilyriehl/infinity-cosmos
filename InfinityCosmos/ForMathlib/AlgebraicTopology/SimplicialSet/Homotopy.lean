@@ -162,8 +162,7 @@ lemma homotopicL_iff_homotopicR [Quasicategory A] :
 
 lemma HomotopyR.equiv :
     Equivalence (fun f g : A _[1] ↦ HomotopicR f g) := by
-  simp only [← homotopicL_iff_homotopicR]
-  exact HomotopyL.equiv
+  simp [← homotopicL_iff_homotopicR, HomotopyL.equiv]
 
 end
 

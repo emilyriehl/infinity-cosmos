@@ -7,6 +7,7 @@ Authors: Johns Hopkins Category Theory Seminar
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.Coskeletal
 import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
+import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 import Mathlib.CategoryTheory.CodiscreteCategory
 
 universe u v u' v'

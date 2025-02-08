@@ -1,5 +1,5 @@
-import Mathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
+import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 
 universe u
 

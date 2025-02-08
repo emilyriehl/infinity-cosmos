@@ -7,6 +7,7 @@ import InfinityCosmos.ForMathlib.CategoryTheory.MorphismProperty
 import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+import Mathlib.AlgebraicTopology.SimplicialSet.Boundary
 
 namespace SSet
 
