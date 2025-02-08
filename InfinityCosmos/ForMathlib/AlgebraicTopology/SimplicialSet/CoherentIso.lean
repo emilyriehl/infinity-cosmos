@@ -17,7 +17,7 @@ open CategoryTheory Nat
 namespace CategoryTheory
 
 /-- This is the free-living isomorphism as a category with objects called
-`zero` and `one`. Perhaps these should have different names?-/
+`zero` and `one`. -/
 inductive WalkingIso : Type u where
   | zero : WalkingIso
   | one : WalkingIso
@@ -27,7 +27,7 @@ open WalkingIso
 namespace WalkingIso
 
 /-- The free isomorphism is the codiscrete category on two objects. Can we make this a special
-case of the other definition?-/
+case of the other definition? -/
 instance : Category (WalkingIso) where
   Hom _ _ := Unit
   id _ := ⟨⟩
@@ -79,6 +79,7 @@ end CategoryTheory
 namespace SSet
 
 def coherentIso : SSet.{u} := nerve WalkingIso
+
 namespace coherentIso
 
 open Simplicial SimplicialCategory SSet SimplexCategory Truncated Functor
@@ -101,13 +102,13 @@ theorem simplex_map {n m : ℕ}
     (obj : Fin (n + 1) → WalkingIso) (α : ([m] : SimplexCategory) ⟶ [n]) :
     stdSimplex.map α ≫ simplex obj = simplex (obj ∘ α.toOrderHom) := rfl
 
-/-- A special case of `simplex` that perhaps we should just cut. -/
-def pt (i : WalkingIso) : Δ[0] ⟶ coherentIso :=
-  (yonedaEquiv coherentIso _).symm (WalkingIso.coev i)
+/-- The `n = 0` special case of `simplex` with more convenient arguments. -/
+def zeroSimplex (X : WalkingIso) : Δ[0] ⟶ coherentIso :=
+  (yonedaEquiv coherentIso _).symm (WalkingIso.coev X)
 
-theorem pt_as_simplex (X₀ : WalkingIso) : pt X₀ = simplex (fun _ => X₀) := rfl
+theorem zeroSimplex_as_simplex (X₀ : WalkingIso) : pt X₀ = simplex (fun _ => X₀) := rfl
 
-/-- A special case of `simplex` that perhaps we should just cut. -/
+/-- The `n = 1`  special case of `simplex` with more convenient arguments. -/
 def oneSimplex (X₀ X₁ : WalkingIso) : Δ[1] ⟶ coherentIso :=
   (yonedaEquiv coherentIso _).symm
     (ComposableArrows.mk₁ (X₀ := X₀) (X₁ := X₁) ⟨⟩)
