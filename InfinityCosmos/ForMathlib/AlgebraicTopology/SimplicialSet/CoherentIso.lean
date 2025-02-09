@@ -106,18 +106,14 @@ theorem simplex_map {n m : ℕ}
 def zeroSimplex (X : WalkingIso) : Δ[0] ⟶ coherentIso :=
   (yonedaEquiv coherentIso _).symm (WalkingIso.coev X)
 
-theorem zeroSimplex_as_simplex (X₀ : WalkingIso) : pt X₀ = simplex (fun _ => X₀) := rfl
+theorem zeroSimplex_as_simplex (X₀ : WalkingIso) : zeroSimplex X₀ = simplex (fun _ => X₀) := rfl
 
 /-- The `n = 1`  special case of `simplex` with more convenient arguments. -/
 def oneSimplex (X₀ X₁ : WalkingIso) : Δ[1] ⟶ coherentIso :=
   (yonedaEquiv coherentIso _).symm
     (ComposableArrows.mk₁ (X₀ := X₀) (X₁ := X₁) ⟨⟩)
 
-def f₀₁ (X₀ X₁ : WalkingIso) : Fin (1 + 1) → WalkingIso := fun
-  | 0 => X₀
-  | 1 => X₁
-
-theorem oneSimplex_as_simplex (X₀ X₁ : WalkingIso) : oneSimplex X₀ X₁ = simplex (f₀₁ X₀ X₁) := by
+theorem oneSimplex_as_simplex (X₀ X₁ : WalkingIso) : oneSimplex X₀ X₁ = simplex (![X₀, X₁]) := by
   unfold oneSimplex simplex
   congr 1
   unfold ComposableArrows.mk₁
@@ -130,16 +126,25 @@ theorem oneSimplex_ext {X₀ X₁ Y₀ Y₁ : WalkingIso} (e₀ : X₀ = Y₀) (
   congrArg (yonedaEquiv coherentIso _).symm (ComposableArrows.ext₁ e₀ e₁ rfl)
 
 theorem oneSimplex_const (X₀ : WalkingIso) :
-    oneSimplex X₀ X₀ = stdSimplex.map ([1].const [0] 0) ≫ pt X₀ := by
-  rw [pt_as_simplex, simplex_map]
+    oneSimplex X₀ X₀ = stdSimplex.map ([1].const [0] 0) ≫ zeroSimplex X₀ := by
+  rw [zeroSimplex_as_simplex, simplex_map]
   apply simplex_ext
   ext n
   fin_cases n <;> rfl
 
-/-- A special case of `simplex` that perhaps we should just cut. -/
+/-- The `n = 2`  special case of `simplex` with more convenient arguments. -/
 def twoSimplex (X₀ X₁ X₂ : WalkingIso) : Δ[2] ⟶ coherentIso :=
   (yonedaEquiv coherentIso _).symm
     (ComposableArrows.mk₂ (X₀ := X₀) (X₁ := X₁) (X₂ := X₂) ⟨⟩ ⟨⟩)
+
+theorem twoSimplex_as_simplex (X₀ X₁ X₂ : WalkingIso) :
+    twoSimplex X₀ X₁ X₂ = simplex (![X₀, X₁, X₂]) := by
+  unfold twoSimplex simplex
+  congr 1
+  unfold ComposableArrows.mk₂ ComposableArrows.mk₁ ComposableArrows.precomp
+  congr
+  ext n
+  fin_cases n <;> rfl
 
 theorem twoSimplex_ext {X₀ X₁ X₂ Y₀ Y₁ Y₂ : WalkingIso}
     (e₀ : X₀ = Y₀) (e₁ : X₁ = Y₁) (e₂ : X₂ = Y₂) : twoSimplex X₀ X₁ X₂ = twoSimplex Y₀ Y₁ Y₂ :=
@@ -150,13 +155,21 @@ theorem twoSimplex_δ0 (X₀ X₁ X₂ : WalkingIso) :
 
 theorem twoSimplex_δ1 (X₀ X₁ X₂ : WalkingIso) :
     stdSimplex.δ 1 ≫ twoSimplex X₀ X₁ X₂ = oneSimplex X₀ X₂ := by
-  unfold twoSimplex oneSimplex
-  sorry
+  rw [twoSimplex_as_simplex, oneSimplex_as_simplex]
+  have : (stdSimplex.δ 1 : Δ[1] ⟶ Δ[2]) = stdSimplex.map (δ 1) := rfl
+  rw [this, simplex_map]
+  apply simplex_ext
+  ext n
+  fin_cases n <;> rfl
 
 theorem twoSimplex_δ2 (X₀ X₁ X₂ : WalkingIso) :
     stdSimplex.δ 2 ≫ twoSimplex X₀ X₁ X₂ = oneSimplex X₀ X₁ := by
-  unfold twoSimplex oneSimplex
-  sorry
+  rw [twoSimplex_as_simplex, oneSimplex_as_simplex]
+  have : (stdSimplex.δ 2 : Δ[1] ⟶ Δ[2]) = stdSimplex.map (δ 2) := rfl
+  rw [this, simplex_map]
+  apply simplex_ext
+  ext n
+  fin_cases n <;> rfl
 
 def hom : Δ[1] ⟶ coherentIso := oneSimplex WalkingIso.zero WalkingIso.one
 
