@@ -27,8 +27,8 @@ instance arrowInterval : Interval Δ[1] where
 
 /-- The interval relevant to the theory of quasi-categories. -/
 instance isoInterval : Interval coherentIso where
-  src := (yonedaEquiv coherentIso [0]).symm (WalkingIso.coev WalkingIso.zero)
-  tgt := (yonedaEquiv coherentIso [0]).symm (WalkingIso.coev WalkingIso.one)
+  src := (yonedaEquiv coherentIso ⦋0⦌).symm (WalkingIso.coev WalkingIso.zero)
+  tgt := (yonedaEquiv coherentIso ⦋0⦌).symm (WalkingIso.coev WalkingIso.one)
 
 open MonoidalCategory
 noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=
@@ -88,16 +88,16 @@ section
 
 open SimplexCategory
 
-variable {A : SSet.{u}} (f g : A _[1])
+variable {A : SSet.{u}} (f g : A _⦋1⦌)
 
 structure HomotopyL where
-  simplex : A _[2]
+  simplex : A _⦋2⦌
   δ₀_eq : A.δ 0 simplex = A.σ 0 (A.δ 0 f)
   δ₁_eq : A.δ 1 simplex = g
   δ₂_eq : A.δ 2 simplex = f
 
 structure HomotopyR where
-  simplex : A _[2]
+  simplex : A _⦋2⦌
   δ₀_eq : A.δ 0 simplex = f
   δ₁_eq : A.δ 1 simplex = g
   δ₂_eq : A.δ 2 simplex = A.σ 0 (A.δ 1 f)
@@ -124,11 +124,11 @@ def HomotopyL.refl : HomotopyL f f where
 variable [A.Quasicategory]
 
 -- need a better name
-noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _[1]}
+noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _⦋1⦌}
   (H₁ : HomotopyL f g) (H₂ : HomotopyL f h) :
     HomotopyL g h := by
   let σ : Λ[3, 1] ⟶ A := sorry
-  let τ : A _[3] := sorry
+  let τ : A _⦋3⦌ := sorry
     -- BUILD FAILS:
     -- A.yonedaEquiv _ (Classical.choose $ Quasicategory.hornFilling
     --   (by simp) (by simp [Fin.lt_iff_val_lt_val]) σ)
@@ -148,7 +148,7 @@ noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _[1]}
     rw [A.δ_comp_δ' (by simp)]; rfl
 
 lemma HomotopyL.equiv :
-    Equivalence (fun f g : A _[1] ↦ HomotopicL f g) where
+    Equivalence (fun f g : A _⦋1⦌ ↦ HomotopicL f g) where
   refl f := ⟨HomotopyL.refl f⟩
   symm := by
     intro f g ⟨H⟩
@@ -161,7 +161,7 @@ lemma homotopicL_iff_homotopicR [Quasicategory A] :
     HomotopicL f g ↔ HomotopicR f g := sorry
 
 lemma HomotopyR.equiv :
-    Equivalence (fun f g : A _[1] ↦ HomotopicR f g) := by
+    Equivalence (fun f g : A _⦋1⦌ ↦ HomotopicR f g) := by
   simp [← homotopicL_iff_homotopicR, HomotopyL.equiv]
 
 end

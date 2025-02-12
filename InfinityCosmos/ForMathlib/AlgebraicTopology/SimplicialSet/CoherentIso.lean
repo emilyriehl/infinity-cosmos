@@ -81,6 +81,6 @@ def coherentIso : SSet.{u} := nerve WalkingIso
 open Simplicial SimplicialCategory
 
 def coherentIso.pt (i : WalkingIso) : Δ[0] ⟶ coherentIso :=
-  (yonedaEquiv coherentIso [0]).symm (WalkingIso.coev i)
+  (yonedaEquiv coherentIso ⦋0⦌).symm (WalkingIso.coev i)
 
 end SSet

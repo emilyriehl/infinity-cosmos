@@ -249,8 +249,8 @@ def nerveRightExtension (C : Cat) : RightExtension (Δ.ι 2).op (nerveFunctor₂
 /-- The natural transformation in nerveRightExtension C defines a cone with summit
 nerve C _[n] over the diagram (StructuredArrow.proj (op ([n] : SimplexCategory)) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C) indexed by the category StructuredArrow (op [n]) (Δ.ι 2).op. -/
 def nerveRightExtension.coneAt (C : Cat) (n : ℕ) :
-    Cone (StructuredArrow.proj (op ([n] : SimplexCategory)) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C) :=
-  RightExtension.coneAt (nerveRightExtension C) (op [n])
+    Cone (StructuredArrow.proj (op (⦋n⦌ : SimplexCategory)) (Δ.ι 2).op ⋙ nerveFunctor₂.obj C) :=
+  RightExtension.coneAt (nerveRightExtension C) (op ⦋n⦌)
 
 section
 
@@ -588,9 +588,9 @@ instance (S : SSet) : ReflQuiver (OneTruncation S) where
 def SSet.oneTruncation : SSet.{u} ⥤ ReflQuiv.{u,u} where
   obj S := ReflQuiv.of (OneTruncation S)
   map {S T} F := {
-    obj := F.app (op [0])
+    obj := F.app (op ⦋0⦌)
     map := fun f => by
-      refine ⟨F.app (op [1]) f.1, ?_, ?_⟩
+      refine ⟨F.app (op ⦋1⦌) f.1, ?_, ?_⟩
       · change (F.app _ ≫ _) _ = _
         rw [← F.naturality]
         exact congrArg (F.app _) f.2.1
@@ -773,10 +773,10 @@ local macro:max (priority := high) "[" n:term "]₂" : term =>
 def SSet.OneTruncation₂ (S : SSet.Truncated 2) := S _[0]₂
 
 abbrev SSet.δ₂ {n} (i : Fin (n + 2)) (hn := by decide) (hn' := by decide) :
-    (⟨[n], hn⟩ : Δ 2) ⟶ ⟨[n + 1], hn'⟩ := SimplexCategory.δ i
+    (⟨⦋n⦌, hn⟩ : Δ 2) ⟶ ⟨⦋n + 1⦌, hn'⟩ := SimplexCategory.δ i
 
 abbrev SSet.σ₂ {n} (i : Fin (n + 1)) (hn := by decide) (hn' := by decide) :
-    (⟨[n+1], hn⟩ : Δ 2) ⟶ ⟨[n], hn'⟩ := SimplexCategory.σ i
+    (⟨⦋n + 1⦌, hn⟩ : Δ 2) ⟶ ⟨⦋n⦌, hn'⟩ := SimplexCategory.σ i
 
 def SSet.OneTruncation₂.src {S : SSet.Truncated 2} (f : S _[1]₂) : OneTruncation₂ S :=
   S.map (δ₂ (n := 0) 1).op f
