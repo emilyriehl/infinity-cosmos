@@ -1,5 +1,4 @@
-import Mathlib.AlgebraicTopology.SimplexCategory
-import Mathlib.CategoryTheory.Limits.Shapes.Terminal
+import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 
 open CategoryTheory Simplicial SimplexCategory Limits
 
