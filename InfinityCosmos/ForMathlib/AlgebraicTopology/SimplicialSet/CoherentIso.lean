@@ -93,6 +93,9 @@ def simplex {n : ℕ} (obj : Fin (n + 1) → WalkingIso) : Δ[n] ⟶ coherentIso
     map := fun _ => ⟨⟩
   }
 
+abbrev get_map {k n : ℕ} (res : Fin (k + 1) →o Fin (n + 1)) : Δ[k] ⟶ Δ[n] :=
+  stdSimplex.map <| mkHom res
+
 theorem simplex_ext {n : ℕ} (obj obj' : Fin (n + 1) → WalkingIso) (e : obj = obj') :
     simplex obj = simplex obj' :=
   congrArg (yonedaEquiv coherentIso _).symm
@@ -101,6 +104,14 @@ theorem simplex_ext {n : ℕ} (obj obj' : Fin (n + 1) → WalkingIso) (e : obj =
 theorem simplex_map {n m : ℕ}
     (obj : Fin (n + 1) → WalkingIso) (α : ([m] : SimplexCategory) ⟶ [n]) :
     stdSimplex.map α ≫ simplex obj = simplex (obj ∘ α.toOrderHom) := rfl
+
+noncomputable def pushout_simplex {n m k : ℕ} (obj : Fin (n + 1) → WalkingIso)
+  (obj' : Fin (m + 1) → WalkingIso) (res : Fin (k + 1) →o Fin ( n + 1 ))
+  (res' : Fin (k + 1) →o Fin (m +1)) (p : obj ∘ res = obj' ∘ res')
+    : Limits.pushout (get_map res) (get_map res') ⟶ coherentIso :=
+  Limits.pushout.desc (simplex obj) (simplex obj') (by
+  rw [simplex_map, simplex_map, simplex_ext]
+  exact p)
 
 /-- The `n = 0` special case of `simplex` with more convenient arguments. -/
 def zeroSimplex (X : WalkingIso) : Δ[0] ⟶ coherentIso :=

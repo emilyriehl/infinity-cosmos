@@ -102,7 +102,7 @@ noncomputable def map2dModel'toCoherentIso : Model2dCoherentIso' ⟶ coherentIso
     · exact (coherentIso.twoSimplex WalkingIso.one WalkingIso.zero WalkingIso.one)
     · rw [coherentIso.twoSimplex_δ0 WalkingIso.zero WalkingIso.one WalkingIso.zero]
       rw [← coherentIso.twoSimplex_δ2 WalkingIso.one WalkingIso.zero WalkingIso.one]
-  · exact coprod.desc (coherentIso.pt WalkingIso.zero) (coherentIso.pt WalkingIso.one)
+  · exact coprod.desc (coherentIso.zeroSimplex .zero) (coherentIso.zeroSimplex .one)
   · unfold map0Coprod0' map01Coprod34'
     apply coprod.hom_ext
     · simp only [coprod.desc_comp, Category.assoc, colimit.ι_desc, PushoutCocone.mk_pt,
