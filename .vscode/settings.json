@@ -17,5 +17,8 @@
     "files.trimTrailingWhitespace": true,
     "cSpell.words": [
         "cotensors"
-    ]
+    ],
+    "cSpell.enabledFileTypes": {
+        "lean4": false
+    }
 }

@@ -20,7 +20,9 @@ which axiomatizes the universe in which $\infty$-categories live as objects.\foo
 
  There are many alternate choices we could have made in selecting the axioms of an $\infty$-cosmos. One of our guiding principles, admittedly somewhat contrary to the setting of homotopical higher category theory, was to allow us to work as strictly as possible, with the aim of shortening and simplifying proofs. As a consequence of these choices, the $\infty$-categories in an $\infty$-cosmos and the functors and natural transformations between them assemble into a 2-category rather than a bicategory. To help us achieve this counterintuitive strictness, each $\infty$-cosmos comes with a specified class of maps between $\infty$-categories called \emph{isofibrations}. The isofibrations have no homotopy-theoretic meaning, as any functor between $\infty$-categories is equivalent to an isofibration with the same codomain. However, isofibrations permit us to consider strictly commutative diagrams between $\infty$-cat\-e\-go\-ries and allow us to require that the limits of such diagrams satisfy a universal property up to simplicially enriched isomorphism. Neither feature is essential for the development of $\infty$-category theory. Similar proofs carry through to a weaker setting, at the cost of more time spent considering coherence of higher cells.
 
- An $\infty$-cosmos is a particular sort of \emph{simplicially enriched category} with certain \emph{simplicially enriched limits}. In \S\ref{sec:simplicial-sets}, we first review some prerequisites from the theory of simplicial sets, most of which are either currently in Mathlib or on their way. While the notion of simplicially enriched category currently exists in Mathlib, simplicially enriched limits do not, so in \S\ref{sec:enriched-limits} we first introduce the prerequisite notions of simplicially enriched limits that will be required to state the definition of an $\infty$-cosmos in \S\ref{sec:cosmos}. The homotopy 2-category of an $\infty$-cosmos is then obtained by applying the general theory of change-of-base from enriched category, which is also currently missing from Mathlib. This theory is described in \S\ref{sec:change-of-base} and then used to define the homotopy 2-category in \S\ref{sec:htpy-2-cat}.
+ An $\infty$-cosmos is a particular sort of \emph{simplicially enriched category} with certain \emph{simplicially enriched limits}. In \S\ref{sec:simplicial-sets}, we first review some prerequisites from the theory of simplicial sets, most of which are either currently in Mathlib or on their way. In \S\ref{sec:homotopy-category}, we give a simplified description of the homotopy category of a quasi-category and introduce the classes of isofibrations and equivalences.
+
+ While the notion of simplicially enriched category currently exists in Mathlib, simplicially enriched limits do not, so in \S\ref{sec:enriched-limits} we first introduce the prerequisite notions of simplicially enriched limits that will be required to state the definition of an $\infty$-cosmos in \S\ref{sec:cosmos}. The homotopy 2-category of an $\infty$-cosmos is then obtained by applying the general theory of change-of-base from enriched category, which is also currently missing from Mathlib. This theory is described in \S\ref{sec:change-of-base} and then used to define the homotopy 2-category in \S\ref{sec:htpy-2-cat}.
 
   Additional chapters will be added to this blueprint in the future, containing excerpts of the material that can be found in \cite[Chapters 2-5]{RiehlVerity:2022eo}. The broader aim of this project is to formalize the core basic theory of $\infty$-categories, covering those aspects that can be defined in the homotopy 2-category of an $\infty$-cosmos.
 
@@ -314,7 +316,7 @@ The functor that carries a category to its underlying reflexive quiver has a lef
 \end{proposition}
 \begin{proof}
   \leanok
-This has been formalized and is currently in the \href{https://github.com/leanprover-community/mathlib4/tree/CatHasColimits}{CatHasColimits branch of Mathlib}.
+  \lean{CategoryTheory.ReflQuiv.adj} This has been formalized and is now in Mathlib.
 \end{proof}
 
 \begin{definition}[{the homotopy category \cite[\S2.4]{GabrielZisman:1967cf}}]\label{defn:homotopy-cat}
@@ -340,13 +342,14 @@ This should be relatively straightforward.
 \end{proof}
 
 \begin{proposition}\label{prop:nerve-reflective}
-  \lean{CategoryTheory.nerveCounit_isIso}
+  \lean{CategoryTheory.nerveFunctorCompHoFunctorIso}
   \leanok
   The homotopy category of the nerve of a 1-category is isomorphic to the original category, as the 2-simplices in the nerve witness all of the composition relations satisfied by the arrows in the underlying reflexive directed graph.
 \end{proposition}
 \begin{proof}
   \leanok
-  This has been formalized and is currently in the \href{https://github.com/leanprover-community/mathlib4/tree/CatHasColimits}{CatHasColimits branch of Mathlib}.
+  \lean{CategoryTheory.nerveFunctorCompHoFunctorIso}
+  This has been formalized and is now in Mathlib.
 \end{proof}
 
    Indeed, the natural isomorphism $\ho{C} \cong C$ forms the counit of an adjunction, embedding $\Cat$ as a reflective subcategory of $\sSet$.
@@ -369,9 +372,8 @@ This should be relatively straightforward.
    \begin{proof}\proves{prop:ho-nerve-adjunction}
     \uses{prop:nerve-2-coskeletal}
     \leanok
-    This has been formalized and is currently in the \href{https://github.com/leanprover-community/mathlib4/tree/CatHasColimits}{CatHasColimits branch of Mathlib}.
-
-   For any simplicial set $X$, there is a natural map from $X$ to the nerve of its homotopy category $\ho{X}$; since nerves are 2-coskeletal, it suffices to define the map $\sk_2X \to \ho{X}$, and this is given immediately by the construction of Definition \ref{defn:homotopy-cat}. Note that the quotient map $X \to \ho{X}$ becomes an isomorphism upon applying the homotopy category functor and is already an isomorphism whenever $X$ is the nerve of a category. Thus the adjointness follows %from Lemma \ref{lem:RARI-construction} or
+    \lean{CategoryTheory.nerveAdjunction}
+    For any simplicial set $X$, there is a natural map from $X$ to the nerve of its homotopy category $\ho{X}$; since nerves are 2-coskeletal, it suffices to define the map $\sk_2X \to \ho{X}$, and this is given immediately by the construction of Definition \ref{defn:homotopy-cat}. Note that the quotient map $X \to \ho{X}$ becomes an isomorphism upon applying the homotopy category functor and is already an isomorphism whenever $X$ is the nerve of a category. Thus the adjointness follows %from Lemma \ref{lem:RARI-construction} or
     by direct verification of the triangle equalities.
  \end{proof}
 
@@ -384,31 +386,119 @@ This should be relatively straightforward.
    \end{proposition}
    \begin{proof}
     \leanok
-  This has been formalized and is currently in the \href{https://github.com/leanprover-community/mathlib4/tree/CatHasColimits}{CatHasColimits branch of Mathlib}.
+    \lean{CategoryTheory.nerveFunctor.fullyfaithful}
+    This has been formalized and is now in Mathlib.
   \end{proof}
-
 
    As a corollary, it follows that $\Cat$ has colimits.
 
-   The homotopy category of a quasi-category admits a simplified description.
+\section{The homotopy category of a quasi-category, isofibrations, and equivalences}\label{sec:homotopy-category}
 
-   \begin{lemma}[the homotopy category of a quasi-category]\label{lem:htpy-cat-of-qcat} If $A$ is a quasi-category then its \textbf{homotopy category} $\ho{A}$ has
-   \begin{itemize}
-   \item the set of 0-simplices $A_0$ as its objects
-   \item the set of homotopy classes of 1-simplices $A_1$ as its arrows
-   \item the identity arrow at $a \in A_0$ represented by the degenerate 1-simplex $a \cdot \degen^0 \in A_1$
-   \item a composition relation $h = g \circ f$ in $\ho{A}$ between the homotopy classes of arrows represented by any given 1-simplices $f,g,h \in A_1$ if and only if there exists a 2-simplex with boundary
-   \begin{center}
-   \begin{tikzcd}[row sep=small, column sep=small]
-   & a_1 \arrow[dr, "g"] \\ a_0 \arrow[ur, "f"] \arrow[rr, "h"'] & & a_2
-   \end{tikzcd}
-   \end{center}
-   \end{itemize}
+   The homotopy category of a quasi-category admits a simplified description, which we build up to over a series of definitions. As the homotopy category functor is formalized in terms of 2-truncated simplicial sets, we introduce an auxiliary definition to isolate the structure of interest in a 2-truncated quasi-category.
+
+   \begin{definition}\label{defn:2-truncated-qcat}
+    \uses{defn:simplicial-set} A 2-truncated simplicial set $A$ is a \textbf{2-truncated quasi-category} if it admits the following three operations:
+    \begin{itemize}
+    \item (2,1)-filling: any path $f_\bullet$ of length 2 in $A$ may be filled to a $2$-simplex whose spine equals the given path.
+    \item (3,1)-filling: given any path $f_\bullet$ of length 3 in $A$, 2-simplices $\sigma_3$ and $\sigma_0$ filling the restricted paths $f_{012}$ and $f_{123}$ respectively, and 2-simplex $\sigma_2$ filling the path formed by $f_{01}$ and the diagonal of $\sigma_0$, there is a 2-simplex $\sigma_1$ filling the path formed by the diagonal of $\sigma_3$ and $f_{23}$ and whose diagonal is the diagonal of $\sigma_2$.
+    \item (3,2)-filling: given any path $f_\bullet$ of length 3 in $A$, 2-simplices $\sigma_3$ and $\sigma_0$ filling the restricted paths $f_{012}$ and $f_{123}$ respectively, and 2-simplex $\sigma_1$ filling the path formed by the diagonal of $\sigma_3$ and $f_{23}$, there is a 2-simplex $\sigma_2$ filling the path formed by $f_{01}$ and the diagonal of $\sigma_0$ and whose diagonal is the diagonal of $\sigma_1$.
+    \end{itemize}
+
+   \end{definition}
+
+   \begin{lemma}\label{lem:2-truncated-qcat}
+    \uses{defn:2-truncated-qcat, defn:quasi-category} The 2-truncation of a quasi-category is a 2-truncated quasi-category.
+   \end{lemma}
+   \begin{proof} Immediate from the definition by filling horns in dimensions 2 and 3.
+   \end{proof}
+
+   We revisit Definition \ref{defn:1-simplex-htpy} in this setting.
+
+   \begin{definition}[homotopy relation on 1-simplices]\label{defn:1-simplex-left-right-htpy}
+    \uses{defn:simplicial-set}
+     A parallel pair of 1-sim\-plices $f,g$ in a 2-truncated simplicial set $X$ are \textbf{left homotopic} if there exists a 2-simplex whose boundary takes the form below-left and \textbf{right homotopic} if there exists a 2-simplex whose boundary takes the form below-right:
+     \begin{center}
+      \begin{tikzcd}[row sep=small, column sep=small]
+      & y \arrow[dr, equals] & && &  x \arrow[dr, "f"]  \\ x \arrow[ur, "f"] \arrow[rr, "g"'] & & y & & x \arrow[ur, equals] \arrow[rr, "g"'] & & y
+      \end{tikzcd}
+     \end{center}     \begin{center}
+     \begin{tikzcd}[row sep=small, column sep=small]
+     & y \arrow[dr, equals]   \\ x \arrow[ur, "f"] \arrow[rr, "g"'] & & y
+     \end{tikzcd}
+    \end{center}
+     \end{definition}
+
+\begin{lemma}\label{lem:2-truncated-qcat-htpy}
+  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy} If $A$ is a 2-truncated quasi-category then:
+  \begin{enumerate}
+    \item The left and right homotopy relations are reflexive.
+    \item The left and right homotopy relations are symmetric.
+    \item The left and right homotopy relations are transitive.
+    \item The left homotopy relation coincides with the right homotopy relation.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy}
+Each statement follows from a single 3-dimensional horn filling, typically involving degenerate simplices.
+\end{proof}
+
+As the left and right homotopy relations coincide in a 2-truncated quasi-category, in that setting we take right homotopy to be the default and refer to it simply as ``homotopy'' and denote it by ``$\sim$'' going forward.
+
+\begin{lemma}\label{lem:2-truncated-qcat-htpy-comp}
+  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy} $\quad$
+  \begin{enumerate}
+    \item If $\sigma$ and $\tau$ are 2-simplices in a 2-truncated quasi-category filling the same path, their diagonal edges are homotopic.
+    \item If $h$ is the diagonal edge of a 2-simplex filling the path formed by $f$ and $g$ and $g$ is homotopic to $g'$, then $h$ is the diagonal edge of a 2-simplex filling the path formed by $f$ and $g'$.
+    \item If $h$ is the diagonal edge of a 2-simplex filling the path formed by $f$ and $g$ and $f$ is homotopic to $f'$, then $h$ is the diagonal edge of a 2-simplex filling the path formed by $f'$ and $g$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy}
+  For (i), fill the (3,2)-horn filling the path formed by a degenerate edge, followed by the given path edges, and using the given simplices as the 0th and 1st faces. The proofs of (ii) and (iii) are similar.
+\end{proof}
+
+\begin{corollary}\label{cor:2-truncated-qcat-htpy-comp}
+  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy}
+   Suppose there is a 2-simplex in a 2-truncated quasi-category with spine formed by the paths $f$ and $g$ and diagonal $h$. Then if $f \sim f'$, $g \sim g'$, and $h \sim h'$, there is a 2-simplex with spine formed by $f'$ and $g'$ and diagonal $h'$.
+\end{corollary}
+\begin{proof}
+  \uses{lem:2-truncated-qcat-htpy-comp}
+  Apply the three conclusions of Lemma \ref{lem:2-truncated-qcat-htpy-comp} one at a time to transform the given 2-simplex.
+\end{proof}
+
+These results now combine to justify the following definition:
+
+\begin{definition}[the homotopy category of a 2-truncated quasi-category]\label{defn:2-truncated-qcat-htpy-cat}
+  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy,
+  lem:2-truncated-qcat-htpy, lem:2-truncated-qcat-htpy-comp, cor:2-truncated-qcat-htpy-comp}
+
+  If $A$ is a 2-truncated quasi-category then its \textbf{homotopy category} $\ho{A}$ has
+  \begin{itemize}
+  \item the set of 0-simplices $A_0$ as its objects
+  \item the set of homotopy classes of 1-simplices $A_1$ as its arrows
+  \item the identity arrow at $a \in A_0$ represented by the degenerate 1-simplex $a \cdot \degen^0 \in A_1$
+  \item a composition relation $h = g \circ f$ in $\ho{A}$ between the homotopy classes of arrows represented by any given 1-simplices $f,g,h \in A_1$ if and only if there exists a 2-simplex with boundary
+  \begin{center}
+  \begin{tikzcd}[row sep=small, column sep=small]
+  & a_1 \arrow[dr, "g"] \\ a_0 \arrow[ur, "f"] \arrow[rr, "h"'] & & a_2
+  \end{tikzcd}
+  \end{center}
+  \end{itemize}
+\end{definition}
+
+In other words, the hom-types are quotients of the hom-types of the underlying reflexive quiver of Definition \ref{defn:one-truncation} of a 2-truncated simplicial set, where the additional quotienting is by the homotopy relation, which is an equivalence relation by Lemma \ref{lem:2-truncated-qcat-htpy}. Composition is defined by (2,1)-horn filling and is well-defined by Lemma \ref{lem:2-truncated-qcat-htpy-comp}.
+
+   \begin{lemma}[the homotopy category of a quasi-category]\label{lem:htpy-cat-of-qcat} If $A$ is a quasi-category then its \textbf{homotopy category} $\ho{A}$ is isomorphic to the homotopy category of its underlying 2-truncated quasi-category, as just described.
+    \uses{defn:2-truncated-qcat, defn:2-truncated-qcat-htpy-cat, defn:homotopy-cat}
    \end{lemma}
  \begin{proof}
-  \uses{lem:qcat-1-simplex-htpy}
-  Another lengthy exercise in low-dimensional horn filling.
- \end{proof}
+  \uses{defn:1-simplex-left-right-htpy, cor:2-truncated-qcat-htpy-comp, prop:free-refl-quiver}
+Given a 2-truncated quasi-category $A$, we can construct a natural isomorphism between its 2-truncated homotopy category $\ho_2A$ in the sense of Definition \ref{defn:homotopy-cat} and its 2-truncated homotopy category $\ho{A}$ in the sense of Definition \ref{defn:2-truncated-qcat-htpy-cat} by showing the latter satisfies the same universal property of the former, as a quotient of the free category $FA$ on the underlying reflexive quiver.
+
+By adjunction, to define a functor $q \colon FA \to \ho{A}$, it suffices to define a refl prefunctor $q \colon A \to \ho{A}$ from the one-truncation of $A$ to the underlying refl quiver of $\ho{A}$. The objects of these quivers coincide while the homs in the latter and quotients of the homs in the former, defining a canonical quotient map. By construction, the corresponding functor $q \colon FA \to \ho{A}$ respects the hom-relation that defines the homotopy category $\ho_2{A}$, so the universal property of the latter quotient induces a comparison functor $\ho_2{A} \to \ho{A}$ which factors $q$ through the analogously defined functor $q \colon FA \to \ho_2{A}$.
+
+To see this is an isomorphism, we show that $q \colon FA \to \ho{A}$ satisfies the same universal property. To that end, consider another functor $g \colon FA \to C$ respecting the hom-relation. In particular, $g$ respects the homotopy relation of Definition \ref{defn:1-simplex-left-right-htpy}, since this is a special case of the hom-relation. Thus, on underlying refl prefunctors, $g$ factors uniquely through $q$ along a map $h \colon \ho{A} \to C$. By Corollary \ref{cor:2-truncated-qcat-htpy-comp}, $h$ respects composition and thus lifts to define a functor. This gives the required factorization. Uniqueness follows because the the functor $U \colon \Cat \to \rQuiv$ is faithful.
+\end{proof}
 
 Later we will require either of the following results:
 
@@ -421,10 +511,10 @@ Later we will require either of the following results:
   \end{enumerate}
 \end{lemma}
 \begin{proof}
-  \uses{lem:htpy-cat-of-qcat, prop:nerve-reflective}
+  \uses{lem:htpy-cat-of-qcat, prop:nerve-reflective, defn:2-truncated-qcat-htpy-cat}
   For the first statement, preservation of the terminal object is by direct calculation. By Proposition \ref{prop:nerve-reflective}, preservation of binary products is equivalent to the statement that the canonical map $N(\cD^\cC) \to N(\cD)^{N\cC}$ involving nerves of categories is an isomorphism. On $n$-simplices, this is defined by uncurrying, which is bijection since $\Cat$ is cartesian closed.
 
-  For the second statement, we have a canonical comparison functor from the homotopy category of the products to the product of the homotopy categories. It follows from Lemma \ref{lem:htpy-cat-of-qcat} that this is an isomorphism on underlying quivers, which suffices.
+  For the second statement, we have a canonical comparison functor from the homotopy category of the products to the product of the homotopy categories. It follows from Definition \ref{defn:2-truncated-qcat-htpy-cat} and Lemma \ref{lem:htpy-cat-of-qcat} that this is an isomorphism on underlying quivers, which suffices.
 \end{proof}
 
 
