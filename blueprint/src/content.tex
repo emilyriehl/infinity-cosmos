@@ -316,7 +316,7 @@ The functor that carries a category to its underlying reflexive quiver has a lef
 \end{proposition}
 \begin{proof}
   \leanok
-  \lean{CategoryTheory.ReflQuiv.adj} This has been formalized and is now in Mathlib.
+This has been formalized and is now in Mathlib.
 \end{proof}
 
 \begin{definition}[{the homotopy category \cite[\S2.4]{GabrielZisman:1967cf}}]\label{defn:homotopy-cat}
@@ -1154,40 +1154,41 @@ Suppose $\cC$ admits cotensors as a $\cW$-category. To verify that $U_*\cC$ admi
 
 
 
-%This theory of change of base is all well and good from the compound noun perspective on enriched categories, but an additional concern arises from the adjectival point of view. If the finite-product-preserving functor $T \colon \cV \to \cW$ commutes with the underlying set functors for $\cV$ and $\cW$ up to natural isomorphism, then by the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}, the change-of-base 2-functor $T_* \colon \eCat{\cV} \to \eCat{\cW}$ also preserves the underlying categories up to natural isomorphism. This happens in particular in the following setting.
+This theory of change of base is all well and good from the compound noun perspective on enriched categories, but an additional concern arises from the adjectival point of view. If the finite-product-preserving functor $T \colon \cV \to \cW$ commutes with the underlying set functors for $\cV$ and $\cW$ up to natural isomorphism, then by the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}, the change-of-base 2-functor $T_* \colon \eCat{\cV} \to \eCat{\cW}$ also preserves the underlying categories up to natural isomorphism. This happens in particular in the following setting.
 
-%\begin{lemma}\label{lem:right-of-monoidal-adj-ucats}
-%  \uses{prop:change-of-base-adjunction} Consider a finite-product-preserving adjunction between cartesian closed categories:
-%\begin{center}
-%\begin{tikzcd}[column sep=large]
-%\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]   \end{tikzcd}
-%\end{center}
-%Then change of base along the right adjoint respects the underlying categories:
-%\begin{center}
-%\begin{tikzcd}[sep=1.5 em] \eCat{\cW} \arrow[rr, "U_*"] \arrow[dr, "{(-)_0}"'] & & \eCat{\cV} \arrow[dl, "(-)_0"] \\ & \Cat
-%\end{tikzcd}
-%\end{center}
-%\end{lemma}
-%\begin{proof}
-%Let $\cC$ be a $\cW$ category. Then the hom-set in the underlying category of $U_*\cC$ from $x$ to $y$ is isomorphic to the corresponding hom-set
-%\[ U_*\cC(x,y)_0 \cong \cV(1, U\cC(x,y))_0 \cong \cW(F1,\cC(x,y))_0 \cong \cW(1,\cC(x,y))_0 \cong \cC(x,y)_0\]
-%in the underlying category of $\cC$ and moreover this isomorphism respects the composition and identities in the underlying categories. Thus $\cC_0 \cong U\cC_0$. A similar argument shows that change of base along $U$ respects underlying functors and natural transformations.
-%\end{proof}
+\begin{lemma}\label{lem:pro-normal-monoidal} The change-of-base 2-functor induced by a finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories preserves underlying categories, if and only if, for each $v \in \cV$ the composite function on hom-sets
+\begin{center}
+\begin{tikzcd} \cV(1,v)_0 \arrow[r, "T"] & \cW(T1,Tv)_0 \arrow[r, "- \circ \cong"] & \cW(1,Tv)_0
+\end{tikzcd}
+\end{center} is a bijection.
+\end{lemma}
+\begin{proof}
+The displayed function defines the component at $v \in \cV$ of the unique monoidal natural transformation from the underlying set-functor for $\cV$ to the composite of $T$ with the underlying set functor for $\cW$. By the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}, if it defines a monoidal natural isomorphism, then it induces a 2-natural isomorphism between the underlying category 2-functor $(-)_0 \colon \eCat{\cV} \to \Cat$ and the composite of the change-of-base 2-functor $T_* \colon \eCat{\cV} \to\eCat{\cW}$ with the underlying category 2-functor $(-)_0 \colon \eCat{\cW} \to \Cat$.
+
+Conversely, this condition is necessary for the underlying category of the $\cW$-category $T_*\cV$ to coincide with the underlying category of the cartesian closed category $\cV$.
+\end{proof}
+
+One situation in which the condition of Lemma \ref{lem:pro-normal-monoidal} is automatic is when the lax monoidal functor is the right adjoint of a monoidal adjunction. The proof, originally given in \cite{Kelly:1974da}, is by a short diagram chase.
 
 
-%\begin{lemma}\label{lem:pro-normal-monoidal} The change-of-base 2-functor induced by a finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories preserves underlying categories, if and only if, for each $v \in \cV$ the composite function on hom-sets
-%\begin{center}
-%\begin{tikzcd} \cV(1,v)_0 \arrow[r, "T"] & \cW(T1,Tv)_0 \arrow[r, "- \circ \cong"] & \cW(1,Tv)_0
-%\end{tikzcd}
-%\end{center} is a bijection.
-%\end{lemma}
-%\begin{proof}
-%The displayed function defines the component at $v \in \cV$ of the unique monoidal natural transformation from the underlying set-functor for $\cV$ to the composite of $T$ with the underlying set functor for $\cW$. By the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}, if it defines a monoidal natural isomorphism, then it induces a 2-natural isomorphism between the underlying category 2-functor $(-)_0 \colon \eCat{\cV} \to \Cat$ and the composite of the change-of-base 2-functor $T_* \colon \eCat{\cV} \to\eCat{\cW}$ with the underlying category 2-functor $(-)_0 \colon \eCat{\cW} \to \Cat$.
+\begin{lemma}\label{lem:right-of-monoidal-adj-ucats}
+  \uses{prop:change-of-base-adjunction} Consider a finite-product-preserving adjunction between cartesian closed categories:
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]   \end{tikzcd}
+\end{center}
+Then change of base along the right adjoint respects the underlying categories:
+\begin{center}
+\begin{tikzcd}[sep=1.5 em] \eCat{\cW} \arrow[rr, "U_*"] \arrow[dr, "{(-)_0}"'] & & \eCat{\cV} \arrow[dl, "(-)_0"] \\ & \Cat
+\end{tikzcd}
+\end{center}
+\end{lemma}
+\begin{proof}
+Let $\cC$ be a $\cW$ category. Then the hom-set in the underlying category of $U_*\cC$ from $x$ to $y$ is isomorphic to the corresponding hom-set
+\[ U_*\cC(x,y)_0 \cong \cV(1, U\cC(x,y))_0 \cong \cW(F1,\cC(x,y))_0 \cong \cW(1,\cC(x,y))_0 \cong \cC(x,y)_0\]
+in the underlying category of $\cC$ and moreover this isomorphism respects the composition and identities in the underlying categories. Thus $\cC_0 \cong U\cC_0$. A similar argument shows that change of base along $U$ respects underlying functors and natural transformations.
+\end{proof}
 
-%Conversely, this condition is necessary for the underlying category of the $\cW$-category $T_*\cV$ to coincide with the underlying category of the cartesian closed category $\cV$.
-%\end{proof}
-
-%One situation in which the condition of Lemma \ref{lem:pro-normal-monoidal} is automatic is when the lax monoidal functor is the right adjoint of a monoidal adjunction. The proof, originally given in \cite{Kelly:1974da}, is by a short diagram chase.
 
 The general theory of change-of-base will be applied in the following case the next section.
 

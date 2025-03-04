@@ -17,7 +17,6 @@ CategoryTheory.Nerve.cosk₂Iso
 CategoryTheory.Nerve.quasicategory
 SSet.oneTruncation₂
 CategoryTheory.ReflQuiv.adj
-CategoryTheory.ReflQuiv.adj
 SSet.Truncated.HomotopyCategory
 CategoryTheory.nerveFunctorCompHoFunctorIso
 CategoryTheory.nerveFunctorCompHoFunctorIso
