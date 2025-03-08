@@ -5,7 +5,8 @@ This guide provides detailed instructions on how to effectively and efficiently 
 
 ## Project Coordination
 
-The project is managed using a [GitHub project dashboard](https://github.com/users/emilyriehl/projects/2), which tracks tasks through various stages, from assignment to completion.
+The project is managed using a [GitHub project dashboard](https://github.com/users/emilyriehl/projects/2),
+which tracks tasks through various stages, from assignment to completion.
 
 ## How to Contribute
 
