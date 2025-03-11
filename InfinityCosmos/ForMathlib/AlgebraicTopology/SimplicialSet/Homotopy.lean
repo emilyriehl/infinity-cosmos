@@ -121,8 +121,6 @@ def HomotopyL.refl : HomotopyL f f where
     rw [A.δ_comp_σ_succ' (by simp)]
     rfl
 
-variable [A.Quasicategory]
-
 -- need a better name
 noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _⦋1⦌}
   (H₁ : HomotopyL f g) (H₂ : HomotopyL f h) :
@@ -160,7 +158,7 @@ lemma HomotopyL.equiv :
 lemma homotopicL_iff_homotopicR [Quasicategory A] :
     HomotopicL f g ↔ HomotopicR f g := sorry
 
-lemma HomotopyR.equiv :
+lemma HomotopyR.equiv [Quasicategory A] :
     Equivalence (fun f g : A _⦋1⦌ ↦ HomotopicR f g) := by
   simp [← homotopicL_iff_homotopicR, HomotopyL.equiv]
 
