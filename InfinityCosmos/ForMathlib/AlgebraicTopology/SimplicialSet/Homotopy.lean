@@ -27,8 +27,8 @@ instance arrowInterval : Interval Δ[1] where
 
 /-- The interval relevant to the theory of quasi-categories. -/
 instance isoInterval : Interval coherentIso where
-  src := (yonedaEquiv coherentIso ⦋0⦌).symm (WalkingIso.coev WalkingIso.zero)
-  tgt := (yonedaEquiv coherentIso ⦋0⦌).symm (WalkingIso.coev WalkingIso.one)
+  src := yonedaEquiv.symm (WalkingIso.coev WalkingIso.zero)
+  tgt := yonedaEquiv.symm (WalkingIso.coev WalkingIso.one)
 
 open MonoidalCategory
 noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=
@@ -125,7 +125,7 @@ def HomotopyL.refl : HomotopyL f f where
 noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _⦋1⦌}
   (H₁ : HomotopyL f g) (H₂ : HomotopyL f h) :
     HomotopyL g h := by
-  let σ : Λ[3, 1] ⟶ A := sorry
+  let σ : (Λ[3, 1] : SSet.{u}) ⟶ A := sorry
   let τ : A _⦋3⦌ := sorry
     -- BUILD FAILS:
     -- A.yonedaEquiv _ (Classical.choose $ Quasicategory.hornFilling
