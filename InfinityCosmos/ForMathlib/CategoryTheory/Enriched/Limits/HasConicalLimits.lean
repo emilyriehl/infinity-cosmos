@@ -30,59 +30,47 @@ namespace HasConicalLimit
 variable {J : Type u₁} [Category.{v₁} J] {K : Type u₂} [Category.{v₂} K]
 variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
 variable {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
-variable {F : J ⥤ C} (c : Cone F)
-
-variable (F) [HasConicalLimit V F]
+variable (F : J ⥤ C) (c : Cone F)
 
 /-- Use the axiom of choice to extract explicit `ConicalLimitCone F` from `HasConicalLimit F`. -/
-noncomputable def getConicalLimitCone : ConicalLimitCone V F :=
+noncomputable def getConicalLimitCone [HasConicalLimit V F] : ConicalLimitCone V F :=
   sorry -- Classical.choice <| HasConicalLimit.exists_conicalLimitCone
 
 /-- An arbitrary choice of conical limit cone for a functor. -/
-noncomputable def conicalLimitCone : ConicalLimitCone V F :=
+noncomputable def conicalLimitCone [HasConicalLimit V F] : ConicalLimitCone V F :=
   (getConicalLimitCone V F)
 
 /-- An arbitrary choice of conical limit object of a functor. -/
-noncomputable def conicalLimit := (conicalLimitCone V F).cone.pt
+noncomputable def conicalLimit [HasConicalLimit V F] := (conicalLimitCone V F).cone.pt
 
 namespace conicalLimit
 
 /-- The projection from the conical limit object to a value of the functor. -/
-protected noncomputable def π (j : J) : conicalLimit V F ⟶ F.obj j :=
+protected noncomputable def π [HasConicalLimit V F] (j : J) : conicalLimit V F ⟶ F.obj j :=
   (conicalLimitCone V F).cone.π.app j
 
 @[reassoc (attr := simp)]
-protected theorem w {j j' : J} (f : j ⟶ j') :
+protected theorem w [HasConicalLimit V F] {j j' : J} (f : j ⟶ j') :
     conicalLimit.π V F j ≫ F.map f = conicalLimit.π V F j' := (conicalLimitCone V F).cone.w f
 
 /-- Evidence that the arbitrary choice of cone provided by `(conicalLimitCone V F).cone` is a
 conical limit cone. -/
-noncomputable def isConicalLimit : IsConicalLimit V (conicalLimitCone V F).cone :=
+noncomputable def isConicalLimit [HasConicalLimit V F] :
+    IsConicalLimit V (conicalLimitCone V F).cone :=
   (getConicalLimitCone V F).isConicalLimit
 
 /-- The morphism from the cone point of any other cone to the limit object. -/
-noncomputable def lift : c.pt ⟶ conicalLimit V F :=
+noncomputable def lift [HasConicalLimit V F] : c.pt ⟶ conicalLimit V F :=
   (conicalLimit.isConicalLimit V F).isLimit.lift c
 
 @[reassoc (attr := simp)]
-theorem lift_π (j : J) :
+theorem lift_π [HasConicalLimit V F] (j : J) :
     conicalLimit.lift V F c ≫ conicalLimit.π V F j = c.π.app j :=
   IsLimit.fac _ c j
 
 end conicalLimit
 
 end HasConicalLimit
-
-namespace HasConicalLimitsOfShape
-
-variable {J : Type u₁} [Category.{v₁} J] {K : Type u₂} [Category.{v₂} K]
-variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
-variable {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
-variable (F : J ⥤ C)
-
-variable [HasConicalLimitsOfShape J V C]
-
-end HasConicalLimitsOfShape
 
 namespace HasConicalLimitsOfSize
 
