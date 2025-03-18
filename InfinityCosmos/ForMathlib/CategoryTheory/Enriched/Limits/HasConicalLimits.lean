@@ -34,7 +34,8 @@ variable (F : J ⥤ C) (c : Cone F)
 
 /-- Use the axiom of choice to extract explicit `ConicalLimitCone F` from `HasConicalLimit F`. -/
 noncomputable def getConicalLimitCone [HasConicalLimit V F] : ConicalLimitCone V F :=
-  sorry -- Classical.choice <| HasConicalLimit.exists_conicalLimitCone
+  sorry -- TODO (JE): fix conical limit API
+  -- Classical.choice <| HasConicalLimit.exists_conicalLimitCone
 
 /-- An arbitrary choice of conical limit cone for a functor. -/
 noncomputable def conicalLimitCone [HasConicalLimit V F] : ConicalLimitCone V F :=
