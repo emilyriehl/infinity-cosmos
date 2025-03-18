@@ -67,8 +67,9 @@ instance hasConicalTerminal [hyp : HasConicalProducts.{0, v', v, u} V C] :
 
 instance hasConicalTerminal' [hyp : HasConicalProducts.{w, v', v, u} V C] :
     HasConicalTerminal V C := by
-  have inst := hyp.hasConicalLimitsOfShape PEmpty
-  exact HasConicalLimitsOfShape.of_equiv V (J := Discrete PEmpty.{w + 1}) emptyEquivalence
+  sorry -- TODO (JE): fix conical limit API
+  -- have inst := hyp.hasConicalLimitsOfShape PEmpty
+  --   exact HasConicalLimitsOfShape.of_equiv V (J := Discrete PEmpty.{w + 1}) emptyEquivalence
 
 end HasConicalProducts
 
