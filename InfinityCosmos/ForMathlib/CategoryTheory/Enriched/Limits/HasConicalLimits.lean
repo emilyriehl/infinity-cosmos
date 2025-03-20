@@ -1,22 +1,9 @@
 /-
 Copyright (c) 2025 Jon Eugster. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
+Authors: Jon Eugster, Dagur Asgeirsson, Emily Riehl
 -/
 import Mathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
-
-/-!
-# HasConicalLimits
-
-This file contains different statements about the (non-constructive) existence of conical limits.
-
-The main constructions are the following.
-
-- `HasConicalLimit`: there exists a limit `cone` with `IsConicalLimit V cone`
-- `HasConicalLimitsOfShape J`: All functors `F : J ⥤ C` have conical limits.
-- `HasConicalLimitsOfSize.{v₁, u₁}`: For all small `J` all functors `F : J ⥤ C` have conical limits.
-- `HasConicalLimits `: has all (small) conical limits.
--/
 
 universe v₁ u₁ v₂ u₂ w v' v u u'
 
@@ -24,56 +11,33 @@ namespace CategoryTheory.Enriched
 
 open Limits
 
-namespace HasConicalLimitsOfSize
+section Definitions
 
 variable {J : Type u₁} [Category.{v₁} J]
-variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
-variable (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C]
-
--- This is in PR #23042
-/-- A category that has larger conical limits also has smaller conical limits. -/
-theorem hasConicalLimitsOfSize_of_univLE [UnivLE.{v₂, v₁}] [UnivLE.{u₂, u₁}]
-    [h : HasConicalLimitsOfSize.{v₁, u₁} V C] : HasConicalLimitsOfSize.{v₂, u₂} V C where
-  hasConicalLimitsOfShape J := HasConicalLimitsOfShape.of_equiv V C
-    ((ShrinkHoms.equivalence J).trans (Shrink.equivalence _)).inverse
-
--- This is in PR #23042
-/-- `HasConicalLimitsOfSize.shrink.{v, u} C` tries to obtain `HasConicalLimitsOfSize.{v, u} C`
-from some other `HasConicalLimitsOfSize.{v₁, u₁} C`.
--/
-theorem shrink [HasConicalLimitsOfSize.{max v₁ v₂, max u₁ u₂} V C] :
-    HasConicalLimitsOfSize.{v₁, u₁} V C :=
-  hasConicalLimitsOfSize_of_univLE.{max v₁ v₂, max u₁ u₂} V C
-
-end HasConicalLimitsOfSize
-
-namespace HasConicalLimits
-
--- Note that `Category.{v, v} J` is deliberately chosen this way, see `HasConicalLimits`.
-variable (J : Type v) [Category.{v} J]
-variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
-variable (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C]
-variable [HasConicalLimits V C]
-
--- This is in PR #23042
-instance (priority := 100) hasSmallestConicalLimitsOfHasConicalLimits :
-    HasConicalLimitsOfSize.{0, 0} V C :=
-  HasConicalLimitsOfSize.shrink.{0, 0} V C
-
-end HasConicalLimits
-
-variable {J : Type u₁} [Category.{v₁} J]
-variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
+variable (V : outParam <| Type u') [Category.{v'} V] [MonoidalCategory V]
 variable {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
-variable (F : J ⥤ C)
 
-structure ConicalLimitCone where
+/--
+Mirrors `LimitCone F`.
+-/
+structure ConicalLimitCone (F : J ⥤ C) where
   limitCone : LimitCone F
   isConicalLimit (X : C) : IsLimit <| (eCoyoneda V X).mapCone limitCone.cone
 
+end Definitions
+
+section Results
+
+variable {J : Type u₁} [Category.{v₁} J] {J' : Type u₂} [Category.{v₂} J']
+variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
+variable (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C]
+
 namespace HasConicalLimit
 
-variable [HasConicalLimit V F]
+variable {C} (F : J ⥤ C) [HasConicalLimit V F]
+
+/-- ensure existence of a conical limit implies existence of a limit -/
+example : HasLimit F := inferInstance
 
 /-- Use the axiom of choice to extract explicit `ConicalLimitCone F` from `HasConicalLimit F`. -/
 noncomputable def getConicalLimitCone : ConicalLimitCone V F where
@@ -82,8 +46,7 @@ noncomputable def getConicalLimitCone : ConicalLimitCone V F where
     (preservesLimit_eCoyoneda X).preserves (getLimitCone F).isLimit
 
 /-- An arbitrary choice of conical limit cone for a functor. -/
-noncomputable def conicalLimitCone : ConicalLimitCone V F :=
-  (getConicalLimitCone V F)
+noncomputable def conicalLimitCone : ConicalLimitCone V F := getConicalLimitCone V F
 
 /-- An arbitrary choice of conical limit object of a functor. -/
 noncomputable def conicalLimit : C := (conicalLimitCone V F).limitCone.cone.pt
@@ -103,5 +66,23 @@ end conicalLimit
 
 end HasConicalLimit
 
+namespace HasConicalLimitsOfSize
+
+/-- A category that has larger conical limits also has smaller conical limits. -/
+lemma of_univLE [HasConicalLimitsOfSize.{v₁, u₁} V C] [UnivLE.{v₂, v₁}] [UnivLE.{u₂, u₁}] :
+    HasConicalLimitsOfSize.{v₂, u₂} V C where
+  hasConicalLimitsOfShape J := HasConicalLimitsOfShape.of_equiv V C
+    ((ShrinkHoms.equivalence J).trans (Shrink.equivalence _)).inverse
+
+/-- `shrink.{v, u} C` tries to obtain `HasConicalLimitsOfSize.{v, u} C`
+from some other `HasConicalLimitsOfSize.{v₁, u₁} C`.
+-/
+theorem shrink [HasConicalLimitsOfSize.{max v₁ v₂, max u₁ u₂} V C] :
+    HasConicalLimitsOfSize.{v₁, u₁} V C :=
+  of_univLE.{max v₁ v₂, max u₁ u₂} V C
+
+end HasConicalLimitsOfSize
+
+end Results
 
 end CategoryTheory.Enriched

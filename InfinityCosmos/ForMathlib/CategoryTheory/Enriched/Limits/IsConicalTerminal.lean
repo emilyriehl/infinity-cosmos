@@ -42,7 +42,7 @@ def IsConicalTerminal.isTerminal {T : C} (hT : IsConicalTerminal V T) : IsTermin
 /-- The defining universal property of a conical terminal object gives an isomorphism of homs.-/
 noncomputable def IsConicalTerminal.eHomIso {T : C} (hT : IsConicalTerminal V T)
     (X : C) : (X ⟶[V] T) ≅ ⊤_ V :=
-  IsConicalLimit.limitComparisonIso X hT ≪≫
+  IsConicalLimit.limitComparisonIso hT X ≪≫
     HasLimit.isoOfEquivalence (by rfl) (Functor.emptyExt _ _)
 
 variable {V} in
