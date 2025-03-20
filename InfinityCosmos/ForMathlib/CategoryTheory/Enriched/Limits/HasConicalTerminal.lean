@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
 -/
 import Mathlib.CategoryTheory.Enriched.Limits.HasConicalProducts
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
+-- import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
 
 /-!
+## existence of conical terminal objects
+
 TODO: module docstring
 -/
 
@@ -27,49 +29,17 @@ variable [HasConicalLimit V F]
 if it has a conical limit over the empty diagram. -/
 abbrev HasConicalTerminal := HasConicalLimitsOfShape (Discrete.{0} PEmpty)
 
-instance HasConicalTerminal_hasTerminal [hyp : HasConicalTerminal V C] : HasTerminal C :=
-  inferInstance
+example [HasConicalTerminal V C] : HasTerminal C := inferInstance
 
-namespace HasConicalTerminal
-
-variable [HasConicalTerminal V C]
-
-variable (C) in
-noncomputable def conicalTerminal : C := conicalLimit V (Functor.empty.{0} C)
-
-noncomputable def conicalTerminalIsConicalTerminal :
-    IsConicalTerminal V (conicalTerminal V C) :=
-  conicalLimit.isConicalLimit V _ |>.ofIso <| Cones.ext (by rfl) (by simp)
-
-noncomputable def isTerminalIsConicalTerminal {T : C} (hT : IsTerminal T) :
-    IsConicalTerminal V T := by
-  let TT := conicalLimit V (Functor.empty.{0} C)
-  let slim : IsConicalTerminal V TT := conicalTerminalIsConicalTerminal V
-  let lim : IsTerminal TT := IsConicalTerminal.isTerminal V slim
-  exact IsConicalTerminal.ofIso slim (hT.uniqueUpToIso lim).symm
-
--- note: `V` implicit because of how this is used in practise, see `Isofibrations.lean`
-variable {V} in
-
-/-- The terminal object is a conical terminal object. -/
-noncomputable def terminalIsConicalTerminal : IsConicalTerminal V (⊤_ C) :=
-  isTerminalIsConicalTerminal V terminalIsTerminal
-
-end HasConicalTerminal
-
-/-! ## Conical Products -/
+/-! ### Conical Products -/
 
 namespace HasConicalProducts
 
-instance hasConicalTerminal [hyp : HasConicalProducts.{0, v', v, u} V C] :
-    HasConicalTerminal V C := by
-      exact hyp.hasConicalLimitsOfShape PEmpty.{1}
+example [HasConicalProducts.{0} V C] : HasConicalTerminal V C := inferInstance
 
-instance hasConicalTerminal' [hyp : HasConicalProducts.{w, v', v, u} V C] :
-    HasConicalTerminal V C := by
-  sorry -- TODO (JE): fix conical limit API
-  -- have inst := hyp.hasConicalLimitsOfShape PEmpty
-  --   exact HasConicalLimitsOfShape.of_equiv V (J := Discrete PEmpty.{w + 1}) emptyEquivalence
+instance hasConicalTerminal [HasConicalProducts.{w} V C] :
+    HasConicalTerminal V C :=
+  HasConicalLimitsOfShape.of_equiv V C (emptyEquivalence.functor)
 
 end HasConicalProducts
 

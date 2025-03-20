@@ -46,6 +46,7 @@ theorem shrink [HasConicalLimitsOfSize.{max v₁ v₂, max u₁ u₂} V C] :
   hasConicalLimitsOfSize_of_univLE.{max v₁ v₂, max u₁ u₂} V C
 
 end HasConicalLimitsOfSize
+
 namespace HasConicalLimits
 
 -- Note that `Category.{v, v} J` is deliberately chosen this way, see `HasConicalLimits`.
@@ -60,5 +61,47 @@ instance (priority := 100) hasSmallestConicalLimitsOfHasConicalLimits :
   HasConicalLimitsOfSize.shrink.{0, 0} V C
 
 end HasConicalLimits
+
+variable {J : Type u₁} [Category.{v₁} J]
+variable (V : Type u') [Category.{v'} V] [MonoidalCategory V]
+variable {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
+variable (F : J ⥤ C)
+
+structure ConicalLimitCone where
+  limitCone : LimitCone F
+  isConicalLimit (X : C) : IsLimit <| (eCoyoneda V X).mapCone limitCone.cone
+
+namespace HasConicalLimit
+
+variable [HasConicalLimit V F]
+
+/-- Use the axiom of choice to extract explicit `ConicalLimitCone F` from `HasConicalLimit F`. -/
+noncomputable def getConicalLimitCone : ConicalLimitCone V F where
+  limitCone := getLimitCone F
+  isConicalLimit X := Classical.choice <|
+    (preservesLimit_eCoyoneda X).preserves (getLimitCone F).isLimit
+
+/-- An arbitrary choice of conical limit cone for a functor. -/
+noncomputable def conicalLimitCone : ConicalLimitCone V F :=
+  (getConicalLimitCone V F)
+
+/-- An arbitrary choice of conical limit object of a functor. -/
+noncomputable def conicalLimit : C := (conicalLimitCone V F).limitCone.cone.pt
+
+namespace conicalLimit
+
+/-- The projection from the conical limit object to a value of the functor. -/
+protected noncomputable def π (j : J) : conicalLimit V F ⟶ F.obj j :=
+  (conicalLimitCone V F).limitCone.cone.π.app j
+
+@[reassoc (attr := simp)]
+protected theorem w {j j' : J} (f : j ⟶ j') :
+    conicalLimit.π V F j ≫ F.map f = conicalLimit.π V F j' :=
+  (conicalLimitCone V F).limitCone.cone.w f
+
+end conicalLimit
+
+end HasConicalLimit
+
 
 end CategoryTheory.Enriched

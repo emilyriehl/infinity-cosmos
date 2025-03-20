@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
 -/
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalLimit
+import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
 
 /-!
 # Conical terminal objects in enriched ordinary categories
@@ -47,8 +48,37 @@ noncomputable def IsConicalTerminal.eHomIso {T : C} (hT : IsConicalTerminal V T)
 variable {V} in
 
 /-- Transport a term of type `IsConicalTerminal` across an isomorphism. -/
-noncomputable def IsConicalTerminal.ofIso {Y Z : C} (hY : IsConicalTerminal V Y)
+noncomputable def IsConicalTerminal.of_iso {Y Z : C} (hY : IsConicalTerminal V Y)
     (i : Y ≅ Z) : IsConicalTerminal V Z :=
-  IsConicalLimit.ofIso hY <| Cones.ext i (by simp)
+  IsConicalLimit.of_iso hY <| Cones.ext i (by simp)
+
+namespace HasConicalTerminal
+
+variable [HasConicalTerminal V C]
+
+open HasConicalLimit
+
+variable (C) in
+noncomputable def conicalTerminal : C := conicalLimit V (Functor.empty.{0} C)
+
+noncomputable def conicalTerminalIsConicalTerminal :
+    IsConicalTerminal V (conicalTerminal V C) :=
+  conicalLimit.isConicalLimit V _ |>.of_iso <| Cones.ext (by rfl) (by simp)
+
+noncomputable def isTerminalIsConicalTerminal {T : C} (hT : IsTerminal T) :
+    IsConicalTerminal V T := by
+  let TT := conicalLimit V (Functor.empty.{0} C)
+  let slim : IsConicalTerminal V TT := conicalTerminalIsConicalTerminal V
+  let lim : IsTerminal TT := IsConicalTerminal.isTerminal V slim
+  exact IsConicalTerminal.of_iso slim (hT.uniqueUpToIso lim).symm
+
+-- note: `V` implicit because of how this is used in practise, see `Isofibrations.lean`
+variable {V} in
+
+/-- The terminal object is a conical terminal object. -/
+noncomputable def terminalIsConicalTerminal : IsConicalTerminal V (⊤_ C) :=
+  isTerminalIsConicalTerminal V terminalIsTerminal
+
+end HasConicalTerminal
 
 end CategoryTheory.Enriched
