@@ -8,8 +8,6 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalProducts
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalPullbacks
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalLimit
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
