@@ -165,7 +165,7 @@ noncomputable def leibnizCotensorCod {U V : SSet} (i : U ⟶ V) [Mono i] {A B : 
   have : HasPullback (cotensorCovMap U f.1) (cotensorContraMap i B) := by
     have : HasConicalPullback _ (cotensorCovMap U f.1) (cotensorContraMap i B) :=
       has_isofibration_pullbacks (cotensorCovIsofibration U f) (cotensorContraMap i B)
-    apply HasConicalPullback_hasPullback
+    infer_instance
   exact pullback (cotensorCovMap U f.1) (cotensorContraMap i B)
 
 /-- An explicit choice of the top map in the Leibniz pullback square. -/
@@ -174,7 +174,7 @@ noncomputable def leibnizCotensor.fst {U V : SSet} (i : U ⟶ V) [Mono i] {A B :
   have : HasPullback (cotensorCovMap U f.1) (cotensorContraMap i B) := by
     have : HasConicalPullback _ (cotensorCovMap U f.1) (cotensorContraMap i B) :=
       has_isofibration_pullbacks (cotensorCovIsofibration U f) (cotensorContraMap i B)
-    apply HasConicalPullback_hasPullback
+    infer_instance
   exact pullback.fst (cotensorCovMap U f.1) (cotensorContraMap i B)
 
 /-- An explicit choice of the left map in the Leibniz pullback square. -/
@@ -183,7 +183,7 @@ noncomputable def leibnizCotensor.snd {U V : SSet} (i : U ⟶ V) [Mono i] {A B :
   have : HasPullback (cotensorCovMap U f.1) (cotensorContraMap i B) := by
     have : HasConicalPullback _ (cotensorCovMap U f.1) (cotensorContraMap i B) :=
       has_isofibration_pullbacks (cotensorCovIsofibration U f) (cotensorContraMap i B)
-    apply HasConicalPullback_hasPullback
+    infer_instance
   exact pullback.snd (cotensorCovMap U f.1) (cotensorContraMap i B)
 
 /-- An explicitly chosen Leibniz pullback square, as a commutative square . -/
@@ -194,7 +194,7 @@ noncomputable def leibnizCotensor.commSq {U V : SSet.{v}} (i : U ⟶ V) [Mono i]
   have : HasPullback (cotensorCovMap U f.1) (cotensorContraMap i B) := by
     have : HasConicalPullback _ (cotensorCovMap U f.1) (cotensorContraMap i B) :=
       has_isofibration_pullbacks (cotensorCovIsofibration U f) (cotensorContraMap i B)
-    apply HasConicalPullback_hasPullback
+    infer_instance
   exact pullback.condition
 
 /-- An explicitly chosen Leibniz pullback square. -/
@@ -205,7 +205,7 @@ noncomputable def leibnizCotensor.isPullback {U V : SSet.{v}} (i : U ⟶ V) [Mon
   have : HasPullback (cotensorCovMap U f.1) (cotensorContraMap i B) := by
     have : HasConicalPullback _ (cotensorCovMap U f.1) (cotensorContraMap i B) :=
       has_isofibration_pullbacks (cotensorCovIsofibration U f) (cotensorContraMap i B)
-    apply HasConicalPullback_hasPullback
+    infer_instance
   refine IsPullback.isLimit' ?_
   apply IsPullback.of_hasPullback
 
@@ -215,7 +215,7 @@ noncomputable def leibnizCotensor.pullbackCone {U V : SSet.{v}} (i : U ⟶ V) [M
   have : HasPullback (cotensorCovMap U f.1) (cotensorContraMap i B) := by
     have : HasConicalPullback _ (cotensorCovMap U f.1) (cotensorContraMap i B) :=
       has_isofibration_pullbacks (cotensorCovIsofibration U f) (cotensorContraMap i B)
-    apply HasConicalPullback_hasPullback
+    infer_instance
   exact pullback.cone (cotensorCovMap U f.1) (cotensorContraMap i B)
 
 /-- An explicitly chosen Leibniz cotensor map of a monomorphism `i` with an isofibration `f`. -/
