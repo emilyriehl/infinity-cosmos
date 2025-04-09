@@ -136,6 +136,8 @@ def horn_from_path (X : SSet) (f : SSet.Path X 2) : Λ[2, 1].toSSet ⟶ X
 lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
   Truncated.Quasicat ((SSet.truncation 2).obj X) where
   fill21 f := by
+    obtain ⟨g, h⟩ := Quasicategory.hornFilling (Fin.zero_lt_one) (by simp) (horn_from_path X f)
+    use yonedaEquiv g
     sorry
   fill31 := sorry
   fill32 := sorry
