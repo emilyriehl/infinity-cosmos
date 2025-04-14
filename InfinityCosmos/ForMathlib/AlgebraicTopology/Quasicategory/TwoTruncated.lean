@@ -135,8 +135,8 @@ open SimplexCategory
 #check horn.primitiveEdge
 
 -- define the natural maps Δ[1] ⟶ Λ[2, 1] selecting the nontrivial edges
-def e₀ := horn.edge 2 1 0 1 (by norm_num) (by norm_num)
-def e₂ := horn.edge 2 1 1 2 (Fin.le_iff_val_le_val.2 (by norm_num)) (by aesop)
+def e₀:= horn.edge 2 1 1 2 (Fin.le_iff_val_le_val.2 (by norm_num)) (by aesop)
+def e₂ := horn.edge 2 1 0 1 (by norm_num) (by norm_num)
 
 def hornTwo_edge₀ : Δ[1] ⟶ Λ[2,1] := yonedaEquiv.symm e₀
 def hornTwo_edge₂ : Δ[1] ⟶ Λ[2,1] := yonedaEquiv.symm e₂
@@ -182,6 +182,48 @@ universe u
 
 #check Quasicategory.hornFilling
 
+section aux_lemmata
+
+open SimplexCategory
+
+#check SimplexCategory.Hom.id (mk n)
+#check stdSimplex.objEquiv.symm
+
+lemma aux {n m : ℕ} {X : SSet} (f : (mk n) ⟶ (mk m)) (g : Δ[m] ⟶ X) : X.map f.op (yonedaEquiv g)
+  = g.app (Opposite.op (mk n)) (stdSimplex.objEquiv.symm f)
+  := by 
+  --ext n
+  have g_nat := g.naturality f.op
+  let id_m : (mk m) ⟶ (mk m) := SimplexCategory.Hom.id (mk m)
+  -- TODO probably easy without aesop 
+  have : yonedaEquiv g = g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm id_m) := by aesop_cat
+  rw [this]
+  have : X.map f.op (g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm id_m)) =
+    (g.app (Opposite.op (mk m)) ≫ X.map f.op) (stdSimplex.objEquiv.symm id_m) := by aesop_cat
+  rw [← g_nat] at this
+  rw [this]
+  have : Δ[m].map f.op (stdSimplex.objEquiv.symm id_m) = stdSimplex.objEquiv.symm f := by aesop_cat
+  dsimp 
+  rw [this]
+  rfl
+
+lemma incl_delta : hornTwo_edge₂.{u} ≫ Λ[2, 1].ι = stdSimplex.map (SimplexCategory.δ 2) := by 
+  ext
+  simp
+  unfold hornTwo_edge₂
+  dsimp only [e₂, horn.edge] 
+  --TODO make this ugly statement nicer
+  have : stdSimplex.edge.{u} 2 0 1 e₂._proof_33 
+    = stdSimplex.objEquiv.symm (SimplexCategory.δ 2) := by 
+    ext i
+    fin_cases i <;> aesop
+  aesop_cat
+
+end aux_lemmata
+
+#check Truncated.spine_arrow
+#check truncation_spine
+
 lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
   Truncated.Quasicat ((SSet.truncation 2).obj X) where
   fill21 f := by
@@ -192,30 +234,30 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
     fin_cases i
     . dsimp only [Fin.isValue, Fin.zero_eta]
       rw [truncation_spine] 
-      . simp [Truncated.spine_arrow]
-        -- TODO apply yonedaEquiv to reduce the statement to the commutativity given by pushout diagram 
-        -- TODO want to apply map_yonedaEquiv but this is weird with all the universes
-        --rw [map_yonedaEquiv g _ (mkOfSucc 0)]
-        --have h₁ : X.map (mkOfSucc 0).op g' = g.app (Opposite.op (mk 1)) 
-        --  (stdSimplex.objEquiv.symm (SimplexCategory.δ 2)) := by sorry
-        have h₂ : X.map (mkOfSucc 0).op g' = yonedaEquiv (stdSimplex.map (SimplexCategory.δ 2) ≫ g) 
-          := by sorry
+      . simp [@Truncated.spine_arrow 1 _ 1 (by norm_num)]
+        have h₂ : X.map (mkOfSucc 0).op g' = yonedaEquiv (hornTwo_edge₂.{u} ≫ Λ[2, 1].ι ≫ g) 
+          := by 
+          have map_yoneda : X.map (mkOfSucc 0).op g' = g.app (Opposite.op (mk 1)) 
+            (stdSimplex.objEquiv.symm (mkOfSucc 0)) 
+            := aux (mkOfSucc 0) g
+          have mkOfSucc_δ : (@mkOfSucc 2 0) = SimplexCategory.δ 2 := by ext x; fin_cases x <;> aesop
+          rw [map_yoneda, mkOfSucc_δ]
+          have : yonedaEquiv (hornTwo_edge₂.{u} ≫ Λ[2, 1].ι ≫ g) = yonedaEquiv ((hornTwo_edge₂.{u} ≫ Λ[2, 1].ι) ≫ g) 
+            := by aesop_cat
+          rw [this, incl_delta]
+          aesop_cat
         rw [h₂]
-        have : f.arrow 0 = yonedaEquiv (path_edge₂ f) := by sorry
+        have : f.arrow 0 = yonedaEquiv (path_edge₂ f) := by 
+          unfold path_edge₂
+          exact (Equiv.symm_apply_eq yonedaEquiv).mp rfl
         rw [this]
         apply yonedaEquiv.congr_arg 
-        have : stdSimplex.map (SimplexCategory.δ 2) = hornTwo_edge₂.{u} ≫  Λ[2, 1].ι := by sorry
-        rw [this]
         simp at h
-        have : (hornTwo_edge₂ ≫ Λ[2, 1].ι) ≫ g = hornTwo_edge₂ ≫ (Λ[2, 1].ι ≫ g) := by aesop_cat
-        rw [this]
         rw [← h]
         --TODO this sorry as the same as further above
         exact CategoryTheory.Limits.PushoutCocone.IsColimit.inr_desc 
           horn_is_pushout (path_edge₀ f) (path_edge₂ f) (by sorry)
-        --sorry
-      . --TODO get rid of this weird 1 + 1 ≤ 2 path 
-        norm_num
+      norm_num
     sorry
  -- TODO how can we make life easy for ourselves here?
   fill31 := sorry
