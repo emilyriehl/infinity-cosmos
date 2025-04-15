@@ -122,20 +122,8 @@ end Truncated
 open Simplicial
 open SimplexCategory
 
-#check horn
-#check Δ[2]
-#check @SimplexCategory.δ 1 0
-#check yoneda.map (SimplexCategory.δ 0)
-#check yonedaEquiv_yoneda_map
-#check stdSimplex.yonedaEquiv_map
-#check stdSimplex.map 
-#check Λ[2, 1].ι
-
-#check horn.const
-#check horn.primitiveEdge
-
 -- define the natural maps Δ[1] ⟶ Λ[2, 1] selecting the nontrivial edges
-def e₀:= horn.edge 2 1 1 2 (Fin.le_iff_val_le_val.2 (by norm_num)) (by aesop)
+def e₀ := horn.edge 2 1 1 2 (Fin.le_iff_val_le_val.2 (by norm_num)) (by aesop)
 def e₂ := horn.edge 2 1 0 1 (by norm_num) (by norm_num)
 
 def hornTwo_edge₀ : Δ[1] ⟶ Λ[2,1] := yonedaEquiv.symm e₀
@@ -144,55 +132,56 @@ def hornTwo_edge₂ : Δ[1] ⟶ Λ[2,1] := yonedaEquiv.symm e₂
 def pt₀ : Δ[0] ⟶ Δ[1] := stdSimplex.map (SimplexCategory.δ 0)
 def pt₁ : Δ[0] ⟶ Δ[1] := stdSimplex.map (SimplexCategory.δ 1)
 
+--
+-- all statements about the pushout 
+-- Δ[0]  →  Δ[1]
+--  ↓        ↓
+-- Δ[1]  → Λ[2, 1]
+-- are left as sorries, see Joel's PRs (TODO) proving these 
+--
+universe u 
 
-#check Limits.PushoutCocone.IsColimit.desc'
+lemma is_std_edge₀ : hornTwo_edge₀ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (SimplexCategory.δ 0) 
+  := by
+  let Δ2_edge₀ := stdSimplex.edge.{u} 2 1 2 (by apply Fin.le_iff_val_le_val.2; norm_num)
+  have is_std_edge₀' : Λ[2, 1].ι.app _ e₀ = Δ2_edge₀ := by rfl 
+  have edge_eq₀ : Δ2_edge₀ = stdSimplex.objEquiv.symm.{u} (SimplexCategory.δ 0)
+    := by 
+    apply stdSimplex.objEquiv.apply_eq_iff_eq_symm_apply.1
+    ext x; fin_cases x <;> aesop
+  apply yonedaEquiv.apply_eq_iff_eq.1
+  dsimp only [hornTwo_edge₀]
+  rw [stdSimplex.yonedaEquiv_map]
+  rw [← edge_eq₀, ← is_std_edge₀']
+  aesop
 
--- these are left as sorries, see Joel's PRs (TODO) proving these 
---TODO first sorry should be trivial
-def horn_pushout : Limits.PushoutCocone pt₀ pt₁ := Limits.PushoutCocone.mk hornTwo_edge₀ hornTwo_edge₂ 
-  (by 
-    ext n a 
-    dsimp [pt₀, pt₁, hornTwo_edge₀, hornTwo_edge₂, yonedaEquiv, yonedaCompUliftFunctorEquiv, e₀, e₂]
-    sorry
-    --dsimp [horn.edge, stdSimplex.edge, stdSimplex.objMk, stdSimplex.objEquiv, Equiv.ulift]
-  )
+-- TODO this is symmetric to the above generalize!
+lemma is_std_edge₂ : hornTwo_edge₂ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (SimplexCategory.δ 2) 
+  := by sorry
+
+def horn_pushout : Limits.PushoutCocone pt₁ pt₀ := Limits.PushoutCocone.mk hornTwo_edge₀ hornTwo_edge₂ 
+  (by
+    apply (instMonoι Λ[2, 1]).right_cancellation  
+    rw [Category.assoc, is_std_edge₀, Category.assoc, is_std_edge₂]
+    dsimp only [pt₀, pt₁]
+    rw [← Functor.map_comp, ← Functor.map_comp]
+    have : SimplexCategory.δ 1 ≫ SimplexCategory.δ 0 = SimplexCategory.δ 0 ≫ @SimplexCategory.δ 1 2 
+      := (@SimplexCategory.δ_comp_δ 0 0 1 (by norm_num)).symm
+    rw [this])
+
 def horn_is_pushout : Limits.IsColimit horn_pushout := by sorry
   
 def path_edge₀ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 1)
 def path_edge₂ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 0)
 
-#check Limits.PushoutCocone.IsColimit.desc' horn_is_pushout 
-
---TODO this sorry should be clear using f.arrow_tgt and f.arrow_src
-def horn_from_path {X : SSet} (f : SSet.Path X 2) : Λ[2, 1].toSSet ⟶ X 
-  := Limits.PushoutCocone.IsColimit.desc horn_is_pushout (path_edge₀ f) (path_edge₂ f) (by sorry) 
-
-#check yonedaEquiv
-#check mkOfSucc
-#check map_yonedaEquiv
-
-
--- TODO in the proof, we can now use universal property of pushout (this should 
--- be part of horn_from_path data now) ... Also make use of bunch of lemmas related to the 
--- various yonedas used!
-
-universe u 
-
-#check horn_pushout.inr
-
-#check Quasicategory.hornFilling
-
 section aux_lemmata
-
 open SimplexCategory
 
-#check SimplexCategory.Hom.id (mk n)
-#check stdSimplex.objEquiv.symm
+#check stdSimplex.yonedaEquiv_map
 
-lemma aux {n m : ℕ} {X : SSet} (f : (mk n) ⟶ (mk m)) (g : Δ[m] ⟶ X) : X.map f.op (yonedaEquiv g)
+lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : (mk n) ⟶ (mk m)) (g : Δ[m] ⟶ X) : X.map f.op (yonedaEquiv g)
   = g.app (Opposite.op (mk n)) (stdSimplex.objEquiv.symm f)
   := by 
-  --ext n
   have g_nat := g.naturality f.op
   let id_m : (mk m) ⟶ (mk m) := SimplexCategory.Hom.id (mk m)
   -- TODO probably easy without aesop 
@@ -202,10 +191,33 @@ lemma aux {n m : ℕ} {X : SSet} (f : (mk n) ⟶ (mk m)) (g : Δ[m] ⟶ X) : X.m
     (g.app (Opposite.op (mk m)) ≫ X.map f.op) (stdSimplex.objEquiv.symm id_m) := by aesop_cat
   rw [← g_nat] at this
   rw [this]
+  -- TODO stdSimplex.map_id is probably helpful here
   have : Δ[m].map f.op (stdSimplex.objEquiv.symm id_m) = stdSimplex.objEquiv.symm f := by aesop_cat
   dsimp 
   rw [this]
   rfl
+
+-- TODO cleanup massively
+lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : (mk n) ⟶ (mk m)) (s : X.obj (Opposite.op (mk m))) 
+  : stdSimplex.map f ≫ yonedaEquiv.symm s = yonedaEquiv.symm (X.map f.op s) := by 
+    apply yonedaEquiv.apply_eq_iff_eq_symm_apply.1 
+    let s' := yonedaEquiv.symm s 
+    have : s = yonedaEquiv s' := (Equiv.symm_apply_eq yonedaEquiv).mp rfl
+    rw [this]
+    rw [map_yonedaEquiv]
+    rw [yonedaEquiv_comp]
+    have : yonedaEquiv.symm (yonedaEquiv s') = s' := Equiv.symm_apply_apply yonedaEquiv _
+    rw [this, stdSimplex.yonedaEquiv_map]
+
+def path_edges_comm {X : SSet} {f : SSet.Path X 2} : pt₁ ≫ path_edge₀ f = pt₀ ≫ path_edge₂ f := by 
+    dsimp only [pt₀, pt₁, path_edge₀, path_edge₂]
+    rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
+    rw [f.arrow_src 1, f.arrow_tgt 0]
+    rfl
+
+def horn_from_path {X : SSet} (f : SSet.Path X 2) : Λ[2, 1].toSSet ⟶ X 
+  := Limits.PushoutCocone.IsColimit.desc horn_is_pushout (path_edge₀ f) (path_edge₂ f) 
+    path_edges_comm
 
 lemma incl_delta : hornTwo_edge₂.{u} ≫ Λ[2, 1].ι = stdSimplex.map (SimplexCategory.δ 2) := by 
   ext
@@ -239,7 +251,7 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
           := by 
           have map_yoneda : X.map (mkOfSucc 0).op g' = g.app (Opposite.op (mk 1)) 
             (stdSimplex.objEquiv.symm (mkOfSucc 0)) 
-            := aux (mkOfSucc 0) g
+            := map_yonedaEquiv (mkOfSucc 0) g
           have mkOfSucc_δ : (@mkOfSucc 2 0) = SimplexCategory.δ 2 := by ext x; fin_cases x <;> aesop
           rw [map_yoneda, mkOfSucc_δ]
           have : yonedaEquiv (hornTwo_edge₂.{u} ≫ Λ[2, 1].ι ≫ g) = yonedaEquiv ((hornTwo_edge₂.{u} ≫ Λ[2, 1].ι) ≫ g) 
@@ -254,11 +266,11 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
         apply yonedaEquiv.congr_arg 
         simp at h
         rw [← h]
-        --TODO this sorry as the same as further above
         exact CategoryTheory.Limits.PushoutCocone.IsColimit.inr_desc 
-          horn_is_pushout (path_edge₀ f) (path_edge₂ f) (by sorry)
+          horn_is_pushout (path_edge₀ f) (path_edge₂ f) path_edges_comm
       norm_num
-    sorry
+    -- TODO finish i = 1 case, even better: generalize so same general thm holds for both cases
+    . sorry
  -- TODO how can we make life easy for ourselves here?
   fill31 := sorry
   fill32 := sorry
