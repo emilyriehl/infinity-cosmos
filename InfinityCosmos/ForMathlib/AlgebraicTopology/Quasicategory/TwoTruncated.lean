@@ -190,18 +190,6 @@ def horn_from_path {X : SSet} (f : SSet.Path X 2) : Λ[2, 1].toSSet ⟶ X
   := Limits.PushoutCocone.IsColimit.desc horn_is_pushout (path_edge₀ f) (path_edge₂ f)
     path_edges_comm
 
-lemma incl_delta : hornTwo_edge₂.{u} ≫ Λ[2, 1].ι = stdSimplex.map (SimplexCategory.δ 2) := by
-  ext
-  simp
-  unfold hornTwo_edge₂
-  dsimp only [e₂, horn.edge]
-  -- TODO write general lemma about edges in 2-simplex?
-  have aux h : stdSimplex.edge.{u} 2 0 1 h
-    = stdSimplex.objEquiv.symm (SimplexCategory.δ 2) := by
-    ext i
-    fin_cases i <;> aesop
-  aesop_cat
-
 end aux_lemmata_horn21
 
 section multicofork
@@ -221,6 +209,7 @@ def π (a : horn₃₁.R) : (Δ[2] ⟶ X) := match a with
   | ⟨2, h⟩ => yonedaEquiv.symm σ₂
   | ⟨3, h⟩ => yonedaEquiv.symm σ₃
 
+-- TODO sorry
 def multicofork_from_data : Limits.Multicofork horn₃₁.multispan_index
     := Limits.Multicofork.ofπ horn₃₁.multispan_index X (π σ₃ σ₀ σ₂) (by sorry)
 
@@ -259,7 +248,7 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
             (stdSimplex.objEquiv.symm (mkOfSucc 0))
             := map_yonedaEquiv (mkOfSucc 0) g
           have mkOfSucc_δ : (@mkOfSucc 2 0) = SimplexCategory.δ 2 := by ext x; fin_cases x <;> aesop
-          rw [map_yoneda, mkOfSucc_δ, ← Category.assoc, incl_delta]
+          rw [map_yoneda, mkOfSucc_δ, ← Category.assoc]
           rfl
         rw [h₂]
         have : f.arrow 0 = yonedaEquiv (path_edge₂ f) := by
