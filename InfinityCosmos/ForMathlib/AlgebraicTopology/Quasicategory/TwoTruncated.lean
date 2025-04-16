@@ -118,24 +118,6 @@ open horn₂₁
 
 universe u
 
-lemma is_std_edge₀ : hornTwo_edge₀ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (SimplexCategory.δ 0)
-  := by
-  let Δ2_edge₀ := stdSimplex.edge.{u} 2 1 2 (by apply Fin.le_iff_val_le_val.2; norm_num)
-  have is_std_edge₀' : Λ[2, 1].ι.app _ e₀ = Δ2_edge₀ := by rfl
-  have edge_eq₀ : Δ2_edge₀ = stdSimplex.objEquiv.symm.{u} (SimplexCategory.δ 0)
-    := by
-    apply stdSimplex.objEquiv.apply_eq_iff_eq_symm_apply.1
-    ext x; fin_cases x <;> aesop
-  apply yonedaEquiv.apply_eq_iff_eq.1
-  dsimp only [hornTwo_edge₀]
-  rw [stdSimplex.yonedaEquiv_map]
-  rw [← edge_eq₀, ← is_std_edge₀']
-  aesop
-
--- TODO this is symmetric to the above so should be generalized!
-lemma is_std_edge₂ : hornTwo_edge₂ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (SimplexCategory.δ 2)
-  := by sorry
-
 def path_edge₀ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 1)
 def path_edge₂ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 0)
 

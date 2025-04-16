@@ -10,12 +10,8 @@ open Simplicial CategoryTheory SSet
 --  ↓        ↓
 -- Δ[1]  → Λ[2, 1]
 -- are left as sorries, see Joel's PRs (TODO) proving these
---
 
 -- define the natural maps Δ[1] ⟶ Λ[2, 1] selecting the nontrivial edges
-def e₀ := horn.edge 2 1 1 2 (Fin.le_iff_val_le_val.2 (by norm_num)) (by aesop)
-def e₂ := horn.edge 2 1 0 1 (by norm_num) (by norm_num)
-
 def horn21_incl (i : Fin 3) (h : i ≠ 1)
   : Δ[1] ⟶ Λ[2, 1] := yonedaEquiv.symm (horn.face 1 i h)
 
