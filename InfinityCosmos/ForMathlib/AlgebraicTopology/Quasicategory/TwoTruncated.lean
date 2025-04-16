@@ -1,6 +1,9 @@
 import Mathlib.AlgebraicTopology.SimplicialSet.Path
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
 
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
+
 open SimplexCategory
 open CategoryTheory SimplexCategory.Truncated Truncated.Hom SimplicialObject
 open SimplicialObject.Truncated
@@ -8,25 +11,10 @@ open SimplicialObject.Truncated
 namespace SSet
 namespace Truncated
 
-
+-- TODO place this somewhere else
 def diagonal {n m : ℕ} (h1 : 1 ≤ m := by omega) (h2 : n ≤ m := by omega)
   (X : Truncated m) : X _⦋n⦌ₘ ⟶ X _⦋1⦌ₘ
   := X.map (tr (SimplexCategory.diag n)).op
-
--- TODO these next two should probably go into the file where δ_zero_mkOfSucc live
--- same proof as δ_zero_mkOfSucc
-def δ_zero_mkOfLe {n : ℕ} (i j : Fin (n + 1)) (h : i ≤ j) : SimplexCategory.δ 0 ≫ mkOfLe i j h =
-  (SimplexCategory.mk 0).const (SimplexCategory.mk n) j := by
-  ext x
-  fin_cases x
-  aesop
-
--- same proof as δ_one_mkOfSucc
-def δ_one_mkOfLe {n : ℕ} (i j : Fin (n + 1)) (h : i ≤ j) : SimplexCategory.δ 1 ≫ mkOfLe i j h =
-  (SimplexCategory.mk 0).const (SimplexCategory.mk n) i := by
-  ext x
-  fin_cases x
-  aesop
 
 -- TODO cleanup and generalize if possible
 def shortcut3 (X : Truncated 2) (f : Path X 3) (σ : X _⦋2⦌₂)
@@ -126,32 +114,16 @@ end Truncated
 
 open Simplicial
 open SimplexCategory
+open horn₂₁
 
--- define the natural maps Δ[1] ⟶ Λ[2, 1] selecting the nontrivial edges
-def e₀ := horn.edge 2 1 1 2 (Fin.le_iff_val_le_val.2 (by norm_num)) (by aesop)
-def e₂ := horn.edge 2 1 0 1 (by norm_num) (by norm_num)
+universe u
 
-def hornTwo_edge₀ : Δ[1] ⟶ Λ[2,1] := yonedaEquiv.symm e₀
-def hornTwo_edge₂ : Δ[1] ⟶ Λ[2,1] := yonedaEquiv.symm e₂
-
-def pt₀ : Δ[0] ⟶ Δ[1] := stdSimplex.map (SimplexCategory.δ 0)
-def pt₁ : Δ[0] ⟶ Δ[1] := stdSimplex.map (SimplexCategory.δ 1)
-
---
--- all statements about the pushout 
--- Δ[0]  →  Δ[1]
---  ↓        ↓
--- Δ[1]  → Λ[2, 1]
--- are left as sorries, see Joel's PRs (TODO) proving these 
---
-universe u 
-
-lemma is_std_edge₀ : hornTwo_edge₀ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (SimplexCategory.δ 0) 
+lemma is_std_edge₀ : hornTwo_edge₀ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (SimplexCategory.δ 0)
   := by
   let Δ2_edge₀ := stdSimplex.edge.{u} 2 1 2 (by apply Fin.le_iff_val_le_val.2; norm_num)
-  have is_std_edge₀' : Λ[2, 1].ι.app _ e₀ = Δ2_edge₀ := by rfl 
+  have is_std_edge₀' : Λ[2, 1].ι.app _ e₀ = Δ2_edge₀ := by rfl
   have edge_eq₀ : Δ2_edge₀ = stdSimplex.objEquiv.symm.{u} (SimplexCategory.δ 0)
-    := by 
+    := by
     apply stdSimplex.objEquiv.apply_eq_iff_eq_symm_apply.1
     ext x; fin_cases x <;> aesop
   apply yonedaEquiv.apply_eq_iff_eq.1
@@ -161,21 +133,9 @@ lemma is_std_edge₀ : hornTwo_edge₀ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (Sim
   aesop
 
 -- TODO this is symmetric to the above so should be generalized!
-lemma is_std_edge₂ : hornTwo_edge₂ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (SimplexCategory.δ 2) 
+lemma is_std_edge₂ : hornTwo_edge₂ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (SimplexCategory.δ 2)
   := by sorry
 
-def horn_pushout : Limits.PushoutCocone pt₁ pt₀ := Limits.PushoutCocone.mk hornTwo_edge₀ hornTwo_edge₂ 
-  (by
-    apply (instMonoι Λ[2, 1]).right_cancellation  
-    rw [Category.assoc, is_std_edge₀, Category.assoc, is_std_edge₂]
-    dsimp only [pt₀, pt₁]
-    rw [← Functor.map_comp, ← Functor.map_comp]
-    have : SimplexCategory.δ 1 ≫ SimplexCategory.δ 0 = SimplexCategory.δ 0 ≫ @SimplexCategory.δ 1 2 
-      := (@SimplexCategory.δ_comp_δ 0 0 1 (by norm_num)).symm
-    rw [this])
-
-def horn_is_pushout : Limits.IsColimit horn_pushout := by sorry
-  
 def path_edge₀ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 1)
 def path_edge₂ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 0)
 
@@ -186,10 +146,10 @@ open SimplexCategory
 
 lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (g : Δ[m] ⟶ X) : X.map f.op (yonedaEquiv g)
   = g.app (Opposite.op (mk n)) (stdSimplex.objEquiv.symm f)
-  := by 
+  := by
   have g_nat := g.naturality f.op
   let id_m : (mk m) ⟶ (mk m) := SimplexCategory.Hom.id (mk m)
-  -- TODO probably easy without aesop 
+  -- TODO probably easy without aesop
   have : yonedaEquiv g = g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm id_m) := by aesop_cat
   rw [this]
   have : X.map f.op (g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm id_m)) =
@@ -198,137 +158,87 @@ lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (g : Δ[m] �
   rw [this]
   -- TODO stdSimplex.map_id is probably helpful here
   have : Δ[m].map f.op (stdSimplex.objEquiv.symm id_m) = stdSimplex.objEquiv.symm f := by aesop_cat
-  dsimp 
+  dsimp
   rw [this]
   rfl
 
-lemma push_yonedaEquiv {n m k : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (σ : X.obj (Opposite.op (.mk m))) 
+lemma push_yonedaEquiv {n m k : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (σ : X.obj (Opposite.op (.mk m)))
     {s : .mk m ⟶ .mk k} {g : Δ[k] ⟶ X}
     (h : yonedaEquiv.symm σ = stdSimplex.map s ≫ g)
   : X.map f.op σ = X.map (f ≫ s).op (yonedaEquiv g)
-  := by 
+  := by
     rw [← Equiv.apply_symm_apply yonedaEquiv σ, h]
-    have : yonedaEquiv (stdSimplex.map s ≫ g) = X.map s.op (yonedaEquiv g) := by 
+    have : yonedaEquiv (stdSimplex.map s ≫ g) = X.map s.op (yonedaEquiv g) := by
       rw [yonedaEquiv_comp, map_yonedaEquiv, stdSimplex.yonedaEquiv_map]
     rw [this, ← FunctorToTypes.map_comp_apply, ← op_comp]
 
-lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (s : X.obj (.op (.mk m))) 
-  : stdSimplex.map f ≫ yonedaEquiv.symm s = yonedaEquiv.symm (X.map f.op s) := by 
-    apply yonedaEquiv.apply_eq_iff_eq_symm_apply.1 
-    let s' := yonedaEquiv.symm s 
+lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (s : X.obj (.op (.mk m)))
+  : stdSimplex.map f ≫ yonedaEquiv.symm s = yonedaEquiv.symm (X.map f.op s) := by
+    apply yonedaEquiv.apply_eq_iff_eq_symm_apply.1
+    let s' := yonedaEquiv.symm s
     have : s = yonedaEquiv s' := (Equiv.symm_apply_eq yonedaEquiv).mp rfl
-    rw [this, map_yonedaEquiv, yonedaEquiv_comp, Equiv.apply_symm_apply yonedaEquiv _, 
+    rw [this, map_yonedaEquiv, yonedaEquiv_comp, Equiv.apply_symm_apply yonedaEquiv _,
       stdSimplex.yonedaEquiv_map]
 
-def path_edges_comm {X : SSet} {f : SSet.Path X 2} : pt₁ ≫ path_edge₀ f = pt₀ ≫ path_edge₂ f := by 
+def path_edges_comm {X : SSet} {f : SSet.Path X 2} : pt₁ ≫ path_edge₀ f = pt₀ ≫ path_edge₂ f := by
     dsimp only [pt₀, pt₁, path_edge₀, path_edge₂]
     rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
     rw [f.arrow_src 1, f.arrow_tgt 0]
     rfl
 
-def horn_from_path {X : SSet} (f : SSet.Path X 2) : Λ[2, 1].toSSet ⟶ X 
-  := Limits.PushoutCocone.IsColimit.desc horn_is_pushout (path_edge₀ f) (path_edge₂ f) 
+def horn_from_path {X : SSet} (f : SSet.Path X 2) : Λ[2, 1].toSSet ⟶ X
+  := Limits.PushoutCocone.IsColimit.desc horn_is_pushout (path_edge₀ f) (path_edge₂ f)
     path_edges_comm
 
-lemma incl_delta : hornTwo_edge₂.{u} ≫ Λ[2, 1].ι = stdSimplex.map (SimplexCategory.δ 2) := by 
+lemma incl_delta : hornTwo_edge₂.{u} ≫ Λ[2, 1].ι = stdSimplex.map (SimplexCategory.δ 2) := by
   ext
   simp
   unfold hornTwo_edge₂
-  dsimp only [e₂, horn.edge] 
-  --TODO make this ugly statement nicer
-  have : stdSimplex.edge.{u} 2 0 1 e₂._proof_34
-    = stdSimplex.objEquiv.symm (SimplexCategory.δ 2) := by 
+  dsimp only [e₂, horn.edge]
+  -- TODO write general lemma about edges in 2-simplex?
+  have aux h : stdSimplex.edge.{u} 2 0 1 h
+    = stdSimplex.objEquiv.symm (SimplexCategory.δ 2) := by
     ext i
     fin_cases i <;> aesop
   aesop_cat
 
 end aux_lemmata_horn21
 
-namespace horn31
-
-def horn31_incl (i : Fin 4) (h : i ≠ 1) 
-  : Δ[2] ⟶ Λ[3, 1] := yonedaEquiv.symm (horn.face 1 i h)
-
-abbrev ι₀ : Δ[2] ⟶ Λ[3, 1] := horn31_incl 0 (by norm_num)
-abbrev ι₂ : Δ[2] ⟶ Λ[3, 1] := horn31_incl 2 (by omega)
-abbrev ι₃ : Δ[2] ⟶ Λ[3, 1] := horn31_incl 3 (by omega)
-
-def R := { x : Fin 4 // x ≠ 1 } 
-def L := { p : R × R // p.1.val < p.2.val }
-
-def J : Limits.MultispanShape where
-    L := L
-    R := R
-    fst p := p.val.1
-    snd p := p.val.2
-
-open SimplexCategory
-
-def multispan_index : Limits.MultispanIndex J SSet where
-  left  _ := Δ[1]
-  right _ := Δ[2]
-  fst p := stdSimplex.map (δ (Fin.pred p.val.2.val (Fin.ne_zero_of_lt p.property)).castSucc)
-  snd p := stdSimplex.map (δ p.val.1.val)
-
-def π : R → (Δ[2] ⟶ Λ[3, 1]) := fun ⟨x, h⟩ ↦ horn31_incl x h
-
-def fork_comm : ∀ p : L, multispan_index.fst p ≫ π (J.fst p) 
-  = multispan_index.snd p ≫ π (J.snd p) := by 
-    rintro ⟨⟨⟨i, hi⟩, ⟨j, hj⟩⟩, hij⟩
-    dsimp only [multispan_index, J, π]
-    fin_cases i <;> fin_cases j <;> try contradiction
-    . dsimp [horn31_incl, horn.face, Subpresheaf.lift]
-      rw [Equiv.symm_apply_apply, Equiv.symm_apply_apply]
-      ext n s 
-      -- TODO these are all just simplicial identities but need to be unwrapped nicely
-      simp [δ_comp_δ]
-      sorry
-    . sorry
-    . sorry
-
-def multicofork_horn := Limits.Multicofork.ofπ multispan_index Λ[3, 1] π fork_comm
-
--- TODO this should be also handled by Joel's PR
-def isMulticoeq : Limits.IsColimit multicofork_horn := by sorry
-
-end horn31
-
 section multicofork
 
 variable {X : SSet}
 abbrev Y := (truncation 2).obj X
 
-variable 
+variable
     (f : Truncated.Path Y 3)
     (σ₃ : Y _⦋2⦌₂) (h₃ : Truncated.spine Y 2 _ σ₃ = f.interval 0 2)
     (σ₀ : Y _⦋2⦌₂) (h₀ : Truncated.spine Y 2 _ σ₀ = f.interval 1 2)
     (σ₂ : Y _⦋2⦌₂) (h₂ : Truncated.spine Y 2 _ σ₂ = Truncated.shortcut0 Y f σ₀ h₀)
 
-def π (a : horn31.R) : (Δ[2] ⟶ X) := match a with 
+def π (a : horn₃₁.R) : (Δ[2] ⟶ X) := match a with
   | ⟨0, h⟩ => yonedaEquiv.symm σ₀
   | ⟨1, h⟩ => by contradiction
   | ⟨2, h⟩ => yonedaEquiv.symm σ₂
   | ⟨3, h⟩ => yonedaEquiv.symm σ₃
 
-def multicofork_from_data : Limits.Multicofork horn31.multispan_index
-    := Limits.Multicofork.ofπ horn31.multispan_index X (π σ₃ σ₀ σ₂) (by sorry)
-  
-def horn_from_path3 : Λ[3, 1].toSSet ⟶ X := Limits.IsColimit.desc horn31.isMulticoeq 
+def multicofork_from_data : Limits.Multicofork horn₃₁.multispan_index
+    := Limits.Multicofork.ofπ horn₃₁.multispan_index X (π σ₃ σ₀ σ₂) (by sorry)
+
+def horn_from_path3 : Λ[3, 1].toSSet ⟶ X := Limits.IsColimit.desc horn₃₁.isMulticoeq
   (multicofork_from_data σ₃ σ₀ σ₂)
 
+abbrev R₀ : horn₃₁.R := ⟨0, by omega⟩
+abbrev R₂ : horn₃₁.R := ⟨2, by omega⟩
+abbrev R₃ : horn₃₁.R := ⟨3, by omega⟩
 
-abbrev R₀ : horn31.R := ⟨0, by omega⟩
-abbrev R₂ : horn31.R := ⟨2, by omega⟩
-abbrev R₃ : horn31.R := ⟨3, by omega⟩
+lemma mcofork_up0' : horn₃₁.ι₀ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₀
+  := horn₃₁.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₀)
 
-lemma mcofork_up0' : horn31.ι₀ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₀ 
-  := horn31.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₀)
+lemma mcofork_up2' : horn₃₁.ι₂ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₂
+  := horn₃₁.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₂)
 
-lemma mcofork_up2' : horn31.ι₂ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₂ 
-  := horn31.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₂)
-
-lemma mcofork_up3' : horn31.ι₃ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₃ 
-  := horn31.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₃)
+lemma mcofork_up3' : horn₃₁.ι₃ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₃
+  := horn₃₁.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₃)
 
 end multicofork
 
@@ -341,25 +251,25 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
     ext i
     fin_cases i
     . dsimp only [Fin.isValue, Fin.zero_eta]
-      rw [truncation_spine] 
+      rw [truncation_spine]
       . simp [@Truncated.spine_arrow 1 _ 1 (by norm_num)]
-        have h₂ : X.map (mkOfSucc 0).op g' = yonedaEquiv (hornTwo_edge₂.{u} ≫ Λ[2, 1].ι ≫ g) 
-          := by 
-          have map_yoneda : X.map (mkOfSucc 0).op g' = g.app (Opposite.op (mk 1)) 
-            (stdSimplex.objEquiv.symm (mkOfSucc 0)) 
+        have h₂ : X.map (mkOfSucc 0).op g' = yonedaEquiv (hornTwo_edge₂.{u} ≫ Λ[2, 1].ι ≫ g)
+          := by
+          have map_yoneda : X.map (mkOfSucc 0).op g' = g.app (Opposite.op (mk 1))
+            (stdSimplex.objEquiv.symm (mkOfSucc 0))
             := map_yonedaEquiv (mkOfSucc 0) g
           have mkOfSucc_δ : (@mkOfSucc 2 0) = SimplexCategory.δ 2 := by ext x; fin_cases x <;> aesop
           rw [map_yoneda, mkOfSucc_δ, ← Category.assoc, incl_delta]
           rfl
         rw [h₂]
-        have : f.arrow 0 = yonedaEquiv (path_edge₂ f) := by 
+        have : f.arrow 0 = yonedaEquiv (path_edge₂ f) := by
           unfold path_edge₂
           exact (Equiv.symm_apply_eq yonedaEquiv).mp rfl
         rw [this]
-        apply yonedaEquiv.congr_arg 
+        apply yonedaEquiv.congr_arg
         simp at h
         rw [← h]
-        exact CategoryTheory.Limits.PushoutCocone.IsColimit.inr_desc 
+        exact CategoryTheory.Limits.PushoutCocone.IsColimit.inr_desc
           horn_is_pushout (path_edge₀ f) (path_edge₂ f) path_edges_comm
       norm_num
     -- TODO finish i = 1 case, even better: generalize so same general thm holds for both cases
@@ -369,16 +279,16 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
     let g' := X.map (SimplexCategory.δ 1).op (yonedaEquiv g)
     use g'
     constructor
-    . 
+    .
       ext i
       fin_cases i
       . dsimp [Truncated.shortcut3, truncation_spine, Truncated.Path.arrow, Truncated.diagonal]
         dsimp [truncation, SimplicialObject.truncation, inclusion, tr]
         unfold g'
         rw [← FunctorToTypes.map_comp_apply]
-        have : yonedaEquiv.symm σ₃ = horn31.ι₃ ≫ Λ[3, 1].ι ≫ g := by rw [← mcofork_up3' σ₃ σ₀ σ₂, h]
+        have : yonedaEquiv.symm σ₃ = horn₃₁.ι₃ ≫ Λ[3, 1].ι ≫ g := by rw [← mcofork_up3' σ₃ σ₀ σ₂, h]
         rw [push_yonedaEquiv _ σ₃ this, ← CategoryTheory.op_comp]
-        have : mkOfSucc 0 ≫ SimplexCategory.δ 1 = diag 2 ≫ SimplexCategory.δ 3 := by 
+        have : mkOfSucc 0 ≫ SimplexCategory.δ 1 = diag 2 ≫ SimplexCategory.δ 3 := by
           ext i
           fin_cases i <;> aesop
         rw [this]
@@ -387,8 +297,8 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
         dsimp [truncation, SimplicialObject.truncation, inclusion, tr]
         unfold g'
         rw [← FunctorToTypes.map_comp_apply, ← op_comp]
-        have : Truncated.Path₁.arrow f 2 = X.map (SimplexCategory.δ 0).op σ₀ := by 
-          have : Truncated.Path₁.arrow f 2 = (f.interval 1 2).arrow 1 := by 
+        have : Truncated.Path₁.arrow f 2 = X.map (SimplexCategory.δ 0).op σ₀ := by
+          have : Truncated.Path₁.arrow f 2 = (f.interval 1 2).arrow 1 := by
             dsimp only [Truncated.Path.interval, Truncated.Path.arrow]; rfl
           rw [this, ← h₀]
           rw [Truncated.spine_arrow]
@@ -399,19 +309,19 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
           apply (Opposite.op_inj_iff _ _).2
           ext i; fin_cases i <;> aesop
         rw [this]
-        have : yonedaEquiv.symm σ₀ = horn31.ι₀ ≫ Λ[3, 1].ι ≫ g := by rw [← mcofork_up0' σ₃ σ₀ σ₂, h]
+        have : yonedaEquiv.symm σ₀ = horn₃₁.ι₀ ≫ Λ[3, 1].ι ≫ g := by rw [← mcofork_up0' σ₃ σ₀ σ₂, h]
         rw [push_yonedaEquiv _ σ₀ this]
-        have : mkOfSucc 1 ≫ SimplexCategory.δ 1 = SimplexCategory.δ 3 ≫ SimplexCategory.δ 0 := by 
+        have : mkOfSucc 1 ≫ SimplexCategory.δ 1 = SimplexCategory.δ 3 ≫ SimplexCategory.δ 0 := by
           ext i
           fin_cases i <;> aesop
         rw [this]
         rfl
     . dsimp [Truncated.diagonal2, Truncated.diagonal, truncation, SimplicialObject.truncation, inclusion, tr]
-      have : yonedaEquiv.symm σ₂ = horn31.ι₂ ≫ Λ[3, 1].ι ≫ g := by rw [← mcofork_up2' σ₃ σ₀ σ₂, h]
+      have : yonedaEquiv.symm σ₂ = horn₃₁.ι₂ ≫ Λ[3, 1].ι ≫ g := by rw [← mcofork_up2' σ₃ σ₀ σ₂, h]
       unfold g'
       rw [← FunctorToTypes.map_comp_apply, ← op_comp]
       rw [push_yonedaEquiv _ σ₂ this]
-      have : diag 2 ≫ SimplexCategory.δ 1 = diag 2 ≫ SimplexCategory.δ 2 := by 
+      have : diag 2 ≫ SimplexCategory.δ 1 = diag 2 ≫ SimplexCategory.δ 2 := by
         ext i
         fin_cases i <;> aesop
       rw [this]
