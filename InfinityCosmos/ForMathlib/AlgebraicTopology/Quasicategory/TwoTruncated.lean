@@ -114,6 +114,7 @@ end Truncated
 
 open Simplicial
 open SimplexCategory
+
 open horn₂₁
 
 universe u
@@ -126,16 +127,16 @@ open SimplexCategory
 
 #check stdSimplex.yonedaEquiv_map
 
+-- TODO cleanup proof
 lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (g : Δ[m] ⟶ X) : X.map f.op (yonedaEquiv g)
   = g.app (Opposite.op (mk n)) (stdSimplex.objEquiv.symm f)
   := by
   have g_nat := g.naturality f.op
   let id_m : (mk m) ⟶ (mk m) := SimplexCategory.Hom.id (mk m)
-  -- TODO probably easy without aesop
-  have : yonedaEquiv g = g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm id_m) := by aesop_cat
+  have : yonedaEquiv g = g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm id_m) := rfl
   rw [this]
   have : X.map f.op (g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm id_m)) =
-    (g.app (Opposite.op (mk m)) ≫ X.map f.op) (stdSimplex.objEquiv.symm id_m) := by aesop_cat
+    (g.app (Opposite.op (mk m)) ≫ X.map f.op) (stdSimplex.objEquiv.symm id_m) := rfl
   rw [← g_nat] at this
   rw [this]
   -- TODO stdSimplex.map_id is probably helpful here
