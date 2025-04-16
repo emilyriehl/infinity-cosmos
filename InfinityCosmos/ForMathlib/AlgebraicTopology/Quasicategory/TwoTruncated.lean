@@ -160,7 +160,7 @@ lemma is_std_edge₀ : hornTwo_edge₀ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (Sim
   rw [← edge_eq₀, ← is_std_edge₀']
   aesop
 
--- TODO this is symmetric to the above generalize!
+-- TODO this is symmetric to the above so should be generalized!
 lemma is_std_edge₂ : hornTwo_edge₂ ≫ Λ[2, 1].ι = stdSimplex.map.{u} (SimplexCategory.δ 2) 
   := by sorry
 
@@ -184,7 +184,7 @@ open SimplexCategory
 
 #check stdSimplex.yonedaEquiv_map
 
-lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : (mk n) ⟶ (mk m)) (g : Δ[m] ⟶ X) : X.map f.op (yonedaEquiv g)
+lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (g : Δ[m] ⟶ X) : X.map f.op (yonedaEquiv g)
   = g.app (Opposite.op (mk n)) (stdSimplex.objEquiv.symm f)
   := by 
   have g_nat := g.naturality f.op
@@ -212,17 +212,13 @@ lemma push_yonedaEquiv {n m k : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (σ : X.ob
       rw [yonedaEquiv_comp, map_yonedaEquiv, stdSimplex.yonedaEquiv_map]
     rw [this, ← FunctorToTypes.map_comp_apply, ← op_comp]
 
--- TODO cleanup massively
-lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : (mk n) ⟶ (mk m)) (s : X.obj (Opposite.op (mk m))) 
+lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (s : X.obj (.op (.mk m))) 
   : stdSimplex.map f ≫ yonedaEquiv.symm s = yonedaEquiv.symm (X.map f.op s) := by 
     apply yonedaEquiv.apply_eq_iff_eq_symm_apply.1 
     let s' := yonedaEquiv.symm s 
     have : s = yonedaEquiv s' := (Equiv.symm_apply_eq yonedaEquiv).mp rfl
-    rw [this]
-    rw [map_yonedaEquiv]
-    rw [yonedaEquiv_comp]
-    have : yonedaEquiv.symm (yonedaEquiv s') = s' := Equiv.symm_apply_apply yonedaEquiv _
-    rw [this, stdSimplex.yonedaEquiv_map]
+    rw [this, map_yonedaEquiv, yonedaEquiv_comp, Equiv.apply_symm_apply yonedaEquiv _, 
+      stdSimplex.yonedaEquiv_map]
 
 def path_edges_comm {X : SSet} {f : SSet.Path X 2} : pt₁ ≫ path_edge₀ f = pt₀ ≫ path_edge₂ f := by 
     dsimp only [pt₀, pt₁, path_edge₀, path_edge₂]
@@ -320,25 +316,19 @@ def multicofork_from_data : Limits.Multicofork horn31.multispan_index
 def horn_from_path3 : Λ[3, 1].toSSet ⟶ X := Limits.IsColimit.desc horn31.isMulticoeq 
   (multicofork_from_data σ₃ σ₀ σ₂)
 
+
 abbrev R₀ : horn31.R := ⟨0, by omega⟩
 abbrev R₂ : horn31.R := ⟨2, by omega⟩
 abbrev R₃ : horn31.R := ⟨3, by omega⟩
-
--- TODO be more careful of universe management 
-lemma mcofork_up : horn31.multicofork_horn.π R₃ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂)
-      = (multicofork_from_data σ₃ σ₀ σ₂).π R₃ := by
-  rw [← Limits.Multicofork.π_eq_app_right, ← Limits.Multicofork.π_eq_app_right]
-  exact horn31.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₃)
-
-
-lemma mcofork_up' : horn31.ι₃ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₃ 
-  := horn31.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₃)
 
 lemma mcofork_up0' : horn31.ι₀ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₀ 
   := horn31.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₀)
 
 lemma mcofork_up2' : horn31.ι₂ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₂ 
   := horn31.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₂)
+
+lemma mcofork_up3' : horn31.ι₃ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₃ 
+  := horn31.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₃)
 
 end multicofork
 
@@ -386,7 +376,7 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
         dsimp [truncation, SimplicialObject.truncation, inclusion, tr]
         unfold g'
         rw [← FunctorToTypes.map_comp_apply]
-        have : yonedaEquiv.symm σ₃ = horn31.ι₃ ≫ Λ[3, 1].ι ≫ g := by rw [← mcofork_up' σ₃ σ₀ σ₂, h]
+        have : yonedaEquiv.symm σ₃ = horn31.ι₃ ≫ Λ[3, 1].ι ≫ g := by rw [← mcofork_up3' σ₃ σ₀ σ₂, h]
         rw [push_yonedaEquiv _ σ₃ this, ← CategoryTheory.op_comp]
         have : mkOfSucc 0 ≫ SimplexCategory.δ 1 = diag 2 ≫ SimplexCategory.δ 3 := by 
           ext i
