@@ -21,7 +21,7 @@ def hornTwo_edge₂ : Δ[1] ⟶ Λ[2, 1] := horn21_incl 2 (by omega)
 def pt₀ : Δ[0] ⟶ Δ[1] := stdSimplex.map (SimplexCategory.δ 0)
 def pt₁ : Δ[0] ⟶ Δ[1] := stdSimplex.map (SimplexCategory.δ 1)
 
-def sq_commutes : pt₁ ≫ hornTwo_edge₀ = pt₀ ≫ hornTwo_edge₂ := by
+lemma sq_commutes : pt₁ ≫ hornTwo_edge₀ = pt₀ ≫ hornTwo_edge₂ := by
   apply (instMonoι Λ[2, 1]).right_cancellation
   symm
   exact @stdSimplex.δ_comp_δ _ _ _ 0 1 (by norm_num)
@@ -34,7 +34,6 @@ def horn_is_pushout : Limits.IsColimit horn_pushout := by sorry
 end horn₂₁
 
 namespace horn₃₁
-universe u
 
 open Simplicial CategoryTheory SSet
 

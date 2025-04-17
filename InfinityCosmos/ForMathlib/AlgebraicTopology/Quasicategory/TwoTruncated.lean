@@ -4,7 +4,7 @@ import Mathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
 
-open SimplexCategory
+open Simplicial SimplexCategory
 open CategoryTheory SimplexCategory.Truncated Truncated.Hom SimplicialObject
 open SimplicialObject.Truncated
 
@@ -112,12 +112,7 @@ structure Quasicat (X : Truncated 2) where
 
 end Truncated
 
-open Simplicial
-open SimplexCategory
-
 open horn₂₁
-
-universe u
 
 def path_edge₀ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 1)
 def path_edge₂ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 0)
@@ -165,8 +160,7 @@ lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (s 
 
 def path_edges_comm {X : SSet} {f : SSet.Path X 2} : pt₁ ≫ path_edge₀ f = pt₀ ≫ path_edge₂ f := by
     dsimp only [pt₀, pt₁, path_edge₀, path_edge₂]
-    rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
-    rw [f.arrow_src 1, f.arrow_tgt 0]
+    rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm, f.arrow_src 1, f.arrow_tgt 0]
     rfl
 
 def horn_from_path {X : SSet} (f : SSet.Path X 2) : Λ[2, 1].toSSet ⟶ X
@@ -192,9 +186,35 @@ def π (a : horn₃₁.R) : (Δ[2] ⟶ X) := match a with
   | ⟨2, h⟩ => yonedaEquiv.symm σ₂
   | ⟨3, h⟩ => yonedaEquiv.symm σ₃
 
+open horn₃₁
+
 -- TODO sorry
 def multicofork_from_data : Limits.Multicofork horn₃₁.multispan_index
-    := Limits.Multicofork.ofπ horn₃₁.multispan_index X (π σ₃ σ₀ σ₂) (by sorry)
+    := Limits.Multicofork.ofπ horn₃₁.multispan_index X (π σ₃ σ₀ σ₂) (by
+      rintro ⟨⟨⟨i, hi⟩, ⟨j, hj⟩⟩, hij⟩
+      fin_cases i <;> fin_cases j <;> try contradiction
+      all_goals
+        dsimp only [J, multispan_index, π, Fin.castSucc, Fin.pred,
+          Fin.castAdd, Fin.subNat, Fin.castLE]
+        rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
+      -- TODO remaining sorries
+      -- TODO collect useful identities for mkOfSucc, diag for 2-simplices
+      . congr 1
+        have arr : (Truncated.spine Y 2 _ σ₂).arrow 1 = (Truncated.shortcut0 Y f σ₀ h₀).arrow 1
+          := by rw [h₂]
+        have simplicial₁ : @mkOfSucc 2 1 = SimplexCategory.δ 0 := by
+          ext i
+          fin_cases i <;> aesop
+        have simplicial₂ : diag 2 = SimplexCategory.δ 1 := by
+          ext i
+          fin_cases i <;> aesop
+        dsimp [Y, truncation, tr, SimplicialObject.truncation, inclusion, incl,
+          Truncated.shortcut0, Truncated.Path.arrow, Truncated.diagonal] at arr
+        rw [simplicial₁, simplicial₂] at arr
+        symm; assumption
+      . sorry
+      . sorry
+    )
 
 def horn_from_path3 : Λ[3, 1].toSSet ⟶ X := Limits.IsColimit.desc horn₃₁.isMulticoeq
   (multicofork_from_data σ₃ σ₀ σ₂)
@@ -203,21 +223,21 @@ abbrev R₀ : horn₃₁.R := ⟨0, by omega⟩
 abbrev R₂ : horn₃₁.R := ⟨2, by omega⟩
 abbrev R₃ : horn₃₁.R := ⟨3, by omega⟩
 
-lemma mcofork_up0' : horn₃₁.ι₀ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₀
-  := horn₃₁.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₀)
+lemma mcofork_up0' : horn₃₁.ι₀ ≫ (@horn_from_path3 X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₀
+  := horn₃₁.isMulticoeq.fac (multicofork_from_data σ₃ σ₀ σ₂) (.right R₀)
 
-lemma mcofork_up2' : horn₃₁.ι₂ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₂
-  := horn₃₁.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₂)
+lemma mcofork_up2' : horn₃₁.ι₂ ≫ (@horn_from_path3 X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₂
+  := horn₃₁.isMulticoeq.fac (multicofork_from_data σ₃ σ₀ σ₂) (.right R₂)
 
-lemma mcofork_up3' : horn₃₁.ι₃ ≫ (@horn_from_path3.{u} X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₃
-  := horn₃₁.isMulticoeq.fac.{u} (multicofork_from_data σ₃ σ₀ σ₂) (.right R₃)
+lemma mcofork_up3' : horn₃₁.ι₃ ≫ (@horn_from_path3 X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₃
+  := horn₃₁.isMulticoeq.fac (multicofork_from_data σ₃ σ₀ σ₂) (.right R₃)
 
 end multicofork
 
-lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
+lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
   Truncated.Quasicat ((SSet.truncation 2).obj X) where
   fill21 f := by
-    obtain ⟨g, h⟩ := Quasicategory.hornFilling.{u} Fin.zero_lt_one (by simp) (horn_from_path f)
+    obtain ⟨g, h⟩ := Quasicategory.hornFilling Fin.zero_lt_one (by simp) (horn_from_path f)
     let g' := yonedaEquiv g
     use g'
     ext i
@@ -225,7 +245,7 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
     . dsimp only [Fin.isValue, Fin.zero_eta]
       rw [truncation_spine]
       . simp [@Truncated.spine_arrow 1 _ 1 (by norm_num)]
-        have h₂ : X.map (mkOfSucc 0).op g' = yonedaEquiv (hornTwo_edge₂.{u} ≫ Λ[2, 1].ι ≫ g)
+        have h₂ : X.map (mkOfSucc 0).op g' = yonedaEquiv (hornTwo_edge₂ ≫ Λ[2, 1].ι ≫ g)
           := by
           have map_yoneda : X.map (mkOfSucc 0).op g' = g.app (Opposite.op (mk 1))
             (stdSimplex.objEquiv.symm (mkOfSucc 0))
@@ -247,19 +267,18 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet.{u}} [Quasicategory X] :
     -- TODO finish i = 1 case, even better: generalize so same general thm holds for both cases
     . sorry
   fill31 f σ₃ h₃ σ₀ h₀ σ₂ h₂ := by
-    obtain ⟨g, h⟩ := Quasicategory.hornFilling.{u} Fin.zero_lt_one (by simp) (horn_from_path3 σ₃ σ₀ σ₂)
+    obtain ⟨g, h⟩ := Quasicategory.hornFilling Fin.zero_lt_one (by simp) (horn_from_path3 σ₃ σ₀ σ₂)
     let g' := X.map (SimplexCategory.δ 1).op (yonedaEquiv g)
     use g'
     constructor
-    .
-      ext i
+    . ext i
       fin_cases i
       . dsimp [Truncated.shortcut3, truncation_spine, Truncated.Path.arrow, Truncated.diagonal]
         dsimp [truncation, SimplicialObject.truncation, inclusion, tr]
         unfold g'
-        rw [← FunctorToTypes.map_comp_apply]
+        rw [← FunctorToTypes.map_comp_apply, ← op_comp]
         have : yonedaEquiv.symm σ₃ = horn₃₁.ι₃ ≫ Λ[3, 1].ι ≫ g := by rw [← mcofork_up3' σ₃ σ₀ σ₂, h]
-        rw [push_yonedaEquiv _ σ₃ this, ← CategoryTheory.op_comp]
+        rw [push_yonedaEquiv _ σ₃ this]
         have : mkOfSucc 0 ≫ SimplexCategory.δ 1 = diag 2 ≫ SimplexCategory.δ 3 := by
           ext i
           fin_cases i <;> aesop
