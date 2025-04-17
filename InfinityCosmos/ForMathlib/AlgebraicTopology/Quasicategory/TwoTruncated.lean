@@ -34,12 +34,9 @@ def shortcut3 (X : Truncated 2) (f : Path X 3) (σ : X _⦋2⦌₂)
         Int.rawCast.eq_1, Int.cast_id, Nat.rawCast.eq_1, Int.cast_ofNat_Int, Int.ofNat_eq_coe,
         eq_mp_eq_cast, cast_eq, Fin.zero_eta]
       rw [← FunctorToTypes.map_comp_apply, ← op_comp, ← tr_comp, δ_one_mkOfLe 0 2 _]
-      have : (spine X 2 _ σ).vertex 0 = f.vertex 0 := by
-        obtain ⟨h, _⟩ := Path.ext_iff.1 h
-        rw [h]
-        rfl
-      dsimp only [Nat.reduceAdd, Nat.add_zero, len_mk, id_eq, Fin.isValue, spine_vertex] at this
+      have : (spine X 2 _ σ).vertex 0 = f.vertex 0 := by rw [h]; rfl
       rw [← this]
+      rfl
     | 1 => f.arrow_src 2
   arrow_tgt i := match i with
     | 0 => by
@@ -50,12 +47,9 @@ def shortcut3 (X : Truncated 2) (f : Path X 3) (σ : X _⦋2⦌₂)
         Int.rawCast.eq_1, Int.cast_id, Nat.rawCast.eq_1, Int.cast_ofNat_Int, Int.ofNat_eq_coe,
         eq_mp_eq_cast, cast_eq, Fin.zero_eta, Fin.val_one, Fin.reduceFinMk]
       rw [← FunctorToTypes.map_comp_apply, ← op_comp, ← tr_comp, δ_zero_mkOfLe 0 2 _]
-      have : (spine X 2 _ σ).vertex 2 = f.vertex 2 := by
-        obtain ⟨h, _⟩ := Path.ext_iff.1 h
-        rw [h]
-        rfl
-      dsimp only [Nat.reduceAdd, Nat.add_zero, len_mk, id_eq, Fin.isValue, spine_vertex] at this
+      have : (spine X 2 _ σ).vertex 2 = f.vertex 2 := by rw [h]; rfl
       rw [← this]
+      rfl
     | 1 => f.arrow_tgt 2
 
 def shortcut0 (X : Truncated 2) (f : Path X 3) (σ : X _⦋2⦌₂)
@@ -95,14 +89,32 @@ def shortcut0 (X : Truncated 2) (f : Path X 3) (σ : X _⦋2⦌₂)
 
 def diagonal2 {X : Truncated 2} (σ : X _⦋2⦌₂) : X _⦋1⦌₂ := diagonal _ _ X σ
 
-structure Quasicat (X : Truncated 2) where
+namespace fill31
+
+structure adjacency {X : Truncated 2} (f : X.Path 3) where
+  σ₃ : X _⦋2⦌₂
+  σ₀ : X _⦋2⦌₂
+  σ₂ : X _⦋2⦌₂
+  h₃ : spine X 2 _ σ₃ = f.interval 0 2
+  h₀ : spine X 2 _ σ₀ = f.interval 1 2
+  h₂ : spine X 2 _ σ₂ = shortcut0 X f σ₀ h₀
+
+structure adjacency' {X : Truncated 2} (f : X.Path 3) where
+  σ₃ : X _⦋2⦌₂
+  σ₀ : X _⦋2⦌₂
+  σ₂ : X _⦋2⦌₂
+  h₃ : spine X 2 _ σ₃ = f.interval 0 2
+  h₀ : spine X 2 _ σ₀ = f.interval 1 2
+  h₂₀ : X.map (tr (SimplexCategory.δ 2)).op σ₂ = f.arrow 0
+  h₂₁ : X.map (tr (SimplexCategory.δ 0)).op σ₂ = X.map (tr (SimplexCategory.δ 1)).op σ₀
+
+end fill31
+
+structure Quasicategory₂ (X : Truncated 2) where
   fill21 (f : Path X 2) : ∃ (σ : X _⦋2⦌₂), spine X 2 _ σ = f
-  fill31 (f : Path X 3)
-    (σ₃ : X _⦋2⦌₂) (h₃ : spine X 2 _ σ₃ = f.interval 0 2)
-    (σ₀ : X _⦋2⦌₂) (h₀ : spine X 2 _ σ₀ = f.interval 1 2)
-    (σ₂ : X _⦋2⦌₂) (h₂ : spine X 2 _ σ₂ = shortcut0 X f σ₀ h₀)
-    : ∃ (σ₁ : X _⦋2⦌₂), spine X 2 _ σ₁ = shortcut3 X f σ₃ h₃
-      ∧ (diagonal2 σ₁ = diagonal2 σ₂)
+  fill31 (f : Path X 3) (a : fill31.adjacency f)
+    : ∃ (σ₁ : X _⦋2⦌₂), spine X 2 _ σ₁ = shortcut3 X f a.σ₃ a.h₃
+      ∧ (diagonal2 σ₁ = diagonal2 a.σ₂)
   fill32 (f : Path X 3)
     (σ₃ : X _⦋2⦌₂) (h₃ : spine X 2 _ σ₃ = f.interval 0 2)
     (σ₀ : X _⦋2⦌₂) (h₀ : spine X 2 _ σ₀ = f.interval 1 2)
@@ -119,8 +131,6 @@ def path_edge₂ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.
 
 section aux_lemmata_horn21
 open SimplexCategory
-
-#check stdSimplex.yonedaEquiv_map
 
 -- TODO cleanup proof
 lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (g : Δ[m] ⟶ X) : X.map f.op (yonedaEquiv g)
@@ -166,76 +176,78 @@ def path_edges_comm {X : SSet} {f : SSet.Path X 2} : pt₁ ≫ path_edge₀ f = 
 def horn_from_path {X : SSet} (f : SSet.Path X 2) : Λ[2, 1].toSSet ⟶ X
   := Limits.PushoutCocone.IsColimit.desc horn_is_pushout (path_edge₀ f) (path_edge₂ f)
     path_edges_comm
-
 end aux_lemmata_horn21
 
 section multicofork
+open horn₃₁
 
-variable {X : SSet}
-abbrev Y := (truncation 2).obj X
-
-variable
-    (f : Truncated.Path Y 3)
-    (σ₃ : Y _⦋2⦌₂) (h₃ : Truncated.spine Y 2 _ σ₃ = f.interval 0 2)
-    (σ₀ : Y _⦋2⦌₂) (h₀ : Truncated.spine Y 2 _ σ₀ = f.interval 1 2)
-    (σ₂ : Y _⦋2⦌₂) (h₂ : Truncated.spine Y 2 _ σ₂ = Truncated.shortcut0 Y f σ₀ h₀)
+variable {X : SSet} {f : ((truncation 2).obj X).Path 3}
+variable (adj_data : Truncated.fill31.adjacency' f)
 
 def π (a : horn₃₁.R) : (Δ[2] ⟶ X) := match a with
-  | ⟨0, h⟩ => yonedaEquiv.symm σ₀
+  | ⟨0, h⟩ => yonedaEquiv.symm adj_data.σ₀
   | ⟨1, h⟩ => by contradiction
-  | ⟨2, h⟩ => yonedaEquiv.symm σ₂
-  | ⟨3, h⟩ => yonedaEquiv.symm σ₃
+  | ⟨2, h⟩ => yonedaEquiv.symm adj_data.σ₂
+  | ⟨3, h⟩ => yonedaEquiv.symm adj_data.σ₃
 
-open horn₃₁
+--lemma multicofork_comm (a : J.L) :
+--  multispan_index.fst a ≫ π σ₃ σ₀ σ₂ (J.fst a) = multispan_index.snd a ≫ π σ₃ σ₀ σ₂ (J.snd a)
+--  := by sorry
 
 -- TODO sorry
 def multicofork_from_data : Limits.Multicofork horn₃₁.multispan_index
-    := Limits.Multicofork.ofπ horn₃₁.multispan_index X (π σ₃ σ₀ σ₂) (by
+    := Limits.Multicofork.ofπ horn₃₁.multispan_index X
+      (π adj_data)
+      (by
+      have simplicial₁ : @mkOfSucc 2 0 = SimplexCategory.δ 2 := by
+          ext i
+          fin_cases i <;> aesop
+      have simplicial₂ : @mkOfSucc 2 1 = SimplexCategory.δ 0 := by
+        ext i
+        fin_cases i <;> aesop
       rintro ⟨⟨⟨i, hi⟩, ⟨j, hj⟩⟩, hij⟩
       fin_cases i <;> fin_cases j <;> try contradiction
       all_goals
         dsimp only [J, multispan_index, π, Fin.castSucc, Fin.pred,
           Fin.castAdd, Fin.subNat, Fin.castLE]
         rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
-      -- TODO remaining sorries
+        congr 1
       -- TODO collect useful identities for mkOfSucc, diag for 2-simplices
-      . congr 1
-        have arr : (Truncated.spine Y 2 _ σ₂).arrow 1 = (Truncated.shortcut0 Y f σ₀ h₀).arrow 1
-          := by rw [h₂]
-        have simplicial₁ : @mkOfSucc 2 1 = SimplexCategory.δ 0 := by
-          ext i
-          fin_cases i <;> aesop
-        have simplicial₂ : diag 2 = SimplexCategory.δ 1 := by
-          ext i
-          fin_cases i <;> aesop
-        dsimp [Y, truncation, tr, SimplicialObject.truncation, inclusion, incl,
-          Truncated.shortcut0, Truncated.Path.arrow, Truncated.diagonal] at arr
-        rw [simplicial₁, simplicial₂] at arr
-        symm; assumption
-      . sorry
-      . sorry
+      . symm; exact adj_data.h₂₁
+      . have : (f.interval 1 2).arrow 0 = (f.interval 0 2).arrow 1 := rfl
+        rw [← adj_data.h₃, ← adj_data.h₀, Truncated.spine_arrow,
+          Truncated.spine_arrow, simplicial₁, simplicial₂] at this
+        exact this
+      . have : f.arrow 0 = (f.interval 0 2).arrow 0 := rfl
+        rw [← adj_data.h₃, ← adj_data.h₂₀, Truncated.spine_arrow,
+          simplicial₁] at this
+        exact this
     )
 
+#check multicofork_from_data
+
 def horn_from_path3 : Λ[3, 1].toSSet ⟶ X := Limits.IsColimit.desc horn₃₁.isMulticoeq
-  (multicofork_from_data σ₃ σ₀ σ₂)
+  (multicofork_from_data adj_data)
+
+#check horn_from_path3
 
 abbrev R₀ : horn₃₁.R := ⟨0, by omega⟩
 abbrev R₂ : horn₃₁.R := ⟨2, by omega⟩
 abbrev R₃ : horn₃₁.R := ⟨3, by omega⟩
 
-lemma mcofork_up0' : horn₃₁.ι₀ ≫ (@horn_from_path3 X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₀
-  := horn₃₁.isMulticoeq.fac (multicofork_from_data σ₃ σ₀ σ₂) (.right R₀)
+lemma mcofork_up0' : horn₃₁.ι₀ ≫ (horn_from_path3 adj_data) = yonedaEquiv.symm adj_data.σ₀
+  := horn₃₁.isMulticoeq.fac (multicofork_from_data adj_data) (.right R₀)
 
-lemma mcofork_up2' : horn₃₁.ι₂ ≫ (@horn_from_path3 X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₂
-  := horn₃₁.isMulticoeq.fac (multicofork_from_data σ₃ σ₀ σ₂) (.right R₂)
+lemma mcofork_up2' : horn₃₁.ι₂ ≫ (horn_from_path3 adj_data) = yonedaEquiv.symm adj_data.σ₂
+  := horn₃₁.isMulticoeq.fac (multicofork_from_data adj_data) (.right R₂)
 
-lemma mcofork_up3' : horn₃₁.ι₃ ≫ (@horn_from_path3 X σ₃ σ₀ σ₂) = yonedaEquiv.symm σ₃
-  := horn₃₁.isMulticoeq.fac (multicofork_from_data σ₃ σ₀ σ₂) (.right R₃)
+lemma mcofork_up3' : horn₃₁.ι₃ ≫ (horn_from_path3 adj_data) = yonedaEquiv.symm adj_data.σ₃
+  := horn₃₁.isMulticoeq.fac (multicofork_from_data adj_data) (.right R₃)
 
 end multicofork
 
 lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
-  Truncated.Quasicat ((SSet.truncation 2).obj X) where
+  Truncated.Quasicategory₂ ((truncation 2).obj X) where
   fill21 f := by
     obtain ⟨g, h⟩ := Quasicategory.hornFilling Fin.zero_lt_one (by simp) (horn_from_path f)
     let g' := yonedaEquiv g
@@ -266,7 +278,7 @@ lemma two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
       norm_num
     -- TODO finish i = 1 case, even better: generalize so same general thm holds for both cases
     . sorry
-  fill31 f σ₃ h₃ σ₀ h₀ σ₂ h₂ := by
+  fill31 adj_data := by
     obtain ⟨g, h⟩ := Quasicategory.hornFilling Fin.zero_lt_one (by simp) (horn_from_path3 σ₃ σ₀ σ₂)
     let g' := X.map (SimplexCategory.δ 1).op (yonedaEquiv g)
     use g'
