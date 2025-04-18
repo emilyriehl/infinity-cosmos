@@ -29,7 +29,7 @@ lemma sq_commutes : pt₁ ≫ hornTwo_edge₀ = pt₀ ≫ hornTwo_edge₂ := by
 def horn_pushout : Limits.PushoutCocone pt₁ pt₀
   := Limits.PushoutCocone.mk hornTwo_edge₀ hornTwo_edge₂ sq_commutes
 
--- TODO Joel's PRs (TODO) proves this and more
+-- TODO Joel's PRs (see e.g. mathlib pr #23872) proves this and more
 def horn_is_pushout : Limits.IsColimit horn_pushout := by sorry
 
 end horn₂₁
@@ -92,7 +92,7 @@ def fork_comm : ∀ p : L, multispan_index.fst p ≫ π (J.fst p)
 
 def multicofork_horn := Limits.Multicofork.ofπ multispan_index Λ[3, 1] π fork_comm
 
--- TODO this should be also handled by Joel's PR
+-- TODO this should be also handled by Joel's PR (e.g. mathlib pr #23872)
 def isMulticoeq : Limits.IsColimit multicofork_horn := by sorry
 
 end horn₃₁

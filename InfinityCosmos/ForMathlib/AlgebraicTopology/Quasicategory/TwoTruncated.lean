@@ -87,20 +87,22 @@ structure Quasicategory₂ (X : Truncated 2) where
 
 end Truncated
 
--- TODO cleanup proof
+-- TODO: this section contains 3 lemmas moving application of yonedaEquiv around.
+-- some of these might be already in the library under a different name,
+-- and the proofs could probably be greatly simplified
+section aux_lemmas
+
 lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (g : Δ[m] ⟶ X) : X.map f.op (yonedaEquiv g)
   = g.app (Opposite.op (mk n)) (stdSimplex.objEquiv.symm f)
   := by
-  have g_nat := g.naturality f.op
-  let id_m : (mk m) ⟶ (mk m) := SimplexCategory.Hom.id (mk m)
-  have : yonedaEquiv g = g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm id_m) := rfl
+  have : yonedaEquiv g = g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm (𝟙 _)) := rfl
   rw [this]
-  have : X.map f.op (g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm id_m)) =
-    (g.app (Opposite.op (mk m)) ≫ X.map f.op) (stdSimplex.objEquiv.symm id_m) := rfl
-  rw [← g_nat] at this
+  have : X.map f.op (g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm (𝟙 _))) =
+    (g.app (Opposite.op (mk m)) ≫ X.map f.op) (stdSimplex.objEquiv.symm (𝟙 _)) := rfl
+  rw [← g.naturality] at this
   rw [this]
   -- TODO stdSimplex.map_id is probably helpful here
-  have : Δ[m].map f.op (stdSimplex.objEquiv.symm id_m) = stdSimplex.objEquiv.symm f := by aesop_cat
+  have : Δ[m].map f.op (stdSimplex.objEquiv.symm (𝟙 _)) = stdSimplex.objEquiv.symm f := by aesop_cat
   dsimp
   rw [this]
   rfl
@@ -115,14 +117,6 @@ lemma push_yonedaEquiv {n m k : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (σ : X.ob
       rw [yonedaEquiv_comp, map_yonedaEquiv, stdSimplex.yonedaEquiv_map]
     rw [this, ← FunctorToTypes.map_comp_apply, ← op_comp]
 
-section horn_from_horn_data21
-open SimplexCategory
-open horn₂₁
-namespace horn₂₁
-
-def path_edge₀ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 1)
-def path_edge₂ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 0)
-
 lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (s : X.obj (.op (.mk m)))
   : stdSimplex.map f ≫ yonedaEquiv.symm s = yonedaEquiv.symm (X.map f.op s) := by
     apply yonedaEquiv.apply_eq_iff_eq_symm_apply.1
@@ -131,15 +125,29 @@ lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (s 
     rw [this, map_yonedaEquiv, yonedaEquiv_comp, Equiv.apply_symm_apply yonedaEquiv _,
       stdSimplex.yonedaEquiv_map]
 
+end aux_lemmas
+
+section horn_from_horn_data21
+open SimplexCategory
+open horn₂₁
+namespace horn₂₁
+
+def path_edge₀ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 1)
+def path_edge₂ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 0)
+
 def path_edges_comm {X : SSet} {f : SSet.Path X 2} : pt₁ ≫ path_edge₀ f = pt₀ ≫ path_edge₂ f := by
     dsimp only [pt₀, pt₁, path_edge₀, path_edge₂]
     rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm, f.arrow_src 1, f.arrow_tgt 0]
     rfl
 
+/-- Given a path of length 2 in the 2-truncation of a simplicial set `X`, construct
+the obvious map Λ[2, 1] → X using that Λ[2, 1] is a pushout
+-/
 def horn_from_path {X : SSet} (f : ((truncation 2).obj X).Path 2) : Λ[2, 1].toSSet ⟶ X
   := Limits.PushoutCocone.IsColimit.desc horn_is_pushout (path_edge₀ f) (path_edge₂ f)
     path_edges_comm
 
+-- the following lemmas stem from the universal property of the horn pushout
 lemma pushout_up0 {X : SSet} (f : ((truncation 2).obj X).Path 2)
   : hornTwo_edge₀ ≫ horn_from_path f = yonedaEquiv.symm (f.arrow 1)
   := Limits.PushoutCocone.IsColimit.inl_desc
