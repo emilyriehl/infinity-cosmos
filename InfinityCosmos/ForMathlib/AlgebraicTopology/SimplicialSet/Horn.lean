@@ -44,6 +44,10 @@ abbrev ι₀ : Δ[2] ⟶ Λ[3, 1] := horn31_incl 0 (by norm_num)
 abbrev ι₂ : Δ[2] ⟶ Λ[3, 1] := horn31_incl 2 (by omega)
 abbrev ι₃ : Δ[2] ⟶ Λ[3, 1] := horn31_incl 3 (by omega)
 
+lemma incl₀ : ι₀ ≫ Λ[3, 1].ι = stdSimplex.δ 0 := rfl
+lemma incl₂ : ι₂ ≫ Λ[3, 1].ι = stdSimplex.δ 2 := rfl
+lemma incl₃ : ι₃ ≫ Λ[3, 1].ι = stdSimplex.δ 3 := rfl
+
 def R := { x : Fin 4 // x ≠ 1 }
 def L := { p : R × R // p.1.val < p.2.val }
 
