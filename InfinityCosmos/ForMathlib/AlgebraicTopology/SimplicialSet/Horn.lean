@@ -15,6 +15,9 @@ def horn21_incl (i : Fin 3) (h : i ≠ 1)
 def hornTwo_edge₀ : Δ[1] ⟶ Λ[2, 1] := horn21_incl 0 (by norm_num)
 def hornTwo_edge₂ : Δ[1] ⟶ Λ[2, 1] := horn21_incl 2 (by omega)
 
+lemma incl₀ : hornTwo_edge₀ ≫ Λ[2, 1].ι = stdSimplex.δ 0 := rfl
+lemma incl₂ : hornTwo_edge₂ ≫ Λ[2, 1].ι = stdSimplex.δ 2 := rfl
+
 def pt₀ : Δ[0] ⟶ Δ[1] := stdSimplex.map (SimplexCategory.δ 0)
 def pt₁ : Δ[0] ⟶ Δ[1] := stdSimplex.map (SimplexCategory.δ 1)
 
