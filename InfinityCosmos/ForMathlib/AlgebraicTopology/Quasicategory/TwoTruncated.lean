@@ -11,8 +11,8 @@ open SimplicialObject.Truncated
 -- TODO should these go into the SimplexCategory.Basics file?
 namespace SimplexCategory
 
-lemma mkOfSucc_2_0 : @mkOfSucc 2 0 = SimplexCategory.δ 2 := by ext i; fin_cases i <;> rfl
-lemma mkOfSucc_2_1 : @mkOfSucc 2 1 = SimplexCategory.δ 0 := by ext i; fin_cases i <;> rfl
+lemma mkOfSucc_2_0 : @mkOfSucc 2 0 = δ 2 := by ext i; fin_cases i <;> rfl
+lemma mkOfSucc_2_1 : @mkOfSucc 2 1 = δ 0 := by ext i; fin_cases i <;> rfl
 
 end SimplexCategory
 
@@ -31,8 +31,8 @@ structure horn_data {X : Truncated 2} (f : X.Path 3) where
   σ₂ : X _⦋2⦌₂
   h₃ : spine X 2 _ σ₃ = f.interval 0 2
   h₀ : spine X 2 _ σ₀ = f.interval 1 2
-  h₂₂ : X.map (tr (SimplexCategory.δ 2)).op σ₂ = f.arrow 0
-  h₂₀ : X.map (tr (SimplexCategory.δ 0)).op σ₂ = X.map (tr (SimplexCategory.δ 1)).op σ₀
+  h₂₂ : X.map (tr (δ 2)).op σ₂ = f.arrow 0
+  h₂₀ : X.map (tr (δ 0)).op σ₂ = X.map (tr (δ 1)).op σ₀
 
 /--
 Given a path `f` of length 3 in a 2-truncated simplicial set `X` and
@@ -40,9 +40,9 @@ horn_data `a`, `filling_simplex a σ` is the proposition that `σ` is a 2-simple
 that "fills in" the missing face of the horn defined by `a`. This is the (3, 1)-filling property.
 -/
 structure filling_simplex {X : Truncated 2} {f : X.Path 3} (a : horn_data f) (σ : X _⦋2⦌₂) : Prop where
-  edge₀ : X.map (tr (SimplexCategory.δ 0)).op σ = f.arrow 2
-  edge₁ : X.map (tr (SimplexCategory.δ 1)).op σ = X.map (tr (SimplexCategory.δ 1)).op a.σ₂
-  edge₂ : X.map (tr (SimplexCategory.δ 2)).op σ = X.map (tr (SimplexCategory.δ 1)).op a.σ₃
+  edge₀ : X.map (tr (δ 0)).op σ = f.arrow 2
+  edge₁ : X.map (tr (δ 1)).op σ = X.map (tr (δ 1)).op a.σ₂
+  edge₂ : X.map (tr (δ 2)).op σ = X.map (tr (δ 1)).op a.σ₃
 
 end fill31
 
@@ -58,8 +58,8 @@ structure horn_data {X : Truncated 2} (f : X.Path 3) where
   σ₁ : X _⦋2⦌₂
   h₃ : spine X 2 _ σ₃ = f.interval 0 2
   h₀ : spine X 2 _ σ₀ = f.interval 1 2
-  h₁₂ : X.map (tr (SimplexCategory.δ 2)).op σ₁ = X.map (tr (SimplexCategory.δ 1)).op σ₃
-  h₁₀ : X.map (tr (SimplexCategory.δ 0)).op σ₁ = f.arrow 2
+  h₁₂ : X.map (tr (δ 2)).op σ₁ = X.map (tr (δ 1)).op σ₃
+  h₁₀ : X.map (tr (δ 0)).op σ₁ = f.arrow 2
 
 /--
 Given a path `f` of length 3 in a 2-truncated simplicial set `X` and
@@ -67,9 +67,9 @@ horn_data `a`, `filling_simplex a σ` is the proposition that `σ` is a 2-simple
 that "fills in" the missing face of the horn defined by `a`. This is the (3, 1)-filling property.
 -/
 structure filling_simplex {X : Truncated 2} {f : X.Path 3} (a : horn_data f) (σ : X _⦋2⦌₂) : Prop where
-  edge₀ : X.map (tr (SimplexCategory.δ 0)).op σ = X.map (tr (SimplexCategory.δ 1)).op a.σ₀
-  edge₁ : X.map (tr (SimplexCategory.δ 1)).op σ = X.map (tr (SimplexCategory.δ 1)).op a.σ₁
-  edge₂ : X.map (tr (SimplexCategory.δ 2)).op σ = f.arrow 0
+  edge₀ : X.map (tr (δ 0)).op σ = X.map (tr (δ 1)).op a.σ₀
+  edge₁ : X.map (tr (δ 1)).op σ = X.map (tr (δ 1)).op a.σ₁
+  edge₂ : X.map (tr (δ 2)).op σ = f.arrow 0
 end fill32
 
 /--
@@ -222,7 +222,7 @@ the inclusion Λ[3, 1] → Δ[3], there exists a 2-simplex satisfying the (3, 1)
 def fill31_from_horn_extension (g : Δ[3] ⟶ X) (h : horn_from_data horn_data = Λ[3, 1].ι ≫ g)
   : ∃ σ : ((truncation 2).obj X) _⦋2⦌₂, Truncated.fill31.filling_simplex horn_data σ
   := by
-  let σ := X.map (SimplexCategory.δ 1).op (yonedaEquiv g)
+  let σ := X.map (δ 1).op (yonedaEquiv g)
   use σ
   constructor
   . have arr : f.arrow 2 = (f.interval 1 2).arrow 1 := rfl
@@ -245,7 +245,7 @@ def fill31_from_horn_extension (g : Δ[3] ⟶ X) (h : horn_from_data horn_data =
     apply congr_fun
     apply Prefunctor.congr_map
     apply (Opposite.op_inj_iff _ _).2
-    symm; exact @SimplexCategory.δ_comp_δ 1 1 1 (by norm_num)
+    symm; exact @δ_comp_δ 1 1 1 (by norm_num)
   . dsimp only [truncation, SimplicialObject.truncation, inclusion, whiskeringLeft_obj_obj, len_mk,
       id_eq, Functor.comp_obj, Functor.op_obj, fullSubcategoryInclusion.obj, Nat.reduceAdd,
       Fin.isValue, tr, Functor.comp_map, Functor.op_map, Quiver.Hom.unop_op,
@@ -256,7 +256,7 @@ def fill31_from_horn_extension (g : Δ[3] ⟶ X) (h : horn_from_data horn_data =
     apply congr_fun
     apply Prefunctor.congr_map
     apply (Opposite.op_inj_iff _ _).2
-    symm; exact @SimplexCategory.δ_comp_δ 1 1 2 (by apply Fin.le_iff_val_le_val.2; norm_num)
+    symm; exact @δ_comp_δ 1 1 2 (by apply Fin.le_iff_val_le_val.2; norm_num)
 
 end horn₃₁
 end horn_from_horn_data31
@@ -322,7 +322,7 @@ the inclusion Λ[3, 2] → Δ[3], there exists a 2-simplex satisfying the (3, 2)
 def fill32_from_horn_extension (g : Δ[3] ⟶ X) (h : horn_from_data horn_data = Λ[3, 2].ι ≫ g)
   : ∃ σ : ((truncation 2).obj X) _⦋2⦌₂, Truncated.fill32.filling_simplex horn_data σ
   := by
-  let σ := X.map (SimplexCategory.δ 2).op (yonedaEquiv g)
+  let σ := X.map (δ 2).op (yonedaEquiv g)
   use σ
   constructor
   <;> dsimp only [truncation, SimplicialObject.truncation, inclusion, whiskeringLeft_obj_obj,
@@ -335,14 +335,14 @@ def fill32_from_horn_extension (g : Δ[3] ⟶ X) (h : horn_from_data horn_data =
     apply congr_fun
     apply Prefunctor.congr_map
     apply (Opposite.op_inj_iff _ _).2
-    exact @SimplexCategory.δ_comp_δ 1 0 1 (Fin.zero_le _)
+    exact @δ_comp_δ 1 0 1 (Fin.zero_le _)
   . have : yonedaEquiv.symm horn_data.σ₁ = stdSimplex.δ 1 ≫ g
         := by rw [← mcofork_up1 horn_data, h, ← Category.assoc, incl₁]
     rw [← FunctorToTypes.map_comp_apply, ← op_comp, push_yonedaEquiv _ horn_data.σ₁ this]
     apply congr_fun
     apply Prefunctor.congr_map
     apply (Opposite.op_inj_iff _ _).2
-    exact @SimplexCategory.δ_comp_δ 1 1 1 (Fin.ge_of_eq rfl)
+    exact @δ_comp_δ 1 1 1 (Fin.ge_of_eq rfl)
   . have : f.arrow 0 = (f.interval 0 2).arrow 0 := rfl
     rw [← horn_data.h₃, Truncated.spine_arrow, mkOfSucc_2_0] at this
     rw [this]
@@ -356,7 +356,7 @@ def fill32_from_horn_extension (g : Δ[3] ⟶ X) (h : horn_from_data horn_data =
     apply congr_fun
     apply Prefunctor.congr_map
     apply (Opposite.op_inj_iff _ _).2
-    symm; exact @SimplexCategory.δ_comp_δ 1 2 2 (Fin.ge_of_eq rfl)
+    symm; exact @δ_comp_δ 1 2 2 (Fin.ge_of_eq rfl)
 
 end horn₃₂
 end horn_from_horn_data32
