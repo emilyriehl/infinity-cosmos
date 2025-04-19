@@ -132,11 +132,11 @@ open SimplexCategory
 open horn₂₁
 namespace horn₂₁
 
-def path_edge₀ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 1)
-def path_edge₂ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 0)
+abbrev pathEdge₀ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 0)
+abbrev pathEdge₁ {X : SSet} (f : Path X 2) : Δ[1] ⟶ X := yonedaEquiv.symm (f.arrow 1)
 
-def path_edges_comm {X : SSet} {f : SSet.Path X 2} : pt₁ ≫ path_edge₀ f = pt₀ ≫ path_edge₂ f := by
-    dsimp only [pt₀, pt₁, path_edge₀, path_edge₂]
+def path_edges_comm {X : SSet} {f : SSet.Path X 2} : pt₁ ≫ pathEdge₁ f = pt₀ ≫ pathEdge₀ f := by
+    dsimp only [pt₀, pt₁, pathEdge₁, pathEdge₀]
     rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm, f.arrow_src 1, f.arrow_tgt 0]
     rfl
 
@@ -144,19 +144,19 @@ def path_edges_comm {X : SSet} {f : SSet.Path X 2} : pt₁ ≫ path_edge₀ f = 
 the obvious map Λ[2, 1] → X using that Λ[2, 1] is a pushout
 -/
 def horn_from_path {X : SSet} (f : ((truncation 2).obj X).Path 2) : Λ[2, 1].toSSet ⟶ X
-  := Limits.PushoutCocone.IsColimit.desc horn_is_pushout (path_edge₀ f) (path_edge₂ f)
+  := Limits.PushoutCocone.IsColimit.desc horn_is_pushout (pathEdge₁ f) (pathEdge₀ f)
     path_edges_comm
 
 -- the following lemmas stem from the universal property of the horn pushout
 lemma pushout_up0 {X : SSet} (f : ((truncation 2).obj X).Path 2)
   : hornTwo_edge₀ ≫ horn_from_path f = yonedaEquiv.symm (f.arrow 1)
   := Limits.PushoutCocone.IsColimit.inl_desc
-    horn_is_pushout (path_edge₀ f) (path_edge₂ f) path_edges_comm
+    horn_is_pushout (pathEdge₁ f) (pathEdge₀ f) path_edges_comm
 
 lemma pushout_up1 {X : SSet} (f : ((truncation 2).obj X).Path 2)
   : hornTwo_edge₂ ≫ horn_from_path f = yonedaEquiv.symm (f.arrow 0)
   := Limits.PushoutCocone.IsColimit.inr_desc
-    horn_is_pushout (path_edge₀ f) (path_edge₂ f) path_edges_comm
+    horn_is_pushout (pathEdge₁ f) (pathEdge₀ f) path_edges_comm
 
 end horn₂₁
 end horn_from_horn_data21
