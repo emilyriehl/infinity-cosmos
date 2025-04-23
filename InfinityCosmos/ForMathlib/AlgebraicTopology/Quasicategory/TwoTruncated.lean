@@ -72,6 +72,31 @@ structure filling_simplex {X : Truncated 2} {f : X.Path 3} (a : horn_data f) (σ
   edge₂ : X.map (tr (δ 2)).op σ = f.arrow 0
 end fill32
 
+section comp_struct
+
+variable {X : Truncated 2}
+variable {x₀ x₁ x₂ x₃ : X _⦋0⦌₂}
+
+structure Edge (x₀ : X _⦋0⦌₂) (x₁ : X _⦋0⦌₂) where
+  simplex : X _⦋1⦌₂
+  h₀ : X.map (tr (δ 1)).op simplex = x₀
+  h₁ : X.map (tr (δ 0)).op simplex = x₁
+
+structure CompStruct (e₀₁ : Edge x₀ x₁) (e₁₂ : Edge x₁ x₂) (e₀₂ : Edge x₀ x₂) where
+  simplex : X _⦋2⦌₂
+  h₀₁ : X.map (tr (δ 2)).op simplex = e₀₁.simplex
+  h₁₂ : X.map (tr (δ 0)).op simplex = e₁₂.simplex
+  h₀₂ : X.map (tr (δ 1)).op simplex = e₀₂.simplex
+
+def fill31'
+    {e₀₁ : Edge x₀ x₁} {e₁₂ : Edge x₁ x₂} {e₂₃ : Edge x₂ x₃}
+    {e₀₂ : Edge x₀ x₂} {e₁₃ : Edge x₁ x₃} {e₀₃ : Edge x₀ x₃}
+    (h₀₂ : CompStruct e₀₁ e₁₂ e₀₂)
+    (h₁₃ : CompStruct e₁₂ e₂₃ e₁₃)
+    (h : CompStruct e₀₁ e₁₃ e₀₃) :
+    Nonempty (CompStruct e₀₁ e₁₃ e₀₃) := sorry
+
+end comp_struct
 /--
 A 2-truncated quasicategory is a 2-truncated simplicial set with 3 properties:
   (2, 1)-filling
