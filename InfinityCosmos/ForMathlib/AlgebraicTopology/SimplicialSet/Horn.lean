@@ -1,5 +1,6 @@
 import Mathlib.AlgebraicTopology.SimplicialSet.Horn
 
+namespace SSet
 namespace horn₂₁
 open Simplicial CategoryTheory SSet
 
@@ -152,3 +153,4 @@ def multicofork_horn := Limits.Multicofork.ofπ multispan_index Λ[3, 2] π fork
 def isMulticoeq : Limits.IsColimit multicofork_horn := by sorry
 
 end horn₃₂
+end SSet

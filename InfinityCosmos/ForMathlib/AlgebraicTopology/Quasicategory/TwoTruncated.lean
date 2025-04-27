@@ -72,31 +72,6 @@ structure filling_simplex {X : Truncated 2} {f : X.Path 3} (a : horn_data f) (σ
   edge₂ : X.map (tr (δ 2)).op σ = f.arrow 0
 end fill32
 
-section comp_struct
-
-variable {X : Truncated 2}
-variable {x₀ x₁ x₂ x₃ : X _⦋0⦌₂}
-
-structure Edge (x₀ : X _⦋0⦌₂) (x₁ : X _⦋0⦌₂) where
-  simplex : X _⦋1⦌₂
-  h₀ : X.map (tr (δ 1)).op simplex = x₀
-  h₁ : X.map (tr (δ 0)).op simplex = x₁
-
-structure CompStruct (e₀₁ : Edge x₀ x₁) (e₁₂ : Edge x₁ x₂) (e₀₂ : Edge x₀ x₂) where
-  simplex : X _⦋2⦌₂
-  h₀₁ : X.map (tr (δ 2)).op simplex = e₀₁.simplex
-  h₁₂ : X.map (tr (δ 0)).op simplex = e₁₂.simplex
-  h₀₂ : X.map (tr (δ 1)).op simplex = e₀₂.simplex
-
-def fill31'
-    {e₀₁ : Edge x₀ x₁} {e₁₂ : Edge x₁ x₂} {e₂₃ : Edge x₂ x₃}
-    {e₀₂ : Edge x₀ x₂} {e₁₃ : Edge x₁ x₃} {e₀₃ : Edge x₀ x₃}
-    (h₀₂ : CompStruct e₀₁ e₁₂ e₀₂)
-    (h₁₃ : CompStruct e₁₂ e₂₃ e₁₃)
-    (h : CompStruct e₀₁ e₁₃ e₀₃) :
-    Nonempty (CompStruct e₀₁ e₁₃ e₀₃) := sorry
-
-end comp_struct
 /--
 A 2-truncated quasicategory is a 2-truncated simplicial set with 3 properties:
   (2, 1)-filling
@@ -183,13 +158,13 @@ end horn₂₁
 end horn_from_horn_data21
 
 section horn_from_horn_data31
-open horn₃₁
+open SSet.horn₃₁
 namespace horn₃₁
 
 variable {X : SSet} {f : ((truncation 2).obj X).Path 3}
 variable (horn_data : Truncated.fill31.horn_data f)
 
-def π (a : horn₃₁.R) : (Δ[2] ⟶ X) := match a with
+def π2 (a : horn₃₁.R) : (Δ[2] ⟶ X) := match a with
   | ⟨0, h⟩ => yonedaEquiv.symm horn_data.σ₀
   | ⟨1, h⟩ => by contradiction
   | ⟨2, h⟩ => yonedaEquiv.symm horn_data.σ₂
@@ -199,12 +174,12 @@ def π (a : horn₃₁.R) : (Δ[2] ⟶ X) := match a with
 -- each of the three simplices in the combinatorial `horn_data`
 def multicofork_from_data : Limits.Multicofork multispan_index
     := Limits.Multicofork.ofπ multispan_index X
-      (π horn_data)
+      (π2 horn_data)
       (by
       rintro ⟨⟨⟨i, hi⟩, ⟨j, hj⟩⟩, hij⟩
       fin_cases i <;> fin_cases j <;> try contradiction
       all_goals
-        dsimp only [J, multispan_index, π, Fin.castSucc, Fin.pred,
+        dsimp only [J, multispan_index, π2, Fin.castSucc, Fin.pred,
           Fin.castAdd, Fin.subNat, Fin.castLE]
         rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
         congr 1
@@ -283,6 +258,140 @@ def fill31_from_horn_extension (g : Δ[3] ⟶ X) (h : horn_from_data horn_data =
   }
 end horn₃₁
 end horn_from_horn_data31
+
+/- define the structures Edge and CompStruct for a 2-truncated simplicial set `X : Truncated 2`
+  and vertices `x₀`, ..., `x₃`
+-/
+section comp_struct
+variable {X : Truncated 2}
+variable {x₀ x₁ x₂ x₃ : X _⦋0⦌₂}
+
+structure Edge (x₀ : X _⦋0⦌₂) (x₁ : X _⦋0⦌₂) where
+  simplex : X _⦋1⦌₂
+  h₀ : X.map (tr (δ 1)).op simplex = x₀
+  h₁ : X.map (tr (δ 0)).op simplex = x₁
+
+structure CompStruct (e₀₁ : Edge x₀ x₁) (e₁₂ : Edge x₁ x₂) (e₀₂ : Edge x₀ x₂) where
+simplex : X _⦋2⦌₂
+h₀₁ : X.map (tr (δ 2)).op simplex = e₀₁.simplex
+h₁₂ : X.map (tr (δ 0)).op simplex = e₁₂.simplex
+h₀₂ : X.map (tr (δ 1)).op simplex = e₀₂.simplex
+
+end comp_struct
+
+section fill31_comp_struct
+
+variable {S : SSet}
+variable
+    {x₀ x₁ x₂ x₃ : ((truncation 2).obj S) _⦋0⦌₂}
+    {e₀₁ : Edge x₀ x₁} {e₁₂ : Edge x₁ x₂} {e₂₃ : Edge x₂ x₃}
+    {e₀₂ : Edge x₀ x₂} {e₁₃ : Edge x₁ x₃} {e₀₃ : Edge x₀ x₃}
+    (h₀₂ : CompStruct e₀₁ e₁₂ e₀₂)
+    (h₁₃ : CompStruct e₁₂ e₂₃ e₁₃)
+    (h : CompStruct e₀₁ e₁₃ e₀₃)
+
+include S x₀ x₁ x₂ x₃ e₀₁ e₁₂ e₂₃ e₀₂ e₁₃ e₀₃ h₀₂ h₁₃ h
+open horn₃₁
+#check horn₃₁.multispan_index
+
+/- steps of constructing fill31' from (g : Δ[3] ⟶ X):
+  . construct a multicofork from the given CompStructs
+  . construct a map h : Λ[3, 1] ⟶ X such that h = Λ[3, 1].ι ≫ g
+  . make a CompStruct with simplex given by g, prove equalities
+-/
+def π' (a : R) : (Δ[2] ⟶ S) := match a with
+  | ⟨0, _⟩ => yonedaEquiv.symm h₁₃.simplex
+  | ⟨1, _⟩ => by contradiction
+  | ⟨2, _⟩ => yonedaEquiv.symm h.simplex
+  | ⟨3, _⟩ => yonedaEquiv.symm h₀₂.simplex
+
+-- The multicofork ⨿ Δ[1] ⇉ ⨿ Δ[2] → X defined by sending Δ[2]s to
+-- each of the three simplices in the combinatorial `horn_data`
+def multicofork_from_data : Limits.Multicofork multispan_index :=
+  Limits.Multicofork.ofπ multispan_index S
+    (π' h₀₂ h₁₃ h)
+    (by
+      rintro ⟨⟨⟨i, i_ne_1⟩, ⟨j, j_ne_1⟩⟩, i_lt_j⟩
+      fin_cases i <;> fin_cases j <;> try contradiction
+      all_goals
+        dsimp [J, multispan_index, π']
+        rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
+        congr 1
+      -- rw doesn't work because the statement is about `SSet`, not `Truncated 2`
+      . apply Eq.trans
+        exact h₁₃.h₀₂
+        symm; exact h.h₁₂
+      . apply Eq.trans
+        exact h₁₃.h₀₁
+        symm; exact h₀₂.h₁₂
+      . apply Eq.trans
+        exact h.h₀₁
+        symm; exact h₀₂.h₀₁)
+
+-- using the fact that Λ[3, 1] is the coequalizer gives a map Λ[3, 1] → X
+def horn_from_data : Λ[3, 1].toSSet ⟶ S := Limits.IsColimit.desc horn₃₁.isMulticoeq
+  (multicofork_from_data h₀₂ h₁₃ h)
+
+-- TODO rename these to something more useful
+lemma mcofork_up0 : horn₃₁.ι₀ ≫ (horn_from_data h₀₂ h₁₃ h) = yonedaEquiv.symm h₁₃.simplex :=
+  horn₃₁.isMulticoeq.fac (multicofork_from_data h₀₂ h₁₃ h) (.right R₀)
+
+lemma mcofork_up2 : horn₃₁.ι₂ ≫ (horn_from_data h₀₂ h₁₃ h) = yonedaEquiv.symm h.simplex :=
+  horn₃₁.isMulticoeq.fac (multicofork_from_data h₀₂ h₁₃ h) (.right R₂)
+
+lemma mcofork_up3 : horn₃₁.ι₃ ≫ (horn_from_data h₀₂ h₁₃ h) = yonedaEquiv.symm h₀₂.simplex :=
+  horn₃₁.isMulticoeq.fac (multicofork_from_data h₀₂ h₁₃ h) (.right R₃)
+
+-- TODO add congruence lemma?
+def fill31_from_horn_extension'
+    (g : Δ[3] ⟶ S)
+    (comm : horn_from_data h₀₂ h₁₃ h = Λ[3, 1].ι ≫ g) :
+    Nonempty (CompStruct e₀₂ e₂₃ e₀₃) := by
+  have y0 : yonedaEquiv.symm h₁₃.simplex = stdSimplex.δ 0 ≫ g := by
+    rw [← mcofork_up0, comm, ← Category.assoc, horn₃₁.incl₀]
+  have y2 : yonedaEquiv.symm h.simplex = stdSimplex.δ 2 ≫ g := by
+    rw [← mcofork_up2, comm, ← Category.assoc, horn₃₁.incl₂]
+  have y3 : yonedaEquiv.symm h₀₂.simplex = stdSimplex.δ 3 ≫ g := by
+    rw [← mcofork_up3, comm, ← Category.assoc, horn₃₁.incl₃]
+  apply Nonempty.intro
+  exact {
+    simplex := S.map (δ 1).op (yonedaEquiv g)
+    h₀₁ := by
+      rw [← h₀₂.h₀₂]
+      dsimp only [truncation, SimplicialObject.truncation, inclusion, whiskeringLeft_obj_obj,
+        len_mk, id_eq, Functor.comp_obj, Functor.op_obj, fullSubcategoryInclusion.obj,
+        Nat.reduceAdd, Fin.isValue, tr, Functor.comp_map, Functor.op_map, Quiver.Hom.unop_op,
+        fullSubcategoryInclusion.map]
+      rw [← FunctorToTypes.map_comp_apply, ← op_comp, push_yonedaEquiv _ _ y3]
+      apply congr_fun
+      apply Prefunctor.congr_map
+      apply (Opposite.op_inj_iff _ _).2
+      symm; exact @δ_comp_δ _ 1 2 (by apply Fin.le_iff_val_le_val.2; norm_num)
+    h₁₂ := by
+      rw [← h₁₃.h₁₂]
+      dsimp only [truncation, SimplicialObject.truncation, inclusion, whiskeringLeft_obj_obj,
+        len_mk, id_eq, Functor.comp_obj, Functor.op_obj, fullSubcategoryInclusion.obj,
+        Nat.reduceAdd, Fin.isValue, tr, Functor.comp_map, Functor.op_map, Quiver.Hom.unop_op,
+        fullSubcategoryInclusion.map]
+      rw [← FunctorToTypes.map_comp_apply, ← op_comp, push_yonedaEquiv _ _ y0]
+      apply congr_fun
+      apply Prefunctor.congr_map
+      apply (Opposite.op_inj_iff _ _).2
+      exact @δ_comp_δ _ 0 0 (le_refl 0)
+    h₀₂ := by
+      rw [← h.h₀₂]
+      dsimp only [truncation, SimplicialObject.truncation, inclusion, whiskeringLeft_obj_obj,
+        len_mk, id_eq, Functor.comp_obj, Functor.op_obj, fullSubcategoryInclusion.obj,
+        Nat.reduceAdd, Fin.isValue, tr, Functor.comp_map, Functor.op_map, Quiver.Hom.unop_op,
+        fullSubcategoryInclusion.map]
+      rw [← FunctorToTypes.map_comp_apply, ← op_comp, push_yonedaEquiv _ _ y2]
+      apply congr_fun
+      apply Prefunctor.congr_map
+      apply (Opposite.op_inj_iff _ _).2
+      symm; exact @δ_comp_δ _ 1 1 (le_refl 1)
+  }
+
+end fill31_comp_struct
 
 section horn_from_horn_data32
 open horn₃₂
