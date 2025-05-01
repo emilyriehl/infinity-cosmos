@@ -10,20 +10,9 @@ open Simplicial SimplexCategory
 open CategoryTheory SimplexCategory.Truncated Truncated.Hom SimplicialObject
 open SimplicialObject.Truncated
 
-#check PrespectralSpace.of_isTopologicalBasis'
-
--- TODO should these go into the SimplexCategory.Basics file?
-namespace SimplexCategory
-
-lemma mkOfSucc_2_0 : @mkOfSucc 2 0 = δ 2 := by ext i; fin_cases i <;> rfl
-lemma mkOfSucc_2_1 : @mkOfSucc 2 1 = δ 0 := by ext i; fin_cases i <;> rfl
-
-end SimplexCategory
-
 namespace SSet
 namespace Truncated
 
--- TODO place these somewhere nice + are they necessary?
 /- The idea behind this trivial equivalence and the lemma
   is to make explicit whether an object is in a truncated simplicial set;
   this allows us to replace dsimps in proofs by a rw
@@ -46,15 +35,21 @@ lemma trunc_map' {S : SSet} {m : ℕ} {a b : SimplexCategory}
     ((truncation m).obj S).map (tr f).op σ = S.map f.op σ := rfl
 
 section comp_struct
-variable {X : Truncated 2}
-variable {x₀ x₁ x₂ : X _⦋0⦌₂}
-
-structure Edge (x₀ : X _⦋0⦌₂) (x₁ : X _⦋0⦌₂) where
+/--
+`Edge x₀ x₁` is a wrapper around a 1-simplex in a 2-truncated simplicial set
+with source `x₀` and target `x₁`
+-/
+structure Edge {X : Truncated 2} (x₀ : X _⦋0⦌₂) (x₁ : X _⦋0⦌₂) where
   simplex : X _⦋1⦌₂
   h₀ : X.map (tr (δ 1)).op simplex = x₀
   h₁ : X.map (tr (δ 0)).op simplex = x₁
 
-structure CompStruct (e₀₁ : Edge x₀ x₁) (e₁₂ : Edge x₁ x₂) (e₀₂ : Edge x₀ x₂) where
+/--
+`CompStruct e₀₁ e₁₂ e₀₂` is a wrapper around a 2-simplex in a 2-truncated simplicial set
+with edges `e₀₁`, `e₁₂`, `e₀₂` in the obvious configuration
+-/
+structure CompStruct {X : Truncated 2} {x₀ x₁ x₂ : X _⦋0⦌₂}
+    (e₀₁ : Edge x₀ x₁) (e₁₂ : Edge x₁ x₂) (e₀₂ : Edge x₀ x₂) where
   simplex : X _⦋2⦌₂
   h₀₁ : X.map (tr (δ 2)).op simplex = e₀₁.simplex
   h₁₂ : X.map (tr (δ 0)).op simplex = e₁₂.simplex
