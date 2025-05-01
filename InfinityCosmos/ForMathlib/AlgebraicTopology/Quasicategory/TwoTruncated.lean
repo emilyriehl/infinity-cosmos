@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Julian Komaromy. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Julian Komaromy
+-/
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
 
