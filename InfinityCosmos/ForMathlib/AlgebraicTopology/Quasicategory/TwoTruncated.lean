@@ -4,9 +4,13 @@ import Mathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
 
+import Mathlib.Topology.Spectral.Prespectral
+
 open Simplicial SimplexCategory
 open CategoryTheory SimplexCategory.Truncated Truncated.Hom SimplicialObject
 open SimplicialObject.Truncated
+
+#check PrespectralSpace.of_isTopologicalBasis'
 
 -- TODO should these go into the SimplexCategory.Basics file?
 namespace SimplexCategory
@@ -18,59 +22,6 @@ end SimplexCategory
 
 namespace SSet
 namespace Truncated
-
-namespace fill31
-
-/-- Given a path `f` of length 3 in a 2-truncated simplicial set `X`, this
-is the combinatorial data of three 2-simplices of `X` from which one can define a horn
-Λ[3, 1] → X such that the spine of this horn is `f`.
--/
-structure horn_data {X : Truncated 2} (f : X.Path 3) where
-  σ₃ : X _⦋2⦌₂
-  σ₀ : X _⦋2⦌₂
-  σ₂ : X _⦋2⦌₂
-  h₃ : spine X 2 _ σ₃ = f.interval 0 2
-  h₀ : spine X 2 _ σ₀ = f.interval 1 2
-  h₂₂ : X.map (tr (δ 2)).op σ₂ = f.arrow 0
-  h₂₀ : X.map (tr (δ 0)).op σ₂ = X.map (tr (δ 1)).op σ₀
-
-/--
-Given a path `f` of length 3 in a 2-truncated simplicial set `X` and
-horn_data `a`, `filling_simplex a σ` is the proposition that `σ` is a 2-simplex
-that "fills in" the missing face of the horn defined by `a`. This is the (3, 1)-filling property.
--/
-structure filling_simplex {X : Truncated 2} {f : X.Path 3} (a : horn_data f) (σ : X _⦋2⦌₂) : Prop where
-  edge₀ : X.map (tr (δ 0)).op σ = f.arrow 2
-  edge₁ : X.map (tr (δ 1)).op σ = X.map (tr (δ 1)).op a.σ₂
-  edge₂ : X.map (tr (δ 2)).op σ = X.map (tr (δ 1)).op a.σ₃
-
-end fill31
-
-namespace fill32
-
-/-- Given a path `f` of length 3 in a 2-truncated simplicial set `X`, this
-is the combinatorial data of three 2-simplices of `X` from which one can define a horn
-Λ[3, 1] → X such that the spine of this horn is `f`.
--/
-structure horn_data {X : Truncated 2} (f : X.Path 3) where
-  σ₃ : X _⦋2⦌₂
-  σ₀ : X _⦋2⦌₂
-  σ₁ : X _⦋2⦌₂
-  h₃ : spine X 2 _ σ₃ = f.interval 0 2
-  h₀ : spine X 2 _ σ₀ = f.interval 1 2
-  h₁₂ : X.map (tr (δ 2)).op σ₁ = X.map (tr (δ 1)).op σ₃
-  h₁₀ : X.map (tr (δ 0)).op σ₁ = f.arrow 2
-
-/--
-Given a path `f` of length 3 in a 2-truncated simplicial set `X` and
-horn_data `a`, `filling_simplex a σ` is the proposition that `σ` is a 2-simplex
-that "fills in" the missing face of the horn defined by `a`. This is the (3, 1)-filling property.
--/
-structure filling_simplex {X : Truncated 2} {f : X.Path 3} (a : horn_data f) (σ : X _⦋2⦌₂) : Prop where
-  edge₀ : X.map (tr (δ 0)).op σ = X.map (tr (δ 1)).op a.σ₀
-  edge₁ : X.map (tr (δ 1)).op σ = X.map (tr (δ 1)).op a.σ₁
-  edge₂ : X.map (tr (δ 2)).op σ = f.arrow 0
-end fill32
 
 section comp_struct
 variable {X : Truncated 2}
@@ -97,9 +48,16 @@ See `fill31.horn_data` and `fill31.filling_simplex` for the details of (3, 1)-fi
 and `fill32.horn_data` and `fill32.filling_simplex` for the details of (3, 2)-filling.
 -/
 structure Quasicategory₂ (X : Truncated 2) where
-  fill21 (f : Path X 2) : ∃ (σ : X _⦋2⦌₂), spine X 2 _ σ = f
-  fill31 {f : Path X 3} (a : fill31.horn_data f) : ∃ σ₁ : X _⦋2⦌₂, fill31.filling_simplex a σ₁
-  fill32 {f : Path X 3} (a : fill32.horn_data f) : ∃ σ₁ : X _⦋2⦌₂, fill32.filling_simplex a σ₁
+  fill21 {x₀ x₁ x₂ : X _⦋0⦌₂}
+      (e₀₁ : Edge x₀ x₁) (e₁₂ : Edge x₁ x₂) :
+      Nonempty (Σ e₀₂ : Edge x₀ x₂, CompStruct e₀₁ e₁₂ e₀₂)
+  fill31 {x₀ x₁ x₂ x₃ : X _⦋0⦌₂}
+      {e₀₁ : Edge x₀ x₁} {e₁₂ : Edge x₁ x₂} {e₂₃ : Edge x₂ x₃}
+      {e₀₂ : Edge x₀ x₂} {e₁₃ : Edge x₁ x₃} {e₀₃ : Edge x₀ x₃}
+      (f₃ : CompStruct e₀₁ e₁₂ e₀₂)
+      (f₀ : CompStruct e₁₂ e₂₃ e₁₃)
+      (f₂ : CompStruct e₀₁ e₁₃ e₀₃) :
+      Nonempty (CompStruct e₀₂ e₂₃ e₀₃)
 
 end Truncated
 
@@ -108,28 +66,40 @@ end Truncated
 -- and the proofs could probably be greatly simplified
 section aux_lemmas
 
-lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m) (g : Δ[m] ⟶ X) :
-    X.map f.op (yonedaEquiv g) = g.app (Opposite.op (mk n)) (stdSimplex.objEquiv.symm f) := by
-  have : yonedaEquiv g = g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm (𝟙 _)) := rfl
-  rw [this]
-  have : X.map f.op (g.app (Opposite.op (mk m)) (stdSimplex.objEquiv.symm (𝟙 _))) =
-    (g.app (Opposite.op (mk m)) ≫ X.map f.op) (stdSimplex.objEquiv.symm (𝟙 _)) := rfl
-  rw [← g.naturality] at this
-  rw [this]
-  -- TODO stdSimplex.map_id is probably helpful here
-  have : Δ[m].map f.op (stdSimplex.objEquiv.symm (𝟙 _)) = stdSimplex.objEquiv.symm f := by aesop_cat
+-- TODO name collision!
+lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : ⦋n⦌ ⟶ ⦋m⦌) (g : Δ[m] ⟶ X) :
+    X.map f.op (yonedaEquiv g) = g.app (Opposite.op ⦋n⦌) (stdSimplex.objEquiv.symm f) := by
+  change (g.app (Opposite.op ⦋m⦌) ≫ X.map f.op) (stdSimplex.objEquiv.symm (𝟙 _)) =
+     g.app (Opposite.op ⦋n⦌) (stdSimplex.objEquiv.symm f)
+  rw [← g.naturality]
   dsimp
+  have : Δ[m].map f.op (stdSimplex.objEquiv.symm (𝟙 _)) = stdSimplex.objEquiv.symm f := by
+    aesop_cat
   rw [this]
   rfl
 
-lemma push_yonedaEquiv {n m k : ℕ} {X : SSet} (f : .mk n ⟶ .mk m)
-    (σ : X.obj (Opposite.op (.mk m))) {s : .mk m ⟶ .mk k} {g : Δ[k] ⟶ X}
+-- TODO implicit arguments!
+lemma push_yonedaEquiv {n m k : ℕ} {X : SSet} (f : ⦋m⦌ ⟶ ⦋n⦌)
+    (σ : X.obj (Opposite.op ⦋n⦌)) {s : ⦋n⦌ ⟶ ⦋k⦌} {g : Δ[k] ⟶ X}
     (h : yonedaEquiv.symm σ = stdSimplex.map s ≫ g) :
     X.map f.op σ = X.map (f ≫ s).op (yonedaEquiv g) := by
   rw [← Equiv.apply_symm_apply yonedaEquiv σ, h]
   have : yonedaEquiv (stdSimplex.map s ≫ g) = X.map s.op (yonedaEquiv g) := by
-    rw [yonedaEquiv_comp, map_yonedaEquiv, stdSimplex.yonedaEquiv_map]
+    rw [yonedaEquiv_comp, stdSimplex.yonedaEquiv_map, ← map_yonedaEquiv]
   rw [this, ← FunctorToTypes.map_comp_apply, ← op_comp]
+
+-- TODO rename
+lemma map_yonedaEquiv' {n m : ℕ} {X : SSet} (f : ⦋m⦌ ⟶ ⦋n⦌) {g : Δ[n] ⟶ X} :
+    yonedaEquiv (stdSimplex.map f ≫ g) = X.map f.op (yonedaEquiv g) := by
+  rw [yonedaEquiv_comp, map_yonedaEquiv, ← stdSimplex.yonedaEquiv_map]
+
+lemma push_yonedaEquiv' {n m : ℕ} {X : SSet} {f : ⦋m⦌ ⟶ ⦋n⦌}
+    {σ : X.obj (Opposite.op ⦋m⦌)} {g : Δ[n] ⟶ X}
+    (h : yonedaEquiv.symm σ = stdSimplex.map f ≫ g) :
+    σ = X.map f.op (yonedaEquiv g) := by
+  rw [← map_yonedaEquiv']
+  apply (Equiv.symm_apply_eq yonedaEquiv).1
+  exact h
 
 lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m)
     (s : X.obj (.op (.mk m))) :
@@ -202,57 +172,75 @@ lemma aux1: hornTwo_edge₂ ≫ (horn_from_data21 e₀₁ e₁₂) = yonedaEquiv
   Limits.PushoutCocone.IsColimit.inr_desc horn_is_pushout
     (edge_map e₁₂) (edge_map e₀₁) (path_edges_comm e₀₁ e₁₂)
 
+-- TODO place these somewhere nice + are they necessary?
+/- The idea behind this trivial equivalence and the lemma
+  is to make explicit whether an object is in a truncated simplicial set;
+  this allows us to replace dsimps in proofs by a rw
+-/
+def truncEquiv {S : SSet} (m : ℕ) {a : SimplexCategory} (ha : a.len ≤ m := by trunc) :
+    S.obj (Opposite.op a) ≃ ((truncation m).obj S).obj (Opposite.op ⟨a, ha⟩) where
+  toFun := id
+  invFun := id
+  left_inv := congrFun rfl
+  right_inv := congrFun rfl
+
+lemma trunc_map {S : SSet} {m : ℕ} {a b : SimplexCategory}
+    (ha : a.len ≤ m := by trunc) (hb : b.len ≤ m := by trunc)
+    {f : a ⟶ b} {σ : S.obj (Opposite.op b)} :
+    ((truncation m).obj S).map (tr f).op (truncEquiv m hb σ) = S.map f.op σ := rfl
+
+lemma trunc_map' {S : SSet} {m : ℕ} {a b : SimplexCategory}
+    (ha : a.len ≤ m := by trunc) (hb : b.len ≤ m := by trunc)
+    {f : a ⟶ b} {σ : truncation m |>.obj S |>.obj (Opposite.op ⟨b, hb⟩)} :
+    ((truncation m).obj S).map (tr f).op σ = S.map f.op σ := rfl
+
 def fill21'
     (g : Δ[2] ⟶ S)
     (comm : horn_from_data21 e₀₁ e₁₂ = Λ[2, 1].ι ≫ g) :
     Σ e₀₂ : Edge x₀ x₂, CompStruct e₀₁ e₁₂ e₀₂ := by
   constructor; swap
   exact {
-    simplex := yonedaEquiv (stdSimplex.δ 1 ≫ g)
+    simplex := (truncEquiv 2) <| yonedaEquiv <| stdSimplex.δ 1 ≫ g
     h₀ := by
-      rw [← e₀₁.h₀]
+      rw [← e₀₁.h₀, trunc_map, trunc_map']
       have : yonedaEquiv.symm (e₀₁.simplex) = stdSimplex.δ 2 ≫ g := by
         rw [← aux1 e₀₁ e₁₂, comm, ← Category.assoc, horn₂₁.incl₂]
-      dsimp [truncation, SimplicialObject.truncation, inclusion, tr]
       rw [push_yonedaEquiv _ _ this]
       have : δ 1 ≫ δ 2 = δ 1 ≫ @δ 1 1 :=
         SimplexCategory.δ_comp_δ (n := 0) (i := 1) (j := 1) (le_refl 1)
       rw [this]
       apply push_yonedaEquiv
-      rw [Equiv.symm_apply_apply]
-      rfl
+      rw [Equiv.symm_apply_apply]; rfl
     h₁ := by
-      rw [← e₁₂.h₁]
+      rw [← e₁₂.h₁, trunc_map, trunc_map']
       have : yonedaEquiv.symm (e₁₂.simplex) = stdSimplex.δ 0 ≫ g := by
         rw [← aux0 e₀₁ e₁₂, comm, ← Category.assoc, horn₂₁.incl₀]
-      dsimp [truncation, SimplicialObject.truncation, inclusion, tr]
       rw [push_yonedaEquiv _ _ this]
       have : δ 0 ≫ δ 0 = δ 0 ≫ @δ 1 1 :=
         (SimplexCategory.δ_comp_δ (n := 0) (i := 0) (j := 0) (le_refl 0)).symm
       rw [this]
       apply push_yonedaEquiv
-      rw [Equiv.symm_apply_apply]
-      rfl
+      rw [Equiv.symm_apply_apply]; rfl
   }
   exact {
-    simplex := yonedaEquiv g
+    simplex := (truncEquiv 2) <| yonedaEquiv g
     h₀₁ := by
+      rw [trunc_map]
       have : yonedaEquiv.symm (e₀₁.simplex) = stdSimplex.δ 2 ≫ g := by
         rw [← aux1 e₀₁ e₁₂, comm, ← Category.assoc, horn₂₁.incl₂]
-      have app_id : e₀₁.simplex = S.map (𝟙 _).op e₀₁.simplex :=
-        Eq.symm (FunctorToTypes.map_id_apply S _)
-      rw [app_id]
-      dsimp only [truncation, SimplicialObject.truncation, inclusion, whiskeringLeft_obj_obj,
-        len_mk, id_eq, Functor.comp_obj, fullSubcategoryInclusion.obj,
-        Nat.reduceAdd, Fin.isValue, tr, Functor.comp_map, Functor.op_map, Quiver.Hom.unop_op,
-        fullSubcategoryInclusion.map] at *
-      -- TODO write a push_yonedaEquiv equivalent that does the case where we
-      -- would need id
-      rw [push_yonedaEquiv _ _ this]
-      rfl
-    h₁₂ := by sorry
-    h₀₂ := by sorry
+      rw [← push_yonedaEquiv' this]
+    h₁₂ := by
+      rw [trunc_map]
+      have : yonedaEquiv.symm (e₁₂.simplex) = stdSimplex.δ 0 ≫ g := by
+        rw [← aux0 e₀₁ e₁₂, comm, ← Category.assoc, horn₂₁.incl₀]
+      rw [← push_yonedaEquiv' this]
+    h₀₂ := by
+      rw [trunc_map]
+      dsimp only [len_mk, id_eq, Nat.reduceAdd, Fin.isValue, eq_mpr_eq_cast, cast_eq, op_comp,
+        Fin.succ_zero_eq_one, Fin.castSucc_zero]
+      rw [← map_yonedaEquiv']; rfl
   }
+
 end horn21_comp_struct
 
 end horn_from_horn_data21

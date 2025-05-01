@@ -13,6 +13,7 @@ open Simplicial CategoryTheory SSet
 def horn21_incl (i : Fin 3) (h : i ≠ 1)
   : Δ[1] ⟶ Λ[2, 1] := yonedaEquiv.symm (horn.face 1 i h)
 
+-- TODO rename to match horn₃₁
 def hornTwo_edge₀ : Δ[1] ⟶ Λ[2, 1] := horn21_incl 0 (by norm_num)
 def hornTwo_edge₂ : Δ[1] ⟶ Λ[2, 1] := horn21_incl 2 (by omega)
 
