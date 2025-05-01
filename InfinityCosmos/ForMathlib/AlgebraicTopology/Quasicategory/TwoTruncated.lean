@@ -23,6 +23,28 @@ end SimplexCategory
 namespace SSet
 namespace Truncated
 
+-- TODO place these somewhere nice + are they necessary?
+/- The idea behind this trivial equivalence and the lemma
+  is to make explicit whether an object is in a truncated simplicial set;
+  this allows us to replace dsimps in proofs by a rw
+-/
+def truncEquiv {S : SSet} (m : ℕ) {a : SimplexCategory} (ha : a.len ≤ m := by trunc) :
+    S.obj (Opposite.op a) ≃ ((truncation m).obj S).obj (Opposite.op ⟨a, ha⟩) where
+  toFun := id
+  invFun := id
+  left_inv := congrFun rfl
+  right_inv := congrFun rfl
+
+lemma trunc_map {S : SSet} {m : ℕ} {a b : SimplexCategory}
+    (ha : a.len ≤ m := by trunc) (hb : b.len ≤ m := by trunc)
+    {f : a ⟶ b} {σ : S.obj (Opposite.op b)} :
+    ((truncation m).obj S).map (tr f).op (truncEquiv m hb σ) = S.map f.op σ := rfl
+
+lemma trunc_map' {S : SSet} {m : ℕ} {a b : SimplexCategory}
+    (ha : a.len ≤ m := by trunc) (hb : b.len ≤ m := by trunc)
+    {f : a ⟶ b} {σ : truncation m |>.obj S |>.obj (Opposite.op ⟨b, hb⟩)} :
+    ((truncation m).obj S).map (tr f).op σ = S.map f.op σ := rfl
+
 section comp_struct
 variable {X : Truncated 2}
 variable {x₀ x₁ x₂ : X _⦋0⦌₂}
@@ -143,7 +165,7 @@ lemma pushout_up1 {X : SSet} (f : ((truncation 2).obj X).Path 2) :
 end horn₂₁
 
 section horn21_comp_struct
-open Truncated (Edge CompStruct)
+open Truncated (Edge CompStruct truncEquiv trunc_map trunc_map')
 open horn₂₁
 
 variable {S : SSet} {x₀ x₁ x₂ : ((truncation 2).obj S) _⦋0⦌₂}
@@ -171,28 +193,6 @@ lemma aux0: hornTwo_edge₀ ≫ (horn_from_data21 e₀₁ e₁₂) = yonedaEquiv
 lemma aux1: hornTwo_edge₂ ≫ (horn_from_data21 e₀₁ e₁₂) = yonedaEquiv.symm e₀₁.simplex :=
   Limits.PushoutCocone.IsColimit.inr_desc horn_is_pushout
     (edge_map e₁₂) (edge_map e₀₁) (path_edges_comm e₀₁ e₁₂)
-
--- TODO place these somewhere nice + are they necessary?
-/- The idea behind this trivial equivalence and the lemma
-  is to make explicit whether an object is in a truncated simplicial set;
-  this allows us to replace dsimps in proofs by a rw
--/
-def truncEquiv {S : SSet} (m : ℕ) {a : SimplexCategory} (ha : a.len ≤ m := by trunc) :
-    S.obj (Opposite.op a) ≃ ((truncation m).obj S).obj (Opposite.op ⟨a, ha⟩) where
-  toFun := id
-  invFun := id
-  left_inv := congrFun rfl
-  right_inv := congrFun rfl
-
-lemma trunc_map {S : SSet} {m : ℕ} {a b : SimplexCategory}
-    (ha : a.len ≤ m := by trunc) (hb : b.len ≤ m := by trunc)
-    {f : a ⟶ b} {σ : S.obj (Opposite.op b)} :
-    ((truncation m).obj S).map (tr f).op (truncEquiv m hb σ) = S.map f.op σ := rfl
-
-lemma trunc_map' {S : SSet} {m : ℕ} {a b : SimplexCategory}
-    (ha : a.len ≤ m := by trunc) (hb : b.len ≤ m := by trunc)
-    {f : a ⟶ b} {σ : truncation m |>.obj S |>.obj (Opposite.op ⟨b, hb⟩)} :
-    ((truncation m).obj S).map (tr f).op σ = S.map f.op σ := rfl
 
 def fill21'
     (g : Δ[2] ⟶ S)
@@ -333,24 +333,13 @@ lemma mcofork_up3 : horn₃₁.ι₃ ≫ (horn_from_data f₃ f₀ f₂) = yoned
 def fill31_from_horn_extension'
     (g : Δ[3] ⟶ S)
     (comm : horn_from_data f₃ f₀ f₂ = Λ[3, 1].ι ≫ g) :
-    Nonempty (CompStruct e₀₂ e₂₃ e₀₃) := by
+    (CompStruct e₀₂ e₂₃ e₀₃) := by
   have y0 : yonedaEquiv.symm f₀.simplex = stdSimplex.δ 0 ≫ g := by
     rw [← mcofork_up0, comm, ← Category.assoc, horn₃₁.incl₀]
   have y2 : yonedaEquiv.symm f₂.simplex = stdSimplex.δ 2 ≫ g := by
     rw [← mcofork_up2, comm, ← Category.assoc, horn₃₁.incl₂]
   have y3 : yonedaEquiv.symm f₃.simplex = stdSimplex.δ 3 ≫ g := by
     rw [← mcofork_up3, comm, ← Category.assoc, horn₃₁.incl₃]
-
-  -- TODO state some nice general thm.
-  have comp_edge {y₀ y₁ y₂ : ((truncation 2).obj S) _⦋0⦌₂}
-      {e₀₁ : Edge y₀ y₁} {e₁₂ : Edge y₁ y₂} {e₀₂ : Edge y₀ y₂}
-      (i j : ℕ)
-      (Δ : CompStruct e₀₁ e₁₂ e₀₂)
-      (y : yonedaEquiv.symm Δ.simplex = stdSimplex.δ 3 ≫ g):
-      S.map (δ i).op (S.map (δ 1).op (yonedaEquiv g)) =
-      S.map (δ j).op (Δ.simplex) := by
-    sorry
-  apply Nonempty.intro
   exact {
     simplex := S.map (δ 1).op (yonedaEquiv g)
     h₀₁ := by
@@ -387,132 +376,13 @@ def fill31_from_horn_extension'
 
 end fill31_comp_struct
 
-section horn_from_horn_data32
-open horn₃₂
-namespace horn₃₂
-
-variable {X : SSet} {f : ((truncation 2).obj X).Path 3}
-variable (horn_data : Truncated.fill32.horn_data f)
-
-def π (a : R) : (Δ[2] ⟶ X) := match a with
-  | ⟨0, h⟩ => yonedaEquiv.symm horn_data.σ₀
-  | ⟨1, h⟩ => yonedaEquiv.symm horn_data.σ₁
-  | ⟨2, h⟩ => by contradiction
-  | ⟨3, h⟩ => yonedaEquiv.symm horn_data.σ₃
-
--- The multicofork ⨿ Δ[1] ⇉ ⨿ Δ[2] → X defined by sending Δ[2]s to
--- each of the three simplices in the combinatorial `horn_data`
-def multicofork_from_data : Limits.Multicofork multispan_index :=
-  Limits.Multicofork.ofπ multispan_index X
-    (π horn_data)
-    (by
-    rintro ⟨⟨⟨i, hi⟩, ⟨j, hj⟩⟩, hij⟩
-    fin_cases i <;> fin_cases j <;> try contradiction
-    all_goals
-      dsimp only [J, multispan_index, π, Fin.castSucc, Fin.pred,
-        Fin.castAdd, Fin.subNat, Fin.castLE]
-      rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
-      congr 1
-    . have : (f.interval 1 2).arrow 1 = f.arrow 2 := rfl
-      rw [← horn_data.h₀, ← horn_data.h₁₀, Truncated.spine_arrow, mkOfSucc_2_1] at this
-      exact this
-    . have : (f.interval 1 2).arrow 0 = (f.interval 0 2).arrow 1 := rfl
-      rw [← horn_data.h₃, ← horn_data.h₀, Truncated.spine_arrow,
-        Truncated.spine_arrow, mkOfSucc_2_0, mkOfSucc_2_1] at this
-      exact this
-    . exact horn_data.h₁₂)
-
--- using the fact that Λ[3, 2] is the coequalizer gives a map Λ[3, 2] → X
-def horn_from_data : Λ[3, 2].toSSet ⟶ X :=
-  Limits.IsColimit.desc isMulticoeq (multicofork_from_data horn_data)
-
--- some commutations guaranteed by the multicofork diagram
-abbrev R₀ : R := ⟨0, by omega⟩
-abbrev R₁ : R := ⟨1, by omega⟩
-abbrev R₃ : R := ⟨3, by omega⟩
-
-lemma mcofork_up0 : ι₀ ≫ (horn_from_data horn_data) = yonedaEquiv.symm horn_data.σ₀ :=
-  isMulticoeq.fac (multicofork_from_data horn_data) (.right R₀)
-
-lemma mcofork_up1 : ι₁ ≫ (horn_from_data horn_data) = yonedaEquiv.symm horn_data.σ₁ :=
-  isMulticoeq.fac (multicofork_from_data horn_data) (.right R₁)
-
-lemma mcofork_up3 : ι₃ ≫ (horn_from_data horn_data) = yonedaEquiv.symm horn_data.σ₃ :=
-  isMulticoeq.fac (multicofork_from_data horn_data) (.right R₃)
-
-/-- Given a 3-simplex `g : Δ[3] → X` extending the map `horn_data : Λ[3, 2].toSSet → X` along
-the inclusion Λ[3, 2] → Δ[3], there exists a 2-simplex satisfying the (3, 2)-filling property
-(namely, `yonedaEquiv g`).
--/
-def fill32_from_horn_extension (g : Δ[3] ⟶ X) (h : horn_from_data horn_data = Λ[3, 2].ι ≫ g) :
-    ∃ σ : ((truncation 2).obj X) _⦋2⦌₂, Truncated.fill32.filling_simplex horn_data σ := by
-  let σ := X.map (δ 2).op (yonedaEquiv g)
-  use σ
-  constructor
-  <;> dsimp only [truncation, SimplicialObject.truncation, inclusion, whiskeringLeft_obj_obj,
-      len_mk, id_eq, Functor.comp_obj, Functor.op_obj, fullSubcategoryInclusion.obj, Nat.reduceAdd,
-      Fin.isValue, tr, Functor.comp_map, Functor.op_map, Quiver.Hom.unop_op,
-      fullSubcategoryInclusion.map]
-  . have : yonedaEquiv.symm horn_data.σ₀ = stdSimplex.δ 0 ≫ g
-        := by rw [← mcofork_up0 horn_data, h, ← Category.assoc, incl₀]
-    rw [← FunctorToTypes.map_comp_apply, ← op_comp, push_yonedaEquiv _ horn_data.σ₀ this]
-    apply congr_fun
-    apply Prefunctor.congr_map
-    apply (Opposite.op_inj_iff _ _).2
-    exact @δ_comp_δ 1 0 1 (Fin.zero_le _)
-  . have : yonedaEquiv.symm horn_data.σ₁ = stdSimplex.δ 1 ≫ g
-        := by rw [← mcofork_up1 horn_data, h, ← Category.assoc, incl₁]
-    rw [← FunctorToTypes.map_comp_apply, ← op_comp, push_yonedaEquiv _ horn_data.σ₁ this]
-    apply congr_fun
-    apply Prefunctor.congr_map
-    apply (Opposite.op_inj_iff _ _).2
-    exact @δ_comp_δ 1 1 1 (Fin.ge_of_eq rfl)
-  . have : f.arrow 0 = (f.interval 0 2).arrow 0 := rfl
-    rw [← horn_data.h₃, Truncated.spine_arrow, mkOfSucc_2_0] at this
-    rw [this]
-    dsimp only [truncation, SimplicialObject.truncation, inclusion, whiskeringLeft_obj_obj,
-      len_mk, id_eq, Functor.comp_obj, Functor.op_obj, fullSubcategoryInclusion.obj, Nat.reduceAdd,
-      Fin.isValue, tr, Functor.comp_map, Functor.op_map, Quiver.Hom.unop_op,
-      fullSubcategoryInclusion.map]
-    have : yonedaEquiv.symm horn_data.σ₃ = stdSimplex.δ 3 ≫ g
-        := by rw [← mcofork_up3 horn_data, h, ← Category.assoc, incl₃]
-    rw [← FunctorToTypes.map_comp_apply, ← op_comp, push_yonedaEquiv _ horn_data.σ₃ this]
-    apply congr_fun
-    apply Prefunctor.congr_map
-    apply (Opposite.op_inj_iff _ _).2
-    symm; exact @δ_comp_δ 1 2 2 (Fin.ge_of_eq rfl)
-
-end horn₃₂
-end horn_from_horn_data32
-
 def two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
     Truncated.Quasicategory₂ ((truncation 2).obj X) where
-  fill21 f := by
-    obtain ⟨g, h⟩ := Quasicategory.hornFilling Fin.zero_lt_one (by simp) (horn₂₁.horn_from_path f)
-    let g' := yonedaEquiv g
-    use g'
-    ext i; fin_cases i
-    all_goals
-      dsimp only [Fin.isValue, Fin.zero_eta]
-      rw [Truncated.spine_arrow]
-      have f_id i : f.arrow i = X.map (𝟙 _).op (f.arrow i) := by aesop_cat
-      rw [f_id]
-      dsimp only [Nat.reduceAdd, truncation, SimplicialObject.truncation, inclusion,
-        whiskeringLeft_obj_obj, Functor.comp_obj, Functor.op_obj, fullSubcategoryInclusion.obj,
-        len_mk, id_eq, Fin.isValue, tr, Functor.comp_map, Functor.op_map, Quiver.Hom.unop_op,
-        fullSubcategoryInclusion.map]
-    . have : yonedaEquiv.symm (f.arrow 0) = stdSimplex.δ 2 ≫ g := by
-        rw [← horn₂₁.pushout_up1 f, h, ← Category.assoc, horn₂₁.incl₂]
-      rw [mkOfSucc_2_0, push_yonedaEquiv _ (f.arrow 0) this, Category.id_comp]
-    . dsimp only [Fin.mk_one, Fin.isValue]
-      have : yonedaEquiv.symm (f.arrow 1) = stdSimplex.δ 0 ≫ g := by
-        rw [← horn₂₁.pushout_up0 f, h, ← Category.assoc, horn₂₁.incl₀]
-      rw [mkOfSucc_2_1, push_yonedaEquiv _ (f.arrow 1) this, Category.id_comp]
-  fill31 horn_data := by
-    obtain ⟨g, h⟩ := Quasicategory.hornFilling Fin.zero_lt_one
-      Fin.one_lt_last (horn₃₁.horn_from_data horn_data)
-    exact horn₃₁.fill31_from_horn_extension horn_data g h
-  fill32 horn_data := by
-    obtain ⟨g, h⟩ := Quasicategory.hornFilling (by decide)
-      (by decide) (horn₃₂.horn_from_data horn_data)
-    exact horn₃₂.fill32_from_horn_extension horn_data g h
+  fill21 e₀₁ e₁₂ := by
+    obtain ⟨g, h⟩ := Quasicategory.hornFilling Fin.zero_lt_one (by simp) (horn_from_data21 e₀₁ e₁₂)
+    apply Nonempty.intro
+    exact (fill21' e₀₁ e₁₂ g h)
+  fill31 f₃ f₀ f₂ := by
+    obtain ⟨g, h⟩ := Quasicategory.hornFilling Fin.zero_lt_one (by simp) (horn_from_data f₃ f₀ f₂)
+    apply Nonempty.intro
+    exact (fill31_from_horn_extension' f₃ f₀ f₂ g h)
