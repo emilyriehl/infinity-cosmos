@@ -5,6 +5,7 @@ Authors: Julian Komaromy
 -/
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 
 open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated Truncated.Hom
   SimplicialObject SimplicialObject.Truncated
@@ -12,9 +13,10 @@ open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated Truncat
 namespace SSet
 namespace Truncated
 
-/- The idea behind this trivial equivalence and the lemma
-  is to make explicit whether an object is in a truncated simplicial set;
-  this allows us to replace dsimps in proofs by a rw
+/-
+The idea behind this trivial equivalence and the lemma
+is to make explicit whether an object is in a truncated simplicial set;
+this allows us to replace `dsimp`s in proofs by `rw`s.
 -/
 def truncEquiv {S : SSet} (m : ℕ) {a : SimplexCategory} (ha : a.len ≤ m := by trunc) :
     S.obj (Opposite.op a) ≃ ((truncation m).obj S).obj (Opposite.op ⟨a, ha⟩) where
@@ -36,7 +38,7 @@ lemma trunc_map' {S : SSet} {m : ℕ} {a b : SimplexCategory}
 section comp_struct
 /--
 `Edge x₀ x₁` is a wrapper around a 1-simplex in a 2-truncated simplicial set
-with source `x₀` and target `x₁`
+with source `x₀` and target `x₁`.
 -/
 structure Edge {X : Truncated 2} (x₀ : X _⦋0⦌₂) (x₁ : X _⦋0⦌₂) where
   simplex : X _⦋1⦌₂
@@ -45,7 +47,7 @@ structure Edge {X : Truncated 2} (x₀ : X _⦋0⦌₂) (x₁ : X _⦋0⦌₂) w
 
 /--
 `CompStruct e₀₁ e₁₂ e₀₂` is a wrapper around a 2-simplex in a 2-truncated simplicial set
-with edges `e₀₁`, `e₁₂`, `e₀₂` in the obvious configuration
+with edges `e₀₁`, `e₁₂`, `e₀₂` in the obvious configuration.
 -/
 structure CompStruct {X : Truncated 2} {x₀ x₁ x₂ : X _⦋0⦌₂}
     (e₀₁ : Edge x₀ x₁) (e₁₂ : Edge x₁ x₂) (e₀₂ : Edge x₀ x₂) where
@@ -57,11 +59,16 @@ end comp_struct
 
 /--
 A 2-truncated quasicategory is a 2-truncated simplicial set with 3 properties:
-  (2, 1)-filling
-  (3, 1)-filling
-  (3, 2)-filling
-See `fill31.horn_data` and `fill31.filling_simplex` for the details of (3, 1)-filling,
-and `fill32.horn_data` and `fill32.filling_simplex` for the details of (3, 2)-filling.
+  (2, 1)-filling: any path of length 2 in may be filled to a 2-simplex whose
+    spine equals the given path.
+  (3, 1)-filling: given any path f of length 3, 2-simplices σ₃ and σ₀ filling the restricted paths
+    f₀₁₂ and f₁₂₃ respectively, and a 2-simplex σ₂ filling the path formed by f₀₁ and the diagonal
+    of σ₀, there is a 2-simplex σ₁ filling the path formed by the diagonal of σ₃ and f₂₃ and whose
+    diagonal is the diagonal of σ₂.
+  (3, 2)-filling: given any path f of length 3, 2-simplices σ₃ and σ₀ filling the restricted paths
+    f₀₁₂ and f₁₂₃ respectively, and a 2-simplex σ₁ filling the path formed by f₂₃ and the diagonal
+    of σ₃, there is a 2-simplex σ₂ filling the path formed by f₀₁ and the diagonal of σ₀ and whose
+    diagonal is the diagonal of σ₁.
 -/
 class Quasicategory₂ (X : Truncated 2) where
   fill21 {x₀ x₁ x₂ : X _⦋0⦌₂}
@@ -77,58 +84,7 @@ class Quasicategory₂ (X : Truncated 2) where
 
 end Truncated
 
--- TODO: this section contains 3 lemmas moving application of yonedaEquiv around.
--- some of these might be already in the library under a different name,
--- and the proofs could probably be greatly simplified
-section aux_lemmas
-
--- TODO name collision!
-lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : ⦋n⦌ ⟶ ⦋m⦌) (g : Δ[m] ⟶ X) :
-    X.map f.op (yonedaEquiv g) = g.app (Opposite.op ⦋n⦌) (stdSimplex.objEquiv.symm f) := by
-  change (g.app (Opposite.op ⦋m⦌) ≫ X.map f.op) (stdSimplex.objEquiv.symm (𝟙 _)) =
-     g.app (Opposite.op ⦋n⦌) (stdSimplex.objEquiv.symm f)
-  rw [← g.naturality]
-  dsimp
-  have : Δ[m].map f.op (stdSimplex.objEquiv.symm (𝟙 _)) = stdSimplex.objEquiv.symm f := by
-    aesop_cat
-  rw [this]
-  rfl
-
--- TODO implicit arguments!
-lemma push_yonedaEquiv {n m k : ℕ} {X : SSet} (f : ⦋m⦌ ⟶ ⦋n⦌)
-    (σ : X.obj (Opposite.op ⦋n⦌)) {s : ⦋n⦌ ⟶ ⦋k⦌} {g : Δ[k] ⟶ X}
-    (h : yonedaEquiv.symm σ = stdSimplex.map s ≫ g) :
-    X.map f.op σ = X.map (f ≫ s).op (yonedaEquiv g) := by
-  rw [← Equiv.apply_symm_apply yonedaEquiv σ, h]
-  have : yonedaEquiv (stdSimplex.map s ≫ g) = X.map s.op (yonedaEquiv g) := by
-    rw [yonedaEquiv_comp, stdSimplex.yonedaEquiv_map, ← map_yonedaEquiv]
-  rw [this, ← FunctorToTypes.map_comp_apply, ← op_comp]
-
--- TODO rename
-lemma map_yonedaEquiv' {n m : ℕ} {X : SSet} (f : ⦋m⦌ ⟶ ⦋n⦌) {g : Δ[n] ⟶ X} :
-    yonedaEquiv (stdSimplex.map f ≫ g) = X.map f.op (yonedaEquiv g) := by
-  rw [yonedaEquiv_comp, map_yonedaEquiv, ← stdSimplex.yonedaEquiv_map]
-
-lemma push_yonedaEquiv' {n m : ℕ} {X : SSet} {f : ⦋m⦌ ⟶ ⦋n⦌}
-    {σ : X.obj (Opposite.op ⦋m⦌)} {g : Δ[n] ⟶ X}
-    (h : yonedaEquiv.symm σ = stdSimplex.map f ≫ g) :
-    σ = X.map f.op (yonedaEquiv g) := by
-  rw [← map_yonedaEquiv']
-  apply (Equiv.symm_apply_eq yonedaEquiv).1
-  exact h
-
-lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : .mk n ⟶ .mk m)
-    (s : X.obj (.op (.mk m))) :
-    stdSimplex.map f ≫ yonedaEquiv.symm s = yonedaEquiv.symm (X.map f.op s) := by
-  apply yonedaEquiv.apply_eq_iff_eq_symm_apply.1
-  let s' := yonedaEquiv.symm s
-  have : s = yonedaEquiv s' := (Equiv.symm_apply_eq yonedaEquiv).mp rfl
-  rw [this, map_yonedaEquiv, yonedaEquiv_comp, Equiv.apply_symm_apply yonedaEquiv _,
-    stdSimplex.yonedaEquiv_map]
-
-end aux_lemmas
-
-section horn_from_horn_data21
+section fill21
 open Truncated (Edge CompStruct truncEquiv trunc_map trunc_map')
 open horn₂₁
 
@@ -150,11 +106,11 @@ def horn_from_data21 : Λ[2, 1].toSSet ⟶ S :=
   Limits.PushoutCocone.IsColimit.desc horn_is_pushout
     (edge_map e₁₂) (edge_map e₀₁) (path_edges_comm e₀₁ e₁₂)
 
-lemma aux0: hornTwo_edge₀ ≫ (horn_from_data21 e₀₁ e₁₂) = yonedaEquiv.symm e₁₂.simplex :=
+lemma aux0: ι₀ ≫ (horn_from_data21 e₀₁ e₁₂) = yonedaEquiv.symm e₁₂.simplex :=
   Limits.PushoutCocone.IsColimit.inl_desc horn_is_pushout
     (edge_map e₁₂) (edge_map e₀₁) (path_edges_comm e₀₁ e₁₂)
 
-lemma aux1: hornTwo_edge₂ ≫ (horn_from_data21 e₀₁ e₁₂) = yonedaEquiv.symm e₀₁.simplex :=
+lemma aux1: ι₂ ≫ (horn_from_data21 e₀₁ e₁₂) = yonedaEquiv.symm e₀₁.simplex :=
   Limits.PushoutCocone.IsColimit.inr_desc horn_is_pushout
     (edge_map e₁₂) (edge_map e₀₁) (path_edges_comm e₀₁ e₁₂)
 
@@ -169,7 +125,7 @@ def fill21_from_horn_extension
       rw [← e₀₁.h₀, trunc_map, trunc_map']
       have : yonedaEquiv.symm (e₀₁.simplex) = stdSimplex.δ 2 ≫ g := by
         rw [← aux1 e₀₁ e₁₂, comm, ← Category.assoc, horn₂₁.incl₂]
-      rw [push_yonedaEquiv _ _ this]
+      rw [push_yonedaEquiv this]
       have : δ 1 ≫ δ 2 = δ 1 ≫ @δ 1 1 :=
         SimplexCategory.δ_comp_δ (n := 0) (i := 1) (j := 1) (le_refl 1)
       rw [this]
@@ -179,7 +135,7 @@ def fill21_from_horn_extension
       rw [← e₁₂.h₁, trunc_map, trunc_map']
       have : yonedaEquiv.symm (e₁₂.simplex) = stdSimplex.δ 0 ≫ g := by
         rw [← aux0 e₀₁ e₁₂, comm, ← Category.assoc, horn₂₁.incl₀]
-      rw [push_yonedaEquiv _ _ this]
+      rw [push_yonedaEquiv this]
       have : δ 0 ≫ δ 0 = δ 0 ≫ @δ 1 1 :=
         (SimplexCategory.δ_comp_δ (n := 0) (i := 0) (j := 0) (le_refl 0)).symm
       rw [this]
@@ -205,13 +161,9 @@ def fill21_from_horn_extension
       rw [← map_yonedaEquiv']; rfl
   }
 
-end horn_from_horn_data21
+end fill21
 
-/- define the structures Edge and CompStruct for a 2-truncated simplicial set `X : Truncated 2`
-  and vertices `x₀`, ..., `x₃`
--/
-
-section fill31_comp_struct
+section fill31
 open horn₃₁
 open Truncated (CompStruct Edge truncEquiv trunc_map trunc_map')
 
@@ -226,11 +178,6 @@ variable
 
 include S x₀ x₁ x₂ x₃ e₀₁ e₁₂ e₂₃ e₀₂ e₁₃ e₀₃ f₃ f₀ f₂
 
-/- steps of constructing fill31' from (g : Δ[3] ⟶ X):
-  . construct a multicofork from the given CompStructs
-  . construct a map h : Λ[3, 1] ⟶ X such that h = Λ[3, 1].ι ≫ g
-  . make a CompStruct with simplex given by g, prove equalities
--/
 def π' (a : R) : (Δ[2] ⟶ S) := match a with
   | ⟨0, _⟩ => yonedaEquiv.symm f₀.simplex
   | ⟨1, _⟩ => by contradiction
@@ -274,6 +221,7 @@ def multicofork_from_data : Limits.Multicofork multispan_index :=
         exact f₂.h₀₁
         symm; exact f₃.h₀₁)
 
+-- TODO proper documentation
 -- using the fact that Λ[3, 1] is the coequalizer gives a map Λ[3, 1] → X
 def horn_from_data : Λ[3, 1].toSSet ⟶ S := Limits.IsColimit.desc horn₃₁.isMulticoeq
   (multicofork_from_data f₃ f₀ f₂)
@@ -309,19 +257,20 @@ def fill31_from_horn_extension
     have := δ_comp_δ (n := 1) (i := 1) (j := 2) (by simp)
     dsimp only [Nat.reduceAdd, Fin.isValue, Fin.reduceSucc, Fin.castSucc_one] at this
     rw [← f₃.h₀₂, trunc_map, trunc_map', ← FunctorToTypes.map_comp_apply, ← op_comp,
-      push_yonedaEquiv _ _ (horn_extension_face₃ f₃ f₀ f₂ comm), this]
+      push_yonedaEquiv (horn_extension_face₃ f₃ f₀ f₂ comm), this]
   h₁₂ := by
     rw [← f₀.h₁₂, trunc_map, trunc_map', ← FunctorToTypes.map_comp_apply, ← op_comp,
-      push_yonedaEquiv _ _ (horn_extension_face₀ f₃ f₀ f₂ comm)]
+      push_yonedaEquiv (horn_extension_face₀ f₃ f₀ f₂ comm)]
     rfl
   h₀₂ := by
     have := δ_comp_δ (n := 1) (i := 1) (j := 1) (by simp)
     dsimp only [Nat.reduceAdd, Fin.isValue, Fin.reduceSucc, Fin.castSucc_one] at this
     rw [← f₂.h₀₂, trunc_map, trunc_map', ← FunctorToTypes.map_comp_apply, ← op_comp,
-      push_yonedaEquiv _ _ (horn_extension_face₂ f₃ f₀ f₂ comm), this]
+      push_yonedaEquiv (horn_extension_face₂ f₃ f₀ f₂ comm), this]
 
-end fill31_comp_struct
+end fill31
 
+-- TODO should this be SSet namespace or SSet.Truncated?
 instance two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
     Truncated.Quasicategory₂ ((truncation 2).obj X) where
   fill21 e₀₁ e₁₂ := by
