@@ -6,6 +6,7 @@ Authors: Julian Komaromy
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
 
 open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated Truncated.Hom
   SimplicialObject SimplicialObject.Truncated
@@ -13,29 +14,8 @@ open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated Truncat
 namespace SSet
 namespace Truncated
 
-/-
-The idea behind this trivial equivalence and the lemma
-is to make explicit whether an object is in a truncated simplicial set;
-this allows us to replace `dsimp`s in proofs by `rw`s.
--/
-def truncEquiv {S : SSet} (m : ℕ) {a : SimplexCategory} (ha : a.len ≤ m := by trunc) :
-    S.obj (Opposite.op a) ≃ ((truncation m).obj S).obj (Opposite.op ⟨a, ha⟩) where
-  toFun := id
-  invFun := id
-  left_inv := congrFun rfl
-  right_inv := congrFun rfl
-
-lemma trunc_map {S : SSet} {m : ℕ} {a b : SimplexCategory}
-    (ha : a.len ≤ m := by trunc) (hb : b.len ≤ m := by trunc)
-    {f : a ⟶ b} {σ : S.obj (Opposite.op b)} :
-    ((truncation m).obj S).map (tr f).op (truncEquiv m hb σ) = S.map f.op σ := rfl
-
-lemma trunc_map' {S : SSet} {m : ℕ} {a b : SimplexCategory}
-    (ha : a.len ≤ m := by trunc) (hb : b.len ≤ m := by trunc)
-    {f : a ⟶ b} {σ : truncation m |>.obj S |>.obj (Opposite.op ⟨b, hb⟩)} :
-    ((truncation m).obj S).map (tr f).op σ = S.map f.op σ := rfl
-
 section comp_struct
+
 /--
 `Edge x₀ x₁` is a wrapper around a 1-simplex in a 2-truncated simplicial set
 with source `x₀` and target `x₁`.
