@@ -4,11 +4,11 @@ open Simplicial SSet CategoryTheory
 
 namespace SSet
 
-def horn_face_incl {n : ℕ} (i : Fin (n + 2)) (j : Fin (n + 2)) (h : j ≠ i)
+def hornFaceIncl {n : ℕ} (i : Fin (n + 2)) (j : Fin (n + 2)) (h : j ≠ i)
   : Δ[n] ⟶ Λ[n + 1, i] := yonedaEquiv.symm (horn.face i j h)
 
 lemma horn_face_δ {n : ℕ} (i : Fin (n + 2)) (j : Fin (n + 2)) (h : j ≠ i) :
-  (horn_face_incl i j h) ≫ Λ[n + 1, i].ι = stdSimplex.δ j := rfl
+  (hornFaceIncl i j h) ≫ Λ[n + 1, i].ι = stdSimplex.δ j := rfl
 
 /-!
 Statements about the pushout
@@ -18,8 +18,8 @@ Statements about the pushout
 -/
 namespace horn₂₁
 
-def ι₀ : Δ[1] ⟶ Λ[2, 1] := horn_face_incl 1 0 (by norm_num)
-def ι₂ : Δ[1] ⟶ Λ[2, 1] := horn_face_incl 1 2 (by simp)
+abbrev ι₀ : Δ[1] ⟶ Λ[2, 1] := hornFaceIncl 1 0 (by norm_num)
+abbrev ι₂ : Δ[1] ⟶ Λ[2, 1] := hornFaceIncl 1 2 (by simp)
 
 lemma incl₀ : ι₀ ≫ Λ[2, 1].ι = stdSimplex.δ 0 := rfl
 lemma incl₂ : ι₂ ≫ Λ[2, 1].ι = stdSimplex.δ 2 := rfl
@@ -32,11 +32,11 @@ lemma sq_commutes : pt₁ ≫ ι₀ = pt₀ ≫ ι₂ := by
   symm
   exact @stdSimplex.δ_comp_δ _ _ _ 0 1 (by norm_num)
 
-def horn_pushout : Limits.PushoutCocone pt₁ pt₀
+def pushout : Limits.PushoutCocone pt₁ pt₀
   := Limits.PushoutCocone.mk ι₀ ι₂ sq_commutes
 
 -- TODO Joel's PRs (see e.g. mathlib PR #23872) proves this and more
-def horn_is_pushout : Limits.IsColimit horn_pushout := by sorry
+def pushoutIsPushout : Limits.IsColimit pushout := by sorry
 
 end horn₂₁
 
@@ -46,9 +46,9 @@ Various constructions and statements about the (multi)coequalizer
 -/
 namespace horn₃₁
 
-abbrev ι₀ : Δ[2] ⟶ Λ[3, 1] := horn_face_incl 1 0 (by norm_num)
-abbrev ι₂ : Δ[2] ⟶ Λ[3, 1] := horn_face_incl 1 2 (by decide)
-abbrev ι₃ : Δ[2] ⟶ Λ[3, 1] := horn_face_incl 1 3 (by decide)
+abbrev ι₀ : Δ[2] ⟶ Λ[3, 1] := hornFaceIncl 1 0 (by norm_num)
+abbrev ι₂ : Δ[2] ⟶ Λ[3, 1] := hornFaceIncl 1 2 (by decide)
+abbrev ι₃ : Δ[2] ⟶ Λ[3, 1] := hornFaceIncl 1 3 (by decide)
 
 lemma incl₀ : ι₀ ≫ Λ[3, 1].ι = stdSimplex.δ 0 := rfl
 lemma incl₂ : ι₂ ≫ Λ[3, 1].ι = stdSimplex.δ 2 := rfl
@@ -68,18 +68,18 @@ def J : Limits.MultispanShape where
 
 open SimplexCategory
 
-def multispan_index : Limits.MultispanIndex J SSet where
+def multispanIndex : Limits.MultispanIndex J SSet where
   left  _ := Δ[1]
   right _ := Δ[2]
   fst p := stdSimplex.map (δ (Fin.pred p.val.2.val (Fin.ne_zero_of_lt p.property)).castSucc)
   snd p := stdSimplex.map (δ p.val.1.val)
 
-def π : R → (Δ[2] ⟶ Λ[3, 1]) := fun ⟨x, h⟩ ↦ horn_face_incl 1 x h
+def π : R → (Δ[2] ⟶ Λ[3, 1]) := fun ⟨x, h⟩ ↦ hornFaceIncl 1 x h
 
-def fork_comm : ∀ p : L, multispan_index.fst p ≫ π (J.fst p)
-    = multispan_index.snd p ≫ π (J.snd p) := by
+lemma fork_comm : ∀ p : L, multispanIndex.fst p ≫ π (J.fst p)
+    = multispanIndex.snd p ≫ π (J.snd p) := by
   rintro ⟨⟨⟨i, hi⟩, ⟨j, hj⟩⟩, hij⟩
-  dsimp only [multispan_index, J, π]
+  dsimp only [multispanIndex, J, π]
   fin_cases i <;> fin_cases j <;> try contradiction
   all_goals
     apply (instMonoι Λ[3, 1]).right_cancellation
@@ -93,10 +93,10 @@ def fork_comm : ∀ p : L, multispan_index.fst p ≫ π (J.fst p)
 
 #check stdSimplex.δ_comp_δ (Fin.le_of_lt Fin.zero_lt_one)
 
-def multicofork_horn := Limits.Multicofork.ofπ multispan_index Λ[3, 1] π fork_comm
+def multicofork := Limits.Multicofork.ofπ multispanIndex Λ[3, 1] π fork_comm
 
 -- TODO this should be also handled by Joel's PR (e.g. mathlib pr #23872)
-def isMulticoeq : Limits.IsColimit multicofork_horn := by sorry
+def isMulticoeq : Limits.IsColimit multicofork := by sorry
 
 end horn₃₁
 
@@ -106,9 +106,9 @@ Various constructions and statements about the (multi)coequalizer
 -/
 namespace horn₃₂
 
-abbrev ι₀ : Δ[2] ⟶ Λ[3, 2] := horn_face_incl 2 0 (by decide)
-abbrev ι₁ : Δ[2] ⟶ Λ[3, 2] := horn_face_incl 2 1 (by decide)
-abbrev ι₃ : Δ[2] ⟶ Λ[3, 2] := horn_face_incl 2 3 (by decide)
+abbrev ι₀ : Δ[2] ⟶ Λ[3, 2] := hornFaceIncl 2 0 (by decide)
+abbrev ι₁ : Δ[2] ⟶ Λ[3, 2] := hornFaceIncl 2 1 (by decide)
+abbrev ι₃ : Δ[2] ⟶ Λ[3, 2] := hornFaceIncl 2 3 (by decide)
 
 lemma incl₀ : ι₀ ≫ Λ[3, 2].ι = stdSimplex.δ 0 := rfl
 lemma incl₁ : ι₁ ≫ Λ[3, 2].ι = stdSimplex.δ 1 := rfl
@@ -125,18 +125,18 @@ def J : Limits.MultispanShape where
 
 open SimplexCategory
 
-def multispan_index : Limits.MultispanIndex J SSet where
+def multispanIndex : Limits.MultispanIndex J SSet where
   left  _ := Δ[1]
   right _ := Δ[2]
   fst p := stdSimplex.map (δ (Fin.pred p.val.2.val (Fin.ne_zero_of_lt p.property)).castSucc)
   snd p := stdSimplex.map (δ p.val.1.val)
 
-def π : R → (Δ[2] ⟶ Λ[3, 2]) := fun ⟨x, h⟩ ↦ horn_face_incl 2 x h
+def π : R → (Δ[2] ⟶ Λ[3, 2]) := fun ⟨x, h⟩ ↦ hornFaceIncl 2 x h
 
-def fork_comm : ∀ p : L, multispan_index.fst p ≫ π (J.fst p)
-    = multispan_index.snd p ≫ π (J.snd p) := by
+lemma fork_comm : ∀ p : L, multispanIndex.fst p ≫ π (J.fst p)
+    = multispanIndex.snd p ≫ π (J.snd p) := by
   rintro ⟨⟨⟨i, hi⟩, ⟨j, hj⟩⟩, hij⟩
-  dsimp only [multispan_index, J, π]
+  dsimp only [multispanIndex, J, π]
   apply (instMonoι Λ[3, 2]).right_cancellation
   rw [Category.assoc, Category.assoc, horn_face_δ, horn_face_δ]
   dsimp [CosimplicialObject.δ]
@@ -149,10 +149,10 @@ def fork_comm : ∀ p : L, multispan_index.fst p ≫ π (J.fst p)
   . symm; exact @SimplexCategory.δ_comp_δ' 1 0 3 (by decide)
   . symm; exact @SimplexCategory.δ_comp_δ' 1 1 3 (by decide)
 
-def multicofork_horn := Limits.Multicofork.ofπ multispan_index Λ[3, 2] π fork_comm
+def multicofork := Limits.Multicofork.ofπ multispanIndex Λ[3, 2] π fork_comm
 
 -- TODO this should be also handled by Joel's PR
-def isMulticoeq : Limits.IsColimit multicofork_horn := by sorry
+def multicoforkIsMulticoeq : Limits.IsColimit multicofork := by sorry
 
 end horn₃₂
 end SSet
