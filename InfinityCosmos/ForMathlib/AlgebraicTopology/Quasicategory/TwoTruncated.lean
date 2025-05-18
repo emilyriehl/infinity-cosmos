@@ -72,8 +72,6 @@ class Quasicategory₂ (X : Truncated 2) where
       (f₁ : CompStruct e₀₂ e₂₃ e₀₃) :
       Nonempty (CompStruct e₀₁ e₁₃ e₀₃)
 
-end Truncated
-
 namespace horn₂₁
 open Truncated (Edge edgeMap CompStruct truncEquiv trunc_map trunc_map')
 
@@ -385,8 +383,6 @@ def fromHornExtension
       push_yonedaEquiv (horn_extension_face₁ f₃ f₀ f₁ comm), this]
 
 end horn₃₂
-
-namespace Truncated
 
 /--
 The 2-truncation of a quasi-category is a 2-truncated quasi-category.
