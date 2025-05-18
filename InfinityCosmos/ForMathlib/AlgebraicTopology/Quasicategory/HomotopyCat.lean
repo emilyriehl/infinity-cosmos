@@ -223,15 +223,15 @@ def fromHornExtension (g : Δ[3] ⟶ X) (comm : fromFaces δ₃ δ₀ δ₂ = Λ
 end horn₃₁
 
 structure AlgebraicQuasicategory (S : SSet) where
-  hornComposition' : ∀ ⦃n : ℕ⦄ ⦃i : Fin (n+3)⦄ (σ₀ : (Λ[n+2, i] : SSet) ⟶ S)
+  hornFilling' : ∀ ⦃n : ℕ⦄ ⦃i : Fin (n+3)⦄ (σ₀ : (Λ[n+2, i] : SSet) ⟶ S)
     (_h0 : 0 < i) (_hn : i < Fin.last (n+2)), Δ[n+2] ⟶ S
-  hornFilling' :  ∀ ⦃n : ℕ⦄ ⦃i : Fin (n+3)⦄ (σ₀ : (Λ[n+2, i] : SSet) ⟶ S)
+  hornFilling_comm' :  ∀ ⦃n : ℕ⦄ ⦃i : Fin (n+3)⦄ (σ₀ : (Λ[n+2, i] : SSet) ⟶ S)
     (_h0 : 0 < i) (_hn : i < Fin.last (n+2)),
-    σ₀ = Λ[n + 2, i].ι ≫ hornComposition' σ₀ _h0 _hn
+    σ₀ = Λ[n + 2, i].ι ≫ hornFilling' σ₀ _h0 _hn
 
 namespace AlgebraicQuasicategory
 
-def hornComposition {S : SSet} (Q : AlgebraicQuasicategory S) ⦃n : ℕ⦄ ⦃i : Fin (n+1)⦄
+def hornFilling {S : SSet} (Q : AlgebraicQuasicategory S) ⦃n : ℕ⦄ ⦃i : Fin (n+1)⦄
     (h0 : 0 < i) (hn : i < Fin.last n)
     (σ₀ : (Λ[n, i] : SSet) ⟶ S) : Δ[n] ⟶ S := by
   cases n using Nat.casesAuxOn with
@@ -241,11 +241,11 @@ def hornComposition {S : SSet} (Q : AlgebraicQuasicategory S) ⦃n : ℕ⦄ ⦃i
   | zero =>
     simp only [Fin.lt_iff_val_lt_val, Fin.val_zero, Fin.val_last, zero_add, Nat.lt_one_iff] at h0 hn
     simp [hn] at h0
-  | succ n => exact Q.hornComposition' σ₀ h0 hn
+  | succ n => exact Q.hornFilling' σ₀ h0 hn
 
-def hornFilling {S : SSet} (Q : AlgebraicQuasicategory S) ⦃n : ℕ⦄ ⦃i : Fin (n+1)⦄
+def hornFilling_comm {S : SSet} (Q : AlgebraicQuasicategory S) ⦃n : ℕ⦄ ⦃i : Fin (n+1)⦄
     (h0 : 0 < i) (hn : i < Fin.last n)
-    (σ₀ : (Λ[n, i] : SSet) ⟶ S) : σ₀ = Λ[n, i].ι ≫ (hornComposition Q h0 hn σ₀) := by
+    (σ₀ : (Λ[n, i] : SSet) ⟶ S) : σ₀ = Λ[n, i].ι ≫ (hornFilling Q h0 hn σ₀) := by
   cases n using Nat.casesAuxOn with
   | zero => simp [Fin.lt_iff_val_lt_val] at hn
   | succ n =>
@@ -253,7 +253,7 @@ def hornFilling {S : SSet} (Q : AlgebraicQuasicategory S) ⦃n : ℕ⦄ ⦃i : F
   | zero =>
     simp only [Fin.lt_iff_val_lt_val, Fin.val_zero, Fin.val_last, zero_add, Nat.lt_one_iff] at h0 hn
     simp [hn] at h0
-  | succ n => exact Q.hornFilling' σ₀ h0 hn
+  | succ n => exact Q.hornFilling_comm' σ₀ h0 hn
 
 end AlgebraicQuasicategory
 
@@ -267,8 +267,8 @@ def assoc {f₀₁ : Edge x₀ x₁} {f₁₂ : Edge x₁ x₂} {f₂₃ : Edge 
     {f₀₂ : Edge x₀ x₂} {f₁₃ : Edge x₁ x₃} {f₀₃ : Edge x₀ x₃}
     (δ₃ : CompStruct f₀₁ f₁₂ f₀₂) (δ₀ : CompStruct f₁₂ f₂₃ f₁₃)
     (δ₂ : CompStruct f₀₁ f₁₃ f₀₃) : (CompStruct f₀₂ f₂₃ f₀₃) := by
-  let g : Δ[3] ⟶ S := hornComposition Q Fin.zero_lt_one (by simp) (horn₃₁.fromFaces δ₃ δ₀ δ₂)
-  let h : horn₃₁.fromFaces δ₃ δ₀ δ₂ = Λ[2 + 1, 1].ι ≫ g := hornFilling Q Fin.zero_lt_one (by simp) (horn₃₁.fromFaces δ₃ δ₀ δ₂)
+  let g : Δ[3] ⟶ S := hornFilling Q Fin.zero_lt_one (by simp) (horn₃₁.fromFaces δ₃ δ₀ δ₂)
+  let h : horn₃₁.fromFaces δ₃ δ₀ δ₂ = Λ[2 + 1, 1].ι ≫ g := hornFilling_comm Q Fin.zero_lt_one (by simp) (horn₃₁.fromFaces δ₃ δ₀ δ₂)
   exact horn₃₁.fromHornExtension δ₃ δ₀ δ₂ g h
 
 -- TODO: Redo everything above for Λ[3, 2] horns.
