@@ -84,84 +84,84 @@ structure Equiv (A B : SSet.{u}) : Type u where
 
 end
 
-section
+-- section
 
-open SimplexCategory
+-- open SimplexCategory
 
-variable {A : SSet.{u}} (f g : A _⦋1⦌)
+-- variable {A : SSet.{u}} (f g : A _⦋1⦌)
 
-structure HomotopyL where
-  simplex : A _⦋2⦌
-  δ₀_eq : A.δ 0 simplex = A.σ 0 (A.δ 0 f)
-  δ₁_eq : A.δ 1 simplex = g
-  δ₂_eq : A.δ 2 simplex = f
+-- structure HomotopyL where
+--   simplex : A _⦋2⦌
+--   δ₀_eq : A.δ 0 simplex = A.σ 0 (A.δ 0 f)
+--   δ₁_eq : A.δ 1 simplex = g
+--   δ₂_eq : A.δ 2 simplex = f
 
-structure HomotopyR where
-  simplex : A _⦋2⦌
-  δ₀_eq : A.δ 0 simplex = f
-  δ₁_eq : A.δ 1 simplex = g
-  δ₂_eq : A.δ 2 simplex = A.σ 0 (A.δ 1 f)
+-- structure HomotopyR where
+--   simplex : A _⦋2⦌
+--   δ₀_eq : A.δ 0 simplex = f
+--   δ₁_eq : A.δ 1 simplex = g
+--   δ₂_eq : A.δ 2 simplex = A.σ 0 (A.δ 1 f)
 
-def HomotopicL : Prop :=
-    Nonempty (HomotopyL f g)
+-- def HomotopicL : Prop :=
+--     Nonempty (HomotopyL f g)
 
-def HomotopicR : Prop :=
-    Nonempty (HomotopyR f g)
+-- def HomotopicR : Prop :=
+--     Nonempty (HomotopyR f g)
 
-def HomotopyL.refl : HomotopyL f f where
-  simplex := A.σ 1 f
-  δ₀_eq := by
-    change _ = (A.δ 0 ≫ A.σ 0) _
-    rw [← A.δ_comp_σ_of_le (by simp)]; simp
-  δ₁_eq := by
-    change (A.σ 1 ≫ A.δ 1) _ = _
-    rw [A.δ_comp_σ_self' (by simp)]; simp
-  δ₂_eq := by
-    change (A.σ 1 ≫ A.δ 2) _ = _
-    rw [A.δ_comp_σ_succ' (by simp)]
-    rfl
+-- def HomotopyL.refl : HomotopyL f f where
+--   simplex := A.σ 1 f
+--   δ₀_eq := by
+--     change _ = (A.δ 0 ≫ A.σ 0) _
+--     rw [← A.δ_comp_σ_of_le (by simp)]; simp
+--   δ₁_eq := by
+--     change (A.σ 1 ≫ A.δ 1) _ = _
+--     rw [A.δ_comp_σ_self' (by simp)]; simp
+--   δ₂_eq := by
+--     change (A.σ 1 ≫ A.δ 2) _ = _
+--     rw [A.δ_comp_σ_succ' (by simp)]
+--     rfl
 
--- need a better name
-noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _⦋1⦌}
-  (H₁ : HomotopyL f g) (H₂ : HomotopyL f h) :
-    HomotopyL g h := by
-  let σ : (Λ[3, 1] : SSet.{u}) ⟶ A := sorry
-  let τ : A _⦋3⦌ := sorry
-    -- BUILD FAILS:
-    -- A.yonedaEquiv _ (Classical.choose $ Quasicategory.hornFilling
-    --   (by simp) (by simp [Fin.lt_iff_val_lt_val]) σ)
-  have τ₀ : A.δ 0 τ = (A.δ 0 ≫ A.σ 0≫ A.σ 0) g := sorry
-  have τ₂ : A.δ 2 τ = H₂.simplex := sorry
-  have τ₃ : A.δ 3 τ = H₁.simplex := sorry
-  use A.δ 1 τ
-  . change (A.δ 1 ≫ A.δ 0) _ = _
-    rw [A.δ_comp_δ' (by simp)]; simp [τ₀]
-    change (A.σ 0 ≫ A.δ 0) _ = _
-    rw [A.δ_comp_σ_self' (by simp)]; simp
-  . rw [← H₂.δ₁_eq, ← τ₂]
-    change _ = (A.δ 2 ≫ A.δ 1) _
-    rw [A.δ_comp_δ' (by simp)]; rfl
-  . rw [← H₁.δ₁_eq, ← τ₃]
-    change _ = (A.δ 3 ≫ A.δ 1) _
-    rw [A.δ_comp_δ' (by simp)]; rfl
+-- -- need a better name
+-- noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _⦋1⦌}
+--   (H₁ : HomotopyL f g) (H₂ : HomotopyL f h) :
+--     HomotopyL g h := by
+--   let σ : (Λ[3, 1] : SSet.{u}) ⟶ A := sorry
+--   let τ : A _⦋3⦌ := sorry
+--     -- BUILD FAILS:
+--     -- A.yonedaEquiv _ (Classical.choose $ Quasicategory.hornFilling
+--     --   (by simp) (by simp [Fin.lt_iff_val_lt_val]) σ)
+--   have τ₀ : A.δ 0 τ = (A.δ 0 ≫ A.σ 0≫ A.σ 0) g := sorry
+--   have τ₂ : A.δ 2 τ = H₂.simplex := sorry
+--   have τ₃ : A.δ 3 τ = H₁.simplex := sorry
+--   use A.δ 1 τ
+--   . change (A.δ 1 ≫ A.δ 0) _ = _
+--     rw [A.δ_comp_δ' (by simp)]; simp [τ₀]
+--     change (A.σ 0 ≫ A.δ 0) _ = _
+--     rw [A.δ_comp_σ_self' (by simp)]; simp
+--   . rw [← H₂.δ₁_eq, ← τ₂]
+--     change _ = (A.δ 2 ≫ A.δ 1) _
+--     rw [A.δ_comp_δ' (by simp)]; rfl
+--   . rw [← H₁.δ₁_eq, ← τ₃]
+--     change _ = (A.δ 3 ≫ A.δ 1) _
+--     rw [A.δ_comp_δ' (by simp)]; rfl
 
-lemma HomotopyL.equiv :
-    Equivalence (fun f g : A _⦋1⦌ ↦ HomotopicL f g) where
-  refl f := ⟨HomotopyL.refl f⟩
-  symm := by
-    intro f g ⟨H⟩
-    exact ⟨H.ofHomotopyLOfHomotopyL (HomotopyL.refl f)⟩
-  trans := by
-    intro f g h ⟨H₁⟩ ⟨H₂⟩
-    exact ⟨(H₁.ofHomotopyLOfHomotopyL (HomotopyL.refl f)).ofHomotopyLOfHomotopyL H₂⟩
+-- lemma HomotopyL.equiv :
+--     Equivalence (fun f g : A _⦋1⦌ ↦ HomotopicL f g) where
+--   refl f := ⟨HomotopyL.refl f⟩
+--   symm := by
+--     intro f g ⟨H⟩
+--     exact ⟨H.ofHomotopyLOfHomotopyL (HomotopyL.refl f)⟩
+--   trans := by
+--     intro f g h ⟨H₁⟩ ⟨H₂⟩
+--     exact ⟨(H₁.ofHomotopyLOfHomotopyL (HomotopyL.refl f)).ofHomotopyLOfHomotopyL H₂⟩
 
-lemma homotopicL_iff_homotopicR [Quasicategory A] :
-    HomotopicL f g ↔ HomotopicR f g := sorry
+-- lemma homotopicL_iff_homotopicR [Quasicategory A] :
+--     HomotopicL f g ↔ HomotopicR f g := sorry
 
-lemma HomotopyR.equiv [Quasicategory A] :
-    Equivalence (fun f g : A _⦋1⦌ ↦ HomotopicR f g) := by
-  simp [← homotopicL_iff_homotopicR, HomotopyL.equiv]
+-- lemma HomotopyR.equiv [Quasicategory A] :
+--     Equivalence (fun f g : A _⦋1⦌ ↦ HomotopicR f g) := by
+--   simp [← homotopicL_iff_homotopicR, HomotopyL.equiv]
 
-end
+-- end
 
 end SSet
