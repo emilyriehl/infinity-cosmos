@@ -40,7 +40,7 @@ lemma map_yonedaEquiv' {n m : ℕ} {X : SSet} (f : ⦋m⦌ ⟶ ⦋n⦌) {g : Δ[
   rw [yonedaEquiv_comp, map_yonedaEquiv, ← stdSimplex.yonedaEquiv_map]
 
 /--
-A specialization of `push_yonedaEquiv` to the case where `f` is the identity.
+A specialization of `push_yonedaEquiv` to the case where `s` is the identity.
 -/
 lemma push_yonedaEquiv' {n m : ℕ} {X : SSet} {f : ⦋m⦌ ⟶ ⦋n⦌}
     {σ : X.obj (.op ⦋m⦌)} {g : Δ[n] ⟶ X}
