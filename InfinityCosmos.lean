@@ -17,5 +17,6 @@ import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalLimit
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
 import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+import InfinityCosmos.ForMathlib.InfinityCosmos.Goals
 import InfinityCosmos.ForMathlib.InfinityCosmos.Isofibrations
 import InfinityCosmos.Init
