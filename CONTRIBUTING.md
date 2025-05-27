@@ -67,4 +67,5 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 * [Adam Topaz](https://github.com/adamtopaz)
 * [Dominic Verity](https://github.com/dom-verity)
 * [Nick Ward](https://github.com/gio256)
+* [Andrew Yang](https://github.com/erdOne)
 * [Zeyi Zhao](https://github.com/Georjez)
