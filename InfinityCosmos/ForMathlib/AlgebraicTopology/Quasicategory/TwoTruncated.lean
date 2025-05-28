@@ -408,3 +408,69 @@ instance two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
       (horn₃₂.fromFaces f₃ f₀ f₁)
     apply Nonempty.intro
     exact (horn₃₂.fromHornExtension f₃ f₀ f₁ g h)
+
+section
+variable {A : Truncated 2} (f g : A _⦋1⦌₂)
+
+structure HomotopyL where
+  simplex : A _⦋2⦌₂
+  δ₀_eq : A.map (tr (δ 0)).op simplex = A.map (tr (σ 0)).op (A.map (tr (δ 0)).op f)
+  δ₁_eq : A.map (tr (δ 1)).op simplex = g
+  δ₂_eq : A.map (tr (δ 2)).op simplex = f
+
+structure HomotopyR where
+  simplex : A _⦋2⦌₂
+  δ₀_eq : A.map (tr (δ 0)).op simplex = f
+  δ₁_eq : A.map (tr (δ 1)).op simplex = g
+  δ₂_eq : A.map (tr (δ 2)).op simplex = A.map (tr (σ 0)).op (A.map (tr (δ 1)).op f)
+
+def HomotopicL : Prop :=
+    Nonempty (HomotopyL f g)
+
+def HomotopicR : Prop :=
+    Nonempty (HomotopyR f g)
+
+def HomotopyL.refl : HomotopyL f f where
+  simplex := A.map (tr (σ 1)).op f
+  δ₀_eq := by
+    change (A.map (tr (σ 1)).op ≫ A.map (tr (δ 0)).op) _ = (A.map (tr (δ 0)).op ≫ A.map (tr (σ 0)).op) _
+    rw [← Functor.map_comp, ← Functor.map_comp, ← op_comp, ← op_comp, ← Hom.tr_comp, ← Hom.tr_comp]
+    rw [← SimplexCategory.δ_comp_σ_of_le (by simp)]; simp
+  δ₁_eq := by
+    change (A.map (tr (σ 1)).op ≫ A.map (tr (δ 1)).op) _ = _
+    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
+    rw [SimplexCategory.δ_comp_σ_self' (by simp)]; simp
+    show A.map (𝟙 ⦋1⦌₂).op _ = _
+    simp only [op_id, FunctorToTypes.map_id_apply]
+  δ₂_eq := by
+    change (A.map (tr (σ 1)).op ≫ A.map (tr (δ 2)).op) _ = _
+    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
+    rw [SimplexCategory.δ_comp_σ_succ' (by simp)]; simp
+    show A.map (𝟙 ⦋1⦌₂).op _ = _
+    simp only [op_id, FunctorToTypes.map_id_apply]
+
+def HomotopyR.refl : HomotopyR f f where
+  simplex := A.map (tr (σ 0)).op f
+  δ₀_eq := by
+    change (A.map (tr (σ 0)).op ≫ A.map (tr (δ 0)).op) _ = _
+    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
+    rw [SimplexCategory.δ_comp_σ_self' (by simp)]; simp
+    show A.map (𝟙 ⦋1⦌₂).op _ = _
+    simp only [op_id, FunctorToTypes.map_id_apply]
+  δ₁_eq := by
+    change (A.map (tr (σ 0)).op ≫ A.map (tr (δ 1)).op) _ = _
+    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
+    rw [SimplexCategory.δ_comp_σ_succ' (by simp)]; simp
+    show A.map (𝟙 ⦋1⦌₂).op _ = _
+    simp only [op_id, FunctorToTypes.map_id_apply]
+  δ₂_eq := by
+    change (A.map (tr (σ 0)).op ≫ A.map (tr (δ 2)).op) _ = (A.map (tr (δ 1)).op ≫ A.map (tr (σ 0)).op) _
+    rw [← Functor.map_comp, ← Functor.map_comp, ← op_comp, ← op_comp, ← Hom.tr_comp, ← Hom.tr_comp]
+    rw [← SimplexCategory.δ_comp_σ_of_gt (by simp)]; simp
+
+end
+
+
+end Truncated
+
+end SSet

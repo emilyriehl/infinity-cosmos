@@ -89,7 +89,13 @@ noncomputable instance : MonoidalClosed SSet where
     adj := FunctorToTypes.adj _
   }
 
-noncomputable instance : SymmetricCategory SSet := inferInstance
+/-- Required apparently due to some refactoring. -/
+noncomputable def sSetBraided : BraidedCategory SSet :=
+  BraidedCategory.ofChosenFiniteProducts
+
+noncomputable instance : SymmetricCategory SSet where
+  toBraidedCategory := sSetBraided
+  symmetry := fun _ _ => rfl
 
 /-- The monoidal structure given by the `ChosenFiniteProducts` has good definitional properties,
 like the following: -/

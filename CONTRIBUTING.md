@@ -52,7 +52,10 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 * [Mario Carneiro](https://github.com/digama0)
 * [Daniel Carranza](https://github.com/daniel-carranza)
 * [Johan Commelin](https://github.com/jcommelin)
+* Kunhong Du
 * [Jon Eugster](https://github.com/joneugster)
+* Julian Komaromy
+* [Aaron Liu](https://github.com/plp127)
 * [Jack McKoen](https://github.com/mckoen)
 * [Yuma Mizuno](https://github.com/yuma-mizuno)
 * [Pietro Monticone](https://github.com/pitmonticone)
@@ -64,4 +67,5 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 * [Adam Topaz](https://github.com/adamtopaz)
 * [Dominic Verity](https://github.com/dom-verity)
 * [Nick Ward](https://github.com/gio256)
+* [Andrew Yang](https://github.com/erdOne)
 * [Zeyi Zhao](https://github.com/Georjez)

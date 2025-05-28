@@ -3,7 +3,6 @@ Copyright (c) 2024 Jack McKoen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jack McKoen
 -/
--- import InfinityCosmos.ForMathlib.CategoryTheory.MorphismProperty
 import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import Mathlib.AlgebraicTopology.SimplicialSet.Basic
@@ -18,7 +17,7 @@ section trivialFibration
 /-- an inductive type defining boundary inclusions as a class of morphisms. Used to take advantage
   of the `MorphismProperty` API. -/
 inductive BoundaryInclusion : {X Y : SSet} → (X ⟶ Y) → Prop
-  | mk n : BoundaryInclusion (boundaryInclusion n)
+  | mk n : BoundaryInclusion (∂Δ[n].ι)
 
 /-- The class of all boundary inclusions. -/
 def BoundaryInclusions : MorphismProperty SSet := fun _ _ p ↦ BoundaryInclusion p
@@ -34,7 +33,7 @@ section isoFibration
 /-- Inductive definition of inner horn inclusions Λ[n, i] ⟶ Δ[n]
   by restricting general horn inclusions to 0 < i < n -/
 inductive InnerHornInclusion : {X Y : SSet} → (X ⟶ Y) → Prop
-  | mk (n i : ℕ) (low : 0 < i) (high : i < n) : InnerHornInclusion (hornInclusion n i)
+  | mk (n i : ℕ) (low : 0 < i) (high : i < n) : InnerHornInclusion (Λ[n, i].ι)
 
 /-- The class of inner horn inclusions as a MorphismProperty -/
 def InnerHornInclusions : MorphismProperty SSet := fun _ _ p ↦ InnerHornInclusion p

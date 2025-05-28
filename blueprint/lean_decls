@@ -24,6 +24,8 @@ CategoryTheory.nerveAdjunction
 CategoryTheory.nerveAdjunction
 CategoryTheory.nerveFunctor.fullyfaithful
 CategoryTheory.nerveFunctor.fullyfaithful
+SSet.Truncated.Quasicategory₂
+SSet.Truncated.two_truncatation_of_qc_is_2_trunc_qc
 SSet.coherentIso
 SSet.Isofibration
 SSet.TrivialFibration

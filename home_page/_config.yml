@@ -20,7 +20,7 @@
 
 title: ∞-Cosmos
 #email: your-email@example.com
-description: A project to formalize ∞-cosmoi in Lean.
+description: A project to formalize ∞-category theory in Lean.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://emilyriehl.github.io/infinity-cosmos" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username:

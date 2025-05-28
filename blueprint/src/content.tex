@@ -397,7 +397,10 @@ This should be relatively straightforward.
    The homotopy category of a quasi-category admits a simplified description, which we build up to over a series of definitions. As the homotopy category functor is formalized in terms of 2-truncated simplicial sets, we introduce an auxiliary definition to isolate the structure of interest in a 2-truncated quasi-category.
 
    \begin{definition}\label{defn:2-truncated-qcat}
-    \uses{defn:simplicial-set} A 2-truncated simplicial set $A$ is a \textbf{2-truncated quasi-category} if it admits the following three operations:
+    \uses{defn:simplicial-set}
+    \leanok
+    \lean{SSet.Truncated.Quasicategory₂}
+    A 2-truncated simplicial set $A$ is a \textbf{2-truncated quasi-category} if it admits the following three operations:
     \begin{itemize}
     \item (2,1)-filling: any path $f_\bullet$ of length 2 in $A$ may be filled to a $2$-simplex whose spine equals the given path.
     \item (3,1)-filling: given any path $f_\bullet$ of length 3 in $A$, 2-simplices $\sigma_3$ and $\sigma_0$ filling the restricted paths $f_{012}$ and $f_{123}$ respectively, and 2-simplex $\sigma_2$ filling the path formed by $f_{01}$ and the diagonal of $\sigma_0$, there is a 2-simplex $\sigma_1$ filling the path formed by the diagonal of $\sigma_3$ and $f_{23}$ and whose diagonal is the diagonal of $\sigma_2$.
@@ -407,15 +410,21 @@ This should be relatively straightforward.
    \end{definition}
 
    \begin{lemma}\label{lem:2-truncated-qcat}
-    \uses{defn:2-truncated-qcat, defn:quasi-category} The 2-truncation of a quasi-category is a 2-truncated quasi-category.
+    \uses{defn:2-truncated-qcat, defn:quasi-category}
+    \leanok
+    \lean{SSet.Truncated.two_truncatation_of_qc_is_2_trunc_qc} The 2-truncation of a quasi-category is a 2-truncated quasi-category.
    \end{lemma}
-   \begin{proof} Immediate from the definition by filling horns in dimensions 2 and 3.
+   \begin{proof}
+    \leanok
+    Immediate from the definition by filling horns in dimensions 2 and 3.
    \end{proof}
 
    We revisit Definition \ref{defn:1-simplex-htpy} in this setting.
 
    \begin{definition}[homotopy relation on 1-simplices]\label{defn:1-simplex-left-right-htpy}
     \uses{defn:simplicial-set}
+    \leanok
+    \lean{SSet.Truncated.HomotopicR}\lean{SSet.Truncated.HomotopicL}
      A parallel pair of 1-sim\-plices $f,g$ in a 2-truncated simplicial set $X$ are \textbf{left homotopic} if there exists a 2-simplex whose boundary takes the form below-left and \textbf{right homotopic} if there exists a 2-simplex whose boundary takes the form below-right:
      \begin{center}
       \begin{tikzcd}[row sep=small, column sep=small]
