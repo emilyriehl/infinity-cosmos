@@ -89,9 +89,9 @@ instance : CategoryStruct C where
   comp {a b c} f g := (eComp Cat a b c).obj (f, g)
 
 instance : Category C where
-  id_comp {A B} (f : A ⟶[Cat] B) := congrArg (·.obj f) (e_id_comp (V := Cat) A B)
-  comp_id {A B} f := congrArg (·.obj f) (e_comp_id (V := Cat) A B)
-  assoc {A B C D} f g h := congrArg (·.obj (f, g, h)) (e_assoc (V := Cat) A B C D)
+  id_comp {a b} (f : a ⟶[Cat] b) := congrArg (·.obj f) (e_id_comp (V := Cat) a b)
+  comp_id {a b} f := congrArg (·.obj f) (e_comp_id (V := Cat) a b)
+  assoc {a b c d} f g h := congrArg (·.obj (f, g, h)) (e_assoc (V := Cat) a b c d)
 
 instance : Bicategory C where
   Hom a b := (a ⟶[Cat] b).α
@@ -107,25 +107,28 @@ instance : Bicategory C where
   whiskerLeft_comp {_ _ _} _ {_ _ _} _ _ := by
     refine .trans ?_ (Functor.map_comp ..)
     congr 2; exact (id_comp (𝟙 _)).symm
-  id_whiskerLeft {A B f g} η := by
-    dsimp
-    sorry
-  comp_whiskerLeft {a b c d} f g {h h'} η := by
-    dsimp
-    sorry
+  id_whiskerLeft {_ _ _ _} η := by
+    simp [← heq_eq_eq]; rw [← Functor.map_id]
+    exact congr_arg_heq (·.map η) (e_id_comp (V := Cat) ..)
+  comp_whiskerLeft {_ _ _ _} f g {_ _} η := by
+    simp [← heq_eq_eq]; rw [← Functor.map_id]
+    exact congr_arg_heq
+      (·.map (X := (_, _, _)) (Y := (_, _, _)) (𝟙 f, 𝟙 g, η)) (e_assoc (V := Cat) ..)
   id_whiskerRight _ _ := Functor.map_id ..
   comp_whiskerRight  {_ _ _} _ {_ _ _} _ _ := by
     refine .trans ?_ (Functor.map_comp ..)
     congr 2; exact (id_comp (𝟙 _)).symm
-  whiskerRight_id {a b f g} η := by
-    dsimp
-    sorry
-  whiskerRight_comp {a b c d f f'} η g h := by
-    dsimp
-    sorry
-  whisker_assoc {a b c d} f {g g'} η h := by
-    dsimp
-    sorry
+  whiskerRight_id {_ _ _ _} η := by
+    simp [← heq_eq_eq]; rw [← Functor.map_id]
+    exact congr_arg_heq (·.map η) (e_comp_id (V := Cat) ..)
+  whiskerRight_comp {_ _ _ _ _ _} η g h := by
+    simp [← heq_eq_eq]; rw [← Functor.map_id]
+    exact .symm <| congr_arg_heq
+      (·.map (X := (_, _, _)) (Y := (_, _, _)) (η, 𝟙 g, 𝟙 h)) (e_assoc (V := Cat) ..)
+  whisker_assoc {_ _ _ _} f {_ _} η h := by
+    simp [← heq_eq_eq]
+    exact congr_arg_heq
+      (·.map (X := (_, _, _)) (Y := (_, _, _)) (𝟙 f, η, 𝟙 h)) (e_assoc (V := Cat) ..)
   whisker_exchange η θ := by
     refine (Functor.map_comp ..).symm.trans <| .trans ?_ (Functor.map_comp ..)
     congr 1; apply Prod.ext
