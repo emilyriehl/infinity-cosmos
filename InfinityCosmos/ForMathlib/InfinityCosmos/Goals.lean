@@ -8,6 +8,7 @@ import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
 import Mathlib.CategoryTheory.Bicategory.Strict
 import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
 import Mathlib.CategoryTheory.Monoidal.Functor
+import Mathlib.CategoryTheory.Closed.FunctorToTypes
 import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
 
@@ -36,17 +37,21 @@ strict bicategory of quasicategories this will give the correct notion of adjunc
 The ∞-cosmos project follows approach (ii).
 -/
 
-open CategoryTheory Category Functor Simplicial MonoidalCategory SSet Limits Bicategory
+open CategoryTheory Category Functor Simplicial MonoidalCategory SSet Limits
 
 namespace CategoryTheory
 
 namespace SimplicialCategory
 
 /-- As a full subcategory, the category of quasi-categories is simplicially enriched. -/
-def QCat.SimplicialCat : SimplicialCategory QCat := sorry
+noncomputable def QCat.SimplicialCat : SimplicialCategory QCat where
+ Hom X Y := X.obj.functorHom Y.obj
+ id X := Functor.natTransEquiv.symm (𝟙 X.obj)
+ comp X Y Z := { app := fun _ ⟨f, g⟩ => f.comp g }
+ homEquiv := Functor.natTransEquiv.symm
 
 /-- One of the fields of a simplicial category is a simplicially enriched category. -/
-def QCat.SSetEnrichedCat : EnrichedCategory SSet QCat :=
+noncomputable instance QCat.SSetEnrichedCat : EnrichedCategory SSet QCat :=
   QCat.SimplicialCat.toEnrichedCategory
 
 end SimplicialCategory
@@ -61,9 +66,8 @@ instance hoFunctor.laxMonoidal : LaxMonoidal hoFunctor := sorry
 
 /-- Applying this result, the category of quasi-categories is an enriched ordinary category over the
 cartesian closed category of categories. -/
-def QCat.CatEnrichedCat : EnrichedCategory Cat QCat := by
---  let ans := CategoryTheory.TransportEnrichment (V := SSet) (W := Cat) hoFunctor QCat
-  sorry
+noncomputable def QCat.CatEnrichedCat : EnrichedCategory Cat QCat :=
+  instEnrichedCategoryTransportEnrichment (C := QCat) hoFunctor
 
 -- Finally we convert the Cat enriched category of categories to a 2-category. Perhaps it would be
 -- better to first extend this to Cat enriched ordinary category?
@@ -73,6 +77,51 @@ instance QCat.Bicategory : Bicategory QCat := sorry
 
 /-- For this statement to typecheck, we need a bicategory instance. -/
 instance QCat.strictBicategory : Bicategory.Strict QCat := sorry
+
+section
+variable (C : Type*) [EnrichedCategory Cat C]
+
+-- FIXME why doesn't this work the same?
+-- instance : Category C := categoryForgetEnrichment Cat
+instance : CategoryStruct C where
+  Hom a b := (a ⟶[Cat] b).α
+  id a := (eId Cat a).obj ⟨⟨()⟩⟩
+  comp {a b c} f g := (eComp Cat a b c).obj (f, g)
+
+instance : Category C where
+  id_comp {A B} (f : A ⟶[Cat] B) := congrArg (·.obj f) (EnrichedCategory.id_comp (V := Cat) A B)
+  comp_id {A B} f := congrArg (·.obj f) (EnrichedCategory.comp_id (V := Cat) A B)
+  assoc {A B C D} f g h := congrArg (·.obj (f, g, h)) (EnrichedCategory.assoc (V := Cat) A B C D)
+
+instance : Bicategory C where
+  -- __ := inferInstanceAs (Category C)
+  Hom a b := (a ⟶[Cat] b).α
+  homCategory a b := (a ⟶[Cat] b).str
+  id a := (eId Cat a).obj ⟨⟨()⟩⟩
+  comp {a b c} f g := (eComp Cat a b c).obj (f, g)
+  whiskerLeft {_ _ _} f {_ _} η := (eComp Cat ..).map (𝟙 f, η)
+  whiskerRight η h := (eComp Cat ..).map (η, 𝟙 h)
+  associator f g h := eqToIso (assoc (obj := C) f g h)
+  leftUnitor f := eqToIso (id_comp (obj := C) f)
+  rightUnitor f := eqToIso (comp_id (obj := C) f)
+  whiskerLeft_id := sorry
+  whiskerLeft_comp := sorry
+  id_whiskerLeft := sorry
+  comp_whiskerLeft := sorry
+  id_whiskerRight := sorry
+  comp_whiskerRight := sorry
+  whiskerRight_id := sorry
+  whiskerRight_comp := sorry
+  whisker_assoc := sorry
+  whisker_exchange := sorry
+  pentagon := sorry
+  triangle := sorry
+
+instance : Bicategory.Strict C where
+  __ := inferInstanceAs (Category C)
+
+end
+
 
 end CategoryTheory
 
