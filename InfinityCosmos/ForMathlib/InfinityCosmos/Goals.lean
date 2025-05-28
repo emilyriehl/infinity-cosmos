@@ -89,12 +89,11 @@ instance : CategoryStruct C where
   comp {a b c} f g := (eComp Cat a b c).obj (f, g)
 
 instance : Category C where
-  id_comp {A B} (f : A ⟶[Cat] B) := congrArg (·.obj f) (EnrichedCategory.id_comp (V := Cat) A B)
-  comp_id {A B} f := congrArg (·.obj f) (EnrichedCategory.comp_id (V := Cat) A B)
-  assoc {A B C D} f g h := congrArg (·.obj (f, g, h)) (EnrichedCategory.assoc (V := Cat) A B C D)
+  id_comp {A B} (f : A ⟶[Cat] B) := congrArg (·.obj f) (e_id_comp (V := Cat) A B)
+  comp_id {A B} f := congrArg (·.obj f) (e_comp_id (V := Cat) A B)
+  assoc {A B C D} f g h := congrArg (·.obj (f, g, h)) (e_assoc (V := Cat) A B C D)
 
 instance : Bicategory C where
-  -- __ := inferInstanceAs (Category C)
   Hom a b := (a ⟶[Cat] b).α
   homCategory a b := (a ⟶[Cat] b).str
   id a := (eId Cat a).obj ⟨⟨()⟩⟩
@@ -104,21 +103,54 @@ instance : Bicategory C where
   associator f g h := eqToIso (assoc (obj := C) f g h)
   leftUnitor f := eqToIso (id_comp (obj := C) f)
   rightUnitor f := eqToIso (comp_id (obj := C) f)
-  whiskerLeft_id := sorry
-  whiskerLeft_comp := sorry
-  id_whiskerLeft := sorry
-  comp_whiskerLeft := sorry
-  id_whiskerRight := sorry
-  comp_whiskerRight := sorry
-  whiskerRight_id := sorry
-  whiskerRight_comp := sorry
-  whisker_assoc := sorry
-  whisker_exchange := sorry
-  pentagon := sorry
-  triangle := sorry
+  whiskerLeft_id _ _ := Functor.map_id ..
+  whiskerLeft_comp {_ _ _} _ {_ _ _} _ _ := by
+    refine .trans ?_ (Functor.map_comp ..)
+    congr 2; exact (id_comp (𝟙 _)).symm
+  id_whiskerLeft {A B f g} η := by
+    dsimp
+    sorry
+  comp_whiskerLeft {a b c d} f g {h h'} η := by
+    dsimp
+    sorry
+  id_whiskerRight _ _ := Functor.map_id ..
+  comp_whiskerRight  {_ _ _} _ {_ _ _} _ _ := by
+    refine .trans ?_ (Functor.map_comp ..)
+    congr 2; exact (id_comp (𝟙 _)).symm
+  whiskerRight_id {a b f g} η := by
+    dsimp
+    sorry
+  whiskerRight_comp {a b c d f f'} η g h := by
+    dsimp
+    sorry
+  whisker_assoc {a b c d} f {g g'} η h := by
+    dsimp
+    sorry
+  whisker_exchange η θ := by
+    refine (Functor.map_comp ..).symm.trans <| .trans ?_ (Functor.map_comp ..)
+    congr 1; apply Prod.ext
+    · exact (id_comp _).trans (comp_id _).symm
+    · exact (comp_id _).trans (id_comp _).symm
+  pentagon {a b c d e} f g h i := by
+    let foo (b : C) (x y) {x' y'} (hx : x = x') (hy : y = y') :
+        (eComp Cat a b e).obj (x, y) ⟶ (eComp Cat a b e).obj (x', y') :=
+      (eComp Cat a b e).map (eqToHom hx, eqToHom hy)
+    suffices ∀ x w h1 h2 h3 h4,
+      foo d x i h1 rfl ≫ eqToHom h2 ≫ foo b f w rfl h3 = eqToHom h4 by
+      simpa [foo] using this ..
+    rintro _ _  rfl _ rfl _
+    conv => enter [1, 1]; apply Functor.map_id
+    conv => enter [1, 2, 2]; apply Functor.map_id
+    simp
+  triangle {a b c} f g := by
+    let foo (x y) {x' y'} (hx : x = x') (hy : y = y') :
+        (eComp Cat a b c).obj (x, y) ⟶ (eComp Cat a b c).obj (x', y') :=
+      (eComp Cat a b c).map (eqToHom hx, eqToHom hy)
+    dsimp
+    suffices ∀ f' g' h1 h2 h3, eqToHom h1 ≫ foo f g' rfl h2 = foo f' g h3 rfl from this ..
+    rintro _ _ _ rfl rfl; simp
 
 instance : Bicategory.Strict C where
-  __ := inferInstanceAs (Category C)
 
 end
 
