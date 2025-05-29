@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Emily Riehl
 -/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
 import Mathlib.CategoryTheory.Bicategory.Strict
 import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
@@ -11,6 +12,9 @@ import Mathlib.CategoryTheory.Monoidal.Functor
 import Mathlib.CategoryTheory.Closed.FunctorToTypes
 import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
+import Mathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
+
+universe u
 
 /-!
 # 2025 Goals of the Infinity-Cosmos Project
@@ -61,8 +65,54 @@ instance hoFunctor.preservesBinaryProducts' :
     PreservesLimitsOfShape (Discrete Limits.WalkingPair) hoFunctor where
   preservesLimit := sorry
 
+def simplexIsNerve (n : ℕ) : Δ[n] ≅ nerve (Fin (n + 1)) := sorry
+
+noncomputable def iso : hoFunctor.obj Δ[0] ≅ Cat.of (Fin 1) :=
+  hoFunctor.mapIso (simplexIsNerve 0) ≪≫ nerveFunctorCompHoFunctorIso.app (Cat.of (Fin 1))
+
+-- Cat.of (ULift (ULiftHom (Discrete Unit)))
+def finOneTerminalIso' : Cat.of (Fin 1) ≅ Cat.of (Discrete Unit) where
+  hom := toCatHom (star (Fin 1))
+  inv := toCatHom (fromPUnit 0)
+  hom_inv_id := ComposableArrows.ext₀ rfl
+  inv_hom_id := rfl
+
+noncomputable def finOneTerminalIso : Cat.of (Discrete Unit) ≅ ⊤_ Cat := by
+  have : IsTerminal (Cat.of (Discrete Unit)) := by
+    have := Cat.chosenTerminalIsTerminal.{0,0}
+    unfold Cat.chosenTerminal at this
+    sorry
+  exact (terminalIsoIsTerminal this).symm
+
+-- TODO: Generalize to higher universe levels.
+noncomputable def hoFunctor.terminalIso' : (hoFunctor.obj (⊤_ SSet.{0} )) ≅ (⊤_ _) :=
+  hoFunctor.mapIso (terminalIsoIsTerminal isTerminalDeltaZero) ≪≫ iso ≪≫
+    finOneTerminalIso' ≪≫ finOneTerminalIso
+
+noncomputable def hoFunctor.terminalIso : (hoFunctor.obj (⊤_ _ )) ≅ (⊤_ _) where
+  hom := terminalComparison hoFunctor
+  inv := by
+    sorry
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+instance hoFunctor.terminalComparisonIsIso : IsIso (terminalComparison hoFunctor) :=
+  Iso.isIso_hom hoFunctor.terminalIso
+
+instance hoFunctor.preservesTerminal : PreservesLimit (empty SSet) hoFunctor := sorry
+-- apply preservesTerminal_of_iso hoFunctor
+-- apply PreservesTerminal.of_iso_comparison hoFunctor
+
+instance hoFunctor.preservesTerminal' :
+    PreservesLimitsOfShape (Discrete PEmpty.{1}) hoFunctor :=
+  preservesLimitsOfShape_pempty_of_preservesTerminal _
+
+instance hoFunctor.preservesFiniteProducts : PreservesFiniteProducts hoFunctor :=
+  Limits.PreservesFiniteProducts.of_preserves_binary_and_terminal _
+
 /-- A product preserving functor between cartesian closed categories is lax monoidal. -/
-instance hoFunctor.laxMonoidal : LaxMonoidal hoFunctor := sorry
+noncomputable instance hoFunctor.laxMonoidal : LaxMonoidal hoFunctor :=
+  (Monoidal.ofChosenFiniteProducts hoFunctor).toLaxMonoidal
 
 /-- Applying this result, the category of quasi-categories is an enriched ordinary category over the
 cartesian closed category of categories. -/
