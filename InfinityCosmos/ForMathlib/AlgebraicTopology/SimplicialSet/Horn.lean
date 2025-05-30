@@ -2,7 +2,7 @@ import Mathlib.AlgebraicTopology.SimplicialSet.Horn
 
 open Simplicial SSet CategoryTheory
 
-namespace SSet
+namespace SSet.Truncated
 
 def hornFaceIncl {n : ℕ} (i : Fin (n + 2)) (j : Fin (n + 2)) (h : j ≠ i)
   : Δ[n] ⟶ Λ[n + 1, i] := yonedaEquiv.symm (horn.face i j h)
@@ -155,4 +155,4 @@ def multicofork := Limits.Multicofork.ofπ multispanIndex Λ[3, 2] π fork_comm
 def multicoforkIsMulticoeq : Limits.IsColimit multicofork := by sorry
 
 end horn₃₂
-end SSet
+end SSet.Truncated
