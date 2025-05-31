@@ -77,6 +77,7 @@ def finOneTerminalIso' : Cat.of (Fin 1) ≅ Cat.of (Discrete Unit) where
   hom_inv_id := ComposableArrows.ext₀ rfl
   inv_hom_id := rfl
 
+-- I don't understand why Cat.chosenTerminalIsTerminal.{0,0} doesn't work.
 noncomputable def finOneTerminalIso : Cat.of (Discrete Unit) ≅ ⊤_ Cat := by
   have : IsTerminal (Cat.of (Discrete Unit)) := by
     have := Cat.chosenTerminalIsTerminal.{0,0}
@@ -89,6 +90,7 @@ noncomputable def hoFunctor.terminalIso' : (hoFunctor.obj (⊤_ SSet.{0} )) ≅ 
   hoFunctor.mapIso (terminalIsoIsTerminal isTerminalDeltaZero) ≪≫ iso ≪≫
     finOneTerminalIso' ≪≫ finOneTerminalIso
 
+-- TODO: Replace by something like the preceding
 noncomputable def hoFunctor.terminalIso : (hoFunctor.obj (⊤_ _ )) ≅ (⊤_ _) where
   hom := terminalComparison hoFunctor
   inv := by
@@ -116,17 +118,11 @@ noncomputable instance hoFunctor.laxMonoidal : LaxMonoidal hoFunctor :=
 
 /-- Applying this result, the category of quasi-categories is an enriched ordinary category over the
 cartesian closed category of categories. -/
-noncomputable def QCat.CatEnrichedCat : EnrichedCategory Cat QCat :=
+noncomputable instance QCat.CatEnrichedCat : EnrichedCategory Cat QCat :=
   instEnrichedCategoryTransportEnrichment (C := QCat) hoFunctor
 
 -- Finally we convert the Cat enriched category of categories to a 2-category. Perhaps it would be
 -- better to first extend this to Cat enriched ordinary category?
-
-/-- This is required, unfortunately, by the following definition. -/
-instance QCat.Bicategory : Bicategory QCat := sorry
-
-/-- For this statement to typecheck, we need a bicategory instance. -/
-instance QCat.strictBicategory : Bicategory.Strict QCat := sorry
 
 section
 variable (C : Type*) [EnrichedCategory Cat C]
@@ -207,6 +203,11 @@ instance : Bicategory.Strict C where
 
 end
 
+/-- This is required, unfortunately, by the following definition. -/
+noncomputable instance QCat.Bicategory : Bicategory QCat := inferInstance
+
+/-- For this statement to typecheck, we need a bicategory instance. -/
+instance QCat.strictBicategory : Bicategory.Strict QCat := inferInstance
 
 end CategoryTheory
 
