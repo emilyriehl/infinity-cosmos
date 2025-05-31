@@ -14,7 +14,7 @@ import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
 import Mathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
 
-universe u
+universe u v
 
 /-!
 # 2025 Goals of the Infinity-Cosmos Project
@@ -70,40 +70,26 @@ def simplexIsNerve (n : ℕ) : Δ[n] ≅ nerve (Fin (n + 1)) := sorry
 noncomputable def iso : hoFunctor.obj Δ[0] ≅ Cat.of (Fin 1) :=
   hoFunctor.mapIso (simplexIsNerve 0) ≪≫ nerveFunctorCompHoFunctorIso.app (Cat.of (Fin 1))
 
--- Cat.of (ULift (ULiftHom (Discrete Unit)))
-def finOneTerminalIso' : Cat.of (Fin 1) ≅ Cat.of (Discrete Unit) where
+def finOneTerminalIso' : Cat.of (Fin 1) ≅ Cat.of (Discrete PUnit) where
   hom := toCatHom (star (Fin 1))
   inv := toCatHom (fromPUnit 0)
   hom_inv_id := ComposableArrows.ext₀ rfl
   inv_hom_id := rfl
 
--- I don't understand why Cat.chosenTerminalIsTerminal.{0,0} doesn't work.
-noncomputable def finOneTerminalIso : Cat.of (Discrete Unit) ≅ ⊤_ Cat := by
-  have : IsTerminal (Cat.of (Discrete Unit)) := by
-    have := Cat.chosenTerminalIsTerminal.{0,0}
-    unfold Cat.chosenTerminal at this
-    sorry
-  exact (terminalIsoIsTerminal this).symm
+instance DiscretePUnit.isTerminal : IsTerminal (Cat.of (Discrete PUnit)) :=
+  IsTerminal.ofUniqueHom (fun C ↦ star C) (fun _ _ => punit_ext' _ _)
 
--- TODO: Generalize to higher universe levels.
-noncomputable def hoFunctor.terminalIso' : (hoFunctor.obj (⊤_ SSet.{0} )) ≅ (⊤_ _) :=
+noncomputable def finOneTerminalIso : ⊤_ Cat.{u, u} ≅ Cat.of (Discrete PUnit.{u + 1}) :=
+  terminalIsoIsTerminal DiscretePUnit.isTerminal
+
+noncomputable def hoFunctor.terminalIso : (hoFunctor.obj (⊤_ SSet)) ≅ (⊤_ _) :=
   hoFunctor.mapIso (terminalIsoIsTerminal isTerminalDeltaZero) ≪≫ iso ≪≫
-    finOneTerminalIso' ≪≫ finOneTerminalIso
+    finOneTerminalIso' ≪≫ finOneTerminalIso.symm
 
--- TODO: Replace by something like the preceding
-noncomputable def hoFunctor.terminalIso : (hoFunctor.obj (⊤_ _ )) ≅ (⊤_ _) where
-  hom := terminalComparison hoFunctor
-  inv := by
-    sorry
-  hom_inv_id := sorry
-  inv_hom_id := sorry
-
-instance hoFunctor.terminalComparisonIsIso : IsIso (terminalComparison hoFunctor) :=
-  Iso.isIso_hom hoFunctor.terminalIso
-
-instance hoFunctor.preservesTerminal : PreservesLimit (empty SSet) hoFunctor := sorry
--- apply preservesTerminal_of_iso hoFunctor
--- apply PreservesTerminal.of_iso_comparison hoFunctor
+--- Why can't I just exact this?
+instance hoFunctor.preservesTerminal : PreservesLimit (empty SSet) hoFunctor := by
+  have := preservesTerminal_of_iso hoFunctor hoFunctor.terminalIso
+  sorry
 
 instance hoFunctor.preservesTerminal' :
     PreservesLimitsOfShape (Discrete PEmpty.{1}) hoFunctor :=
