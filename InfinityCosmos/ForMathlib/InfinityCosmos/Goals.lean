@@ -14,7 +14,7 @@ import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
 import Mathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
 
-universe u v
+universe v v' u u'
 
 /-!
 # 2025 Goals of the Infinity-Cosmos Project
@@ -65,31 +65,71 @@ instance hoFunctor.preservesBinaryProducts' :
     PreservesLimitsOfShape (Discrete Limits.WalkingPair) hoFunctor where
   preservesLimit := sorry
 
-def simplexIsNerve (n : ℕ) : Δ[n] ≅ nerve (Fin (n + 1)) := sorry
+abbrev FinOrdCat (n : ℕ) : Cat.{v,u} := Cat.of (ULiftHom.{v,u} (ULift.{u} (Fin n)))
 
-noncomputable def iso : hoFunctor.obj Δ[0] ≅ Cat.of (Fin 1) :=
-  hoFunctor.mapIso (simplexIsNerve 0) ≪≫ nerveFunctorCompHoFunctorIso.app (Cat.of (Fin 1))
+namespace FinOrdCat
 
-def finOneTerminalIso' : Cat.of (Fin 1) ≅ Cat.of (Discrete PUnit) where
-  hom := toCatHom (star (Fin 1))
-  inv := toCatHom (fromPUnit 0)
-  hom_inv_id := ComposableArrows.ext₀ rfl
+  variable {n : ℕ} {C : Type u} [catC : Category.{v} C]
+
+  def toComposableArrows (F : FinOrdCat (n + 1) ⟶ Cat.of C) : ComposableArrows C n :=
+    ULift.upFunctor ⋙ ULiftHom.up ⋙ F
+
+  def ofComposableArrows (G : ComposableArrows C n) : (FinOrdCat (n + 1) ⟶ Cat.of C) :=
+    toCatHom (ULiftHom.down ⋙ ULift.downFunctor ⋙ G)
+
+  @[simp]
+  theorem to_ofComposableArrows :
+      Function.LeftInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
+    intro; apply ComposableArrows.ext
+    case h => rfl_cat
+    case w =>
+      intros
+      simp_all only [ComposableArrows.map', homOfLE_leOfHom, eqToHom_refl, comp_id, id_comp]
+      rfl
+
+  -- Still a couple of sorries here, but almost done.
+  @[simp]
+  theorem of_toComposableArrows :
+      Function.RightInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
+    intro; unfold ofComposableArrows toComposableArrows
+    apply ext_of_iso
+    case hobj => rfl_cat
+    case e => sorry
+    case happ => sorry
+
+  theorem toComposableArrowsInjective : Function.Injective (toComposableArrows (C := C) (n := n)) :=
+    Function.LeftInverse.injective of_toComposableArrows
+
+end FinOrdCat
+
+def simplexIsNerve (n : ℕ) : Δ[n] ≅ nerve (FinOrdCat (n + 1)) := sorry
+
+noncomputable def iso : hoFunctor.obj Δ[0] ≅ FinOrdCat 1 :=
+  hoFunctor.mapIso (simplexIsNerve 0) ≪≫ nerveFunctorCompHoFunctorIso.app (FinOrdCat 1)
+
+def finOneTerminalIso' : FinOrdCat 1 ≅ Cat.of (Discrete.{u} PUnit) where
+  hom := toCatHom (star (FinOrdCat 1))
+  inv := toCatHom (fromPUnit (ULift.up 0))
+  hom_inv_id := by
+    apply FinOrdCat.toComposableArrowsInjective
+    exact ComposableArrows.ext₀ rfl
   inv_hom_id := rfl
 
 instance DiscretePUnit.isTerminal : IsTerminal (Cat.of (Discrete PUnit)) :=
   IsTerminal.ofUniqueHom (fun C ↦ star C) (fun _ _ => punit_ext' _ _)
 
-noncomputable def finOneTerminalIso : ⊤_ Cat.{u, u} ≅ Cat.of (Discrete PUnit.{u + 1}) :=
+noncomputable def finOneTerminalIso : ⊤_ Cat.{u,u} ≅ Cat.of (Discrete.{u} PUnit) :=
   terminalIsoIsTerminal DiscretePUnit.isTerminal
 
-noncomputable def hoFunctor.terminalIso : (hoFunctor.obj (⊤_ SSet)) ≅ (⊤_ _) :=
+noncomputable def hoFunctor.terminalIso : (hoFunctor.obj.{u} (⊤_ SSet)) ≅ (⊤_ Cat) :=
   hoFunctor.mapIso (terminalIsoIsTerminal isTerminalDeltaZero) ≪≫ iso ≪≫
     finOneTerminalIso' ≪≫ finOneTerminalIso.symm
 
---- Why can't I just exact this?
-instance hoFunctor.preservesTerminal : PreservesLimit (empty SSet) hoFunctor := by
-  have := preservesTerminal_of_iso hoFunctor hoFunctor.terminalIso
-  sorry
+-- Having generalised the universes in the last sequence of lemmas this now works,
+-- but note that we have to pin the domain of `empty` functor in the statement to
+-- universe 0 in order to agree with its use in `preservesTerminal_of_iso`.
+instance hoFunctor.preservesTerminal : PreservesLimit (empty.{0} SSet) hoFunctor :=
+  preservesTerminal_of_iso hoFunctor hoFunctor.terminalIso
 
 instance hoFunctor.preservesTerminal' :
     PreservesLimitsOfShape (Discrete PEmpty.{1}) hoFunctor :=
