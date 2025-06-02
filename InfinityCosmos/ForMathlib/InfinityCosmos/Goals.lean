@@ -66,38 +66,34 @@ instance hoFunctor.preservesBinaryProducts' :
   preservesLimit := sorry
 
 abbrev FinOrdCat (n : ℕ) : Cat.{v,u} := Cat.of (ULiftHom.{v,u} (ULift.{u} (Fin n)))
-
 namespace FinOrdCat
 
-  variable {n : ℕ} {C : Type u} [catC : Category.{v} C]
+variable {n : ℕ} {C : Type u} [Category.{v} C]
 
-  def toComposableArrows (F : FinOrdCat (n + 1) ⟶ Cat.of C) : ComposableArrows C n :=
-    ULift.upFunctor ⋙ ULiftHom.up ⋙ F
+def toComposableArrows (F : FinOrdCat (n + 1) ⥤ C) : ComposableArrows C n :=
+  ULift.upFunctor ⋙ ULiftHom.up ⋙ F
 
-  def ofComposableArrows (G : ComposableArrows C n) : (FinOrdCat (n + 1) ⟶ Cat.of C) :=
-    toCatHom (ULiftHom.down ⋙ ULift.downFunctor ⋙ G)
+def ofComposableArrows (G : ComposableArrows C n) : (FinOrdCat (n + 1) ⥤ C) :=
+  ULiftHom.down (C := ULift.{u} (Fin (n + 1))) ⋙ ULift.downFunctor ⋙ G
 
-  @[simp]
-  theorem to_ofComposableArrows :
-      Function.LeftInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
-    intro; apply ComposableArrows.ext
-    case h => rfl_cat
-    case w =>
-      intros
-      simp_all only [ComposableArrows.map', homOfLE_leOfHom, eqToHom_refl, comp_id, id_comp]
-      rfl
+@[simp]
+theorem to_ofComposableArrows :
+    Function.LeftInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
+  intro; apply ComposableArrows.ext
+  case h => rfl_cat
+  case w =>
+    intros
+    simp only [ComposableArrows.map', homOfLE_leOfHom, eqToHom_refl, comp_id, id_comp]
+    rfl
 
-  @[simp]
-  theorem of_toComposableArrows :
-      Function.RightInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
-    intro G; unfold ofComposableArrows toComposableArrows
-    apply ext_of_iso
-    case hobj => rfl_cat
-    case e => rw (occs := .pos [2]) [← Functor.assoc]; rfl_cat
-    case happ => rfl_cat
-
-  theorem toComposableArrowsInjective : Function.Injective (toComposableArrows (C := C) (n := n)) :=
-    Function.LeftInverse.injective of_toComposableArrows
+@[simp]
+theorem of_toComposableArrows :
+    Function.RightInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
+  intro G; unfold ofComposableArrows toComposableArrows
+  apply ext_of_iso
+  case hobj => rfl_cat
+  case e => rw (occs := .pos [2]) [← Functor.assoc]; rfl_cat
+  case happ => rfl_cat
 
 end FinOrdCat
 
@@ -110,7 +106,8 @@ def finOneTerminalIso' : FinOrdCat 1 ≅ Cat.of (Discrete.{u} PUnit) where
   hom := toCatHom (star (FinOrdCat 1))
   inv := toCatHom (fromPUnit (ULift.up 0))
   hom_inv_id := by
-    apply FinOrdCat.toComposableArrowsInjective
+    simp
+    apply (Function.RightInverse.injective FinOrdCat.of_toComposableArrows)
     exact ComposableArrows.ext₀ rfl
   inv_hom_id := rfl
 
