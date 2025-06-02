@@ -79,10 +79,9 @@ def ofComposableArrows (G : ComposableArrows C n) : (FinOrdCat (n + 1) ⥤ C) :=
 @[simp]
 theorem to_ofComposableArrows :
     Function.LeftInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
-  intro; apply ComposableArrows.ext
-  case h => rfl_cat
-  case w =>
-    intros
+  intro
+  apply ComposableArrows.ext (by rfl_cat)
+  · intros
     simp only [ComposableArrows.map', homOfLE_leOfHom, eqToHom_refl, comp_id, id_comp]
     rfl
 
@@ -90,10 +89,8 @@ theorem to_ofComposableArrows :
 theorem of_toComposableArrows :
     Function.RightInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
   intro G; unfold ofComposableArrows toComposableArrows
-  apply ext_of_iso
-  case hobj => rfl_cat
-  case e => rw (occs := .pos [2]) [← Functor.assoc]; rfl_cat
-  case happ => rfl_cat
+  refine ext_of_iso (by rfl_cat) ?_ (by rfl_cat)
+  · rw (occs := .pos [2]) [← Functor.assoc]; rfl_cat
 
 end FinOrdCat
 
