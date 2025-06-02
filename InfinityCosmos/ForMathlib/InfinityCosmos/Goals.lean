@@ -87,15 +87,14 @@ namespace FinOrdCat
       simp_all only [ComposableArrows.map', homOfLE_leOfHom, eqToHom_refl, comp_id, id_comp]
       rfl
 
-  -- Still a couple of sorries here, but almost done.
   @[simp]
   theorem of_toComposableArrows :
       Function.RightInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
-    intro; unfold ofComposableArrows toComposableArrows
+    intro G; unfold ofComposableArrows toComposableArrows
     apply ext_of_iso
     case hobj => rfl_cat
-    case e => sorry
-    case happ => sorry
+    case e => rw (occs := .pos [2]) [← Functor.assoc]; rfl_cat
+    case happ => rfl_cat
 
   theorem toComposableArrowsInjective : Function.Injective (toComposableArrows (C := C) (n := n)) :=
     Function.LeftInverse.injective of_toComposableArrows
