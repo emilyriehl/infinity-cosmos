@@ -65,15 +65,18 @@ instance hoFunctor.preservesBinaryProducts' :
     PreservesLimitsOfShape (Discrete Limits.WalkingPair) hoFunctor where
   preservesLimit := sorry
 
-abbrev FinOrdCat (n : ℕ) : Cat.{v,u} := Cat.of (ULiftHom.{v,u} (ULift.{u} (Fin n)))
-namespace FinOrdCat
+abbrev ULiftFin (n : ℕ) : Type u := (ULiftHom.{v,u} (ULift.{u} (Fin n)))
+
+instance {n : ℕ} : Category (ULiftFin n) := inferInstance
+
+namespace ULiftFin
 
 variable {n : ℕ} {C : Type u} [Category.{v} C]
 
-def toComposableArrows (F : FinOrdCat (n + 1) ⥤ C) : ComposableArrows C n :=
+def toComposableArrows (F : ULiftFin (n + 1) ⥤ C) : ComposableArrows C n :=
   ULift.upFunctor ⋙ ULiftHom.up ⋙ F
 
-def ofComposableArrows (G : ComposableArrows C n) : (FinOrdCat (n + 1) ⥤ C) :=
+def ofComposableArrows (G : ComposableArrows C n) : (ULiftFin (n + 1) ⥤ C) :=
   ULiftHom.down (C := ULift.{u} (Fin (n + 1))) ⋙ ULift.downFunctor ⋙ G
 
 @[simp]
@@ -92,19 +95,18 @@ theorem of_toComposableArrows :
   refine ext_of_iso (by rfl_cat) ?_ (by rfl_cat)
   · rw (occs := .pos [2]) [← Functor.assoc]; rfl_cat
 
-end FinOrdCat
+end ULiftFin
 
-def simplexIsNerve (n : ℕ) : Δ[n] ≅ nerve (FinOrdCat (n + 1)) := sorry
+def simplexIsNerve (n : ℕ) : Δ[n] ≅ nerve (ULiftFin (n + 1)) := sorry
 
-noncomputable def iso : hoFunctor.obj Δ[0] ≅ FinOrdCat 1 :=
-  hoFunctor.mapIso (simplexIsNerve 0) ≪≫ nerveFunctorCompHoFunctorIso.app (FinOrdCat 1)
+noncomputable def iso : hoFunctor.obj Δ[0] ≅ Cat.of (ULiftFin 1) :=
+  hoFunctor.mapIso (simplexIsNerve 0) ≪≫ nerveFunctorCompHoFunctorIso.app (Cat.of (ULiftFin 1))
 
-def finOneTerminalIso' : FinOrdCat 1 ≅ Cat.of (Discrete.{u} PUnit) where
-  hom := toCatHom (star (FinOrdCat 1))
+def ULiftFinDiscretePUnitIso : Cat.of (ULiftFin 1) ≅ Cat.of (Discrete.{u} PUnit) where
+  hom := toCatHom (star (ULiftFin 1))
   inv := toCatHom (fromPUnit (ULift.up 0))
   hom_inv_id := by
-    simp
-    apply (Function.RightInverse.injective FinOrdCat.of_toComposableArrows)
+    apply (Function.RightInverse.injective ULiftFin.of_toComposableArrows)
     exact ComposableArrows.ext₀ rfl
   inv_hom_id := rfl
 
@@ -114,9 +116,11 @@ instance DiscretePUnit.isTerminal : IsTerminal (Cat.of (Discrete PUnit)) :=
 noncomputable def finOneTerminalIso : ⊤_ Cat.{u,u} ≅ Cat.of (Discrete.{u} PUnit) :=
   terminalIsoIsTerminal DiscretePUnit.isTerminal
 
-noncomputable def hoFunctor.terminalIso : (hoFunctor.obj.{u} (⊤_ SSet)) ≅ (⊤_ Cat) :=
-  hoFunctor.mapIso (terminalIsoIsTerminal isTerminalDeltaZero) ≪≫ iso ≪≫
-    finOneTerminalIso' ≪≫ finOneTerminalIso.symm
+noncomputable def hoFunctor.terminalIso : (hoFunctor.obj (⊤_ SSet)) ≅ (⊤_ Cat) :=
+  hoFunctor.mapIso (terminalIsoIsTerminal isTerminalDeltaZero) ≪≫
+    hoFunctor.mapIso (simplexIsNerve 0) ≪≫
+    nerveFunctorCompHoFunctorIso.app (Cat.of (ULiftFin 1)) ≪≫
+    ULiftFinDiscretePUnitIso ≪≫ finOneTerminalIso.symm
 
 -- Having generalised the universes in the last sequence of lemmas this now works,
 -- but note that we have to pin the domain of `empty` functor in the statement to
