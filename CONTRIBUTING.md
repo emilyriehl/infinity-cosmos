@@ -49,7 +49,7 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 
 * [Dagur Asgeirsson](https://github.com/dagurtomas)
 * [Alvaro Belmonte](https://github.com/AlvaroRBO)
-* [Robin Carlier](https://robin-carlier.github.io/)
+* [Robin Carlier]()
 * [Mario Carneiro](https://github.com/digama0)
 * [Daniel Carranza](https://github.com/daniel-carranza)
 * [Johan Commelin](https://github.com/jcommelin)
@@ -60,6 +60,7 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 * [Jack McKoen](https://github.com/mckoen)
 * [Yuma Mizuno](https://github.com/yuma-mizuno)
 * [Pietro Monticone](https://github.com/pitmonticone)
+* [Thomas Murrills](https://github.com/thorimur)
 * [Matej Penciak](https://github.com/mpenciak)
 * [Nima Rasekh](https://github.com/nimarasekh)
 * [Emily Riehl](https://github.com/emilyriehl)
