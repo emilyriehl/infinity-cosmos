@@ -49,6 +49,7 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 
 * [Dagur Asgeirsson](https://github.com/dagurtomas)
 * [Alvaro Belmonte](https://github.com/AlvaroRBO)
+* [Robin Carlier](https://robin-carlier.github.io/)
 * [Mario Carneiro](https://github.com/digama0)
 * [Daniel Carranza](https://github.com/daniel-carranza)
 * [Johan Commelin](https://github.com/jcommelin)
