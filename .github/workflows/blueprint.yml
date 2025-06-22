@@ -50,6 +50,8 @@ jobs:
 
       - name: Build the project
         uses: leanprover/lean-action@f807b338d95de7813c5c50d018f1c23c9b93b4ec # v1.2.0
+        with:
+          use-github-cache: false
 
       - name: Compile blueprint and documentation
         uses: leanprover-community/docgen-action@b210116d3e6096c0c7146f7a96a6d56b6884fef5 # 2025-06-12
