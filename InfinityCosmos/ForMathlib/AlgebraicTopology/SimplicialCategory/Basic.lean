@@ -91,7 +91,7 @@ noncomputable instance : MonoidalClosed SSet where
 
 /-- Required apparently due to some refactoring. -/
 noncomputable def sSetBraided : BraidedCategory SSet :=
-  BraidedCategory.ofChosenFiniteProducts
+  BraidedCategory.ofCartesianMonoidalCategory
 
 noncomputable instance : SymmetricCategory SSet where
   toBraidedCategory := sSetBraided
