@@ -5,6 +5,7 @@ Authors: Julian Komaromy
 -/
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
+import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
