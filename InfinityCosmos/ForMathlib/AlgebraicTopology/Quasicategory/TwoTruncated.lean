@@ -410,99 +410,26 @@ instance two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
     apply Nonempty.intro
     exact (horn₃₂.fromHornExtension f₃ f₀ f₁ g h)
 
-section homotopy_relation
-
-variable {A : Truncated 2} [Quasicategory₂ A] (f g : A _⦋1⦌₂)
-
-structure HomotopyL where
-  simplex : A _⦋2⦌₂
-  δ₀_eq : A.map (tr (δ 0)).op simplex = A.map (tr (σ 0)).op (A.map (tr (δ 0)).op f)
-  δ₁_eq : A.map (tr (δ 1)).op simplex = g
-  δ₂_eq : A.map (tr (δ 2)).op simplex = f
-
-structure HomotopyR where
-  simplex : A _⦋2⦌₂
-  δ₀_eq : A.map (tr (δ 0)).op simplex = f
-  δ₁_eq : A.map (tr (δ 1)).op simplex = g
-  δ₂_eq : A.map (tr (δ 2)).op simplex = A.map (tr (σ 0)).op (A.map (tr (δ 1)).op f)
-
-def HomotopicL : Prop :=
-    Nonempty (HomotopyL f g)
-
-def HomotopicR : Prop :=
-    Nonempty (HomotopyR f g)
-
-def HomotopyL.refl : HomotopyL f f where
-  simplex := A.map (tr (σ 1)).op f
-  δ₀_eq := by
-    change (A.map (tr (σ 1)).op ≫ A.map (tr (δ 0)).op) _ = (A.map (tr (δ 0)).op ≫ A.map (tr (σ 0)).op) _
-    rw [← Functor.map_comp, ← Functor.map_comp, ← op_comp, ← op_comp, ← Hom.tr_comp, ← Hom.tr_comp]
-    rw [← SimplexCategory.δ_comp_σ_of_le (by simp)]; simp
-  δ₁_eq := by
-    change (A.map (tr (σ 1)).op ≫ A.map (tr (δ 1)).op) _ = _
-    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
-    rw [SimplexCategory.δ_comp_σ_self' (by simp)]
-    show A.map (𝟙 ⦋1⦌₂).op _ = _
-    simp only [op_id, FunctorToTypes.map_id_apply]
-  δ₂_eq := by
-    change (A.map (tr (σ 1)).op ≫ A.map (tr (δ 2)).op) _ = _
-    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
-    rw [SimplexCategory.δ_comp_σ_succ' (by simp)]
-    show A.map (𝟙 ⦋1⦌₂).op _ = _
-    simp only [op_id, FunctorToTypes.map_id_apply]
-
-omit [A.Quasicategory₂] in
-lemma trunc_id (x : A _⦋0⦌₂) : A.map (tr (𝟙 ⦋0⦌)).op x = x := by
-  have : tr (𝟙 ⦋0⦌) _ _ = 𝟙 ⦋0⦌₂ := rfl
-  rw [this, op_id, FunctorToTypes.map_id_apply]
+section useful_comp_structs
+variable {A : Truncated 2}
 
 def idEdge (x : A _⦋0⦌₂) : Edge x x where
   simplex := A.map (tr (σ 0)).op x
   h₀ := by
-    change (A.map (tr (σ 0)).op ≫ A.map (tr (δ 1)).op) _ = _
-    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
-    rw [SimplexCategory.δ_comp_σ_succ' (by simp)]
-    exact trunc_id _
+    rw [← FunctorToTypes.map_comp_apply, ← op_comp,
+      δ₂_one_comp_σ₂_zero, op_id, FunctorToTypes.map_id_apply]
   h₁ := by
-    change (A.map (tr (σ 0)).op ≫ A.map (tr (δ 0)).op) _ = _
-    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
-    rw [SimplexCategory.δ_comp_σ_self' (by simp)]
-    exact trunc_id _
-
-def idCompStruct (x : A _⦋0⦌₂) : CompStruct (idEdge x) (idEdge x) (idEdge x) where
-  simplex := A.map (tr (σ 0 ≫ σ 0)).op x
-  h₀₁ := by
-    change (A.map (tr (σ 0 ≫ σ 0)).op ≫ A.map (tr (δ 2)).op) _ = A.map (tr (σ 0)).op x
-    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
-    have : σ 0 ≫ σ 0 = σ 1 ≫ @σ 0 0 := SimplexCategory.σ_comp_σ (i := 0) (j := 0) (by rfl)
-    rw [this]
-    have : δ 2 ≫ σ 1 = 𝟙 ⦋1⦌ := SimplexCategory.δ_comp_σ_succ' (i := 1) (j := 2) (by simp)
-    rw [← Category.assoc, this, Category.id_comp]
-  h₁₂ := by
-    change (A.map (tr (σ 0 ≫ σ 0)).op ≫ A.map (tr (δ 0)).op) _ = A.map (tr (σ 0)).op x
-    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
-    have : δ 0 ≫ σ 0 = 𝟙 ⦋1⦌ := SimplexCategory.δ_comp_σ_self' (by rfl)
-    rw [← Category.assoc, this, Category.id_comp]
-  h₀₂ := by
-    change (A.map (tr (σ 0 ≫ σ 0)).op ≫ A.map (tr (δ 1)).op) _ = A.map (tr (σ 0)).op x
-    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
-    have : δ 1 ≫ σ 0 = 𝟙 ⦋1⦌ := SimplexCategory.δ_comp_σ_succ' (i := 0) (j := 1) (by simp)
-    rw [← Category.assoc, this, Category.id_comp]
-
-namespace homotopy_comp_struct
-
-abbrev HomotopicL {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct f (idEdge y) g)
+    rw [← FunctorToTypes.map_comp_apply, ← op_comp,
+      δ₂_zero_comp_σ₂_zero, op_id, FunctorToTypes.map_id_apply]
 
 def doubleEdge₀ {x y : A _⦋0⦌₂} (e : Edge x y) : CompStruct e (idEdge y) e where
   simplex := A.map (tr (σ 1)).op e.simplex
   h₀₁ := by
-    rw [← FunctorToTypes.map_comp_apply, ← op_comp]
-    simp only [Nat.reduceAdd, Fin.isValue, δ₂_two_comp_σ₂_one, op_id, FunctorToTypes.map_id_apply]
+    rw [← FunctorToTypes.map_comp_apply, ← op_comp, δ₂_two_comp_σ₂_one, op_id,
+      FunctorToTypes.map_id_apply]
   h₁₂ := by
-    rw [← FunctorToTypes.map_comp_apply, ← op_comp]
-    simp only [Nat.reduceAdd, Fin.isValue, δ₂_zero_comp_σ₂_one, op_comp,
-      FunctorToTypes.map_comp_apply]
-    rw [e.h₁]
+    rw [← FunctorToTypes.map_comp_apply, ← op_comp, δ₂_zero_comp_σ₂_one, op_comp,
+      FunctorToTypes.map_comp_apply, e.h₁]
     rfl
   h₀₂ := by
     rw [← FunctorToTypes.map_comp_apply, ← op_comp, ← Hom.tr_comp]
@@ -510,17 +437,55 @@ def doubleEdge₀ {x y : A _⦋0⦌₂} (e : Edge x y) : CompStruct e (idEdge y)
     rw [δ_comp_σ_self' (by rfl)]
     apply FunctorToTypes.map_id_apply
 
-def doubleEdge₂ {x y : A _⦋0⦌₂} (e : Edge x y) : CompStruct (idEdge x) e e := sorry
+def doubleEdge₂ {x y : A _⦋0⦌₂} (e : Edge x y) : CompStruct (idEdge x) e e where
+  simplex := A.map (tr (σ 0)).op e.simplex
+  h₀₁ := by
+    rw [← FunctorToTypes.map_comp_apply, ← op_comp, δ₂_two_comp_σ₂_zero,
+      op_comp, FunctorToTypes.map_comp_apply, e.h₀]
+    rfl
+  h₁₂ := by
+    rw [← FunctorToTypes.map_comp_apply, ← op_comp, δ₂_zero_comp_σ₂_zero, op_id,
+      FunctorToTypes.map_id_apply]
+  h₀₂ := by
+    rw [← FunctorToTypes.map_comp_apply, ← op_comp, δ₂_one_comp_σ₂_zero, op_id,
+      FunctorToTypes.map_id_apply]
 
---def idCompStruct (x : A _⦋0⦌₂) := doubleEdge₀ (idEdge x)
+def idCompStruct (x : A _⦋0⦌₂) := doubleEdge₀ (idEdge x)
 
+end useful_comp_structs
+
+section homotopy_relation
+
+variable {A : Truncated 2} [Quasicategory₂ A] (f g : A _⦋1⦌₂)
+
+/--
+Two edges `f` and `g` are left homotopy equivalent if there is a 2-simplex with
+(0, 1)-edge `f`, (0, 2)-edge `g` and (1, 2)-edge `id`. We use `Nonempty` to
+have a `Prop` valued `HomotopicL`.
+-/
+abbrev HomotopicL {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct f (idEdge y) g)
+
+/--
+See `HomotopicL`.
+-/
+abbrev HomotopicR {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct (idEdge x) f g)
+
+/--
+Left homotopy equivalence is reflexive
+-/
 def HomotopicL.refl {x : A _⦋0⦌₂} : HomotopicL (idEdge x) (idEdge x) := ⟨idCompStruct x⟩
 
+/--
+Left homotopy equivalence is symmetric
+-/
 def HomotopicL.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicL f g) :
     HomotopicL g f := by
   rcases hfg with ⟨hfg⟩
   exact Quasicategory₂.fill31 hfg (idCompStruct y) (doubleEdge₀ f)
 
+/--
+Left homotopy equivalence is transitive
+-/
 def HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicL f g)
     (hgh : HomotopicL g h) :
     HomotopicL f h := by
@@ -528,39 +493,41 @@ def HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicL 
   rcases hgh with ⟨hgh⟩
   exact Quasicategory₂.fill32 hfg (idCompStruct y) hgh
 
-abbrev HomotopicR {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct (idEdge x) f g)
+/--
+Right homotopy equivalence is reflexive
+-/
+def HomotopicR.refl {x : A _⦋0⦌₂} : HomotopicR (idEdge x) (idEdge x) := ⟨idCompStruct x⟩
 
+/--
+Right homotopy equivalence is symmetric
+-/
+def HomotopicR.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicR f g) :
+    HomotopicR g f := by
+  rcases hfg with ⟨hfg⟩
+  exact Quasicategory₂.fill32 (idCompStruct x) hfg (doubleEdge₂ f)
+
+/--
+Right homotopy equivalence is transitive
+-/
+def HomotopicR.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicR f g)
+    (hgh : HomotopicR g h) :
+    HomotopicR f h := by
+  rcases hfg with ⟨hfg⟩
+  rcases hgh with ⟨hgh⟩
+  exact Quasicategory₂.fill31 (idCompStruct x) hfg hgh
+
+/--
+Right and left homotopy equivalences coincide
+-/
 theorem left_homotopic_iff_right_homotopic {x y : A _⦋0⦌₂} {f g : Edge x y} :
     HomotopicL f g ↔ HomotopicR f g := by
   constructor
-  . intro lhfg
-    obtain ⟨lhgf⟩ := HomotopicL.symm lhfg
-    exact Quasicategory₂.fill32 (doubleEdge₂ g) lhgf (doubleEdge₀ g)
-  . sorry
-
-end homotopy_comp_struct
-
-def HomotopyR.refl : HomotopyR f f where
-  simplex := A.map (tr (σ 0)).op f
-  δ₀_eq := by
-    change (A.map (tr (σ 0)).op ≫ A.map (tr (δ 0)).op) _ = _
-    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
-    rw [SimplexCategory.δ_comp_σ_self' (by simp)]
-    show A.map (𝟙 ⦋1⦌₂).op _ = _
-    simp only [op_id, FunctorToTypes.map_id_apply]
-  δ₁_eq := by
-    change (A.map (tr (σ 0)).op ≫ A.map (tr (δ 1)).op) _ = _
-    rw [← Functor.map_comp, ← op_comp, ← Hom.tr_comp]
-    rw [SimplexCategory.δ_comp_σ_succ' (by simp)]
-    show A.map (𝟙 ⦋1⦌₂).op _ = _
-    simp only [op_id, FunctorToTypes.map_id_apply]
-  δ₂_eq := by
-    change (A.map (tr (σ 0)).op ≫ A.map (tr (δ 2)).op) _ = (A.map (tr (δ 1)).op ≫ A.map (tr (σ 0)).op) _
-    rw [← Functor.map_comp, ← Functor.map_comp, ← op_comp, ← op_comp, ← Hom.tr_comp, ← Hom.tr_comp]
-    rw [← SimplexCategory.δ_comp_σ_of_gt (by simp)]; simp
+  . rintro ⟨lhfg⟩
+    exact Quasicategory₂.fill32 (doubleEdge₂ f) (doubleEdge₀ f) lhfg
+  . rintro ⟨rhfg⟩
+    exact Quasicategory₂.fill31 (doubleEdge₂ f) (doubleEdge₀ f) rhfg
 
 end homotopy_relation
-
 
 end Truncated
 
