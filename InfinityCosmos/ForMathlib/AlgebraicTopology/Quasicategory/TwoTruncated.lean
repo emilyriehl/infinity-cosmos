@@ -459,7 +459,7 @@ section homotopy_relation
 variable {A : Truncated 2} [Quasicategory₂ A] (f g : A _⦋1⦌₂)
 
 /--
-Two edges `f` and `g` are left homotopy equivalent if there is a 2-simplex with
+Two edges `f` and `g` are left homotopic if there is a 2-simplex with
 (0, 1)-edge `f`, (0, 2)-edge `g` and (1, 2)-edge `id`. We use `Nonempty` to
 have a `Prop` valued `HomotopicL`.
 -/
@@ -471,12 +471,12 @@ See `HomotopicL`.
 abbrev HomotopicR {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct (idEdge x) f g)
 
 /--
-Left homotopy equivalence is reflexive
+Left homotopy relation is reflexive
 -/
 def HomotopicL.refl {x : A _⦋0⦌₂} : HomotopicL (idEdge x) (idEdge x) := ⟨idCompStruct x⟩
 
 /--
-Left homotopy equivalence is symmetric
+Left homotopy relation is symmetric
 -/
 def HomotopicL.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicL f g) :
     HomotopicL g f := by
@@ -484,7 +484,7 @@ def HomotopicL.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicL f g
   exact Quasicategory₂.fill31 hfg (idCompStruct y) (doubleEdge₀ f)
 
 /--
-Left homotopy equivalence is transitive
+Left homotopy relation is transitive
 -/
 def HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicL f g)
     (hgh : HomotopicL g h) :
@@ -494,12 +494,12 @@ def HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicL 
   exact Quasicategory₂.fill32 hfg (idCompStruct y) hgh
 
 /--
-Right homotopy equivalence is reflexive
+Right homotopy relation is reflexive
 -/
 def HomotopicR.refl {x : A _⦋0⦌₂} : HomotopicR (idEdge x) (idEdge x) := ⟨idCompStruct x⟩
 
 /--
-Right homotopy equivalence is symmetric
+Right homotopy relation is symmetric
 -/
 def HomotopicR.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicR f g) :
     HomotopicR g f := by
@@ -507,7 +507,7 @@ def HomotopicR.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicR f g
   exact Quasicategory₂.fill32 (idCompStruct x) hfg (doubleEdge₂ f)
 
 /--
-Right homotopy equivalence is transitive
+Right homotopy relation is transitive
 -/
 def HomotopicR.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicR f g)
     (hgh : HomotopicR g h) :
@@ -517,7 +517,7 @@ def HomotopicR.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicR 
   exact Quasicategory₂.fill31 (idCompStruct x) hfg hgh
 
 /--
-Right and left homotopy equivalences coincide
+The right and left homotopy relations coincide
 -/
 theorem left_homotopic_iff_right_homotopic {x y : A _⦋0⦌₂} {f g : Edge x y} :
     HomotopicL f g ↔ HomotopicR f g := by
