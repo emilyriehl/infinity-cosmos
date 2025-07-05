@@ -621,8 +621,7 @@ We now introduce the weak equivalences and trivial fibrations between fibrant ob
 
 \begin{definition}[equivalences of quasi-categories]\label{defn:qcat-equivalence}
   \uses{defn:quasi-category, defn:coherent-isomorphism}
-  \lean{QCat.Equiv}
-  \leanok
+  \lean{QCat.Equiv}\leanok
   A map $f \colon A \to B$ between quasi-categories is an \textbf{equivalence} if it extends to the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the interval: that is, if there exist maps $g \colon B \to A$,
   \begin{center}
   \begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso  \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] & \text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] \\ & A & &  & B
