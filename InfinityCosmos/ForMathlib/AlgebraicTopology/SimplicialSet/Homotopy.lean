@@ -8,6 +8,7 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
+import Mathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
 
 universe u v w
 
@@ -74,12 +75,42 @@ structure Homotopy {A B : SSet.{u}} (f g : A ⟶ B) : Type u
   source_eq : homotopy ≫ pathSpace.src B = f
   target_eq : homotopy ≫ pathSpace.tgt B = g
 
+@[refl]
+noncomputable def Homotopy.refl {A B : SSet.{u}} (f : A ⟶ B) : Homotopy (I := I) f f where
+  homotopy := curry <| tensorHom (𝟙 I) f ≫ CartesianMonoidalCategory.snd I B
+  source_eq := sorry
+  target_eq := sorry
+
+@[symm]
+noncomputable def Homotopy.symm {A B : SSet.{u}} {f g : A ⟶ B} (h : Homotopy (I := I) f g) :
+    Homotopy (I := I) g f where
+  homotopy := sorry
+  source_eq := sorry
+  target_eq := sorry
+
+def Homotopy.hoFunctorIso {A B : SSet.{u}} {f g : A ⟶ B} (h : Homotopy (I := I) f g) :
+    hoFunctor.map f ≅ hoFunctor.map g := by
+  dsimp [hoFunctor]
+  simp_rw [← h.source_eq, ← h.target_eq]
+  simp only [Functor.map_comp]
+  -- apply Quotient.lift_unique'
+
+  sorry
+
 /-- For the correct interval, this defines a good notion of equivalences for both Kan complexes and quasi-categories.-/
 structure Equiv (A B : SSet.{u}) : Type u where
   toFun : A ⟶ B
   invFun : B ⟶ A
   left_inv : Homotopy (I := I) (toFun ≫ invFun) (𝟙 A)
   right_inv : Homotopy (I := I) (invFun ≫ toFun) (𝟙 B)
+
+@[refl]
+noncomputable def Equiv.refl {A : SSet} : Equiv (I := I) A A :=
+  ⟨𝟙 A, 𝟙 A, Category.comp_id (𝟙 A) ▸ Homotopy.refl _, Category.comp_id (𝟙 A) ▸ Homotopy.refl _⟩
+
+@[symm]
+def Equiv.symm {A B : SSet.{u}} (e : Equiv (I := I) A B) : Equiv (I := I) B A :=
+  ⟨e.invFun, e.toFun, e.right_inv, e.left_inv⟩
 
 end
 
@@ -186,5 +217,49 @@ def HomotopyL.refl : HomotopyL f f where
 --   simp [← homotopicL_iff_homotopicR, HomotopyL.equiv]
 
 end
+
+end SSet
+
+namespace SSet
+
+open CategoryTheory
+
+/-- `hoFunctor` applied to a nerve of a category is isomorphic to that category. -/
+noncomputable def hoFunctor_nerve_iso (C : Cat) :
+    hoFunctor.obj (nerve C) ≅ C := by
+  rw [show nerve C = nerveFunctor.obj C by rfl, ← Functor.comp_obj]
+  exact CategoryTheory.nerveFunctorCompHoFunctorIso.app C
+
+/-- `hoFunctor` applied to `coherentIso` is isomorphic to `WalkingIso`. -/
+noncomputable def hoFunctor_coherentIso_equiv :
+    hoFunctor.obj coherentIso ≅ Cat.of WalkingIso :=
+  hoFunctor_nerve_iso <| Cat.of WalkingIso
+
+/--
+`hoFunctor` sends equivalences `Equiv A B` to equivalences of categories `F.obj A ≌ F.obj B`.
+-/
+noncomputable def hoFunctor.mapEquiv (A B I : SSet.{u}) [Interval I] (f : SSet.Equiv (I := I) A B) :
+    hoFunctor.obj A ≌ hoFunctor.obj B where
+  functor := hoFunctor.map f.toFun
+  inverse := hoFunctor.map f.invFun
+  unitIso := by
+    rw [← Cat.id_eq_id]
+    have :
+        hoFunctor.map f.toFun ⋙ hoFunctor.map f.invFun = hoFunctor.map (f.toFun ≫ f.invFun) := by
+      rw [Functor.map_comp]
+      rfl
+    rw [this, ← hoFunctor.map_id A]
+    apply Homotopy.hoFunctorIso (I := I)
+    exact f.left_inv.symm
+  counitIso := by
+    rw [← Cat.id_eq_id]
+    have :
+        hoFunctor.map f.invFun ⋙ hoFunctor.map f.toFun = hoFunctor.map (f.invFun ≫ f.toFun) := by
+      rw [Functor.map_comp]
+      rfl
+    rw [this, ← hoFunctor.map_id B]
+    apply Homotopy.hoFunctorIso (I := I)
+    exact f.right_inv
+  functor_unitIso_comp := sorry
 
 end SSet
