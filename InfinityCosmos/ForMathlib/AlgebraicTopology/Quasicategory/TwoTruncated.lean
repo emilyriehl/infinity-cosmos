@@ -410,10 +410,9 @@ instance two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
     apply Nonempty.intro
     exact (horn₃₂.fromHornExtension f₃ f₀ f₁ g h)
 
-section useful_comp_structs
-variable {A : Truncated 2}
+namespace Edge
 
-def idEdge (x : A _⦋0⦌₂) : Edge x x where
+def id {A : Truncated 2} (x : A _⦋0⦌₂) : Edge x x where
   simplex := A.map (tr (σ 0)).op x
   h₀ := by
     rw [← FunctorToTypes.map_comp_apply, ← op_comp,
@@ -421,8 +420,14 @@ def idEdge (x : A _⦋0⦌₂) : Edge x x where
   h₁ := by
     rw [← FunctorToTypes.map_comp_apply, ← op_comp,
       δ₂_zero_comp_σ₂_zero, op_id, FunctorToTypes.map_id_apply]
+end Edge
 
-def doubleEdge₀ {x y : A _⦋0⦌₂} (e : Edge x y) : CompStruct e (idEdge y) e where
+namespace CompStruct
+open Edge
+
+variable {A : Truncated 2}
+
+def compId {x y : A _⦋0⦌₂} (e : Edge x y) : CompStruct e (id y) e where
   simplex := A.map (tr (σ 1)).op e.simplex
   h₀₁ := by
     rw [← FunctorToTypes.map_comp_apply, ← op_comp, δ₂_two_comp_σ₂_one, op_id,
@@ -437,7 +442,7 @@ def doubleEdge₀ {x y : A _⦋0⦌₂} (e : Edge x y) : CompStruct e (idEdge y)
     rw [δ_comp_σ_self' (by rfl)]
     apply FunctorToTypes.map_id_apply
 
-def doubleEdge₂ {x y : A _⦋0⦌₂} (e : Edge x y) : CompStruct (idEdge x) e e where
+def idComp {x y : A _⦋0⦌₂} (e : Edge x y) : CompStruct (id x) e e where
   simplex := A.map (tr (σ 0)).op e.simplex
   h₀₁ := by
     rw [← FunctorToTypes.map_comp_apply, ← op_comp, δ₂_two_comp_σ₂_zero,
@@ -450,30 +455,32 @@ def doubleEdge₂ {x y : A _⦋0⦌₂} (e : Edge x y) : CompStruct (idEdge x) e
     rw [← FunctorToTypes.map_comp_apply, ← op_comp, δ₂_one_comp_σ₂_zero, op_id,
       FunctorToTypes.map_id_apply]
 
-def idCompStruct (x : A _⦋0⦌₂) := doubleEdge₀ (idEdge x)
+def idCompId (x : A _⦋0⦌₂) := compId (id x)
 
-end useful_comp_structs
+end CompStruct
 
 section homotopy_relation
+open CompStruct
+open Edge (id)
 
-variable {A : Truncated 2} [Quasicategory₂ A] (f g : A _⦋1⦌₂)
+variable {A : Truncated 2} [Quasicategory₂ A]
 
 /--
 Two edges `f` and `g` are left homotopic if there is a 2-simplex with
 (0, 1)-edge `f`, (0, 2)-edge `g` and (1, 2)-edge `id`. We use `Nonempty` to
 have a `Prop` valued `HomotopicL`.
 -/
-abbrev HomotopicL {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct f (idEdge y) g)
+abbrev HomotopicL {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct f (id y) g)
 
 /--
 See `HomotopicL`.
 -/
-abbrev HomotopicR {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct (idEdge x) f g)
+abbrev HomotopicR {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct (id x) f g)
 
 /--
 Left homotopy relation is reflexive
 -/
-def HomotopicL.refl {x : A _⦋0⦌₂} : HomotopicL (idEdge x) (idEdge x) := ⟨idCompStruct x⟩
+def HomotopicL.refl {x : A _⦋0⦌₂} : HomotopicL (id x) (id x) := ⟨idCompId x⟩
 
 /--
 Left homotopy relation is symmetric
@@ -481,7 +488,7 @@ Left homotopy relation is symmetric
 def HomotopicL.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicL f g) :
     HomotopicL g f := by
   rcases hfg with ⟨hfg⟩
-  exact Quasicategory₂.fill31 hfg (idCompStruct y) (doubleEdge₀ f)
+  exact Quasicategory₂.fill31 hfg (idCompId y) (compId f)
 
 /--
 Left homotopy relation is transitive
@@ -491,12 +498,12 @@ def HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicL 
     HomotopicL f h := by
   rcases hfg with ⟨hfg⟩
   rcases hgh with ⟨hgh⟩
-  exact Quasicategory₂.fill32 hfg (idCompStruct y) hgh
+  exact Quasicategory₂.fill32 hfg (idCompId y) hgh
 
 /--
 Right homotopy relation is reflexive
 -/
-def HomotopicR.refl {x : A _⦋0⦌₂} : HomotopicR (idEdge x) (idEdge x) := ⟨idCompStruct x⟩
+def HomotopicR.refl {x : A _⦋0⦌₂} : HomotopicR (id x) (id x) := ⟨idCompId x⟩
 
 /--
 Right homotopy relation is symmetric
@@ -504,7 +511,7 @@ Right homotopy relation is symmetric
 def HomotopicR.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicR f g) :
     HomotopicR g f := by
   rcases hfg with ⟨hfg⟩
-  exact Quasicategory₂.fill32 (idCompStruct x) hfg (doubleEdge₂ f)
+  exact Quasicategory₂.fill32 (idCompId x) hfg (idComp f)
 
 /--
 Right homotopy relation is transitive
@@ -514,7 +521,7 @@ def HomotopicR.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicR 
     HomotopicR f h := by
   rcases hfg with ⟨hfg⟩
   rcases hgh with ⟨hgh⟩
-  exact Quasicategory₂.fill31 (idCompStruct x) hfg hgh
+  exact Quasicategory₂.fill31 (idCompId x) hfg hgh
 
 /--
 The right and left homotopy relations coincide
@@ -523,11 +530,49 @@ theorem left_homotopic_iff_right_homotopic {x y : A _⦋0⦌₂} {f g : Edge x y
     HomotopicL f g ↔ HomotopicR f g := by
   constructor
   . rintro ⟨lhfg⟩
-    exact Quasicategory₂.fill32 (doubleEdge₂ f) (doubleEdge₀ f) lhfg
+    exact Quasicategory₂.fill32 (idComp f) (compId f) lhfg
   . rintro ⟨rhfg⟩
-    exact Quasicategory₂.fill31 (doubleEdge₂ f) (doubleEdge₀ f) rhfg
+    exact Quasicategory₂.fill31 (idComp f) (compId f) rhfg
 
 end homotopy_relation
+
+section basic_homotopies
+open CompStruct
+
+variable {A : Truncated 2} [Quasicategory₂ A]
+variable {x y z : A _⦋0⦌₂}
+
+lemma comp_unique {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
+    (s : CompStruct f g h) (s' : CompStruct f g h') : HomotopicL h h' :=
+  left_homotopic_iff_right_homotopic.2 (Quasicategory₂.fill32 (idComp f) s s')
+
+lemma transport_edge₀ {f : Edge x y} {g g' : Edge y z} {h : Edge x z}
+    (s : CompStruct f g h) (htpy : HomotopicL g g') : Nonempty (CompStruct f g' h) := by
+  rcases htpy with ⟨htpy⟩
+  exact Quasicategory₂.fill32 s htpy (compId h)
+
+lemma transport_edge₁ {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
+    (s : CompStruct f g h) (htpy : HomotopicL h h') : Nonempty (CompStruct f g h') := by
+  rcases (left_homotopic_iff_right_homotopic.1 htpy) with ⟨htpy⟩
+  exact Quasicategory₂.fill31 (idComp f) s htpy
+
+lemma transport_edge₂ {f f' : Edge x y} {g : Edge y z} {h : Edge x z}
+    (s : CompStruct f g h) (htpy : HomotopicL f f') : Nonempty (CompStruct f' g h) := by
+  rcases (left_homotopic_iff_right_homotopic.1 htpy) with ⟨htpy⟩
+  exact Quasicategory₂.fill31 htpy s (idComp h)
+
+lemma transport_all_edges {f f' : Edge x y} {g g' : Edge y z}
+    {h h' : Edge x z} (hf : HomotopicL f f') (hg : HomotopicL g g') (hh : HomotopicL h h')
+    (s : CompStruct f g h) :
+    Nonempty (CompStruct f' g' h') := by
+  have a : Nonempty (CompStruct f' g h) := transport_edge₂ s hf
+  have b : Nonempty (CompStruct f' g' h) := by
+    rcases a with ⟨a⟩
+    exact transport_edge₀ a hg
+  rcases b with ⟨b⟩
+  exact transport_edge₁ b hh
+
+end basic_homotopies
 
 end Truncated
 
