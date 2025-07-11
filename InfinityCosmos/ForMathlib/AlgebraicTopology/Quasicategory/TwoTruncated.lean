@@ -393,7 +393,7 @@ namespace Truncated
 The 2-truncation of a quasi-category is a 2-truncated quasi-category.
 -/
 instance two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
-    Truncated.Quasicategory₂ ((truncation 2).obj X) where
+    Quasicategory₂ ((truncation 2).obj X) where
   fill21 e₀₁ e₁₂ := by
     obtain ⟨g, h⟩ := Quasicategory.hornFilling Fin.zero_lt_one (by simp)
       (horn₂₁.fromEdges e₀₁ e₁₂)
@@ -459,8 +459,12 @@ def idCompId (x : A _⦋0⦌₂) := compId (id x)
 
 end CompStruct
 
+end Truncated
+
+namespace Quasicategory₂
+open Truncated CompStruct
+
 section homotopy_relation
-open CompStruct
 open Edge (id)
 
 variable {A : Truncated 2} [Quasicategory₂ A]
@@ -537,7 +541,6 @@ theorem left_homotopic_iff_right_homotopic {x y : A _⦋0⦌₂} {f g : Edge x y
 end homotopy_relation
 
 section basic_homotopies
-open CompStruct
 
 variable {A : Truncated 2} [Quasicategory₂ A]
 variable {x y z : A _⦋0⦌₂}
@@ -574,6 +577,6 @@ lemma transport_all_edges {f f' : Edge x y} {g g' : Edge y z}
 
 end basic_homotopies
 
-end Truncated
+end Quasicategory₂
 
 end SSet
