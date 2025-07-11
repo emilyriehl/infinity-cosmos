@@ -459,6 +459,23 @@ def idCompId (x : A _⦋0⦌₂) := compId (id x)
 
 end CompStruct
 
+section homotopy_def
+
+open Edge (id)
+/--
+Two edges `f` and `g` are left homotopic if there is a 2-simplex with
+(0, 1)-edge `f`, (0, 2)-edge `g` and (1, 2)-edge `id`. We use `Nonempty` to
+have a `Prop` valued `HomotopicL`.
+-/
+abbrev HomotopicL {A : Truncated 2} {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct f (id y) g)
+
+/--
+See `HomotopicL`.
+-/
+abbrev HomotopicR {A : Truncated 2} {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct (id x) f g)
+
+end homotopy_def
+
 end Truncated
 
 namespace Quasicategory₂
@@ -468,18 +485,6 @@ section homotopy_relation
 open Edge (id)
 
 variable {A : Truncated 2} [Quasicategory₂ A]
-
-/--
-Two edges `f` and `g` are left homotopic if there is a 2-simplex with
-(0, 1)-edge `f`, (0, 2)-edge `g` and (1, 2)-edge `id`. We use `Nonempty` to
-have a `Prop` valued `HomotopicL`.
--/
-abbrev HomotopicL {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct f (id y) g)
-
-/--
-See `HomotopicL`.
--/
-abbrev HomotopicR {x y : A _⦋0⦌₂} (f g : Edge x y) := Nonempty (CompStruct (id x) f g)
 
 /--
 Left homotopy relation is reflexive
