@@ -36,8 +36,7 @@ noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=
   IsTerminal.uniqueUpToIso isTerminalDeltaZero (IsTerminal.ofUnique (𝟙_ SSet))
 
 noncomputable def expUnitNatIso : ihom (𝟙_ SSet) ≅ 𝟭 SSet :=
-  (conjugateIsoEquiv (Adjunction.id (C := SSet)) (ihom.adjunction _)
-    (leftUnitorNatIso _)).symm
+  MonoidalClosed.unitNatIso.symm
 
 noncomputable def expPointNatIso : ihom Δ[0] ≅ 𝟭 SSet := by
   refine ?_ ≪≫ expUnitNatIso
@@ -67,6 +66,30 @@ noncomputable def pathSpace.src (X : SSet.{u}) : pathSpace (I := I) X ⟶ X :=
 noncomputable def pathSpace.tgt (X : SSet.{u}) : pathSpace (I := I) X ⟶ X :=
   ((MonoidalClosed.pre Interval.tgt).app X ≫ X.expPointIsoSelf.hom)
 
+lemma curry_snd_unitNatIso_inv_app {X Y : SSet.{u}} (f : X ⟶ Y) :
+    curry (CartesianMonoidalCategory.snd (𝟙_ SSet) X ≫ f) ≫ unitNatIso.inv.app Y = f := by
+  rw [← Iso.app_inv, Iso.comp_inv_eq, Iso.app_hom, unitNatIso]
+  simp only [Functor.id_obj, conjugateIsoEquiv_apply_hom, conjugateEquiv_apply_app,
+    curriedTensor_obj_obj, ihom.ihom_adjunction_unit, leftUnitorNatIso_hom_app,
+    ihom.coev_naturality_assoc, id_whiskerLeft, Functor.map_comp, Category.assoc,
+    Iso.map_inv_hom_id_assoc]
+  rfl
+
+lemma pathSpace.curry_snd_src {A B : SSet.{u}} (f : A ⟶ B) :
+    curry (CartesianMonoidalCategory.snd I A ≫ f) ≫ src B = f := by
+  rw [pathSpace.src, curry_pre_app_assoc, CartesianMonoidalCategory.whiskerRight_snd_assoc,
+    expPointIsoSelf, Iso.app_hom, expPointNatIso]
+  simp only [Iso.trans_hom, NatTrans.comp_app, Functor.id_obj, curry_pre_app_assoc,
+    CartesianMonoidalCategory.whiskerRight_snd_assoc]
+  rw [expUnitNatIso, Iso.symm_hom, curry_snd_unitNatIso_inv_app f]
+
+lemma pathSpace.curry_snd_tgt {A B : SSet.{u}} (f : A ⟶ B) :
+    curry (CartesianMonoidalCategory.snd I A ≫ f) ≫ tgt B = f := by
+  rw [pathSpace.tgt, curry_pre_app_assoc, CartesianMonoidalCategory.whiskerRight_snd_assoc,
+    expPointIsoSelf, Iso.app_hom, expPointNatIso]
+  simp only [Iso.trans_hom, NatTrans.comp_app, Functor.id_obj, curry_pre_app_assoc,
+    CartesianMonoidalCategory.whiskerRight_snd_assoc]
+  rw [expUnitNatIso, Iso.symm_hom, curry_snd_unitNatIso_inv_app f]
 
 /-- TODO: Figure out how to allow `I` to be an a different universe from `A` and `B`?-/
 structure Homotopy {A B : SSet.{u}} (f g : A ⟶ B) : Type u
@@ -77,24 +100,18 @@ structure Homotopy {A B : SSet.{u}} (f g : A ⟶ B) : Type u
 
 @[refl]
 noncomputable def Homotopy.refl {A B : SSet.{u}} (f : A ⟶ B) : Homotopy (I := I) f f where
-  homotopy := curry <| tensorHom (𝟙 I) f ≫ CartesianMonoidalCategory.snd I B
-  source_eq := sorry
-  target_eq := sorry
-
-@[symm]
-noncomputable def Homotopy.symm {A B : SSet.{u}} {f g : A ⟶ B} (h : Homotopy (I := I) f g) :
-    Homotopy (I := I) g f where
-  homotopy := sorry
-  source_eq := sorry
-  target_eq := sorry
+  homotopy := curry <| CartesianMonoidalCategory.snd I A ≫ f
+  source_eq := pathSpace.curry_snd_src f
+  target_eq := pathSpace.curry_snd_tgt f
 
 def Homotopy.hoFunctorIso {A B : SSet.{u}} {f g : A ⟶ B} (h : Homotopy (I := I) f g) :
     hoFunctor.map f ≅ hoFunctor.map g := by
   dsimp [hoFunctor]
   simp_rw [← h.source_eq, ← h.target_eq]
   simp only [Functor.map_comp]
-  -- apply Quotient.lift_unique'
-
+  -- Joël: You should probably use NatIso.ofComponents: for each 0-simplex, the homotopy gives a
+  -- "double-sided path" between the images by both f and g (which should give an iso in the
+  -- homotopy category), and then you need to check it is natural.
   sorry
 
 /-- For the correct interval, this defines a good notion of equivalences for both Kan complexes and quasi-categories.-/
@@ -235,10 +252,18 @@ noncomputable def hoFunctor_coherentIso_equiv :
     hoFunctor.obj coherentIso ≅ Cat.of WalkingIso :=
   hoFunctor_nerve_iso <| Cat.of WalkingIso
 
+@[symm]
+noncomputable def Homotopy.coherentIso_symm {A B : SSet.{u}} {f g : A ⟶ B}
+    (h : Homotopy (I := coherentIso) f g) :
+    Homotopy (I := coherentIso) g f where
+  homotopy := sorry
+  source_eq := sorry
+  target_eq := sorry
+
 /--
 `hoFunctor` sends equivalences `Equiv A B` to equivalences of categories `F.obj A ≌ F.obj B`.
 -/
-noncomputable def hoFunctor.mapEquiv (A B I : SSet.{u}) [Interval I] (f : SSet.Equiv (I := I) A B) :
+noncomputable def hoFunctor.mapEquiv (A B : SSet.{u}) (f : SSet.Equiv (I := coherentIso) A B) :
     hoFunctor.obj A ≌ hoFunctor.obj B where
   functor := hoFunctor.map f.toFun
   inverse := hoFunctor.map f.invFun
@@ -249,8 +274,8 @@ noncomputable def hoFunctor.mapEquiv (A B I : SSet.{u}) [Interval I] (f : SSet.E
       rw [Functor.map_comp]
       rfl
     rw [this, ← hoFunctor.map_id A]
-    apply Homotopy.hoFunctorIso (I := I)
-    exact f.left_inv.symm
+    apply Homotopy.hoFunctorIso (I := coherentIso)
+    exact f.left_inv.coherentIso_symm
   counitIso := by
     rw [← Cat.id_eq_id]
     have :
@@ -258,7 +283,7 @@ noncomputable def hoFunctor.mapEquiv (A B I : SSet.{u}) [Interval I] (f : SSet.E
       rw [Functor.map_comp]
       rfl
     rw [this, ← hoFunctor.map_id B]
-    apply Homotopy.hoFunctorIso (I := I)
+    apply Homotopy.hoFunctorIso (I := coherentIso)
     exact f.right_inv
   functor_unitIso_comp := sorry
 
