@@ -28,8 +28,8 @@ instance arrowInterval : Interval Δ[1] where
 
 /-- The interval relevant to the theory of quasi-categories. -/
 instance isoInterval : Interval coherentIso where
-  src := yonedaEquiv.symm (WalkingIso.coev WalkingIso.zero)
-  tgt := yonedaEquiv.symm (WalkingIso.coev WalkingIso.one)
+  src := coherentIso.pt WalkingIso.zero
+  tgt := coherentIso.pt WalkingIso.one
 
 open MonoidalCategory
 noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=
@@ -252,13 +252,36 @@ noncomputable def hoFunctor_coherentIso_equiv :
     hoFunctor.obj coherentIso ≅ Cat.of WalkingIso :=
   hoFunctor_nerve_iso <| Cat.of WalkingIso
 
+def WalkingIso.swap : WalkingIso ⟶ WalkingIso
+| WalkingIso.zero => WalkingIso.one
+| WalkingIso.one => WalkingIso.zero
+
+def WalkingIso.swapFunctor : WalkingIso ⥤ WalkingIso where
+  obj := WalkingIso.swap
+  map := id
+
+def coherentIso.swap : coherentIso ⟶ coherentIso :=
+  nerveMap WalkingIso.swapFunctor
+
+@[simp]
+lemma src_swap_eq_tgt : Interval.src ≫ coherentIso.swap = Interval.tgt :=
+  rfl
+
+@[simp]
+lemma tgt_swap_eq_src : Interval.tgt ≫ coherentIso.swap = Interval.src :=
+  rfl
+
 @[symm]
 noncomputable def Homotopy.coherentIso_symm {A B : SSet.{u}} {f g : A ⟶ B}
     (h : Homotopy (I := coherentIso) f g) :
     Homotopy (I := coherentIso) g f where
-  homotopy := sorry
-  source_eq := sorry
-  target_eq := sorry
+  homotopy := h.homotopy ≫ (MonoidalClosed.pre coherentIso.swap).app B
+  source_eq := by
+    simp_rw [← h.target_eq, Category.assoc]
+    rfl
+  target_eq := by
+    simp_rw [← h.source_eq, Category.assoc]
+    rfl
 
 /--
 `hoFunctor` sends equivalences `Equiv A B` to equivalences of categories `F.obj A ≌ F.obj B`.
