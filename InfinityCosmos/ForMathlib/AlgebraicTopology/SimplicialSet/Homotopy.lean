@@ -104,15 +104,26 @@ noncomputable def Homotopy.refl {A B : SSet.{u}} (f : A ⟶ B) : Homotopy (I := 
   source_eq := pathSpace.curry_snd_src f
   target_eq := pathSpace.curry_snd_tgt f
 
-def Homotopy.hoFunctorIso {A B : SSet.{u}} {f g : A ⟶ B} (h : Homotopy (I := I) f g) :
+/--
+When there is a homotopy between `f g : X ⟶ Y`, and `x` is a `0`-simplex of `X`, this is a path
+between `f x` and `g x`.
+-/
+noncomputable def pathOfHomotopy {X Y : SSet} {f g : X ⟶ Y} (h : Homotopy (I := I) f g)
+  (x : X _⦋0⦌) : I ⟶ Y :=
+  (homEquiv' I Y).invFun (h.homotopy.app (Opposite.op ⦋0⦌) x)
+
+noncomputable def Homotopy.hoFunctorIso {A B : SSet.{u}} {f g : A ⟶ B}
+    (h : Homotopy (I := I) f g) :
     hoFunctor.map f ≅ hoFunctor.map g := by
-  dsimp [hoFunctor]
-  simp_rw [← h.source_eq, ← h.target_eq]
-  simp only [Functor.map_comp]
   -- Joël: You should probably use NatIso.ofComponents: for each 0-simplex, the homotopy gives a
   -- "double-sided path" between the images by both f and g (which should give an iso in the
   -- homotopy category), and then you need to check it is natural.
-  sorry
+  refine NatIso.ofComponents (fun X ↦ ?_) (fun {X Y} h ↦ ?_)
+  · -- I believe that the path which Joël was referring to previously is going to be
+    -- `pathOfHomotopy`, now, I have to show this path is going to give us an iso in homotopy
+    -- category.
+    sorry
+  · sorry
 
 /-- For the correct interval, this defines a good notion of equivalences for both Kan complexes and quasi-categories.-/
 structure Equiv (A B : SSet.{u}) : Type u where
@@ -263,25 +274,33 @@ def WalkingIso.swapFunctor : WalkingIso ⥤ WalkingIso where
 def coherentIso.swap : coherentIso ⟶ coherentIso :=
   nerveMap WalkingIso.swapFunctor
 
-@[simp]
-lemma src_swap_eq_tgt : Interval.src ≫ coherentIso.swap = Interval.tgt :=
-  rfl
+@[reassoc (attr := simp)]
+lemma coherentIso.src_swap : Interval.src ≫ coherentIso.swap = Interval.tgt := rfl
 
-@[simp]
-lemma tgt_swap_eq_src : Interval.tgt ≫ coherentIso.swap = Interval.src :=
-  rfl
+@[reassoc (attr := simp)]
+lemma coherentIso.tgt_swap : Interval.tgt ≫ coherentIso.swap = Interval.src := rfl
+
+@[reassoc (attr := simp)]
+lemma coherentIso.pre_swap_app_comp_src (B : SSet.{u}) :
+    (MonoidalClosed.pre coherentIso.swap).app B ≫ pathSpace.src B =
+      pathSpace.tgt B := by
+  dsimp [pathSpace.src, pathSpace.tgt, pathSpace]
+  rw [← NatTrans.comp_app_assoc, ← MonoidalClosed.pre_map, src_swap]
+
+@[reassoc (attr := simp)]
+lemma coherentIso.pre_swap_app_comp_tgt (B : SSet.{u}) :
+    (MonoidalClosed.pre coherentIso.swap).app B ≫ pathSpace.tgt B =
+      pathSpace.src B := by
+  dsimp [pathSpace.src, pathSpace.tgt, pathSpace]
+  rw [← NatTrans.comp_app_assoc, ← MonoidalClosed.pre_map, tgt_swap]
 
 @[symm]
 noncomputable def Homotopy.coherentIso_symm {A B : SSet.{u}} {f g : A ⟶ B}
     (h : Homotopy (I := coherentIso) f g) :
     Homotopy (I := coherentIso) g f where
   homotopy := h.homotopy ≫ (MonoidalClosed.pre coherentIso.swap).app B
-  source_eq := by
-    simp_rw [← h.target_eq, Category.assoc]
-    rfl
-  target_eq := by
-    simp_rw [← h.source_eq, Category.assoc]
-    rfl
+  source_eq := by simp [← h.target_eq]
+  target_eq := by simp [← h.source_eq]
 
 /--
 `hoFunctor` sends equivalences `Equiv A B` to equivalences of categories `F.obj A ≌ F.obj B`.
