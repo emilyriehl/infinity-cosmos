@@ -8,6 +8,7 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
+import Mathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
 
 universe u v w
 
@@ -27,16 +28,15 @@ instance arrowInterval : Interval Δ[1] where
 
 /-- The interval relevant to the theory of quasi-categories. -/
 instance isoInterval : Interval coherentIso where
-  src := yonedaEquiv.symm (WalkingIso.coev WalkingIso.zero)
-  tgt := yonedaEquiv.symm (WalkingIso.coev WalkingIso.one)
+  src := coherentIso.pt WalkingIso.zero
+  tgt := coherentIso.pt WalkingIso.one
 
 open MonoidalCategory
 noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=
   IsTerminal.uniqueUpToIso isTerminalDeltaZero (IsTerminal.ofUnique (𝟙_ SSet))
 
 noncomputable def expUnitNatIso : ihom (𝟙_ SSet) ≅ 𝟭 SSet :=
-  (conjugateIsoEquiv (Adjunction.id (C := SSet)) (ihom.adjunction _)
-    (leftUnitorNatIso _)).symm
+  MonoidalClosed.unitNatIso.symm
 
 noncomputable def expPointNatIso : ihom Δ[0] ≅ 𝟭 SSet := by
   refine ?_ ≪≫ expUnitNatIso
@@ -66,6 +66,30 @@ noncomputable def pathSpace.src (X : SSet.{u}) : pathSpace (I := I) X ⟶ X :=
 noncomputable def pathSpace.tgt (X : SSet.{u}) : pathSpace (I := I) X ⟶ X :=
   ((MonoidalClosed.pre Interval.tgt).app X ≫ X.expPointIsoSelf.hom)
 
+lemma curry_snd_unitNatIso_inv_app {X Y : SSet.{u}} (f : X ⟶ Y) :
+    curry (CartesianMonoidalCategory.snd (𝟙_ SSet) X ≫ f) ≫ unitNatIso.inv.app Y = f := by
+  rw [← Iso.app_inv, Iso.comp_inv_eq, Iso.app_hom, unitNatIso]
+  simp only [Functor.id_obj, conjugateIsoEquiv_apply_hom, conjugateEquiv_apply_app,
+    curriedTensor_obj_obj, ihom.ihom_adjunction_unit, leftUnitorNatIso_hom_app,
+    ihom.coev_naturality_assoc, id_whiskerLeft, Functor.map_comp, Category.assoc,
+    Iso.map_inv_hom_id_assoc]
+  rfl
+
+lemma pathSpace.curry_snd_src {A B : SSet.{u}} (f : A ⟶ B) :
+    curry (CartesianMonoidalCategory.snd I A ≫ f) ≫ src B = f := by
+  rw [pathSpace.src, curry_pre_app_assoc, CartesianMonoidalCategory.whiskerRight_snd_assoc,
+    expPointIsoSelf, Iso.app_hom, expPointNatIso]
+  simp only [Iso.trans_hom, NatTrans.comp_app, Functor.id_obj, curry_pre_app_assoc,
+    CartesianMonoidalCategory.whiskerRight_snd_assoc]
+  rw [expUnitNatIso, Iso.symm_hom, curry_snd_unitNatIso_inv_app f]
+
+lemma pathSpace.curry_snd_tgt {A B : SSet.{u}} (f : A ⟶ B) :
+    curry (CartesianMonoidalCategory.snd I A ≫ f) ≫ tgt B = f := by
+  rw [pathSpace.tgt, curry_pre_app_assoc, CartesianMonoidalCategory.whiskerRight_snd_assoc,
+    expPointIsoSelf, Iso.app_hom, expPointNatIso]
+  simp only [Iso.trans_hom, NatTrans.comp_app, Functor.id_obj, curry_pre_app_assoc,
+    CartesianMonoidalCategory.whiskerRight_snd_assoc]
+  rw [expUnitNatIso, Iso.symm_hom, curry_snd_unitNatIso_inv_app f]
 
 /-- TODO: Figure out how to allow `I` to be an a different universe from `A` and `B`?-/
 structure Homotopy {A B : SSet.{u}} (f g : A ⟶ B) : Type u
@@ -74,12 +98,26 @@ structure Homotopy {A B : SSet.{u}} (f g : A ⟶ B) : Type u
   source_eq : homotopy ≫ pathSpace.src B = f
   target_eq : homotopy ≫ pathSpace.tgt B = g
 
+@[refl]
+noncomputable def Homotopy.refl {A B : SSet.{u}} (f : A ⟶ B) : Homotopy (I := I) f f where
+  homotopy := curry <| CartesianMonoidalCategory.snd I A ≫ f
+  source_eq := pathSpace.curry_snd_src f
+  target_eq := pathSpace.curry_snd_tgt f
+
 /-- For the correct interval, this defines a good notion of equivalences for both Kan complexes and quasi-categories.-/
 structure Equiv (A B : SSet.{u}) : Type u where
   toFun : A ⟶ B
   invFun : B ⟶ A
   left_inv : Homotopy (I := I) (toFun ≫ invFun) (𝟙 A)
   right_inv : Homotopy (I := I) (invFun ≫ toFun) (𝟙 B)
+
+@[refl]
+noncomputable def Equiv.refl {A : SSet} : Equiv (I := I) A A :=
+  ⟨𝟙 A, 𝟙 A, Category.comp_id (𝟙 A) ▸ Homotopy.refl _, Category.comp_id (𝟙 A) ▸ Homotopy.refl _⟩
+
+@[symm]
+def Equiv.symm {A B : SSet.{u}} (e : Equiv (I := I) A B) : Equiv (I := I) B A :=
+  ⟨e.invFun, e.toFun, e.right_inv, e.left_inv⟩
 
 end
 
@@ -186,5 +224,114 @@ def HomotopyL.refl : HomotopyL f f where
 --   simp [← homotopicL_iff_homotopicR, HomotopyL.equiv]
 
 end
+
+end SSet
+
+namespace SSet
+
+open CategoryTheory Simplicial SimplicialCategory SimplicialObject Truncated
+
+/-- `hoFunctor` applied to a nerve of a category is isomorphic to that category. -/
+noncomputable def hoFunctor_nerve_iso (C : Cat) :
+    hoFunctor.obj (nerve C) ≅ C := by
+  rw [show nerve C = nerveFunctor.obj C by rfl, ← Functor.comp_obj]
+  exact CategoryTheory.nerveFunctorCompHoFunctorIso.app C
+
+/-- `hoFunctor` applied to `coherentIso` is isomorphic to `WalkingIso`. -/
+noncomputable def hoFunctor_coherentIso_equiv :
+    hoFunctor.obj coherentIso ≅ Cat.of WalkingIso :=
+  hoFunctor_nerve_iso <| Cat.of WalkingIso
+
+def WalkingIso.swap : WalkingIso ⟶ WalkingIso
+| WalkingIso.zero => WalkingIso.one
+| WalkingIso.one => WalkingIso.zero
+
+def WalkingIso.swapFunctor : WalkingIso ⥤ WalkingIso where
+  obj := WalkingIso.swap
+  map := id
+
+def coherentIso.swap : coherentIso ⟶ coherentIso :=
+  nerveMap WalkingIso.swapFunctor
+
+@[reassoc (attr := simp)]
+lemma coherentIso.src_swap : Interval.src ≫ coherentIso.swap = Interval.tgt := rfl
+
+@[reassoc (attr := simp)]
+lemma coherentIso.tgt_swap : Interval.tgt ≫ coherentIso.swap = Interval.src := rfl
+
+@[reassoc (attr := simp)]
+lemma coherentIso.pre_swap_app_comp_src (B : SSet.{u}) :
+    (MonoidalClosed.pre coherentIso.swap).app B ≫ pathSpace.src B =
+      pathSpace.tgt B := by
+  dsimp [pathSpace.src, pathSpace.tgt]
+  rw [← NatTrans.comp_app_assoc, ← MonoidalClosed.pre_map, src_swap]
+
+@[reassoc (attr := simp)]
+lemma coherentIso.pre_swap_app_comp_tgt (B : SSet.{u}) :
+    (MonoidalClosed.pre coherentIso.swap).app B ≫ pathSpace.tgt B =
+      pathSpace.src B := by
+  dsimp [pathSpace.src, pathSpace.tgt]
+  rw [← NatTrans.comp_app_assoc, ← MonoidalClosed.pre_map, tgt_swap]
+
+@[symm]
+noncomputable def Homotopy.coherentIso_symm {A B : SSet.{u}} {f g : A ⟶ B}
+    (h : Homotopy (I := coherentIso) f g) :
+    Homotopy (I := coherentIso) g f where
+  homotopy := h.homotopy ≫ (MonoidalClosed.pre coherentIso.swap).app B
+  source_eq := by simp [← h.target_eq]
+  target_eq := by simp [← h.source_eq]
+
+noncomputable def pathOfHomotopy {X Y : SSet} {f g : X ⟶ Y} (h : Homotopy (I := coherentIso) f g)
+    (x : X _⦋0⦌) : coherentIso ⟶ Y :=
+  (homEquiv' coherentIso Y).invFun (h.homotopy.app (Opposite.op ⦋0⦌) x)
+
+noncomputable def homotopyCategory_iso {X Y : SSet} {f : X ⟶ Y} {g : Y ⟶ X}
+    (hX : f ≫ g = 𝟙 X) (hY : g ≫ f = 𝟙 Y) :
+    ((truncation 2).obj X).HomotopyCategory ≅ ((truncation 2).obj Y).HomotopyCategory where
+  hom := (mapHomotopyCategory ((truncation 2).map f)).obj
+  inv := (mapHomotopyCategory ((truncation 2).map g)).obj
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+def hoFunctor_obj_iso {X Y : SSet} (f g : X ⟶ Y) (h : Homotopy (I := coherentIso) f g)
+    (A : hoFunctor.obj X) :
+    (hoFunctor.map f).obj A ≅ (hoFunctor.map g).obj A where
+  hom := sorry
+  inv := sorry
+
+noncomputable def Homotopy.hoFunctorIso {X Y : SSet.{u}} {f g : X ⟶ Y}
+    (h : Homotopy (I := coherentIso) f g) :
+    hoFunctor.map f ≅ hoFunctor.map g := by
+  -- Joël: You should probably use NatIso.ofComponents: for each 0-simplex, the homotopy gives a
+  -- "double-sided path" between the images by both f and g (which should give an iso in the
+  -- homotopy category), and then you need to check it is natural.
+  apply NatIso.ofComponents (hoFunctor_obj_iso f g h) (fun {A B} p ↦ ?_)
+  -- I need to fill the previous sorries to prove naturality because it depends on its data.
+  sorry
+
+/--
+`hoFunctor` sends equivalences `Equiv A B` to equivalences of categories `F.obj A ≌ F.obj B`.
+-/
+noncomputable def hoFunctor.mapEquiv (A B : SSet.{u}) (f : SSet.Equiv (I := coherentIso) A B) :
+    hoFunctor.obj A ≌ hoFunctor.obj B where
+  functor := hoFunctor.map f.toFun
+  inverse := hoFunctor.map f.invFun
+  unitIso := by
+    rw [← Cat.id_eq_id]
+    have :
+        hoFunctor.map f.toFun ⋙ hoFunctor.map f.invFun = hoFunctor.map (f.toFun ≫ f.invFun) := by
+      rw [Functor.map_comp]
+      rfl
+    rw [this, ← hoFunctor.map_id A]
+    apply Homotopy.hoFunctorIso f.left_inv.coherentIso_symm
+  counitIso := by
+    rw [← Cat.id_eq_id]
+    have :
+        hoFunctor.map f.invFun ⋙ hoFunctor.map f.toFun = hoFunctor.map (f.invFun ≫ f.toFun) := by
+      rw [Functor.map_comp]
+      rfl
+    rw [this, ← hoFunctor.map_id B]
+    apply Homotopy.hoFunctorIso f.right_inv
+  functor_unitIso_comp := sorry
 
 end SSet
