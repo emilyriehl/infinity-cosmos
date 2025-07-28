@@ -285,11 +285,13 @@ noncomputable def pathOfHomotopy {X Y : SSet} {f g : X ⟶ Y} (h : Homotopy (I :
     (x : X _⦋0⦌) : coherentIso ⟶ Y :=
   (homEquiv' coherentIso Y).invFun (h.homotopy.app (Opposite.op ⦋0⦌) x)
 
-noncomputable def homotopyCategory_iso {X Y : SSet} {f g : X ⟶ Y}
-    (h : Homotopy (I := coherentIso) f g) :
+noncomputable def homotopyCategory_iso {X Y : SSet} {f : X ⟶ Y} {g : Y ⟶ X}
+    (hX : f ≫ g = 𝟙 X) (hY : g ≫ f = 𝟙 Y) :
     ((truncation 2).obj X).HomotopyCategory ≅ ((truncation 2).obj Y).HomotopyCategory where
-  hom x := sorry
-  inv y := sorry
+  hom := (mapHomotopyCategory ((truncation 2).map f)).obj
+  inv := (mapHomotopyCategory ((truncation 2).map g)).obj
+  hom_inv_id := sorry
+  inv_hom_id := sorry
 
 def hoFunctor_obj_iso {X Y : SSet} (f g : X ⟶ Y) (h : Homotopy (I := coherentIso) f g)
     (A : hoFunctor.obj X) :
