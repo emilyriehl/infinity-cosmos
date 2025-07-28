@@ -291,7 +291,8 @@ noncomputable def homotopyCategory_iso {X Y : SSet} {f g : X ⟶ Y}
   hom x := sorry
   inv y := sorry
 
-def hoFunctor_obj_iso {X Y : SSet} (f g : X ⟶ Y) (A : hoFunctor.obj X) :
+def hoFunctor_obj_iso {X Y : SSet} (f g : X ⟶ Y) (h : Homotopy (I := coherentIso) f g)
+    (A : hoFunctor.obj X) :
     (hoFunctor.map f).obj A ≅ (hoFunctor.map g).obj A where
   hom := sorry
   inv := sorry
@@ -302,7 +303,7 @@ noncomputable def Homotopy.hoFunctorIso {X Y : SSet.{u}} {f g : X ⟶ Y}
   -- Joël: You should probably use NatIso.ofComponents: for each 0-simplex, the homotopy gives a
   -- "double-sided path" between the images by both f and g (which should give an iso in the
   -- homotopy category), and then you need to check it is natural.
-  apply NatIso.ofComponents (hoFunctor_obj_iso f g) (fun {A B} p ↦ ?_)
+  apply NatIso.ofComponents (hoFunctor_obj_iso f g h) (fun {A B} p ↦ ?_)
   -- I need to fill the previous sorries to prove naturality because it depends on its data.
   sorry
 
