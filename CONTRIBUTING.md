@@ -55,9 +55,11 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 * [Johan Commelin](https://github.com/jcommelin)
 * Kunhong Du
 * [Jon Eugster](https://github.com/joneugster)
+* [Rida Hamadani](https://github.com/Rida-Hamadani)
 * Julian Komaromy
 * [Aaron Liu](https://github.com/plp127)
 * [Jack McKoen](https://github.com/mckoen)
+* [Bhavik Mehta](https://github.com/b-mehta)
 * [Yuma Mizuno](https://github.com/yuma-mizuno)
 * [Pietro Monticone](https://github.com/pitmonticone)
 * [Thomas Murrills](https://github.com/thorimur)
