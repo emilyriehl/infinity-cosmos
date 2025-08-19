@@ -9,6 +9,7 @@ import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
+import Mathlib.CategoryTheory.Category.ReflQuiv
 
 open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated Truncated.Hom
   SimplicialObject SimplicialObject.Truncated
@@ -492,6 +493,9 @@ Left homotopy relation is reflexive
 -/
 def HomotopicL.refl {x : A _⦋0⦌₂} : HomotopicL (id x) (id x) := ⟨idCompId x⟩
 
+-- TODO: is this not the right reflexivity!?
+def HomotopicL.refl' {x y : A _⦋0⦌₂} {f : Edge x y} : HomotopicL f f := ⟨compId f⟩
+
 /--
 Left homotopy relation is symmetric
 -/
@@ -582,6 +586,216 @@ lemma transport_all_edges {f f' : Edge x y} {g g' : Edge y z}
   exact transport_edge₁ b hh
 
 end basic_homotopies
+
+section homotopy_category
+
+variable {A : Truncated 2} [Quasicategory₂ A]
+
+#check (@HomotopicL.refl' _ _ _)
+
+instance instSetoidEdge (x₀ x₁ : A _⦋0⦌₂) : Setoid (Edge x₀ x₁) where
+  r := HomotopicL
+  iseqv := ⟨fun _ ↦ HomotopicL.refl', HomotopicL.symm, HomotopicL.trans⟩
+
+#check Quotient.lift
+
+def HEdge (x₀ x₁ : A _⦋0⦌₂) := Quotient (instSetoidEdge x₀ x₁)
+
+noncomputable
+def composeEdges {x₀ x₁ x₂ : A _⦋0⦌₂} (f : Edge x₀ x₁) (g : Edge x₁ x₂) :=
+  Quotient.mk' (Nonempty.some (Quasicategory₂.fill21 f g)).1
+
+noncomputable
+def composeHEdges {x₀ x₁ x₂ : A _⦋0⦌₂} (f : HEdge x₀ x₁) (g : HEdge x₁ x₂) : HEdge x₀ x₂ :=
+    Quotient.lift₂
+      (fun f g ↦ Quotient.mk' (Nonempty.some (Quasicategory₂.fill21 f g)).1)
+      (by
+        intro f₁ g₁ f₂ g₂ hf hg
+        simp
+        apply Quotient.sound
+        have cs₁ := (Nonempty.some (Quasicategory₂.fill21 f₁ g₁)).2
+        have cs₂ := (Nonempty.some (Quasicategory₂.fill21 f₂ g₂)).2
+        set h₁ := (Nonempty.some (Quasicategory₂.fill21 f₁ g₁)).1
+        set h₂ := (Nonempty.some (Quasicategory₂.fill21 f₂ g₂)).1
+        have := transport_edge₂ cs₁ hf
+        apply Nonempty.elim this
+        intro cs₃
+        have := transport_edge₀ cs₃ hg
+        apply Nonempty.elim this
+        intro cs₄
+        exact comp_unique cs₄ cs₂)
+      f g
+
+
+def HomotopyCategory₂ (A : Truncated 2) := A _⦋0⦌₂
+
+noncomputable
+instance : CategoryStruct (HomotopyCategory₂ A) where
+  Hom x₀ x₁ := HEdge x₀ x₁
+  id x₀ := Quotient.mk' (Edge.id x₀)
+  comp := composeHEdges
+
+#check HomotopyCategory₂
+#check @Quiver.Hom
+
+-- TODO refactor; this is a bit of type management
+def toMorph {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) : @Quiver.Hom (HomotopyCategory₂ A) _ x₀ x₁ :=
+  Quotient.mk' f
+
+lemma triangle_gives_commuting {x₀ x₁ x₂ : A _⦋0⦌₂} {f : Edge x₀ x₁} {g : Edge x₁ x₂}
+    {h : Edge x₀ x₂} (s : CompStruct f g h) : toMorph f ≫  toMorph g = toMorph h := by
+  dsimp only [toMorph]
+  apply Quotient.sound
+  let ⟨h', s'⟩ := (Quasicategory₂.fill21 f g).some
+  exact comp_unique s' s
+
+noncomputable
+instance instHomotopyCat₂ : Category (HomotopyCategory₂ A) where
+  id_comp f := by
+    rcases f with ⟨f⟩
+    apply Quotient.sound
+    have cs₁ := (Nonempty.some (Quasicategory₂.fill21 (Edge.id _) f)).2
+    set g := (Nonempty.some (Quasicategory₂.fill21 (Edge.id _) f)).1
+    apply symm
+    exact left_homotopic_iff_right_homotopic.2 ⟨cs₁⟩
+  comp_id := sorry
+  assoc f g h := by
+    rcases f, g, h with ⟨⟨f⟩, ⟨g⟩, ⟨h⟩⟩
+    apply Quotient.sound
+    have cs₃ := (Nonempty.some (Quasicategory₂.fill21 f g)).2
+    have cs₀ := (Nonempty.some (Quasicategory₂.fill21 g h)).2
+    set fg := (Nonempty.some (Quasicategory₂.fill21 f g)).1
+    set gh := (Nonempty.some (Quasicategory₂.fill21 g h)).1
+
+    -- TODO IF fill21 constructively gives and edge (and nonconstructively a 2-simplex),
+    -- then we can probably avoid use of choice, since HomotopicL only needs the existence
+    -- of suitable 2-simplices
+    have cs₂ := (Nonempty.some (Quasicategory₂.fill21 f gh)).2
+    have cs₁ := (Nonempty.some (Quasicategory₂.fill21 fg h)).2
+    have cs₂' := Nonempty.some (Quasicategory₂.fill32 cs₃ cs₀ cs₁)
+
+    set fg_h := (Nonempty.some (Quasicategory₂.fill21 fg h)).1
+    set f_gh := (Nonempty.some (Quasicategory₂.fill21 f gh)).1
+
+    show HomotopicL fg_h f_gh
+    exact comp_unique cs₂' cs₂
+
+noncomputable
+def qReflPrefunctor : ReflPrefunctor (OneTruncation₂ A) (HomotopyCategory₂ A) where
+  obj := id
+  map f := Quotient.mk' { simplex := f.edge, h₀ := f.src_eq, h₁ := f.tgt_eq }
+
+noncomputable
+def qFunctor : Cat.FreeRefl (OneTruncation₂ A) ⥤ HomotopyCategory₂ A :=
+  (ReflQuiv.adj.homEquiv
+    (Bundled.of (OneTruncation₂ A))
+    (Cat.of (HomotopyCategory₂ A))).invFun qReflPrefunctor
+
+noncomputable
+def qFunctorAlt : Cat.FreeRefl (OneTruncation₂ A) ⥤ HomotopyCategory₂ A :=
+  Cat.freeReflMap qReflPrefunctor ⋙ ReflQuiv.adj.counit.app (HomotopyCategory₂ A)
+
+def toHEdge {x y : OneTruncation₂ A} (f : x ⟶ y) : HEdge x y := Quotient.mk' {
+    simplex := f.edge,
+    h₀ := f.src_eq,
+    h₁ := f.tgt_eq
+  }
+
+#check qFunctor.map
+
+#check Quotient.ind
+#check Quiver.Hom.toPath
+
+universe u v w
+
+def path₁ {x y : Cat.FreeRefl (OneTruncation₂ A)} (f : OneTruncation₂.Hom x.as y.as) : x ⟶ y := by
+  apply Quot.mk
+  exact Quiver.Hom.toPath f
+
+lemma qFunctor_obj (x : Cat.FreeRefl (OneTruncation₂ A)) : qFunctor.obj x = x.as := rfl
+
+lemma qFunctor_map₁ (x y : Cat.FreeRefl.{u} (OneTruncation₂ A)) (f : OneTruncation₂.Hom x.as y.as) :
+    qFunctor.map.{u} (Quot.mk _ (Quiver.Hom.toPath f)) = toHEdge f := by
+  have : qFunctor.map.{u} (Quot.mk _ (Quiver.Hom.toPath f)) = qReflPrefunctor.map.{u} f := by
+    simp [qFunctor]
+    sorry
+  rw [this]
+  rfl
+
+#check Cat.comp_map
+#check comp_map
+#check Quot.liftOn
+#check Prefunctor.mapPath
+#check Prefunctor.mapPath_comp
+#check ReflQuiv.adj.counit.comp_app_eq
+
+-- TODO: weirdness with qFunctorAlt / qFunctor (these are almost the same, up to bundling)
+def respects_rel (x y : Cat.FreeRefl.{u} (OneTruncation₂.{u} A))
+    (f g : Quiver.Hom.{u + 1, u} x y)
+    (r : HoRel₂ x y f g) : qFunctorAlt.map.{u} f = qFunctorAlt.map.{u} g := by
+  dsimp only [qFunctorAlt]
+  rcases r with ⟨r⟩
+  simp only [Functor.comp_map, Cat.freeReflMap_map]
+  rw [Quot.liftOn_mk, Quot.liftOn_mk, Prefunctor.mapPath_comp]
+  repeat rw [Prefunctor.mapPath_toPath]
+  rw [← Functor.comp_map, ← Functor.comp_map]
+  simp only [Functor.comp_obj, ReflQuiv.adj.counit.app_obj, Cat.freeReflMap_obj_as,
+    ReflQuiv.adj.counit.comp_app_eq, Cat.of_α, pathComposition_map, composePath_toPath,
+    composePath_comp]
+  dsimp only [qReflPrefunctor]
+  symm
+  apply triangle_gives_commuting
+  exact {
+    simplex := r
+    h₀₁ := rfl
+    h₁₂ := rfl
+    h₀₂ := rfl
+  }
+
+noncomputable
+def qFunctor' : HomotopyCategory A ⥤ HomotopyCategory₂ A :=
+  CategoryTheory.Quotient.lift _ qFunctor respects_rel
+
+-- TODO do we even need this?
+lemma quotient_commutes : qFunctor.{u} = HomotopyCategory.quotientFunctor A ⋙ qFunctor'.{u} :=
+  sorry
+
+def mapToQuotient {x y : HomotopyCategory₂ A} (f : x ⟶ y) : Quotient (instSetoidEdge x y) := f
+
+#check Quiver.Hom.toPath
+def edgeToFreeMorph {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) :
+    @Quiver.Hom (Cat.FreeRefl.{u} (OneTruncation₂.{u} A)) _ ⟨x₀⟩ ⟨x₁⟩ :=
+  Quot.mk _ (Quiver.Hom.toPath {edge := f.simplex, src_eq := f.h₀, tgt_eq := f.h₁})
+
+#check Cat.FreeRefl.quotientFunctor
+noncomputable
+def liftRq₂ {C : Type} [Category C] (F : Cat.FreeRefl.{u} (OneTruncation₂.{u} A) ⥤ C)
+    (h : ∀ (x y : Cat.FreeRefl.{u} (OneTruncation₂.{u} A))
+    (f g : Quiver.Hom.{u + 1, u} x y),
+    (r : HoRel₂ x y f g) → F.map f = F.map g) : HomotopyCategory₂.{u} A ⥤rq C where
+  obj x := F.obj ⟨x⟩
+  map f := Quotient.liftOn f
+    (fun e ↦ F.map (edgeToFreeMorph e)) (fun f g ↦ by
+      intro h
+      sorry
+    )
+  map_id := sorry
+
+
+-- TODO formatting
+noncomputable
+def lift₂ {C : Type} [Category C] (F : Cat.FreeRefl.{u} (OneTruncation₂.{u} A) ⥤ C)
+    (h : ∀ (x y : Cat.FreeRefl.{u} (OneTruncation₂.{u} A))
+      (f g : Quiver.Hom.{u + 1, u} x y),
+      (r : HoRel₂ x y f g) → F.map f = F.map g) : HomotopyCategory₂.{u} A ⥤ C := by
+  -- get h : HomotopyCategory₂ A ⥤rq FA by
+  sorry
+
+theorem lift_unique₂ {C : Type} [Category C] (F₁ F₂ : HomotopyCategory₂.{u} A ⥤ C)
+    (h : qFunctor.{u} ⋙ F₁ = qFunctor.{u} ⋙ F₂) : F₁ = F₂ := by
+  sorry
+
+end homotopy_category
 
 end Quasicategory₂
 
