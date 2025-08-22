@@ -559,6 +559,12 @@ lemma comp_unique {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
     (s : CompStruct f g h) (s' : CompStruct f g h') : HomotopicL h h' :=
   left_homotopic_iff_right_homotopic.2 (Quasicategory₂.fill32 (idComp f) s s')
 
+lemma comp_unique' {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
+    (s : Nonempty (CompStruct f g h)) (s' : Nonempty (CompStruct f g h')) : HomotopicL h h' := by
+  apply Nonempty.elim s
+  apply Nonempty.elim s'
+  intro t' t; exact comp_unique t t'
+
 lemma transport_edge₀ {f : Edge x y} {g g' : Edge y z} {h : Edge x z}
     (s : CompStruct f g h) (htpy : HomotopicL g g') : Nonempty (CompStruct f g' h) := by
   rcases htpy with ⟨htpy⟩
@@ -591,43 +597,61 @@ section homotopy_category
 
 variable {A : Truncated 2} [Quasicategory₂ A]
 
-#check (@HomotopicL.refl' _ _ _)
+/--
+  The homotopy category of a 2-truncated quasicategory `A` has as objects the 0-simplices of `A`
+-/
+def HomotopyCategory₂ (A : Truncated 2) := A _⦋0⦌₂
 
 instance instSetoidEdge (x₀ x₁ : A _⦋0⦌₂) : Setoid (Edge x₀ x₁) where
   r := HomotopicL
   iseqv := ⟨fun _ ↦ HomotopicL.refl', HomotopicL.symm, HomotopicL.trans⟩
 
-#check Quotient.lift
-
+/--
+  The morphisms between two vertices `x₀`, `x₁` in `HomotopyCategory₂ A` are homotopy classes
+  of 1-simplices between `x₀` and `x₁`.
+-/
 def HEdge (x₀ x₁ : A _⦋0⦌₂) := Quotient (instSetoidEdge x₀ x₁)
 
+/--
+  Given two consecutive edges `f`, `g`  in a 2-truncated quasicategory, nonconstructively choose
+  an edge that is the diagonal of a 2-simplex with spine given by `f` and `g`.
+-/
 noncomputable
-def composeEdges {x₀ x₁ x₂ : A _⦋0⦌₂} (f : Edge x₀ x₁) (g : Edge x₁ x₂) :=
-  Quotient.mk' (Nonempty.some (Quasicategory₂.fill21 f g)).1
+def composeEdges {x₀ x₁ x₂ : A _⦋0⦌₂} (f : Edge x₀ x₁) (g : Edge x₁ x₂) : Edge x₀ x₂ :=
+  (Nonempty.some (Quasicategory₂.fill21 f g)).1
 
+noncomputable
+def composeEdgesIsComposition {x₀ x₁ x₂ : A _⦋0⦌₂} (f : Edge x₀ x₁) (g : Edge x₁ x₂) :
+    CompStruct f g (composeEdges f g) :=
+  (Nonempty.some (Quasicategory₂.fill21 f g)).2
+
+/--
+  The edge `composeEdges f g` is the unique edge up to homotopy such that there is
+  a 2-simplex with spine given by `f` and `g`.
+-/
+lemma composeEdges_unique {x₀ x₁ x₂ : A _⦋0⦌₂} {f : Edge x₀ x₁} {g : Edge x₁ x₂}
+    {h : Edge x₀ x₂} (s : CompStruct f g h) : HomotopicL h (composeEdges f g) := by
+  apply comp_unique' ⟨s⟩
+  exact ⟨composeEdgesIsComposition f g⟩
+
+/--
+  The compositions of homotopic edges are homotopic
+-/
+lemma composeEdges_homotopic {x₀ x₁ x₂ : A _⦋0⦌₂} {f f' : Edge x₀ x₁} {g g' : Edge x₁ x₂}
+    (hf : HomotopicL f f') (hg : HomotopicL g g') :
+    HomotopicL (composeEdges f g) (composeEdges f' g') := by
+  apply comp_unique' ⟨composeEdgesIsComposition f g⟩
+  exact transport_all_edges (HomotopicL.symm hf) (HomotopicL.symm hg) (HomotopicL.refl')
+    (composeEdgesIsComposition f' g')
+
+/--
+  Composition of morphisms in `HomotopyCategory₂ A` is given by lifting `composeEdges`.
+-/
 noncomputable
 def composeHEdges {x₀ x₁ x₂ : A _⦋0⦌₂} (f : HEdge x₀ x₁) (g : HEdge x₁ x₂) : HEdge x₀ x₂ :=
-    Quotient.lift₂
-      (fun f g ↦ Quotient.mk' (Nonempty.some (Quasicategory₂.fill21 f g)).1)
-      (by
-        intro f₁ g₁ f₂ g₂ hf hg
-        simp
-        apply Quotient.sound
-        have cs₁ := (Nonempty.some (Quasicategory₂.fill21 f₁ g₁)).2
-        have cs₂ := (Nonempty.some (Quasicategory₂.fill21 f₂ g₂)).2
-        set h₁ := (Nonempty.some (Quasicategory₂.fill21 f₁ g₁)).1
-        set h₂ := (Nonempty.some (Quasicategory₂.fill21 f₂ g₂)).1
-        have := transport_edge₂ cs₁ hf
-        apply Nonempty.elim this
-        intro cs₃
-        have := transport_edge₀ cs₃ hg
-        apply Nonempty.elim this
-        intro cs₄
-        exact comp_unique cs₄ cs₂)
-      f g
-
-
-def HomotopyCategory₂ (A : Truncated 2) := A _⦋0⦌₂
+  Quotient.lift₂ (fun f g ↦ ⟦composeEdges f g⟧) (fun _ _ _ _ hf hg ↦
+    Quotient.sound (composeEdges_homotopic hf hg)
+  ) f g
 
 noncomputable
 instance : CategoryStruct (HomotopyCategory₂ A) where
@@ -635,50 +659,31 @@ instance : CategoryStruct (HomotopyCategory₂ A) where
   id x₀ := Quotient.mk' (Edge.id x₀)
   comp := composeHEdges
 
-#check HomotopyCategory₂
-#check @Quiver.Hom
-
--- TODO refactor; this is a bit of type management
-def toMorph {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) : @Quiver.Hom (HomotopyCategory₂ A) _ x₀ x₁ :=
-  Quotient.mk' f
-
-lemma triangle_gives_commuting {x₀ x₁ x₂ : A _⦋0⦌₂} {f : Edge x₀ x₁} {g : Edge x₁ x₂}
-    {h : Edge x₀ x₂} (s : CompStruct f g h) : toMorph f ≫  toMorph g = toMorph h := by
-  dsimp only [toMorph]
-  apply Quotient.sound
-  let ⟨h', s'⟩ := (Quasicategory₂.fill21 f g).some
-  exact comp_unique s' s
-
 noncomputable
-instance instHomotopyCat₂ : Category (HomotopyCategory₂ A) where
+instance instCategoryHomotopyCategory₂ : Category (HomotopyCategory₂ A) where
   id_comp f := by
     rcases f with ⟨f⟩
     apply Quotient.sound
-    have cs₁ := (Nonempty.some (Quasicategory₂.fill21 (Edge.id _) f)).2
-    set g := (Nonempty.some (Quasicategory₂.fill21 (Edge.id _) f)).1
-    apply symm
-    exact left_homotopic_iff_right_homotopic.2 ⟨cs₁⟩
-  comp_id := sorry
+    exact symm (composeEdges_unique (CompStruct.idComp f))
+  comp_id f := by
+    rcases f with ⟨f⟩
+    apply Quotient.sound
+    exact symm (composeEdges_unique (CompStruct.compId f))
   assoc f g h := by
     rcases f, g, h with ⟨⟨f⟩, ⟨g⟩, ⟨h⟩⟩
     apply Quotient.sound
-    have cs₃ := (Nonempty.some (Quasicategory₂.fill21 f g)).2
-    have cs₀ := (Nonempty.some (Quasicategory₂.fill21 g h)).2
-    set fg := (Nonempty.some (Quasicategory₂.fill21 f g)).1
-    set gh := (Nonempty.some (Quasicategory₂.fill21 g h)).1
+    apply composeEdges_unique
+    let fg := composeEdges f g
+    exact Nonempty.some (Quasicategory₂.fill32
+      (composeEdgesIsComposition f g)
+      (composeEdgesIsComposition g h)
+      (composeEdgesIsComposition fg h))
 
-    -- TODO IF fill21 constructively gives and edge (and nonconstructively a 2-simplex),
-    -- then we can probably avoid use of choice, since HomotopicL only needs the existence
-    -- of suitable 2-simplices
-    have cs₂ := (Nonempty.some (Quasicategory₂.fill21 f gh)).2
-    have cs₁ := (Nonempty.some (Quasicategory₂.fill21 fg h)).2
-    have cs₂' := Nonempty.some (Quasicategory₂.fill32 cs₃ cs₀ cs₁)
+end homotopy_category
 
-    set fg_h := (Nonempty.some (Quasicategory₂.fill21 fg h)).1
-    set f_gh := (Nonempty.some (Quasicategory₂.fill21 f gh)).1
+section isomorphism_of_htpy_categories
 
-    show HomotopicL fg_h f_gh
-    exact comp_unique cs₂' cs₂
+variable {A : Truncated 2} [Quasicategory₂ A]
 
 noncomputable
 def qReflPrefunctor : (OneTruncation₂ A) ⥤rq (HomotopyCategory₂ A) where
@@ -731,9 +736,9 @@ def respects_rel (x y : Cat.FreeRefl.{u} (OneTruncation₂.{u} A))
   simp only [Functor.comp_obj, ReflQuiv.adj.counit.app_obj, Cat.freeReflMap_obj_as,
     ReflQuiv.adj.counit.comp_app_eq, Cat.of_α, pathComposition_map, composePath_toPath,
     composePath_comp]
-  dsimp only [qReflPrefunctor]
-  symm
-  apply triangle_gives_commuting
+  dsimp only [qReflPrefunctor, CategoryStruct.comp]
+  apply Quotient.sound
+  apply composeEdges_unique
   exact {
     simplex := r
     h₀₁ := rfl
@@ -937,7 +942,7 @@ def isomorphism_homotopy_categories : (Cat.of (HomotopyCategory A)) ≅ (Cat.of 
     rw [← Functor.assoc, isLift₂, Quotient.lift_spec]
     rfl
 
-end homotopy_category
+end isomorphism_of_htpy_categories
 
 end Quasicategory₂
 
