@@ -723,7 +723,8 @@ lemma unit_app_quotientFunctor : quotientReflPrefunctor₂ =
 
 lemma quotientFunctor_obj (x : FreeRefl (OneTruncation₂ A)) : quotientFunctor₂.obj x = x.as := rfl
 
-lemma qFunctor_map_toPath (x y : FreeRefl.{u} (OneTruncation₂ A)) (f : OneTruncation₂.Hom x.as y.as) :
+lemma qFunctor_map_toPath (x y : FreeRefl.{u} (OneTruncation₂ A))
+    (f : OneTruncation₂.Hom x.as y.as) :
     quotientFunctor₂.map.{u} (Quot.mk _ (Quiver.Hom.toPath f)) = quotientReflPrefunctor₂.map f := by
   dsimp [quotientFunctor₂, Adjunction.homEquiv]
   rw [Quot.liftOn_mk]
@@ -826,7 +827,7 @@ theorem ReflPrefunctor.congr_hom {U V : Type*} [ReflQuiver U] [ReflQuiver V] {F 
   subst e
   simp
 
-theorem lift_uniqueRq₂ {C} [ReflQuiver.{u + 1, u} C] (F₁ F₂ : (HomotopyCategory₂.{u} A) ⥤rq C)
+theorem lift_unique_rq₂ {C} [ReflQuiver.{u + 1, u} C] (F₁ F₂ : (HomotopyCategory₂.{u} A) ⥤rq C)
     (h : quotientReflPrefunctor₂ ⋙rq F₁ = quotientReflPrefunctor₂ ⋙rq F₂) : F₁ = F₂ := by
   apply ReflPrefunctor.ext'
   . intro x₀ x₁
@@ -879,7 +880,7 @@ def lift₂ {C : Type} [Category C] (F : FreeRefl.{u} (OneTruncation₂.{u} A) �
       . exact p.snd.h₀₂
   }
 
-lemma isLift₂ {C : Type} [Category C] (F : FreeRefl.{u} (OneTruncation₂.{u} A) ⥤ C)
+lemma is_lift₂ {C : Type} [Category C] (F : FreeRefl.{u} (OneTruncation₂.{u} A) ⥤ C)
     (h : ∀ (x y : FreeRefl.{u} (OneTruncation₂.{u} A))
       (f g : Quiver.Hom.{u + 1, u} x y),
       (r : HoRel₂ x y f g) → F.map f = F.map g) :
@@ -903,7 +904,7 @@ theorem lift_unique₂ {C : Type u} [Category.{u} C] (F₁ F₂ : HomotopyCatego
       (hyp : F.toReflPrefunctor = G.toReflPrefunctor) : F = G := by
     cases F; cases G; cases hyp; rfl
   apply forget_faithful'
-  apply lift_uniqueRq₂
+  apply lift_unique_rq₂
   let η := ReflQuiv.adj.unit.app (OneTruncation₂ A)
   rw [unit_app_quotientFunctor.{u}, ReflPrefunctor.comp_assoc,
     ← Functor.toReflPrefunctor.map_comp (C := FreeRefl (OneTruncation₂ A)), h]
@@ -925,12 +926,12 @@ def isoHomotopyCategories : (Cat.of (HomotopyCategory A)) ≅ (Cat.of (HomotopyC
   hom_inv_id := by
     apply HomotopyCategory.lift_unique'
     dsimp only [Cat.of_α, HomotopyCategory.quotientFunctor, CategoryStruct.comp]
-    rw [← Functor.assoc, Quotient.lift_spec, isLift₂]
+    rw [← Functor.assoc, Quotient.lift_spec, is_lift₂]
     rfl
   inv_hom_id := by
     apply lift_unique₂
     dsimp only [Cat.of_α, CategoryStruct.comp, HomotopyCategory.quotientFunctor]
-    rw [← Functor.assoc, isLift₂, Quotient.lift_spec]
+    rw [← Functor.assoc, is_lift₂, Quotient.lift_spec]
     rfl
 
 end isomorphism_of_htpy_categories
