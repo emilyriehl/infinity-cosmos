@@ -491,10 +491,7 @@ variable {A : Truncated 2} [Quasicategory₂ A]
 /--
 Left homotopy relation is reflexive
 -/
-def HomotopicL.refl {x : A _⦋0⦌₂} : HomotopicL (id x) (id x) := ⟨idCompId x⟩
-
--- TODO: is this not the right reflexivity!?
-def HomotopicL.refl' {x y : A _⦋0⦌₂} {f : Edge x y} : HomotopicL f f := ⟨compId f⟩
+def HomotopicL.refl {x y : A _⦋0⦌₂} {f : Edge x y} : HomotopicL f f := ⟨compId f⟩
 
 /--
 Left homotopy relation is symmetric
@@ -517,7 +514,7 @@ def HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicL 
 /--
 Right homotopy relation is reflexive
 -/
-def HomotopicR.refl {x : A _⦋0⦌₂} : HomotopicR (id x) (id x) := ⟨idCompId x⟩
+def HomotopicR.refl  {x y : A _⦋0⦌₂} {f : Edge x y} : HomotopicR f f := ⟨idComp f⟩
 
 /--
 Right homotopy relation is symmetric
@@ -604,7 +601,7 @@ def HomotopyCategory₂ (A : Truncated 2) := A _⦋0⦌₂
 
 instance instSetoidEdge (x₀ x₁ : A _⦋0⦌₂) : Setoid (Edge x₀ x₁) where
   r := HomotopicL
-  iseqv := ⟨fun _ ↦ HomotopicL.refl', HomotopicL.symm, HomotopicL.trans⟩
+  iseqv := ⟨fun _ ↦ HomotopicL.refl, HomotopicL.symm, HomotopicL.trans⟩
 
 /--
   The morphisms between two vertices `x₀`, `x₁` in `HomotopyCategory₂ A` are homotopy classes
@@ -641,7 +638,7 @@ lemma composeEdges_homotopic {x₀ x₁ x₂ : A _⦋0⦌₂} {f f' : Edge x₀ 
     (hf : HomotopicL f f') (hg : HomotopicL g g') :
     HomotopicL (composeEdges f g) (composeEdges f' g') := by
   apply comp_unique' ⟨composeEdgesIsComposition f g⟩
-  exact transport_all_edges (HomotopicL.symm hf) (HomotopicL.symm hg) (HomotopicL.refl')
+  exact transport_all_edges (HomotopicL.symm hf) (HomotopicL.symm hg) (HomotopicL.refl)
     (composeEdgesIsComposition f' g')
 
 /--
