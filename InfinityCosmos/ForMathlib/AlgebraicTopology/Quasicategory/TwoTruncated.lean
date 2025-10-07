@@ -537,7 +537,7 @@ def HomotopicR.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicR 
 /--
 The right and left homotopy relations coincide
 -/
-theorem left_homotopic_iff_right_homotopic {x y : A _⦋0⦌₂} {f g : Edge x y} :
+theorem HomotopicL_iff_HomotopicR {x y : A _⦋0⦌₂} {f g : Edge x y} :
     HomotopicL f g ↔ HomotopicR f g := by
   constructor
   . rintro ⟨lhfg⟩
@@ -554,7 +554,7 @@ variable {x y z : A _⦋0⦌₂}
 
 lemma comp_unique {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
     (s : CompStruct f g h) (s' : CompStruct f g h') : HomotopicL h h' :=
-  left_homotopic_iff_right_homotopic.2 (Quasicategory₂.fill32 (idComp f) s s')
+  HomotopicL_iff_HomotopicR.mpr (Quasicategory₂.fill32 (idComp f) s s')
 
 lemma comp_unique' {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
     (s : Nonempty (CompStruct f g h)) (s' : Nonempty (CompStruct f g h')) : HomotopicL h h' := by
@@ -569,12 +569,12 @@ lemma transport_edge₀ {f : Edge x y} {g g' : Edge y z} {h : Edge x z}
 
 lemma transport_edge₁ {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
     (s : CompStruct f g h) (htpy : HomotopicL h h') : Nonempty (CompStruct f g h') := by
-  rcases (left_homotopic_iff_right_homotopic.1 htpy) with ⟨htpy⟩
+  rcases (HomotopicL_iff_HomotopicR.mp htpy) with ⟨htpy⟩
   exact Quasicategory₂.fill31 (idComp f) s htpy
 
 lemma transport_edge₂ {f f' : Edge x y} {g : Edge y z} {h : Edge x z}
     (s : CompStruct f g h) (htpy : HomotopicL f f') : Nonempty (CompStruct f' g h) := by
-  rcases (left_homotopic_iff_right_homotopic.1 htpy) with ⟨htpy⟩
+  rcases (HomotopicL_iff_HomotopicR.mp htpy) with ⟨htpy⟩
   exact Quasicategory₂.fill31 htpy s (idComp h)
 
 lemma transport_all_edges {f f' : Edge x y} {g g' : Edge y z}
