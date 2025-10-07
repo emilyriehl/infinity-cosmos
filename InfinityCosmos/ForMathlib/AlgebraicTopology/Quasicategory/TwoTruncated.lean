@@ -702,8 +702,10 @@ def quotientFunctor₂ : FreeRefl (OneTruncation₂ A) ⥤ HomotopyCategory₂ A
     (ReflQuiv.of (OneTruncation₂ A))
     (Cat.of (HomotopyCategory₂ A))).invFun quotientReflPrefunctor₂
 
--- the adjoint relation between `quotientReflPrefunctor₂` and `quotientFunctor₂` expressed
--- on the level of functors
+/--
+  The adjoint relation between `quotientReflPrefunctor₂` and `quotientFunctor₂` expressed
+  on the level of functors.
+-/
 lemma unit_app_quotientFunctor : quotientReflPrefunctor₂ =
     ReflQuiv.adj.unit.app (OneTruncation₂ A) ⋙rq quotientFunctor₂.{u}.toReflPrefunctor := by
   let η := ReflQuiv.adj.unit.app (OneTruncation₂ A)
@@ -746,12 +748,20 @@ theorem qFunctor_respects_horel₂ (x y : FreeRefl.{u} (OneTruncation₂.{u} A))
   apply composeEdges_unique
   exact { simplex := r, h₀₁ := rfl, h₁₂ := rfl, h₀₂ := rfl }
 
+/--
+An edge from `x₀` to `x₁` in a 2-truncated simplicial set defines an arrow in the refl quiver
+`OneTruncation₂.{u} A)` from `x₀` to `x₁`.
+-/
 def edgeToHom {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) :
     @Quiver.Hom (OneTruncation₂.{u} A) _ x₀ x₁ where
   edge := f.simplex
   src_eq := f.h₀
   tgt_eq := f.h₁
 
+/--
+An edge from `x₀` to `x₁` in a 2-truncated simplicial set defines an arrow in the free category
+generated from the refl quiver `OneTruncation₂.{u} A)` from `x₀` to `x₁`.
+-/
 def edgeToFreeHom {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) :
     @Quiver.Hom (FreeRefl.{u} (OneTruncation₂.{u} A)) _ ⟨x₀⟩ ⟨x₁⟩ :=
   Quot.mk _ (edgeToHom f).toPath
@@ -820,7 +830,8 @@ theorem ReflPrefunctor.congr_obj {U V : Type*} [ReflQuiver U] [ReflQuiver V] {F 
     (e : F = G) (X : U) : F.obj X = G.obj X := by cases e; rfl
 
 theorem ReflPrefunctor.congr_hom {U V : Type*} [ReflQuiver U] [ReflQuiver V] {F G : U ⥤rq V}
-    (e : F = G) {X Y : U} (f : X ⟶ Y) : Quiver.homOfEq (F.map f) (congr_obj e X) (congr_obj e Y) = G.map f := by
+    (e : F = G) {X Y : U} (f : X ⟶ Y) :
+    Quiver.homOfEq (F.map f) (congr_obj e X) (congr_obj e Y) = G.map f := by
   subst e
   simp
 
@@ -895,7 +906,8 @@ lemma is_lift₂ {C : Type} [Category C] (F : FreeRefl.{u} (OneTruncation₂.{u}
 /--
   Lifts to the homotopy category are unique.
 -/
-theorem lift_unique₂ {C : Type u} [Category.{u} C] (F₁ F₂ : HomotopyCategory₂.{u} A ⥤ C)
+theorem HomotopyCategory₂.lift_unique' {C : Type u} [Category.{u} C]
+    (F₁ F₂ : HomotopyCategory₂.{u} A ⥤ C)
     (h : quotientFunctor₂.{u} ⋙ F₁ = quotientFunctor₂.{u} ⋙ F₂) : F₁ = F₂ := by
   have forget_faithful' {C D : Type u} [Category.{u} C] [Category.{u} D] (F G : C ⥤ D)
       (hyp : F.toReflPrefunctor = G.toReflPrefunctor) : F = G := by
@@ -926,7 +938,7 @@ def isoHomotopyCategories : (Cat.of (HomotopyCategory A)) ≅ (Cat.of (HomotopyC
     rw [← Functor.assoc, Quotient.lift_spec, is_lift₂]
     rfl
   inv_hom_id := by
-    apply lift_unique₂
+    apply HomotopyCategory₂.lift_unique'
     dsimp only [Cat.of_α, CategoryStruct.comp, HomotopyCategory.quotientFunctor]
     rw [← Functor.assoc, is_lift₂, Quotient.lift_spec]
     rfl
