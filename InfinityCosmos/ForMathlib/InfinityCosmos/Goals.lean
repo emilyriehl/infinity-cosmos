@@ -61,83 +61,8 @@ noncomputable instance QCat.SSetEnrichedCat : EnrichedCategory SSet QCat :=
 end SimplicialCategory
 
 /-- PR #25010 will prove: -/
-instance hoFunctor.preservesBinaryProducts' :
-    PreservesLimitsOfShape (Discrete Limits.WalkingPair) hoFunctor where
-  preservesLimit := sorry
-
-abbrev ULiftFin (n : ℕ) : Type u := (ULiftHom.{v,u} (ULift.{u} (Fin n)))
-
-instance {n : ℕ} : Category (ULiftFin n) := inferInstance
-
-namespace ULiftFin
-
-variable {n : ℕ} {C : Type u} [Category.{v} C]
-
-def toComposableArrows (F : ULiftFin (n + 1) ⥤ C) : ComposableArrows C n :=
-  ULift.upFunctor ⋙ ULiftHom.up ⋙ F
-
-def ofComposableArrows (G : ComposableArrows C n) : (ULiftFin (n + 1) ⥤ C) :=
-  ULiftHom.down (C := ULift.{u} (Fin (n + 1))) ⋙ ULift.downFunctor ⋙ G
-
-@[simp]
-theorem to_ofComposableArrows :
-    Function.LeftInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
-  intro
-  apply ComposableArrows.ext (by rfl_cat)
-  · intros
-    simp only [ComposableArrows.map', homOfLE_leOfHom, eqToHom_refl, comp_id, id_comp]
-    rfl
-
-@[simp]
-theorem of_toComposableArrows :
-    Function.RightInverse (toComposableArrows (C := C) (n := n)) ofComposableArrows := by
-  intro G; unfold ofComposableArrows toComposableArrows
-  refine ext_of_iso (by rfl_cat) ?_ (by rfl_cat)
-  · rw (occs := .pos [2]) [← Functor.assoc]; rfl_cat
-
-end ULiftFin
-
-def simplexIsNerve (n : ℕ) : Δ[n] ≅ nerve (ULiftFin (n + 1)) := sorry
-
-noncomputable def iso : hoFunctor.obj Δ[0] ≅ Cat.of (ULiftFin 1) :=
-  hoFunctor.mapIso (simplexIsNerve 0) ≪≫ nerveFunctorCompHoFunctorIso.app (Cat.of (ULiftFin 1))
-
-def ULiftFinDiscretePUnitIso : Cat.of (ULiftFin 1) ≅ Cat.of (Discrete.{u} PUnit) where
-  hom := toCatHom (star (ULiftFin 1))
-  inv := toCatHom (fromPUnit (ULift.up 0))
-  hom_inv_id := by
-    apply (Function.RightInverse.injective ULiftFin.of_toComposableArrows)
-    exact ComposableArrows.ext₀ rfl
-  inv_hom_id := rfl
-
-instance DiscretePUnit.isTerminal : IsTerminal (Cat.of (Discrete PUnit)) :=
-  IsTerminal.ofUniqueHom (fun C ↦ star C) (fun _ _ => punit_ext' _ _)
-
-noncomputable def finOneTerminalIso : ⊤_ Cat.{u,u} ≅ Cat.of (Discrete.{u} PUnit) :=
-  terminalIsoIsTerminal DiscretePUnit.isTerminal
-
-noncomputable def hoFunctor.terminalIso : (hoFunctor.obj (⊤_ SSet)) ≅ (⊤_ Cat) :=
-  hoFunctor.mapIso (terminalIsoIsTerminal isTerminalDeltaZero) ≪≫
-    hoFunctor.mapIso (simplexIsNerve 0) ≪≫
-    nerveFunctorCompHoFunctorIso.app (Cat.of (ULiftFin 1)) ≪≫
-    ULiftFinDiscretePUnitIso ≪≫ finOneTerminalIso.symm
-
--- Having generalised the universes in the last sequence of lemmas this now works,
--- but note that we have to pin the domain of `empty` functor in the statement to
--- universe 0 in order to agree with its use in `preservesTerminal_of_iso`.
-instance hoFunctor.preservesTerminal : PreservesLimit (empty.{0} SSet) hoFunctor :=
-  preservesTerminal_of_iso hoFunctor hoFunctor.terminalIso
-
-instance hoFunctor.preservesTerminal' :
-    PreservesLimitsOfShape (Discrete PEmpty.{1}) hoFunctor :=
-  preservesLimitsOfShape_pempty_of_preservesTerminal _
-
-instance hoFunctor.preservesFiniteProducts : PreservesFiniteProducts hoFunctor :=
-  Limits.PreservesFiniteProducts.of_preserves_binary_and_terminal _
-
-/-- A product preserving functor between cartesian closed categories is lax monoidal. -/
-noncomputable instance hoFunctor.laxMonoidal : LaxMonoidal hoFunctor :=
-  (Monoidal.ofChosenFiniteProducts hoFunctor).toLaxMonoidal
+noncomputable instance hoFunctor.laxMonoidal : LaxMonoidal hoFunctor := sorry
+--   (Monoidal.ofChosenFiniteProducts hoFunctor).toLaxMonoidal
 
 /-- Applying this result, the category of quasi-categories is an enriched ordinary category over the
 cartesian closed category of categories. -/
