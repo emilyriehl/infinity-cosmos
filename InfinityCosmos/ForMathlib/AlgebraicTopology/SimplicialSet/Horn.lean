@@ -1,6 +1,6 @@
 import Mathlib.AlgebraicTopology.SimplicialSet.Horn
 
-open Simplicial SSet CategoryTheory
+open Simplicial SSet CategoryTheory Subcomplex
 
 namespace SSet
 
@@ -90,8 +90,6 @@ lemma fork_comm : ∀ p : L, multispanIndex.fst p ≫ π (J.fst p)
   exact @stdSimplex.δ_comp_δ _ _ _ 0 1 (by norm_num)
   exact @stdSimplex.δ_comp_δ _ _ _ 0 2 (by norm_num)
   exact @stdSimplex.δ_comp_δ _ _ _ 2 2 (by norm_num)
-
-#check stdSimplex.δ_comp_δ (Fin.le_of_lt Fin.zero_lt_one)
 
 def multicofork := Limits.Multicofork.ofπ multispanIndex Λ[3, 1] π fork_comm
 

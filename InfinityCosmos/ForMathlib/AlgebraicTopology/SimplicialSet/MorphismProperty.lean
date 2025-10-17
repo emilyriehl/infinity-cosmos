@@ -33,7 +33,7 @@ section isoFibration
 /-- Inductive definition of inner horn inclusions Λ[n, i] ⟶ Δ[n]
   by restricting general horn inclusions to 0 < i < n -/
 inductive InnerHornInclusion : {X Y : SSet} → (X ⟶ Y) → Prop
-  | mk (n i : ℕ) (low : 0 < i) (high : i < n) : InnerHornInclusion (Λ[n, i].ι)
+  | mk (n : ℕ) (i : Fin (n + 1)) (low : 0 < i) (high : i < n) : InnerHornInclusion (Λ[n, i].ι)
 
 /-- The class of inner horn inclusions as a MorphismProperty -/
 def InnerHornInclusions : MorphismProperty SSet := fun _ _ p ↦ InnerHornInclusion p
