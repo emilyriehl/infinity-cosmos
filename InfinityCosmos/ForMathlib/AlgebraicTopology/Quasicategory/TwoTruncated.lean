@@ -192,8 +192,6 @@ def chooseFace' (a : R) : S _⦋2⦌ := match a with
   | R.f₂ => f₂.simplex
   | R.f₃ => f₃.simplex
 
-#check stdSimplex.δ
-#check map_comp_yonedaEquiv_symm
 -- The multicofork `⨿ Δ[1] ⇉ ⨿ Δ[2] ⟶ S` defined by sending `Δ[2]`s to
 -- each of the three faces `f₃`, `f₀`, `f₂`.
 def multicoforkFromFaces : Limits.Multicofork multispanIndex :=
@@ -888,9 +886,7 @@ lemma is_lift₂ {C : Type} [Category C] (F : FreeRefl.{u} (OneTruncation₂.{u}
   intro x y f
   simp only [FreeRefl.quotientFunctor, Quotient.functor, lift₂, liftRq₂, Functor.comp_obj,
     Functor.comp_map, eqToHom_refl, Category.comp_id, Category.id_comp]
-  . rw [qFunctor_map_toPath]
-    simp only [Quotient.mk', Quotient.liftOn_mk]
-    rfl
+  . rw [qFunctor_map_toPath]; rfl
   . rfl
 
 /--
