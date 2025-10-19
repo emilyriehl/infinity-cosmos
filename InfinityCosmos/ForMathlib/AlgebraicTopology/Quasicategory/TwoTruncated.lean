@@ -763,6 +763,7 @@ lemma compose_id_path {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) :
   apply Quot.sound
   have : (edgeToHom f).toPath = (edgeToHom f).toPath.comp .nil := rfl
   nth_rw 2 [this]
+  rw [← Quiver.Path.comp_toPath_eq_cons]
   apply Quotient.comp_left
   apply Quotient.CompClosure.of
   constructor
@@ -776,6 +777,7 @@ lemma homotopic_edges_are_equiv {x₀ x₁ : A _⦋0⦌₂} (f g : Edge.{u} x₀
   rw [compose_id_path g]
   dsimp [edgeToFreeHom]
   rcases HomotopicL.symm htpy with ⟨htpy⟩
+  rw [← Quiver.Path.comp_toPath_eq_cons]
   apply HoRel₂.mk' (φ := htpy.simplex) <;> (dsimp [edgeToHom]; symm)
   . exact htpy.h₀₁
   . exact htpy.h₁₂
