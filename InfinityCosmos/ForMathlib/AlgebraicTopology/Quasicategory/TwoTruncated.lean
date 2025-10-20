@@ -183,20 +183,14 @@ Choose the i-th face from the given faces, where i is represented by `a : horn�
 i.e. `a` is 0, 2 or 3
 -/
 def chooseFace (a : R) : (Δ[2] ⟶ S) := match a with
-  | ⟨0, _⟩ => yonedaEquiv.symm f₀.simplex
-  | ⟨1, _⟩ => by contradiction
-  | ⟨2, _⟩ => yonedaEquiv.symm f₂.simplex
-  | ⟨3, _⟩ => yonedaEquiv.symm f₃.simplex
+  | R.f₀ => yonedaEquiv.symm f₀.simplex
+  | R.f₂ => yonedaEquiv.symm f₂.simplex
+  | R.f₃ => yonedaEquiv.symm f₃.simplex
 
 def chooseFace' (a : R) : S _⦋2⦌ := match a with
-  | ⟨0, _⟩ => f₀.simplex
-  | ⟨1, _⟩ => by contradiction
-  | ⟨2, _⟩ => f₂.simplex
-  | ⟨3, _⟩ => f₃.simplex
-
-abbrev R₀ : R := ⟨0, by omega⟩
-abbrev R₂ : R := ⟨2, by omega⟩
-abbrev R₃ : R := ⟨3, by omega⟩
+  | R.f₀ => f₀.simplex
+  | R.f₂ => f₂.simplex
+  | R.f₃ => f₃.simplex
 
 -- The multicofork `⨿ Δ[1] ⇉ ⨿ Δ[2] ⟶ S` defined by sending `Δ[2]`s to
 -- each of the three faces `f₃`, `f₀`, `f₂`.
@@ -205,21 +199,20 @@ def multicoforkFromFaces : Limits.Multicofork multispanIndex :=
     (chooseFace f₃ f₀ f₂)
     (by
       rintro ⟨⟨⟨i, i_ne_1⟩, ⟨j, j_ne_1⟩⟩, i_lt_j⟩
-      fin_cases i <;> fin_cases j <;> try contradiction
       all_goals
-        dsimp [J, multispanIndex, chooseFace]
+        dsimp [J, multispanIndex, chooseFace, CosimplicialObject.δ]
         rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
         congr 1
       -- rw doesn't work because the statement is about `SSet`, not `Truncated 2`
       . apply Eq.trans
-        exact f₀.h₀₂
-        symm; exact f₂.h₁₂
-      . apply Eq.trans
-        exact f₀.h₀₁
-        symm; exact f₃.h₁₂
-      . apply Eq.trans
         exact f₂.h₀₁
-        symm; exact f₃.h₀₁)
+        symm; exact f₃.h₀₁
+      . apply Eq.trans
+        exact f₃.h₁₂
+        symm; exact f₀.h₀₁
+      . apply Eq.trans
+        exact f₀.h₀₂
+        symm; exact f₂.h₁₂)
 
 /--
 Use the fact that `Λ[3, 1]` is the coequalizer of `multicoforkFromFaces` allows the
@@ -235,19 +228,19 @@ A group of lemmas stating that the faces of the simplex `Δ[3] ⟶ S` extending 
 lemma horn_extension_face₀ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₂ = Λ[3, 1].ι ≫ g) :
     yonedaEquiv.symm f₀.simplex = stdSimplex.δ 0 ≫ g := by
   have : ι₀ ≫ (fromFaces f₃ f₀ f₂) = yonedaEquiv.symm f₀.simplex :=
-    isMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₂) (.right R₀)
+    isMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₂) (.right R.f₀)
   rw [← this, comm, ← Category.assoc, incl₀]
 
 lemma horn_extension_face₂ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₂ = Λ[3, 1].ι ≫ g) :
     yonedaEquiv.symm f₂.simplex = stdSimplex.δ 2 ≫ g := by
   have : ι₂ ≫ (fromFaces f₃ f₀ f₂) = yonedaEquiv.symm f₂.simplex :=
-    isMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₂) (.right R₂)
+    isMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₂) (.right R.f₂)
   rw [← this, comm, ← Category.assoc, incl₂]
 
 lemma horn_extension_face₃ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₂ = Λ[3, 1].ι ≫ g) :
     yonedaEquiv.symm f₃.simplex = stdSimplex.δ 3 ≫ g := by
   have : ι₃ ≫ (fromFaces f₃ f₀ f₂) = yonedaEquiv.symm f₃.simplex :=
-    isMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₂) (.right R₃)
+    isMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₂) (.right R.f₃)
   rw [← this, comm, ← Category.assoc, incl₃]
 
 /--
@@ -258,7 +251,7 @@ def fromHornExtension
     (g : Δ[3] ⟶ S)
     (comm : fromFaces f₃ f₀ f₂ = Λ[3, 1].ι ≫ g) :
     (CompStruct e₀₂ e₂₃ e₀₃) where
-  simplex := (truncEquiv 2) <| S.map (δ 1).op (yonedaEquiv g)
+  simplex := (truncEquiv 2) <| S.map (SimplexCategory.δ 1).op (yonedaEquiv g)
   h₀₁ := by
     have := δ_comp_δ (n := 1) (i := 1) (j := 2) (by simp)
     dsimp only [Nat.reduceAdd, Fin.isValue, Fin.reduceSucc, Fin.castSucc_one] at this
@@ -295,20 +288,14 @@ Choose the i-th face from the given faces, where i is represented by `a : horn�
 i.e. `a` is 0, 1 or 3
 -/
 def chooseFace (a : R) : (Δ[2] ⟶ S) := match a with
-  | ⟨0, _⟩ => yonedaEquiv.symm f₀.simplex
-  | ⟨1, _⟩ => yonedaEquiv.symm f₁.simplex
-  | ⟨2, _⟩ => by contradiction
-  | ⟨3, _⟩ => yonedaEquiv.symm f₃.simplex
+  | R.f₀ => yonedaEquiv.symm f₀.simplex
+  | R.f₁ => yonedaEquiv.symm f₁.simplex
+  | R.f₃ => yonedaEquiv.symm f₃.simplex
 
 def chooseFace' (a : R) : S _⦋2⦌ := match a with
-  | ⟨0, _⟩ => f₀.simplex
-  | ⟨1, _⟩ => f₁.simplex
-  | ⟨2, _⟩ => by contradiction
-  | ⟨3, _⟩ => f₃.simplex
-
-abbrev R₀ : R := ⟨0, by omega⟩
-abbrev R₁ : R := ⟨1, by omega⟩
-abbrev R₃ : R := ⟨3, by omega⟩
+  | R.f₀ => f₀.simplex
+  | R.f₁ => f₁.simplex
+  | R.f₃ => f₃.simplex
 
 -- The multicofork `⨿ Δ[1] ⇉ ⨿ Δ[2] ⟶ S` defined by sending `Δ[2]`s to
 -- each of the three faces `f₃`, `f₀`, `f₁`.
@@ -317,21 +304,20 @@ def multicoforkFromFaces : Limits.Multicofork multispanIndex :=
     (chooseFace f₃ f₀ f₁)
     (by
       rintro ⟨⟨⟨i, i_ne_1⟩, ⟨j, j_ne_1⟩⟩, i_lt_j⟩
-      fin_cases i <;> fin_cases j <;> try contradiction
       all_goals
-        dsimp [J, multispanIndex, chooseFace]
+        dsimp [J, multispanIndex, chooseFace, CosimplicialObject.δ]
         rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
         congr 1
       -- rw doesn't work because the statement is about `SSet`, not `Truncated 2`
       . apply Eq.trans
-        exact f₀.h₁₂
-        symm; exact f₁.h₁₂
-      . apply Eq.trans
-        exact f₀.h₀₁
-        symm; exact f₃.h₁₂
-      . apply Eq.trans
         exact f₁.h₀₁
-        symm; exact f₃.h₀₂)
+        symm; exact f₃.h₀₂
+      . apply Eq.trans
+        exact f₃.h₁₂
+        symm; exact f₀.h₀₁
+      . apply Eq.trans
+        exact f₀.h₁₂
+        symm; exact f₁.h₁₂)
 
 /--
 Use the fact that `Λ[3, 2]` is the coequalizer of `multicoforkFromFaces` allows the
@@ -347,19 +333,19 @@ A group of lemmas stating that the faces of the simplex `Δ[3] ⟶ S` extending 
 lemma horn_extension_face₀ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₁ = Λ[3, 2].ι ≫ g) :
     yonedaEquiv.symm f₀.simplex = stdSimplex.δ 0 ≫ g := by
   have : ι₀ ≫ (fromFaces f₃ f₀ f₁) = yonedaEquiv.symm f₀.simplex :=
-    multicoforkIsMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₁) (.right R₀)
+    multicoforkIsMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₁) (.right R.f₀)
   rw [← this, comm, ← Category.assoc, incl₀]
 
 lemma horn_extension_face₁ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₁ = Λ[3, 2].ι ≫ g) :
     yonedaEquiv.symm f₁.simplex = stdSimplex.δ 1 ≫ g := by
   have : ι₁ ≫ (fromFaces f₃ f₀ f₁) = yonedaEquiv.symm f₁.simplex :=
-    multicoforkIsMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₁) (.right R₁)
+    multicoforkIsMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₁) (.right R.f₁)
   rw [← this, comm, ← Category.assoc, incl₁]
 
 lemma horn_extension_face₃ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₁ = Λ[3, 2].ι ≫ g) :
     yonedaEquiv.symm f₃.simplex = stdSimplex.δ 3 ≫ g := by
   have : ι₃ ≫ (fromFaces f₃ f₀ f₁) = yonedaEquiv.symm f₃.simplex :=
-    multicoforkIsMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₁) (.right R₃)
+    multicoforkIsMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₁) (.right R.f₃)
   rw [← this, comm, ← Category.assoc, incl₃]
 
 /--
@@ -370,7 +356,7 @@ def fromHornExtension
     (g : Δ[3] ⟶ S)
     (comm : fromFaces f₃ f₀ f₁ = Λ[3, 2].ι ≫ g) :
     (CompStruct e₀₁ e₁₃ e₀₃) where
-  simplex := (truncEquiv 2) <| S.map (δ 2).op (yonedaEquiv g)
+  simplex := (truncEquiv 2) <| S.map (SimplexCategory.δ 2).op (yonedaEquiv g)
   h₀₁ := by
     have := δ_comp_δ (n := 1) (i := 2) (j := 2) (by simp)
     dsimp only [Nat.reduceAdd, Fin.isValue, Fin.reduceSucc, Fin.reduceCastSucc] at this
@@ -775,6 +761,7 @@ lemma compose_id_path {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) :
   apply Quot.sound
   have : (edgeToHom f).toPath = (edgeToHom f).toPath.comp .nil := rfl
   nth_rw 2 [this]
+  rw [← Quiver.Path.comp_toPath_eq_cons]
   apply Quotient.comp_left
   apply Quotient.CompClosure.of
   constructor
@@ -788,6 +775,7 @@ lemma homotopic_edges_are_equiv {x₀ x₁ : A _⦋0⦌₂} (f g : Edge.{u} x₀
   rw [compose_id_path g]
   dsimp [edgeToFreeHom]
   rcases HomotopicL.symm htpy with ⟨htpy⟩
+  rw [← Quiver.Path.comp_toPath_eq_cons]
   apply HoRel₂.mk' (φ := htpy.simplex) <;> (dsimp [edgeToHom]; symm)
   . exact htpy.h₀₁
   . exact htpy.h₁₂
@@ -898,9 +886,7 @@ lemma is_lift₂ {C : Type} [Category C] (F : FreeRefl.{u} (OneTruncation₂.{u}
   intro x y f
   simp only [FreeRefl.quotientFunctor, Quotient.functor, lift₂, liftRq₂, Functor.comp_obj,
     Functor.comp_map, eqToHom_refl, Category.comp_id, Category.id_comp]
-  . rw [qFunctor_map_toPath]
-    simp only [Quotient.mk', Quotient.liftOn_mk]
-    rfl
+  . rw [qFunctor_map_toPath]; rfl
   . rfl
 
 /--
