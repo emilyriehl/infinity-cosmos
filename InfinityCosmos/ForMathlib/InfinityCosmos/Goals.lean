@@ -6,7 +6,7 @@ Authors: Emily Riehl
 import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
-import Mathlib.CategoryTheory.Bicategory.Strict
+import Mathlib.CategoryTheory.Bicategory.Strict.Basic
 import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
 import Mathlib.CategoryTheory.Monoidal.Functor
 import Mathlib.CategoryTheory.Closed.FunctorToTypes

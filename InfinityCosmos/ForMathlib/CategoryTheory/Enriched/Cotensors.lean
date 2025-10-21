@@ -100,7 +100,7 @@ lemma postcompose_selfEval_comp_eq {x y : C} {v : V} (vx : Cotensor v x) (vy : C
 -- Functorality of post-composition
 theorem postcompose_comp_eq {x y z : C} {v : V} (vx : Cotensor v x) (vy : Cotensor v y)
     (vz : Cotensor v z) : eComp V x y z ≫ postcompose V vx vz =
-      (postcompose V vx vy ⊗ postcompose V vy vz) ≫ eComp V _ _ _ := by
+      (postcompose V vx vy ⊗ₘ postcompose V vy vz) ≫ eComp V _ _ _ := by
   -- Work the LHS
   apply (cancel_mono (vz.coneNatTrans _)).mp (uncurry_injective _)
   simp only [Category.assoc]
@@ -108,11 +108,11 @@ theorem postcompose_comp_eq {x y z : C} {v : V} (vx : Cotensor v x) (vy : Cotens
   -- This final exchange solves at the end
   rw [whisker_exchange_assoc]
   -- Work the RHS
-  simp only [tensorHom_def, uncurry_natural_left, MonoidalCategory.whiskerLeft_comp,
+  simp only [tensorHom_def, uncurry_natural_left,
     vz.coneNatTrans_eq, Category.assoc]
   rw [braiding_naturality_right_assoc, braiding_naturality_right_assoc]
   nth_rw 2 [← whisker_exchange_assoc]
-  simp only [braiding_tensor_right, Category.assoc]
+  simp only [braiding_tensor_right_hom, Category.assoc]
   rw [← associator_inv_naturality_middle_assoc, ← associator_inv_naturality_right_assoc, e_assoc]
   nth_rw 2 [← MonoidalCategory.whiskerLeft_comp_assoc, ← MonoidalCategory.whiskerLeft_comp_assoc]
   -- This invokes commutativity of post with selfEval
@@ -184,7 +184,7 @@ lemma EhomPrecompose_selfEval_comp_eq {x : C} {w v : V} (wx : Cotensor w x) (vx 
 -- Functoriality of precomposition
 theorem precompose_comp_eq {x : C} {u v w : V} (ux : Cotensor u x) (vx : Cotensor v x)
     (wx : Cotensor w x) : eComp V u v w ≫ EhomPrecompose V ux wx =
-      (EhomPrecompose V ux vx ⊗ EhomPrecompose V vx wx) ≫ (β_ _ _).hom ≫ eComp V .. := by
+      (EhomPrecompose V ux vx ⊗ₘ EhomPrecompose V vx wx) ≫ (β_ _ _).hom ≫ eComp V .. := by
   apply (cancel_mono (ux.coneNatTrans _)).mp
   simp only [Category.assoc]
   rw [EhomPrecompose_coneNatTrans_eq]
@@ -200,7 +200,7 @@ theorem precompose_comp_eq {x : C} {u v w : V} (ux : Cotensor u x) (vx : Cotenso
   rw [braiding_naturality_left, MonoidalCategory.whiskerLeft_comp_assoc]
   --
   rw [braiding_naturality_right_assoc]
-  simp only [braiding_tensor_right, whisker_assoc, tensor_whiskerLeft,
+  simp only [braiding_tensor_right_hom, whisker_assoc, tensor_whiskerLeft,
     Category.assoc, Iso.inv_hom_id_assoc]
   rw [e_assoc]
   nth_rw 4 [← MonoidalCategory.whiskerLeft_comp_assoc]
@@ -227,7 +227,7 @@ theorem precompose_comp_eq {x : C} {u v w : V} (ux : Cotensor u x) (vx : Cotenso
   --Very bad
   have : β_ ((ihom v).obj w) v = β_ (Ehom V V v w) v := rfl
   rw [this, braiding_naturality_right_assoc]
-  simp only [braiding_tensor_right, Functor.id_obj, Category.assoc, Iso.hom_inv_id_assoc]
+  simp only [braiding_tensor_right_hom, Functor.id_obj, Category.assoc, Iso.hom_inv_id_assoc]
   rw [← comp_whiskerRight_assoc]
   simp only [symmetry, id_whiskerRight, Category.id_comp, Iso.inv_hom_id_assoc]
   rw [← MonoidalCategory.whiskerLeft_comp_assoc]
@@ -275,8 +275,8 @@ theorem precompose_id_eq {x : C} {v : V} (vx : Cotensor v x) :
 /-- Naturality of postcomposition with precoposition -/
 theorem post_pre_eq_pre_post {x y : C} {w v : V} (wx : Cotensor w x) (wy : Cotensor w y)
     (vx : Cotensor v x) (vy : Cotensor v y) :
-  (EhomPrecompose V wx vx ⊗ postcompose V wx wy) ≫ eComp V vx.obj wx.obj wy.obj =
-    (EhomPrecompose V wy vy ⊗ postcompose V vx vy) ≫ (β_ _ _).hom
+  (EhomPrecompose V wx vx ⊗ₘ postcompose V wx wy) ≫ eComp V vx.obj wx.obj wy.obj =
+    (EhomPrecompose V wy vy ⊗ₘ postcompose V vx vy) ≫ (β_ _ _).hom
       ≫ eComp V vx.obj vy.obj wy.obj := by
   -- Turn EHom to IHom, uncurry, and simplify the result
   apply (cancel_mono (wy.coneNatTrans _)).mp (uncurry_injective _)
@@ -299,7 +299,7 @@ theorem post_pre_eq_pre_post {x y : C} {w v : V} (wx : Cotensor w x) (wy : Coten
   simp only [MonoidalCategory.whiskerLeft_comp, Category.assoc]
 
   -- Remove pre x from the LHS
-  rw [braiding_tensor_right_assoc]
+  rw [braiding_tensor_right_hom_assoc]
   rw [Iso.inv_hom_id_assoc]
   -- This uses the symmetry!
   rw [← MonoidalCategory.whiskerLeft_comp_assoc]
@@ -321,7 +321,7 @@ theorem post_pre_eq_pre_post {x y : C} {w v : V} (wx : Cotensor w x) (wy : Coten
   rw [MonoidalCategory.tensorHom_def']
   simp only [MonoidalCategory.whiskerLeft_comp, Category.assoc]
   rw [braiding_naturality_right_assoc, ← whisker_exchange_assoc, ← e_assoc',
-    associator_naturality_right_assoc, braiding_tensor_right_assoc, Iso.inv_hom_id_assoc]
+    associator_naturality_right_assoc, braiding_tensor_right_hom_assoc, Iso.inv_hom_id_assoc]
   -- Candidate for moving to its own lemma
   nth_rw 2 [← MonoidalCategory.whiskerLeft_comp_assoc]
   rw [braiding_naturality_left, MonoidalCategory.whiskerLeft_comp_assoc,
