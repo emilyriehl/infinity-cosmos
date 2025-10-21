@@ -140,8 +140,8 @@ theorem postcompose_id_eq {x : C} {v : V} (vx : Cotensor v x) :
   simp only [Category.assoc]
   rw [uncurry_natural_left, uncurry_postcompose_coneNatTrans_eq]
   -- This is copied from the RHS part of the previous proof
-  simp only [uncurry_natural_left, MonoidalCategory.whiskerLeft_comp,
-    vx.coneNatTrans_eq, Category.assoc, braiding_naturality_right_assoc, braiding_tensorUnit_right,
+  simp only [uncurry_natural_left, vx.coneNatTrans_eq, Category.assoc,
+    braiding_naturality_right_assoc, braiding_tensorUnit_right,
     Category.assoc]
   -- Braiding has been replaced by unitors
   apply (Iso.inv_comp_eq _).mp

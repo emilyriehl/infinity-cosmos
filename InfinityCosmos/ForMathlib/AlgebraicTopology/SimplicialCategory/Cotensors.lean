@@ -48,11 +48,11 @@ theorem cotensor_local_bifunctoriality {U V : SSet} {A B : K}
   apply (eHomEquiv SSet).injective
   rw [eHomEquiv_comp, eHomEquiv_comp]
   have thm := Cotensor.post_pre_eq_pre_post _ ua ub va vb
-  have compeq := whisker_eq ((λ_ _).inv ≫ (eHomEquiv SSet i ⊗ eHomEquiv SSet f)) thm
-  rw [Category.assoc, ← tensor_comp_assoc] at compeq
+  have compeq := whisker_eq ((λ_ _).inv ≫ (eHomEquiv SSet i ⊗ₘ eHomEquiv SSet f)) thm
+  rw [Category.assoc, tensorHom_comp_tensorHom_assoc] at compeq
   rw [← cotensorPostcompose_homEquiv, ← cotensorPrecompose_homEquiv] at compeq
   rw [compeq]
-  slice_lhs 2 3 => rw [← tensor_comp, ← cotensorPostcompose_homEquiv, ← cotensorPrecompose_homEquiv]
+  slice_lhs 2 3 => rw [tensorHom_comp_tensorHom, ← cotensorPostcompose_homEquiv, ← cotensorPrecompose_homEquiv]
   simp only [braiding_naturality, braiding_tensorUnit_right, Category.assoc,
     Iso.cancel_iso_inv_left]
   monoidal
