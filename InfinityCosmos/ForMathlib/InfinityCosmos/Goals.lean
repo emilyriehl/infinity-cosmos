@@ -61,8 +61,7 @@ noncomputable instance QCat.SSetEnrichedCat : EnrichedCategory SSet QCat :=
 end SimplicialCategory
 
 /-- PR #25010 will prove: -/
-noncomputable instance hoFunctor.laxMonoidal : LaxMonoidal hoFunctor := sorry
---   (Monoidal.ofChosenFiniteProducts hoFunctor).toLaxMonoidal
+noncomputable instance hoFunctor.laxMonoidal : LaxMonoidal hoFunctor := inferInstance
 
 /-- Applying this result, the category of quasi-categories is an enriched ordinary category over the
 cartesian closed category of categories. -/

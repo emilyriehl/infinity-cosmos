@@ -48,7 +48,9 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 ## List of Contributors
 
 * [Dagur Asgeirsson](https://github.com/dagurtomas)
+* [Anne Baanen](https://github.com/Vierkantor)
 * [Alvaro Belmonte](https://github.com/AlvaroRBO)
+* [Kevin Buzzard](https://github.com/kbuzzard)
 * [Robin Carlier](http://github.com/robin-carlier)
 * [Mario Carneiro](https://github.com/digama0)
 * [Daniel Carranza](https://github.com/daniel-carranza)
