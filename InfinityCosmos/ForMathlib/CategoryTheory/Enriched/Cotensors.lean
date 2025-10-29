@@ -356,7 +356,7 @@ theorem post_pre_eq_pre_post {x y : C} {w v : V} (wx : Cotensor w x) (wy : Coten
 
   -- There are no more post's or pre's in the equation
   simp only [comp_whiskerRight, Category.assoc, braiding_naturality_right_assoc,
-    braiding_tensor_right, Iso.hom_inv_id_assoc]
+    braiding_tensor_right_hom, Iso.hom_inv_id_assoc]
   rw [← comp_whiskerRight_assoc]
   -- Very bad again...
   have t' := symmetry w (Ehom V V w v)

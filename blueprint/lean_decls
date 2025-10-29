@@ -3,7 +3,7 @@ SimplexCategory.δ
 SimplexCategory.σ
 SSet
 SSet.largeCategory
-SSet.standardSimplex
+SSet.stdSimplex
 SSet.boundary
 SSet.horn
 SSet.yonedaEquiv
@@ -26,8 +26,11 @@ CategoryTheory.nerveFunctor.fullyfaithful
 CategoryTheory.nerveFunctor.fullyfaithful
 SSet.Truncated.Quasicategory₂
 SSet.Truncated.two_truncatation_of_qc_is_2_trunc_qc
+SSet.Truncated.HomotopicR
+SSet.Truncated.HomotopicL
 SSet.coherentIso
 SSet.Isofibration
+QCat.Equiv
 SSet.TrivialFibration
 CategoryTheory.SimplicialCategory
 CategoryTheory.categoryForgetEnrichment
