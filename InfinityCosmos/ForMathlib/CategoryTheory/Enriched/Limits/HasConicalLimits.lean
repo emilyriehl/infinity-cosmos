@@ -71,8 +71,9 @@ namespace HasConicalLimitsOfSize
 /-- A category that has larger conical limits also has smaller conical limits. -/
 lemma of_univLE [HasConicalLimitsOfSize.{v₁, u₁} V C] [UnivLE.{v₂, v₁}] [UnivLE.{u₂, u₁}] :
     HasConicalLimitsOfSize.{v₂, u₂} V C where
-  hasConicalLimitsOfShape J := HasConicalLimitsOfShape.of_equiv V C
-    ((ShrinkHoms.equivalence J).trans (Shrink.equivalence _)).inverse
+  hasConicalLimitsOfShape J :=
+    HasConicalLimitsOfShape.of_equiv V C
+      ((ShrinkHoms.equivalence.{v₁} J).trans (Shrink.equivalence _)).inverse
 
 /-- `shrink.{v, u} C` tries to obtain `HasConicalLimitsOfSize.{v, u} C`
 from some other `HasConicalLimitsOfSize.{v₁, u₁} C`.
