@@ -98,6 +98,14 @@ structure Homotopy {A B : SSet.{u}} (f g : A ⟶ B) : Type u
   source_eq : homotopy ≫ pathSpace.src B = f
   target_eq : homotopy ≫ pathSpace.tgt B = g
 
+lemma Homotopy.src_app {A B : SSet} {f g : A ⟶ B} (h : Homotopy (I := I) f g) (x : A _⦋0⦌) :
+    (pathSpace.src B).app _ (h.homotopy.app _ x) = f.app _ x := by
+  simp [← h.source_eq]
+
+lemma Homotopy.tgt_app {A B : SSet} {f g : A ⟶ B} (h : Homotopy (I := I) f g) (x : A _⦋0⦌) :
+    (pathSpace.tgt B).app _ (h.homotopy.app _ x) = g.app _ x := by
+  simp [← h.target_eq]
+
 @[refl]
 noncomputable def Homotopy.refl {A B : SSet.{u}} (f : A ⟶ B) : Homotopy (I := I) f f where
   homotopy := curry <| CartesianMonoidalCategory.snd I A ≫ f
@@ -283,15 +291,45 @@ noncomputable def Homotopy.coherentIso_symm {A B : SSet.{u}} {f g : A ⟶ B}
 
 noncomputable def pathOfHomotopy {X Y : SSet} {f g : X ⟶ Y} (h : Homotopy (I := coherentIso) f g)
     (x : X _⦋0⦌) : coherentIso ⟶ Y :=
-  (homEquiv' coherentIso Y).invFun (h.homotopy.app (Opposite.op ⦋0⦌) x)
+  (homEquiv' coherentIso Y).symm (h.homotopy.app _ x)
 
-noncomputable def homotopyCategory_iso {X Y : SSet} {f : X ⟶ Y} {g : Y ⟶ X}
-    (hX : f ≫ g = 𝟙 X) (hY : g ≫ f = 𝟙 Y) :
-    ((truncation 2).obj X).HomotopyCategory ≅ ((truncation 2).obj Y).HomotopyCategory where
-  hom := (mapHomotopyCategory ((truncation 2).map f)).obj
-  inv := (mapHomotopyCategory ((truncation 2).map g)).obj
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+lemma ev0 : yonedaEquiv (coherentIso.pt WalkingIso.zero) = WalkingIso.zero.coev := by
+  rfl
+
+lemma homEquiv'_symm_app_zero_yoneda (X : SSet) (s : (pathSpace X) _⦋0⦌) :
+    ((MonoidalClosed.pre (coherentIso.pt WalkingIso.zero)).app X ≫ X.expPointIsoSelf.hom).app _ s
+    = yonedaEquiv (coherentIso.pt WalkingIso.zero ≫ (homEquiv' coherentIso X).symm s) := by
+  sorry
+  -- let yon : sHom Δ[0] X ⟶ X := X.expPointIsoSelf.hom
+  -- let zero_star : sHom coherentIso X ⟶ sHom Δ[0] X :=
+  --   (MonoidalClosed.pre (coherentIso.pt WalkingIso.zero)).app X
+  -- let src : sHom coherentIso X ⟶ X := zero_star ≫ yon
+  -- have s_zero : Δ[0] ⟶ X := coherentIso.pt WalkingIso.zero ≫ (homEquiv' coherentIso X).symm s
+
+lemma homEquiv'_symm_app_zero (X : SSet) (s : (pathSpace X) _⦋0⦌) :
+    ((homEquiv' coherentIso X).symm s).app _ WalkingIso.zero.coev = (pathSpace.src X).app _ s := by
+  have h := homEquiv'_symm_app_zero_yoneda X s
+  rw [yonedaEquiv_comp, ev0] at h
+  simp only [pathSpace.src, Interval.src, h]
+  rfl
+
+lemma pathOfHomotopy_app_zero {X Y : SSet} {f g : X ⟶ Y} (h : Homotopy (I := coherentIso) f g)
+    (x : X _⦋0⦌) :
+    (pathOfHomotopy h x).app _ WalkingIso.zero.coev = f.app _ x :=
+  homEquiv'_symm_app_zero Y (h.homotopy.app _ x) ▸ h.src_app x
+
+lemma pathOfHomotopy_app_one {X Y : SSet} {f g : X ⟶ Y} (h : Homotopy (I := coherentIso) f g)
+    (x : X _⦋0⦌) :
+    (pathOfHomotopy h x).app _ WalkingIso.one.coev = g.app _ x := by
+  sorry
+
+-- noncomputable def homotopyCategory_iso {X Y : SSet} {f g : X ⟶ Y}
+--     (h : Homotopy (I := coherentIso) f g) :
+--     ((truncation 2).obj X).HomotopyCategory ≅ ((truncation 2).obj Y).HomotopyCategory where
+--   hom := (mapHomotopyCategory ((truncation 2).map f)).obj
+--   inv := (mapHomotopyCategory ((truncation 2).map g)).obj
+--   hom_inv_id := sorry
+--   inv_hom_id := sorry
 
 def hoFunctor_obj_iso {X Y : SSet} (f g : X ⟶ Y) (h : Homotopy (I := coherentIso) f g)
     (A : hoFunctor.obj X) :
