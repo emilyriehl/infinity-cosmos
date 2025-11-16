@@ -59,7 +59,7 @@ theorem mono_IsFace {m n : ℕ} (f : mk m ⟶ mk n) [Mono f] : IsFace f := by
                      have := le_antisymm (Nat.le_of_sub_eq_zero h) (le_of_mono f)
                      subst this
                      simpa only [eq_id_of_mono f] using IsFace.id (mk n)
-      | succ i ih => intro m n h f mf
+      | succ i ih => intro m n h f _
                      have nnlem : ¬n ≤ m := fun nlem => Nat.succ_ne_zero i (by simp only [Nat.sub_eq_zero_of_le nlem, Nat.right_eq_add, Nat.add_eq_zero, one_ne_zero, and_false] at h)
                      have nsur : ¬Function.Surjective f := by intro fsur
                                                               have := Fintype.card_le_of_surjective f fsur
