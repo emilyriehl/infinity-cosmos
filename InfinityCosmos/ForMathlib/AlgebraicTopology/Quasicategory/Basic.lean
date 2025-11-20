@@ -13,7 +13,7 @@ section categoryofqcats
 
 /-
 QCat is the category of quasi-categories defined as the full
-subcategory of the category of simplicial sets SSet.
+subcategory of the category of simplicial sets SSet. Will be in Mathlib as PR #31101.
 -/
 def QCat := ObjectProperty.FullSubcategory Quasicategory
 instance : Category QCat := ObjectProperty.FullSubcategory.category Quasicategory

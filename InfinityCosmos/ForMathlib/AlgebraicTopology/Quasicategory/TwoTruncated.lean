@@ -811,18 +811,6 @@ def liftRq₂ {C : Type} [ReflQuiver C] (F : FreeRefl.{u} (OneTruncation₂.{u} 
     apply Quotient.CompClosure.of
     constructor
 
-/--
-  TODO: these are in mathlib PR #30580 so they should be removed once that is merged
--/
-theorem ReflPrefunctor.congr_obj' {U V : Type*} [ReflQuiver U] [ReflQuiver V] {F G : U ⥤rq V}
-    (e : F = G) (X : U) : F.obj X = G.obj X := by cases e; rfl
-
-theorem ReflPrefunctor.congr_hom' {U V : Type*} [ReflQuiver U] [ReflQuiver V] {F G : U ⥤rq V}
-    (e : F = G) {X Y : U} (f : X ⟶ Y) :
-    Quiver.homOfEq (F.map f) (congr_obj' e X) (congr_obj' e Y) = G.map f := by
-  subst e
-  simp
-
 theorem lift_unique_rq₂ {C} [ReflQuiver.{u + 1, u} C] (F₁ F₂ : (HomotopyCategory₂.{u} A) ⥤rq C)
     (h : quotientReflPrefunctor₂ ⋙rq F₁ = quotientReflPrefunctor₂ ⋙rq F₂) : F₁ = F₂ := by
   apply ReflPrefunctor.ext'
@@ -832,7 +820,7 @@ theorem lift_unique_rq₂ {C} [ReflQuiver.{u + 1, u} C] (F₁ F₂ : (HomotopyCa
     have q_is_quotient : quotientReflPrefunctor₂.map (edgeToHom f) =
       Quotient.mk (instSetoidEdge x₀ x₁) f := rfl
     rw [← q_is_quotient, ← ReflPrefunctor.comp_map, ← ReflPrefunctor.comp_map,
-      ReflPrefunctor.congr_hom' h.symm]
+      ReflPrefunctor.congr_hom h.symm]
   . intro x
     have : (quotientReflPrefunctor₂.{u} ⋙rq F₁).obj x = (quotientReflPrefunctor₂.{u} ⋙rq F₂).obj x :=
        congrFun (congrArg Prefunctor.obj (congrArg ReflPrefunctor.toPrefunctor h)) x
