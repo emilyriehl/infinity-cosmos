@@ -1,4 +1,3 @@
-import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.TwoTruncated
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
