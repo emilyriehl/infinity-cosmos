@@ -51,7 +51,7 @@ instance (A B : K) : Coe (A ↠ B) (A ⟶ B) := ⟨ λ f ↦ f.1 ⟩
 end InfinityCosmos
 
 open PreInfinityCosmos InfinityCosmos Enriched
-variable (K : Type u) [Category.{v} K][PreInfinityCosmos.{v} K]
+variable (K : Type u) [Category.{v} K]
 
 /-- An `InfinityCosmos` extends a `PreInfinityCosmos` with limit and isofibration axioms..-/
 class InfinityCosmos extends PreInfinityCosmos K where
