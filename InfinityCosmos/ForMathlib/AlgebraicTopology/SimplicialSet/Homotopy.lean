@@ -56,6 +56,7 @@ section
 
 variable {I : SSet.{u}} [Interval I]
 
+@[nolint unusedArguments]
 noncomputable def pathSpace {I : SSet.{u}} [Interval I] (X : SSet.{u}) : SSet.{u} := sHom I X
 
 open MonoidalClosed
@@ -90,6 +91,7 @@ namespace Kan
 open SSet Simplicial
 
 /-- Equivalence of Kan Complexes. -/
+@[nolint unusedArguments]
 def Equiv (A B : SSet.{u}) [KanComplex A] [KanComplex B] :=
     SSet.Equiv (I := Δ[1]) A B
 
@@ -100,6 +102,7 @@ namespace QCat
 open SSet
 
 /-- Equivalence of quasi-categories. -/
+@[nolint unusedArguments]
 def Equiv (A B : SSet.{u}) [Quasicategory A] [Quasicategory B] :=
     SSet.Equiv (I := coherentIso) A B
 

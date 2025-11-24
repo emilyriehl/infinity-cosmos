@@ -160,6 +160,7 @@ lemma cotensorContraIsofibration_map {U V : SSet.{v}} (i : U ⟶ V) [Mono i] (A 
 
 /-- An explicit choice of codomain for the Leibniz cotensor of a monomorphism and an
 isofibration. -/
+@[nolint unusedArguments]
 noncomputable def leibnizCotensorCod {U V : SSet} (i : U ⟶ V) [Mono i] {A B : K} (f : A ↠ B) :
     K := by
   have : HasPullback (cotensorCovMap U f.1) (cotensorContraMap i B) := by
@@ -210,6 +211,7 @@ noncomputable def leibnizCotensor.isPullback {U V : SSet.{v}} (i : U ⟶ V) [Mon
   apply IsPullback.of_hasPullback
 
 /-- An explicitly chosen Leibniz pullback square, as a pullback cone. -/
+@[nolint unusedArguments]
 noncomputable def leibnizCotensor.pullbackCone {U V : SSet.{v}} (i : U ⟶ V) [Mono i] {A B : K}
     (f : A ↠ B) : PullbackCone (cotensorCovMap U f.1) (cotensorContraMap i B) := by
   have : HasPullback (cotensorCovMap U f.1) (cotensorContraMap i B) := by
