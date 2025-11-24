@@ -18,6 +18,7 @@ abbrev Ihom (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalCl
   (ihom x).obj y
 
 -- The variable V is explicit here since trying to make it implicit throws errors in practice
+@[nolint unusedArguments]
 abbrev Ehom (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalClosed V]
     (C : Type v) [EnrichedCategory V C] (x y : C) : V :=
   @EnrichedCategory.Hom V _ _ _ _ x y
