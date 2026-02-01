@@ -426,24 +426,15 @@ This should be relatively straightforward.
 
    We revisit Definition \ref{defn:1-simplex-htpy} in this setting.
 
-   \begin{definition}[homotopy relation on 1-simplices]\label{defn:1-simplex-left-right-htpy}
-    \uses{defn:simplicial-set}
-    \leanok
-    \lean{SSet.Truncated.HomotopicR}\lean{SSet.Truncated.HomotopicL}
-     A parallel pair of 1-sim\-plices $f,g$ in a 2-truncated simplicial set $X$ are \textbf{left homotopic} if there exists a 2-simplex whose boundary takes the form below-left and \textbf{right homotopic} if there exists a 2-simplex whose boundary takes the form below-right:
-     \begin{center}
-      \begin{tikzcd}[row sep=small, column sep=small]
-      & y \arrow[dr, equals] & && &  x \arrow[dr, "f"]  \\ x \arrow[ur, "f"] \arrow[rr, "g"'] & & y & & x \arrow[ur, equals] \arrow[rr, "g"'] & & y
-      \end{tikzcd}
-     \end{center}     \begin{center}
-     \begin{tikzcd}[row sep=small, column sep=small]
-     & y \arrow[dr, equals]   \\ x \arrow[ur, "f"] \arrow[rr, "g"'] & & y
-     \end{tikzcd}
-    \end{center}
-     \end{definition}
+   Recall that a parallel pair of 1-sim\-plices $f,g$ in a 2-truncated simplicial set $X$ are \textbf{left homotopic} if there exists a 2-simplex whose boundary takes the form below-left and \textbf{right homotopic} if there exists a 2-simplex whose boundary takes the form below-right:
+   \begin{center}
+    \begin{tikzcd}[row sep=small, column sep=small]
+    & y \arrow[dr, equals] & && &  x \arrow[dr, "f"]  \\ x \arrow[ur, "f"] \arrow[rr, "g"'] & & y & & x \arrow[ur, equals] \arrow[rr, "g"'] & & y
+    \end{tikzcd}
+   \end{center}
 
 \begin{lemma}\label{lem:2-truncated-qcat-htpy}
-  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy}
+  \uses{defn:2-truncated-qcat, defn:1-simplex-htpy}
   \leanok
   \lean{SSet.Quasicategory₂.HomotopicL.refl}
   \lean{SSet.Quasicategory₂.HomotopicL.symm}
@@ -462,14 +453,14 @@ This should be relatively straightforward.
 \end{lemma}
 \begin{proof}
   \leanok
-  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy}
+  \uses{defn:2-truncated-qcat, defn:1-simplex-htpy}
 Each statement follows from a single 3-dimensional horn filling, typically involving degenerate simplices.
 \end{proof}
 
 As the left and right homotopy relations coincide in a 2-truncated quasi-category, in that setting we take right homotopy to be the default and refer to it simply as ``homotopy'' and denote it by ``$\sim$'' going forward.
 
 \begin{lemma}\label{lem:2-truncated-qcat-htpy-comp}
-  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy} $\quad$
+  \uses{defn:2-truncated-qcat, defn:1-simplex-htpy} $\quad$
   \begin{enumerate}
     \item If $\sigma$ and $\tau$ are 2-simplices in a 2-truncated quasi-category filling the same path, their diagonal edges are homotopic.
     \item If $h$ is the diagonal edge of a 2-simplex filling the path formed by $f$ and $g$ and $g$ is homotopic to $g'$, then $h$ is the diagonal edge of a 2-simplex filling the path formed by $f$ and $g'$.
@@ -482,12 +473,12 @@ As the left and right homotopy relations coincide in a 2-truncated quasi-categor
 \end{lemma}
 \begin{proof}
   \leanok
-  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy}
+  \uses{defn:2-truncated-qcat, defn:1-simplex-htpy}
   For (i), fill the (3,2)-horn filling the path formed by a degenerate edge, followed by the given path edges, and using the given simplices as the 0th and 1st faces. The proofs of (ii) and (iii) are similar.
 \end{proof}
 
 \begin{corollary}\label{cor:2-truncated-qcat-htpy-comp}
-  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy}
+  \uses{defn:2-truncated-qcat, defn:1-simplex-htpy}
   \leanok
   \lean{SSet.Quasicategory₂.transport_all_edges}
    Suppose there is a 2-simplex in a 2-truncated quasi-category with spine formed by the paths $f$ and $g$ and diagonal $h$. Then if $f \sim f'$, $g \sim g'$, and $h \sim h'$, there is a 2-simplex with spine formed by $f'$ and $g'$ and diagonal $h'$.
@@ -501,7 +492,7 @@ As the left and right homotopy relations coincide in a 2-truncated quasi-categor
 These results now combine to justify the following definition:
 
 \begin{definition}[the homotopy category of a 2-truncated quasi-category]\label{defn:2-truncated-qcat-htpy-cat}
-  \uses{defn:2-truncated-qcat, defn:1-simplex-left-right-htpy,
+  \uses{defn:2-truncated-qcat, defn:1-simplex-htpy,
   lem:2-truncated-qcat-htpy, lem:2-truncated-qcat-htpy-comp, cor:2-truncated-qcat-htpy-comp}
   \leanok
 \lean{SSet.Quasicategory₂.instCategoryHomotopyCategory₂}
@@ -528,12 +519,12 @@ In other words, the hom-types are quotients of the hom-types of the underlying r
    \end{lemma}
  \begin{proof}
   \leanok
-  \uses{defn:1-simplex-left-right-htpy, cor:2-truncated-qcat-htpy-comp, prop:free-refl-quiver}
+  \uses{defn:1-simplex-htpy, cor:2-truncated-qcat-htpy-comp, prop:free-refl-quiver}
 Given a 2-truncated quasi-category $A$, we can construct a natural isomorphism between its 2-truncated homotopy category $\ho_2A$ in the sense of Definition \ref{defn:homotopy-cat} and its 2-truncated homotopy category $\ho{A}$ in the sense of Definition \ref{defn:2-truncated-qcat-htpy-cat} by showing the latter satisfies the same universal property of the former, as a quotient of the free category $FA$ on the underlying reflexive quiver.
 
 By adjunction, to define a functor $q \colon FA \to \ho{A}$, it suffices to define a refl prefunctor $q \colon A \to \ho{A}$ from the one-truncation of $A$ to the underlying refl quiver of $\ho{A}$. The objects of these quivers coincide while the homs in the latter and quotients of the homs in the former, defining a canonical quotient map. By construction, the corresponding functor $q \colon FA \to \ho{A}$ respects the hom-relation that defines the homotopy category $\ho_2{A}$, so the universal property of the latter quotient induces a comparison functor $\ho_2{A} \to \ho{A}$ which factors $q$ through the analogously defined functor $q \colon FA \to \ho_2{A}$.
 
-To see this is an isomorphism, we show that $q \colon FA \to \ho{A}$ satisfies the same universal property. To that end, consider another functor $g \colon FA \to C$ respecting the hom-relation. In particular, $g$ respects the homotopy relation of Definition \ref{defn:1-simplex-left-right-htpy}, since this is a special case of the hom-relation. Thus, on underlying refl prefunctors, $g$ factors uniquely through $q$ along a map $h \colon \ho{A} \to C$. By Corollary \ref{cor:2-truncated-qcat-htpy-comp}, $h$ respects composition and thus lifts to define a functor. This gives the required factorization. Uniqueness follows because the the functor $U \colon \Cat \to \rQuiv$ is faithful.
+To see this is an isomorphism, we show that $q \colon FA \to \ho{A}$ satisfies the same universal property. To that end, consider another functor $g \colon FA \to C$ respecting the hom-relation. In particular, $g$ respects the homotopy relation of Definition \ref{defn:1-simplex-htpy}, since this is a special case of the hom-relation. Thus, on underlying refl prefunctors, $g$ factors uniquely through $q$ along a map $h \colon \ho{A} \to C$. By Corollary \ref{cor:2-truncated-qcat-htpy-comp}, $h$ respects composition and thus lifts to define a functor. This gives the required factorization. Uniqueness follows because the the functor $U \colon \Cat \to \rQuiv$ is faithful.
 \end{proof}
 
 Later we will require either of the following results:
