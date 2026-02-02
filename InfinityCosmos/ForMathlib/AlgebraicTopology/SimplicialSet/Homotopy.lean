@@ -91,6 +91,15 @@ namespace Kan
 
 open SSet Simplicial
 
+attribute [blueprint
+  "defn:kan-complex"
+  (title := "Kan complex")
+  (statement := /--
+  A \textbf{Kan complex} is a simplicial set admitting extensions as in \eqref{eq:qcat-defn} along
+  all horn inclusions $n \geq 1, 0 \leq k \leq n$.
+  -/)]
+  KanComplex
+
 /-- Equivalence of Kan Complexes. -/
 @[nolint unusedArguments]
 def Equiv (A B : SSet.{u}) [KanComplex A] [KanComplex B] :=
@@ -108,7 +117,7 @@ open SSet
   (title := "equivalences of quasi-categories")
   (statement := /--
   w=
-  
+
     A map $f \colon A \to B$ between quasi-categories is an \textbf{equivalence} if it extends to
     the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the
     interval: that is, if there exist maps $g \colon B \to A$,

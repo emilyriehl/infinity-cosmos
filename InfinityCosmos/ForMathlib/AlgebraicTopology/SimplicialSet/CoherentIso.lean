@@ -6,8 +6,8 @@ Authors: Johns Hopkins Category Theory Seminar
 
 import Architect
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
-import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
-import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 
 universe u v u' v'
 
