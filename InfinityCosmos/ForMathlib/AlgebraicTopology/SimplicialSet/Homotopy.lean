@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johns Hopkins Category Theory Seminar
 -/
 
+import Architect
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
@@ -102,7 +103,24 @@ namespace QCat
 open SSet
 
 /-- Equivalence of quasi-categories. -/
-@[nolint unusedArguments]
+@[nolint unusedArguments, blueprint
+  "defn:qcat-equivalence"
+  (title := "equivalences of quasi-categories")
+  (statement := /--
+  w=
+  
+    A map $f \colon A \to B$ between quasi-categories is an \textbf{equivalence} if it extends to
+    the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the
+    interval: that is, if there exist maps $g \colon B \to A$,
+    \begin{center}
+    \begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] &
+    A^\iso  \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] & \text{and} &  B \arrow[dr, equals] \arrow[r,
+    "\beta"] \arrow[ur, "fg"] & B^\iso \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] \\ & A & &  & B
+    \end{tikzcd}
+    \end{center}
+    We write ``$\we$'' to decorate equivalences and $A \simeq B$ to indicate the presence of an
+    equivalence $A \we B$.
+  -/)]
 def Equiv (A B : SSet.{u}) [Quasicategory A] [Quasicategory B] :=
     SSet.Equiv (I := coherentIso) A B
 

@@ -63,6 +63,7 @@ jobs:
         uses: leanprover/lean-action@434f25c2f80ded67bba02502ad3a86f25db50709 # v1.3.0
         with:
           use-github-cache: false
+          build-args: :blueprint
 
       - name: Compile blueprint and documentation
         uses: leanprover-community/docgen-action@cc833d262c7b8f179ac444cd20fde412b24b8beb # 2026-01-08

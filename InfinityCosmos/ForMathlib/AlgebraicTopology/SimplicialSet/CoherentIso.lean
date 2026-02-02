@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johns Hopkins Category Theory Seminar
 -/
 
+import Architect
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
 import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
@@ -76,6 +77,11 @@ end CategoryTheory
 
 namespace SSet
 
+@[blueprint
+  "defn:coherent-isomorphism"
+  (statement := /--
+  The \textbf{homotopy coherent isomorphism} $\iso$, is the nerve of the free-living isomorphism.
+  -/)]
 def coherentIso : SSet.{u} := nerve WalkingIso
 
 open Simplicial SimplicialCategory
