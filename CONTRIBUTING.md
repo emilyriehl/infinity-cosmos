@@ -60,6 +60,7 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 * [Rida Hamadani](https://github.com/Rida-Hamadani)
 * [Julian Komaromy](https://github.com/juliankom)
 * [Aaron Liu](https://github.com/plp127)
+* [Arnoud van der Leer](https://github.com/arnoudvanderleer)
 * [Jack McKoen](https://github.com/mckoen)
 * [Bhavik Mehta](https://github.com/b-mehta)
 * [Yuma Mizuno](https://github.com/yuma-mizuno)

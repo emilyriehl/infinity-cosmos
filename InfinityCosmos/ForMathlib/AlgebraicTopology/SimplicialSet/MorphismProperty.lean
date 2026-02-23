@@ -66,12 +66,12 @@ def InnerHornInclusions : MorphismProperty SSet := fun _ _ p ↦ InnerHornInclus
 /-- Inductive definition of being equal to the inclusion Δ[0]
   into coherent iso picking 0 -/
 inductive ZeroCoherentIsoInclusion : {X Y : SSet} → (X ⟶ Y) → Prop
-  | mk : ZeroCoherentIsoInclusion (coherentIso.pt .zero)
+  | mk : ZeroCoherentIsoInclusion (yonedaEquiv.symm coherentIso.x₀)
 
 /-- Inductive definition of being equal to the inclusion Δ[0]
   into coherent iso picking 1 -/
 inductive OneCoherentIsoInclusion : {X Y : SSet} → (X ⟶ Y) → Prop
-  | mk : OneCoherentIsoInclusion (coherentIso.pt .one)
+  | mk : OneCoherentIsoInclusion (yonedaEquiv.symm coherentIso.x₁)
 
 /-- The class of inclusions equal to the inclusion picking out zero in the
   coherent iso as a MorphismProperty -/

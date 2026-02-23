@@ -28,8 +28,8 @@ instance arrowInterval : Interval Δ[1] where
 
 /-- The interval relevant to the theory of quasi-categories. -/
 instance isoInterval : Interval coherentIso where
-  src := yonedaEquiv.symm (WalkingIso.coev WalkingIso.zero)
-  tgt := yonedaEquiv.symm (WalkingIso.coev WalkingIso.one)
+  src := yonedaEquiv.symm (coherentIso.x₀)
+  tgt := yonedaEquiv.symm (coherentIso.x₁)
 
 open MonoidalCategory
 noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=
