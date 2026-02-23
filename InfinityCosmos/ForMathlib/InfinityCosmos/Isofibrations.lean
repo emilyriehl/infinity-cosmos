@@ -66,6 +66,7 @@ noncomputable def toTerminalIsofibration (A : K) : A ↠ (⊤_ K) :=
 @[simp]
 lemma toTerminalIsofibration_map (A : K) : (toTerminalIsofibration A).1 = terminal.from A := rfl
 
+/-- Note: proven by Aristotle. -/
 theorem binary_prod_map_fibrant {X Y X' Y' : K} {f : X ↠ Y} {g : X' ↠ Y'} :
     IsIsofibration (prod.map f.1 g.1) := by
   rw [show prod.map f.1 g.1 = prod.map f.1 (𝟙 X') ≫ prod.map (𝟙 Y) g.1
@@ -73,9 +74,10 @@ theorem binary_prod_map_fibrant {X Y X' Y' : K} {f : X ↠ Y} {g : X' ↠ Y'} :
   apply comp_isIsofibration ⟨_, ?_⟩ ⟨_, ?_⟩
   · exact pullback_isIsofibration f prod.fst prod.fst (prod.map f.1 (𝟙 X'))
       (IsPullback.of_bot
-        (by convert IsPullback.of_hasBinaryProduct' X X' using 1 <;>
-          simp [prod.map_snd, terminal.comp_from])
-        (by simp [prod.map_fst])
+        (by convert IsPullback.of_hasBinaryProduct' X X' using 1
+            · simp [prod.map_snd]
+            · simp [terminal.comp_from])
+        (prod.map_fst _ _).symm
         (IsPullback.of_hasBinaryProduct' Y X'))
   · exact pullback_isIsofibration g prod.snd prod.snd (prod.map (𝟙 Y) g.1)
       (IsPullback.of_bot
