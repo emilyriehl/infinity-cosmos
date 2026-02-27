@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johns Hopkins Category Theory Seminar
 -/
 
+import Architect
 import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
 import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CompStruct
@@ -88,7 +89,11 @@ namespace SSet
 
 open Simplicial Edge
 
-/-- The simplicial set that encodes a single isomorphism. Its n-simplices are sequences of arrows in WalkingIso. -/
+@[blueprint
+  "defn:coherent-isomorphism"
+  (statement := /--
+  The \textbf{homotopy coherent isomorphism} $\iso$, is the nerve of the free-living isomorphism. Its n-simplices are sequences of arrows in WalkingIso.
+  -/)]
 def coherentIso : SSet := nerve WalkingIso
 
 namespace coherentIso
