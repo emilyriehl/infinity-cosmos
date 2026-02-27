@@ -1,7 +1,8 @@
 import Mathlib.AlgebraicTopology.SimplicialSet.Basic
 
-open CategoryTheory SimplexCategory.Truncated.Hom Simplicial SimplexCategory CategoryTheory
-    SimplexCategory.Truncated
+open CategoryTheory Simplicial SimplexCategory SimplexCategory.Truncated
+    SimplexCategory.Truncated.Hom
+    
 namespace SSet.Truncated
 
 /-- A trivial equivalence making explicit whether an object is in a truncated simplicial set,
