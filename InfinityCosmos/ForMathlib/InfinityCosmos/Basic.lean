@@ -42,8 +42,10 @@ noncomputable def representableMap (X : K) {A B : K} (f : A ⟶ B) :
 noncomputable def toFunMap (X : K) {A B : K} (f : A ⟶ B) : Fun X A ⟶ Fun X B :=
   representableMap X f
 
+/-- The subtype of isofibrations. Arguments of this type have the form `⟨ f hf ⟩`. -/
 def Isofibration (X Y : K) : Type v := {f : X ⟶ Y // IsIsofibration f}
 
+/-- Type with "\rr". -/
 infixr:25 " ↠ " => Isofibration
 
 instance (A B : K) : Coe (A ↠ B) (A ⟶ B) := ⟨fun f ↦ f.1⟩
