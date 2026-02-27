@@ -1,8 +1,35 @@
+import Architect
 import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 
 open Simplicial SimplexCategory CategoryTheory
 
 namespace SSet
+
+attribute [blueprint
+  "defn:standard-simplex"
+  (title := "standard simplex")
+  (statement := /--
+  We write $\Delta[n]$ for the \textbf{standard $n$-simplex} the simplicial set represented by $[n]
+  \in \Del$.
+  -/)]
+  stdSimplex
+
+attribute [blueprint
+  "lem:simplex-yoneda"
+  (statement := /--
+    Each $n$-simplex $x \in X_n$ corresponds to a map of simplicial sets $x \colon \Delta[n] \to X$.
+    Accordingly, we write $x \cdot \face^i$ for the $i$th face of the $n$-simplex, an
+    $(n-1)$-simplex classified by the composite map
+  \begin{center}
+  \begin{tikzcd}
+  \Delta[n-1] \arrow[r, "\face^i"] & \Delta[n] \arrow[r, "x"] & X.
+  \end{tikzcd}
+  \end{center}
+  -/)
+  (proof := /-- This is a special case of the Yoneda lemma. -/)
+  (latexEnv := "lemma")]
+  yonedaEquiv
+
 section yonedaEquiv_lemmas
 
 /--

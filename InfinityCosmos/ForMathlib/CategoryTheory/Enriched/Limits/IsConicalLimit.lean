@@ -3,6 +3,7 @@ Copyright (c) 2025 Jon Eugster. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Eugster, Dagur Asgeirsson, Emily Riehl
 -/
+import Architect
 import Mathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
 
@@ -40,6 +41,20 @@ A limit cone `c` in a `V`-enriched ordinary category `C` is a *`V`-enriched limi
 (or *conical limit*) if for every `X : C`, the cone obtained by applying the coyoneda
 functor `(X ⟶[V] -)` to `c` is a limit cone in `V`.
 -/
+@[blueprint
+  "defn:simplicial-conical-limit"
+  (title := "simplicial conical limits")
+  (statement := /--
+  Consider a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in the underlying category $\cA_0$
+  of a simplicially-enriched category $\cA$.  By applying the covariant rep\-re\-sentable functor
+  $\cA(X,-) \colon \cA_0 \to \sSet$ to a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in
+  $\cA_0$, we obtain a natural comparison map
+  \begin{equation}\label{eq:simplicial-limit-map} \cA(X,\lim_{j \in J}A_j) \to \lim_{j \in
+  J}\cA(X,A_j).
+  \end{equation}
+  We say that $\lim_{j\in J}A_j$ defines a \textbf{simplicially enriched limit} if and only if
+  \eqref{eq:simplicial-limit-map} is an isomorphism of simplicial sets for all $X \in \cA$.
+  -/)]
 structure IsConicalLimit {J : Type u₁} [Category.{v₁} J]
     (V : outParam <| Type u') [Category.{v'} V] [MonoidalCategory V]
     {C : Type u} [Category.{v} C] [EnrichedOrdinaryCategory V C]
