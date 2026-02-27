@@ -6,14 +6,14 @@ Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
 import Mathlib.CategoryTheory.Enriched.Limits.HasConicalProducts
 
 /-!
-## existence of conical terminal objects
+# Existence of conical terminal objects
 -/
 
 universe w v' v u u'
 
 namespace CategoryTheory.Enriched
 
-open Limits HasConicalLimit
+open Limits
 
 /-- A category has a conical terminal object
 if it has a conical limit over the empty diagram. -/
@@ -24,12 +24,8 @@ variable (C : Type u) [Category.{v} C] [EnrichedOrdinaryCategory V C]
 
 example [HasConicalTerminal V C] : HasTerminal C := inferInstance
 
-/-! ### Conical Products -/
-
-example [HasConicalProducts.{0} V C] : HasConicalTerminal V C := inferInstance
-
 instance HasConicalProducts.hasConicalTerminal [HasConicalProducts.{w} V C] :
     HasConicalTerminal V C :=
-  HasConicalLimitsOfShape.of_equiv V C (emptyEquivalence.functor)
+  HasConicalLimitsOfShape.of_equiv V C emptyEquivalence.functor
 
 end CategoryTheory.Enriched

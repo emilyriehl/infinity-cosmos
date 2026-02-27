@@ -2,10 +2,10 @@ import Architect
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
 import Mathlib.AlgebraicTopology.SimplicialSet.Basic
 
-open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated Truncated.Hom
-  SimplicialObject SimplicialObject.Truncated
+open CategoryTheory Simplicial SimplexCategory SimplexCategory.Truncated
+    SimplexCategory.Truncated.Hom
 
-namespace SSet
+namespace SSet.Truncated
 
 attribute [blueprint
   "defn:sset-category"
@@ -30,19 +30,14 @@ attribute [blueprint
   (latexEnv := "corollary")]
   hasColimits
 
-namespace Truncated
-
 /--
 The idea behind this trivial equivalence and `trunc_map`, `trunc_map'`
 is to make explicit whether an object is in a truncated simplicial set;
 this allows us to replace `dsimp`s in proofs by `rw`s.
 -/
 def truncEquiv {S : SSet} (m : ℕ) {a : SimplexCategory} (ha : a.len ≤ m := by trunc) :
-    S.obj (Opposite.op a) ≃ ((truncation m).obj S).obj (Opposite.op ⟨a, ha⟩) where
-  toFun := id
-  invFun := id
-  left_inv := congrFun rfl
-  right_inv := congrFun rfl
+    S.obj (Opposite.op a) ≃ ((truncation m).obj S).obj (Opposite.op ⟨a, ha⟩) :=
+  Equiv.refl _
 
 lemma trunc_map {S : SSet} {m : ℕ} {a b : SimplexCategory}
     (ha : a.len ≤ m := by trunc) (hb : b.len ≤ m := by trunc)
@@ -53,3 +48,5 @@ lemma trunc_map' {S : SSet} {m : ℕ} {a b : SimplexCategory}
     (ha : a.len ≤ m := by trunc) (hb : b.len ≤ m := by trunc)
     {f : a ⟶ b} {σ : truncation m |>.obj S |>.obj (Opposite.op ⟨b, hb⟩)} :
     ((truncation m).obj S).map (tr f).op σ = S.map f.op σ := rfl
+
+end SSet.Truncated

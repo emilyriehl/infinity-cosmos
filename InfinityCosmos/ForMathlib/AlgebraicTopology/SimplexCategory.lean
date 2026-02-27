@@ -1,7 +1,7 @@
 import Architect
 import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 
-open CategoryTheory Simplicial SimplexCategory Limits
+open CategoryTheory SimplexCategory
 
 namespace SimplexCategory
 
@@ -57,16 +57,12 @@ attribute [blueprint
   (latexEnv := "proposition")]
   SimplexCategory.instHasStrongEpiImages
 
-def δ_zero_mkOfLe {n : ℕ} (i j : Fin (n + 1)) (h : i ≤ j) : SimplexCategory.δ 0 ≫ mkOfLe i j h =
-  (SimplexCategory.mk 0).const (SimplexCategory.mk n) j := by
-  ext x
-  fin_cases x
-  aesop
+def δ_zero_mkOfLe {n : ℕ} (i j : Fin (n + 1)) (h : i ≤ j) :
+    δ 0 ≫ mkOfLe i j h = (mk 0).const (mk n) j := by
+  ext x; fin_cases x; simp [δ, mkOfLe, const]
 
-def δ_one_mkOfLe {n : ℕ} (i j : Fin (n + 1)) (h : i ≤ j) : SimplexCategory.δ 1 ≫ mkOfLe i j h =
-  (SimplexCategory.mk 0).const (SimplexCategory.mk n) i := by
-  ext x
-  fin_cases x
-  aesop
+def δ_one_mkOfLe {n : ℕ} (i j : Fin (n + 1)) (h : i ≤ j) :
+    δ 1 ≫ mkOfLe i j h = (mk 0).const (mk n) i := by
+  ext x; fin_cases x; simp [δ, mkOfLe, const]
 
 end SimplexCategory

@@ -3,6 +3,7 @@ Copyright (c) 2025 Jon Eugster. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Eugster, Dagur Asgeirsson, Emily Riehl
 -/
+
 import Architect
 import Mathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
@@ -77,21 +78,21 @@ variable {V} {c} {d : Cone F}
 
 lemma hasConicalLimit (hc : IsConicalLimit V c) : HasConicalLimit V F where
   exists_limit := ⟨c, hc.isLimit⟩
-  preservesLimit_eCoyoneda X := {
-    preserves {_d} hd :=
-      let iso_cd := IsLimit.uniqueUpToIso hc.isLimit hd
-      let isLimit_mapCone := hc.isConicalLimit X
-      ⟨IsLimit.ofIsoLimit isLimit_mapCone ((Cones.functoriality F (eCoyoneda V X)).mapIso iso_cd)⟩}
+  preservesLimit_eCoyoneda X :=
+    { preserves := fun hd =>
+        ⟨(hc.isConicalLimit X).ofIsoLimit
+          ((Cones.functoriality F (eCoyoneda V X)).mapIso
+            (IsLimit.uniqueUpToIso hc.isLimit hd))⟩ }
 
 /-- Transport evidence that a cone is a `V`-enriched limit cone across an isomorphism of cones. -/
 noncomputable def of_iso (hc : IsConicalLimit V c) (i : c ≅ d) :
     IsConicalLimit V d where
   isLimit := hc.isLimit.ofIsoLimit i
-  isConicalLimit X := hc.isConicalLimit X |>.ofIsoLimit
+  isConicalLimit X := (hc.isConicalLimit X).ofIsoLimit
     { hom := Functor.mapConeMorphism _ i.hom
       inv := Functor.mapConeMorphism _ i.inv
-      hom_inv_id := by simp only [Functor.mapCone, Functor.mapConeMorphism, Iso.map_hom_inv_id]
-      inv_hom_id := by simp only [Functor.mapCone, Functor.mapConeMorphism, Iso.map_inv_hom_id] }
+      hom_inv_id := by simp [Functor.mapCone, Functor.mapConeMorphism]
+      inv_hom_id := by simp [Functor.mapCone, Functor.mapConeMorphism] }
 
 /-!
 ## Characterization in terms of the comparison map.
@@ -112,19 +113,17 @@ lemma limitComparison_eq_conePointUniqueUpToIso (hc : IsConicalLimit V c) (X : C
     [HasLimit (F ⋙ eCoyoneda V X)] :
     limitComparison V c X =
     ((hc.isConicalLimit X).conePointUniqueUpToIso (limit.isLimit _)).hom := by
-  apply limit.hom_ext
-  simp [limitComparison]
+  apply limit.hom_ext; simp [limitComparison]
 
 /-- `IsConicalLimit.limitComparison` is an isomorphism. -/
 lemma isIso_limitComparison (hc : IsConicalLimit V c) (X : C) : IsIso (limitComparison V c X) := by
-  rw [limitComparison_eq_conePointUniqueUpToIso hc X]
-  infer_instance
+  rw [limitComparison_eq_conePointUniqueUpToIso hc X]; infer_instance
 
 /-- For all `X : C`, the canonical comparison map with the limit in `V` as isomorphism -/
-noncomputable def limitComparisonIso (hc : IsConicalLimit V c) (X : C):
-    (X ⟶[V] c.pt) ≅ (limit (F ⋙ eCoyoneda V X)) := by
-  have : IsIso (limitComparison V c X) := isIso_limitComparison hc X
-  exact (asIso (limitComparison V c X))
+noncomputable def limitComparisonIso (hc : IsConicalLimit V c) (X : C) :
+    (X ⟶[V] c.pt) ≅ (limit (F ⋙ eCoyoneda V X)) :=
+  haveI := isIso_limitComparison hc X
+  asIso (limitComparison V c X)
 
 variable (V) in
 /-- Reverse direction: if the comparison map is an isomorphism, then `c` is a conical limit. -/
@@ -133,18 +132,14 @@ noncomputable def ofIsIsoLimitComparison
     (hc : IsLimit c) : IsConicalLimit V c where
   isLimit := hc
   isConicalLimit X := by
-    suffices PreservesLimit F (eCoyoneda V X) from
-      Classical.choice (this.preserves hc)
+    suffices PreservesLimit F (eCoyoneda V X) from Classical.choice (this.preserves hc)
     have : HasLimit F := ⟨c, hc⟩
     apply (config := { allowSynthFailures := true }) preservesLimit_of_isIso_post
     have h : limit.post F (eCoyoneda V X) =
       ((eCoyoneda V X).map ((limit.isLimit F).conePointUniqueUpToIso hc).hom) ≫
         limitComparison V c X := by
-      apply limit.hom_ext
-      intro j
-      simp [limitComparison, ← eHomWhiskerLeft_comp]
-    rw [h]
-    infer_instance
+      apply limit.hom_ext; intro j; simp [limitComparison, ← eHomWhiskerLeft_comp]
+    rw [h]; infer_instance
 
 variable (V) in
 /--
@@ -154,12 +149,8 @@ Note: it's easier to use the two directions `limitComparisonIso` and
 `ofIsIsoLimitComparison` directly.
 -/
 theorem nonempty_isConicalLimit_iff (hc : IsLimit c) : Nonempty (IsConicalLimit V c) ↔
-    ∀ X, IsIso (limitComparison V c X) := by
-  constructor
-  · intro ⟨hc⟩ X
-    exact isIso_limitComparison hc X
-  · intro h
-    exact ⟨ofIsIsoLimitComparison V hc⟩
+    ∀ X, IsIso (limitComparison V c X) :=
+  ⟨fun ⟨hc⟩ _ => isIso_limitComparison hc _, fun _ => ⟨ofIsIsoLimitComparison V hc⟩⟩
 
 end IsConicalLimit
 
