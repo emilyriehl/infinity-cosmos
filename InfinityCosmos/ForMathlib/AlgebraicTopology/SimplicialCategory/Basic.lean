@@ -68,24 +68,23 @@ lemma sHomWhiskerLeft_comp (K : C) {L L' L'' : C} (g : L ⟶ L') (g' : L' ⟶ L'
 @[reassoc]
 lemma sHom_whisker_exchange {K K' L L' : C} (f : K ⟶ K') (g : L ⟶ L') :
     sHomWhiskerLeft K' g ≫ sHomWhiskerRight f L' =
-      sHomWhiskerRight f L ≫ sHomWhiskerLeft K g := eHom_whisker_exchange _ f g
+      sHomWhiskerRight f L ≫ sHomWhiskerLeft K g :=
+  eHom_whisker_exchange _ f g
 
 attribute [local simp] sHom_whisker_exchange
 
 noncomputable instance : SimplicialCategory SSet where
   toEnrichedCategory := inferInstanceAs (EnrichedCategory (_ ⥤ Type _) (_ ⥤ Type _))
-  homEquiv {K} {L} :=
-    letI e : (K ⟶ L) ≃ (K ⊗ 𝟙_ SSet ⟶ L) :=
-      ⟨fun f => (ρ_ _).hom ≫ f, fun f => (ρ_ _).inv ≫ f, by aesop_cat, by aesop_cat⟩
-    e.trans (Functor.homObjEquiv _ _ _).symm |>.trans (Functor.functorHomEquiv K L (𝟙_ SSet)).symm
+  homEquiv {K L} :=
+    ((Iso.homCongr (ρ_ K).symm (.refl L)).trans
+      (Functor.homObjEquiv _ _ _).symm).trans (Functor.functorHomEquiv K L (𝟙_ SSet)).symm
   homEquiv_id := by aesop_cat
   homEquiv_comp := by aesop_cat
 
 noncomputable instance : MonoidalClosed SSet where
-  closed A := {
-    rightAdj := (sHomFunctor _).obj ⟨A⟩
-    adj := FunctorToTypes.adj _
-  }
+  closed A :=
+    { rightAdj := (sHomFunctor _).obj ⟨A⟩
+      adj := FunctorToTypes.adj _ }
 
 /-- Required apparently due to some refactoring. -/
 noncomputable def sSetBraided : BraidedCategory SSet :=
