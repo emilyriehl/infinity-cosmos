@@ -4,10 +4,8 @@ import Mathlib.AlgebraicTopology.SimplicialSet.Basic
 
 open CategoryTheory Simplicial SimplexCategory SimplexCategory.Truncated
     SimplexCategory.Truncated.Hom
-    
-namespace SSet.Truncated
 
-namespace SSet
+namespace SSet.Truncated
 
 attribute [blueprint
   "defn:sset-category"
@@ -31,8 +29,6 @@ attribute [blueprint
   (proof := /-- Presheaf categories are cocomplete. -/)
   (latexEnv := "corollary")]
   hasColimits
-
-namespace Truncated
 
 /--
 The idea behind this trivial equivalence and `trunc_map`, `trunc_map'`

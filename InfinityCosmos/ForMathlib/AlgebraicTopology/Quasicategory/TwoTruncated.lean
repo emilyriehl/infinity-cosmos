@@ -14,8 +14,8 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
 
 
-open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated Truncated.Hom
-  SimplicialObject SimplicialObject.Truncated
+open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated
+  SimplexCategory.Truncated.Hom SimplicialObject SimplicialObject.Truncated
 
 namespace SSet
 namespace Truncated
