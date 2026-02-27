@@ -88,10 +88,19 @@ namespace InfinityCosmos
 
 variable {K : Type u} [Category.{v} K] [InfinityCosmos K]
 
+/-- An ∞-cosmos has a conical terminal object as `SSet`-enriched limit. -/
 example : HasConicalTerminal SSet K := inferInstance
+
+/-- An ∞-cosmos has a terminal object. -/
 example : HasTerminal K := inferInstance
+
+/-- An ∞-cosmos has cotensors. -/
 example : HasCotensors K := inferInstance
+
+/-- An ∞-cosmos has products. -/
 example : HasProducts K := inferInstance
+
+/-- An ∞-cosmos has pullbacks. -/
 example {E B A : K} (p : E ↠ B) (f : A ⟶ B) : HasPullback p.1 f := inferInstance
 
 end InfinityCosmos
