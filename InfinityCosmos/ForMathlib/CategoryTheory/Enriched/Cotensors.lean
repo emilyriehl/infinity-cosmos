@@ -60,6 +60,8 @@ structure Cotensor (v : V) (x : C) extends (Precotensor v x) where
   NatTrans_NatTransInv_eq (y : C) :
     (Precotensor.coneNatTrans toPrecotensor y ≫ coneNatTransInv y = 𝟙 _)
 
+namespace Cotensor
+
 instance {v : V} {x : C} {vx : Cotensor v x} {y : C} : IsIso (vx.coneNatTransInv y) where
   out := ⟨vx.coneNatTrans y, {
     left := vx.NatTransInv_NatTrans_eq y
@@ -71,8 +73,6 @@ instance {v : V} {x : C} {vx : Cotensor v x} {y : C} : IsIso (vx.coneNatTrans y)
     left := vx.NatTrans_NatTransInv_eq y
     right := vx.NatTransInv_NatTrans_eq y
   }⟩
-
-namespace Cotensor
 
 variable (V : Type u) [Category.{u₁} V] [MonoidalCategory V] [SymmetricCategory V] [MonoidalClosed V]
 variable {C : Type v} [EnrichedCategory V C]
