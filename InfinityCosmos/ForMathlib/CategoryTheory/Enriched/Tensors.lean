@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: ? and Arnoud van der Leer
 -/
 
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
+import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
 import Mathlib.CategoryTheory.Enriched.Opposite
 import Mathlib.CategoryTheory.Closed.Enrichment
 
@@ -33,16 +33,6 @@ open scoped MonoidalClosed
 namespace CategoryTheory
 
 namespace Enriched
-
-
--- Copied "notation" from Cotensors
-abbrev Ihom (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalClosed V] (x y : V) : V :=
-  (ihom x).obj y
-
-@[nolint unusedArguments]
-abbrev Ehom (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalClosed V]
-    (C : Type v) [EnrichedCategory V C] (x y : C) : V :=
-  @EnrichedCategory.Hom V _ _ _ _ x y
 
 -- New stuff
 variable {V : Type u} [Category.{u₁, u} V] [MonoidalCategory V]
@@ -73,6 +63,8 @@ structure Tensor (v : V) (x : C) extends (Pretensor v x) where
   NatTrans_NatTransInv_eq (y : C) :
     (Pretensor.coneNatTrans toPretensor y ≫ coneNatTransInv y = 𝟙 _)
 
+namespace Tensor
+
 /-- For a tensor, the morphisms `Pretensor.coneNatTrans` are isomorphisms, with inverses given by
   `Tensor.coneNatTransInv`. -/
 instance {v : V} {x : C} {vx : Tensor v x} {y : C} : IsIso (vx.coneNatTrans y) where
@@ -88,8 +80,6 @@ instance {v : V} {x : C} {vx : Tensor v x} {y : C} : IsIso (vx.coneNatTransInv y
     left := vx.NatTransInv_NatTrans_eq y
     right := vx.NatTrans_NatTransInv_eq y
   }⟩
-
-namespace Tensor
 
 variable (V : Type u) [Category.{u₁} V] [MonoidalCategory V] [MonoidalClosed V]
 variable {C : Type v} [EnrichedCategory V C]
