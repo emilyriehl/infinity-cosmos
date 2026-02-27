@@ -77,3 +77,4 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 * [Nick Ward](https://github.com/gio256)
 * [Andrew Yang](https://github.com/erdOne)
 * [Zeyi Zhao](https://github.com/Georjez)
+* [Thomas Zhu](https://github.com/hanwenzhu)
