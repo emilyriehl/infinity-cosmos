@@ -1,3 +1,4 @@
+import Architect
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
@@ -57,6 +58,33 @@ open PreInfinityCosmos InfinityCosmos Enriched
 variable (K : Type u) [Category.{v} K]
 
 /-- An `InfinityCosmos` extends a `PreInfinityCosmos` with limit and isofibration axioms. -/
+@[blueprint
+  "defn:cosmos"
+  (title := "$\\infty$-cosmos")
+  (statement := /--
+  An $\infty$-\textbf{cosmos} $\cK$ is a category that is enriched over
+  quasi-categories,\footnote{This is to say $\cK$ is a simplicially enriched category (see
+  Definition \ref{defn:simplicial-category}) whose hom spaces are all quasi-categories.} meaning in
+  particular that\begin{itemize}
+  \item its morphisms $f \colon A \to B$ define the vertices of a quasi-category denoted $\Fun(A,B)$
+  and referred to as a \textbf{functor space},
+  \end{itemize}
+  that is also equipped with a specified collection of maps that we call \textbf{isofibrations} and
+  denote by ``$\fib$'' satisfying the following two axioms:
+  \begin{enumerate}
+  \item\label{itm:cosmos-limits} (completeness) The quasi-categorically enriched category $\cK$
+  pos\-sess\-es a terminal object, small products, pullbacks of isofibrations, limits of countable
+  towers of isofibrations, and cotensors with simplicial sets, each of these limit notions
+  satisfying a universal property that is enriched over simplicial sets.\footnote{This is to say,
+  these are simplicially enriched limit notions, in the sense described in Definitions
+  \ref{defn:simplicial-cotensor} and \ref{defn:simplicial-conical-limit}.}
+  \item\label{itm:cosmos-isofib} (isofibrations) The isofibrations contain all isomorphisms and any
+  map whose codomain is the terminal object; are closed under composition, product, pullback,
+  forming inverse limits of towers, and Leibniz cotensors with monomorphisms of simplicial sets; and
+  have the property that if $f \colon A \fib B$ is an isofibration and $X$ is any object then
+  $\Fun(X,A) \fib \Fun(X,B)$ is an isofibration of quasi-categories.
+  \end{enumerate}
+  -/)]
 class InfinityCosmos extends PreInfinityCosmos K where
   comp_isIsofibration {A B C : K} (f : A ↠ B) (g : B ↠ C) : IsIsofibration (f.1 ≫ g.1)
   iso_isIsofibration {X Y : K} (e : X ⟶ Y) [IsIso e] : IsIsofibration e

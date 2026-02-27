@@ -1,3 +1,4 @@
+import Architect
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
 
@@ -59,6 +60,18 @@ theorem cotensor_local_bifunctoriality {U V : SSet} {A B : K}
 end
 
 /-- `HasCotensor U A` represents the mere existence of a simplicial cotensor. -/
+@[blueprint
+  "defn:simplicial-cotensor"
+  (title := "simplicial cotensors")
+  (statement := /--
+  Let $\cA$ be a simplicial category. The \textbf{cotensor} of an object $A \in \cA$ by a simplicial
+  set $U$ is given by the data of an object $A^U \in \cA$ together with a cone $U \to \cA(A^U,A)$ so
+  that the induced map
+  defines an isomorphism of simplicial sets:
+  \begin{equation}\label{eq:cotensor-defn}
+  \cA(X,A^U) \cong \cA(X,A)^U
+  \end{equation}
+  -/)]
 class HasCotensor (U : SSet) (A : K) : Prop where mk' ::
   /-- There is some cotensor. -/
   exists_cotensor : Nonempty (Cotensor U A)
@@ -103,6 +116,10 @@ end
 
 variable (K) in
 /-- `K` has simplicial cotensors when cotensors with any simplicial set exist. -/
+@[blueprint
+  "defn:simplicial-cotensors"
+  (title := "simplicial cotensors")
+  (statement := /-- A simplicial category $\cA$ \textbf{has cotensors} when all cotensors exist. -/)]
 class HasCotensors : Prop where
   /-- All `U : SSet` and `A : K` have a cotensor. -/
   has_cotensors : ∀ U : SSet, ∀ A : K, HasCotensor U A := by infer_instance
@@ -121,6 +138,19 @@ noncomputable def cotensorCovMap (U : SSet) {A B : K} (f : A ⟶ B) : U ⋔ A �
 noncomputable def cotensorContraMap {U V : SSet} (i : U ⟶ V) (A : K) : V ⋔ A ⟶ U ⋔ A :=
   cotensorPrecompose _ _ i
 
+
+@[blueprint
+  "lem:cotensor-bifunctor"
+  (statement := /--
+  Assuming such objects exist, the simplicial cotensor defines a bifunctor
+  \begin{center}
+  \begin{tikzcd}[row sep=tiny] s\mathcal{S}et\op \times \cA \arrow[r] & \cA \\
+  (U,A) \arrow[r, maps to] & A^U
+  \end{tikzcd}\end{center} in a unique way making the isomorphism \eqref{eq:cotensor-defn} natural
+  in $U$ and $A$ as well.
+  -/)
+  (proof := /-- Functoriality in each variable follows from the universal property. -/)
+  (latexEnv := "lemma")]
 theorem cotensor_bifunctoriality {U V : SSet} (i : U ⟶ V) {A B : K} (f : A ⟶ B) :
     cotensorContraMap i A ≫ cotensorCovMap U f =
       cotensorCovMap V f ≫ cotensorContraMap i B :=
