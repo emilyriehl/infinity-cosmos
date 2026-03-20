@@ -1,5 +1,8 @@
 import Architect
 import Mathlib.CategoryTheory.Enriched.Basic
+import Mathlib.CategoryTheory.Closed.Monoidal
+import Mathlib.CategoryTheory.Limits.HasLimits
+import Mathlib.CategoryTheory.Monoidal.CoherenceLemmas
 
 open CategoryTheory
 
@@ -80,3 +83,210 @@ attribute [blueprint
   -/)
   (latexEnv := "proposition")]
   instEnrichedCategoryTransportEnrichment
+
+noncomputable
+section
+
+open Limits MonoidalCategory MonoidalClosed BraidedCategory
+
+variable {V : Type} [Category V] [MonoidalCategory V] [BraidedCategory V] [HasLimits V]
+variable {C : Type} [EnrichedCategory V C]
+variable {D : Type} [EnrichedCategory V D]
+
+variable (F G : EnrichedFunctor V C D)
+
+namespace enrichedNatTransObj
+
+/- TODO: Upstream the @[ext] annotation -/
+@[ext]
+structure EnrichedNatTrans (F G : EnrichedFunctor V C D) where
+  /-- The underlying natural transformation of an enriched transformation. -/
+  out : F.forget ⟶ G.forget
+
+def equalizerDom : V :=
+  ∏ᶜ fun (X : C) ↦ F.obj X ⟶[V] G.obj X
+
+def equalizerCodom : V :=
+  ∏ᶜ fun (⟨X, Y, _⟩ : Σ (X : C) (Y : C), 𝟙_ V ⟶ X ⟶[V] Y) ↦ F.obj X ⟶[V] G.obj Y
+
+def equalizerArrow₁ : equalizerDom F G ⟶ equalizerCodom F G :=
+  Pi.lift (fun ⟨X, Y, f⟩ ↦
+    (λ_ _).inv ≫
+    (f ≫ F.map X Y ⊗ₘ Pi.π _ Y) ≫
+    eComp _ _ (F.obj Y) _)
+
+def equalizer_arrow₂ : equalizerDom F G ⟶ equalizerCodom F G :=
+  Pi.lift (fun ⟨X, Y, f⟩ ↦
+    (ρ_ _).inv ≫
+    (Pi.π _ X ⊗ₘ f ≫ G.map X Y) ≫
+    eComp _ _ (G.obj X) _)
+
+def _root_.enrichedNatTransObj : V := equalizer (equalizerArrow₁ F G) (equalizer_arrow₂ F G)
+
+def toFun.out (f : 𝟙_ V ⟶ enrichedNatTransObj F G) : F.forget ⟶ G.forget where
+  app X₀ := by
+    dsimp;
+    exact ForgetEnrichment.homOf V (f ≫ equalizer.ι _ _ ≫ Pi.π _ (ForgetEnrichment.to _ X₀))
+  naturality X₀ Y₀ g₀ := by
+    dsimp
+    rw [← ForgetEnrichment.homOf_comp, ← ForgetEnrichment.homOf_comp]
+    apply congr_arg
+    nth_rw 2 [unitors_inv_equal]
+    rw [← whiskerLeft_comp_tensorHom_assoc _ f, ← whiskerRight_comp_tensorHom_assoc f]
+    rw [← leftUnitor_inv_naturality_assoc, ← rightUnitor_inv_naturality_assoc]
+    apply congr_arg
+    rw [← whiskerLeft_comp_tensorHom_assoc, ← whiskerRight_comp_tensorHom_assoc (equalizer.ι _ _)]
+    rw [← leftUnitor_inv_naturality_assoc, ← rightUnitor_inv_naturality_assoc]
+    have H : equalizer.ι _ _ ≫ Pi.lift _ = equalizer.ι _ _ ≫ Pi.lift _ :=
+      equalizer.condition (equalizerArrow₁ F G) (equalizer_arrow₂ F G)
+    rw [Pi.hom_ext_iff] at H
+    specialize H ⟨ForgetEnrichment.to _ X₀, ForgetEnrichment.to _ Y₀, ForgetEnrichment.homTo _ g₀⟩
+    rw [Category.assoc, Category.assoc] at H
+    rw [Pi.lift_π, Pi.lift_π] at H
+    dsimp at H
+    exact H
+
+def toFun (f : 𝟙_ V ⟶ enrichedNatTransObj F G) : EnrichedNatTrans F G := .mk (toFun.out F G f)
+
+def invFun (α : EnrichedNatTrans F G) :
+    𝟙_ V ⟶ enrichedNatTransObj F G := by
+  apply equalizer.lift _ _
+  · apply Pi.lift
+    intro X
+    apply ForgetEnrichment.homTo
+    exact α.out.app (ForgetEnrichment.of _ X)
+  · dsimp [equalizerArrow₁, equalizer_arrow₂]
+    apply Pi.hom_ext
+    rintro ⟨X, Y, f⟩
+    rw [Category.assoc, Category.assoc]
+    rw [Pi.lift_π, Pi.lift_π]
+    dsimp
+    rw [leftUnitor_inv_naturality_assoc, rightUnitor_inv_naturality_assoc]
+    rw [whiskerLeft_comp_tensorHom_assoc, whiskerRight_comp_tensorHom_assoc]
+    rw [Pi.lift_π, Pi.lift_π]
+    rw [← unitors_inv_equal]
+    rw [← ForgetEnrichment.homTo_homOf _ (f ≫ F.map X Y),
+      ← ForgetEnrichment.homTo_homOf _ (f ≫ G.map X Y)]
+    rw [← Category.assoc, ← Category.assoc]
+    apply Eq.trans (ForgetEnrichment.homTo_comp _ _ _).symm
+    apply Eq.trans _ (ForgetEnrichment.homTo_comp _ _ _)
+    apply congr_arg
+    exact α.out.naturality (ForgetEnrichment.homOf _ f)
+
+def globalElementsEquivalence :
+    (𝟙_ V ⟶ enrichedNatTransObj F G) ≃ EnrichedNatTrans F G where
+  toFun := toFun F G
+  invFun := invFun F G
+  left_inv f := by
+    apply equalizer.hom_ext
+    dsimp [toFun, toFun.out, invFun]
+    rw [equalizer.lift_ι]
+    apply Pi.hom_ext
+    intro Y
+    rw [Category.assoc f]
+    rw [Pi.lift_π]
+  right_inv f := by
+    ext X₀
+    dsimp [toFun, toFun.out, invFun]
+    rw [equalizer.lift_ι_assoc]
+    rw [Pi.lift_π]
+    apply ForgetEnrichment.homOf_homTo
+
+end enrichedNatTransObj
+
+namespace gradedNatTransObj
+
+variable [MonoidalClosed V]
+
+def equalizerDom : V :=
+  ∏ᶜ fun (X : C) ↦ F.obj X ⟶[V] G.obj X
+
+def equalizerCodom : V :=
+  ∏ᶜ fun (⟨X, Y⟩ : C × C) ↦ (ihom (X ⟶[V] Y)).obj (F.obj X ⟶[V] G.obj Y)
+
+def equalizerArrow₁ : equalizerDom F G ⟶ equalizerCodom F G :=
+  Pi.lift (fun ⟨X, Y⟩ ↦
+    Pi.π _ Y ≫
+    curry (
+      (F.map X Y ▷ _) ≫
+      eComp _ (F.obj X) (F.obj Y) (G.obj Y)))
+
+def equalizerArrow₂ : equalizerDom F G ⟶ equalizerCodom F G :=
+  Pi.lift (fun ⟨X, Y⟩ ↦
+    Pi.π _ X ≫
+    curry (
+      (β_ _ _ ).hom ≫
+      (_ ◁ G.map X Y) ≫
+      eComp _ (F.obj X) (G.obj X) (G.obj Y)))
+
+def _root_.gradedNatTransObj : V := equalizer (equalizerArrow₁ F G) (equalizerArrow₂ F G)
+
+def invFun (α : GradedNatTrans (Center.tensorUnit) F G) :
+    𝟙_ V ⟶ gradedNatTransObj F G := by
+  apply equalizer.lift _ _
+  · apply Pi.lift
+    intro X
+    exact α.app X
+  · dsimp [equalizerArrow₁, equalizerArrow₂]
+    apply Pi.hom_ext
+    rintro ⟨X, Y⟩
+    rw [Category.assoc, Category.assoc]
+    rw [Pi.lift_π, Pi.lift_π]
+    rw [← Category.assoc, ← Category.assoc]
+    rw [Pi.lift_π, Pi.lift_π]
+    rw [← curry_natural_left, ← curry_natural_left]
+    apply congr_arg
+    rw [BraidedCategory.braiding_naturality_right_assoc]
+    rw [← Iso.inv_comp_eq]
+    rw [← tensorHom_def'_assoc, ← tensorHom_def_assoc]
+    rw [braiding_inv_tensorUnit_right]
+    exact α.naturality X Y
+
+def toFun (f : 𝟙_ V ⟶ gradedNatTransObj F G) :
+    GradedNatTrans (Center.tensorUnit) F G where
+  app X := f ≫ equalizer.ι _ _ ≫ Pi.π _ X
+  naturality X Y := by
+    dsimp
+    /- Turn the LHS half braids into braiding on the RHS. -/
+    rw [← braiding_inv_tensorUnit_right]
+    rw [Iso.inv_comp_eq]
+    /- Factor out f from both sides and remove it from the goal. -/
+    rw [tensorHom_def'_assoc (F.map X Y), tensorHom_def_assoc _ (G.map X Y)]
+    rw [whiskerLeft_comp_assoc, comp_whiskerRight_assoc]
+    rw [← braiding_naturality_right_assoc (X ⟶[V] Y) f]
+    apply congr_arg
+    /- Introduce currying and expel the left whiskers from the curried term. -/
+    apply curry_injective
+    rw [← braiding_naturality_right_assoc]
+    rw [whiskerLeft_comp_assoc, whiskerLeft_comp_assoc]
+    repeat rw [curry_natural_left]
+    /- Use the universal property of the equalizer, specialized to one factor of the codomain. -/
+    have H : equalizer.ι _ _ ≫ Pi.lift _ = equalizer.ι _ _ ≫ Pi.lift _ :=
+      equalizer.condition (equalizerArrow₁ F G) (equalizerArrow₂ F G)
+    rw [Pi.hom_ext_iff] at H
+    specialize H ⟨X, Y⟩
+    rw [Category.assoc, Category.assoc] at H
+    rw [Pi.lift_π, Pi.lift_π] at H
+    exact H
+
+  def globalElementsEquivalence :
+      (𝟙_ V ⟶ gradedNatTransObj F G) ≃ (GradedNatTrans (Center.tensorUnit) F G) where
+    toFun := toFun F G
+    invFun := invFun F G
+    left_inv f := by
+      apply equalizer.hom_ext
+      dsimp [toFun, invFun]
+      rw [equalizer.lift_ι]
+      apply Pi.hom_ext
+      intro Y
+      rw [Category.assoc]
+      rw [Pi.lift_π]
+    right_inv f := by
+      ext X
+      dsimp [toFun, invFun]
+      rw [equalizer.lift_ι_assoc]
+      apply Pi.lift_π
+
+end gradedNatTransObj
+
+end
