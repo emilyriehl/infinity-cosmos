@@ -166,6 +166,12 @@ def isIsoOfEqMapHom
   : f.IsIso
   := (isIsoMapHom g).ofEq hfg.symm
 
+/-- The inclusion of the source vertex of `CoherentIso`. -/
+def src : Δ[0] ⟶ coherentIso := yonedaEquiv.symm (coherentIso.x₀)
+
+/-- The inclusion of the target vertex of `CoherentIso`. -/
+def tgt : Δ[0] ⟶ coherentIso := yonedaEquiv.symm (coherentIso.x₁)
+
 end coherentIso
 
 end SSet
