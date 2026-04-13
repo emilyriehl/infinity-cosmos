@@ -116,7 +116,6 @@ lemma horn_from_edges_restr₁ : ι₂ ≫ (fromEdges e₀₁ e₁₂) = yonedaE
   Limits.PushoutCocone.IsColimit.inr_desc pushoutIsPushout
     (edgeMap e₁₂) (edgeMap e₀₁) (path_edges_comm e₀₁ e₁₂)
 
-set_option backward.isDefEq.respectTransparency false in
 /--
 Given a map `Δ[2] ⟶ S` extending the horn given by `horn_from_edges`, construct
 and edge `e₀₂` such that `e₀₁`, `e₁₂`, `e₀₂` bound a 2-simplex of `S` (this is witnessed
