@@ -674,16 +674,16 @@ def composeEdgesIsComposition {x₀ x₁ x₂ : A _⦋0⦌₂} (f : Truncated.Ed
   The edge `composeEdges f g` is the unique edge up to homotopy such that there is
   a 2-simplex with spine given by `f` and `g`.
 -/
-lemma composeEdges_unique {x₀ x₁ x₂ : A _⦋0⦌₂} {f : Edge x₀ x₁} {g : Edge x₁ x₂}
-    {h : Edge x₀ x₂} (s : CompStruct f g h) : HomotopicL h (composeEdges f g) := by
+lemma composeEdges_unique {x₀ x₁ x₂ : A _⦋0⦌₂} {f : Truncated.Edge x₀ x₁} {g : Truncated.Edge x₁ x₂}
+    {h : Truncated.Edge x₀ x₂} (s : CompStruct f g h) : HomotopicL h (composeEdges f g) := by
   apply comp_unique' ⟨s⟩
   exact ⟨composeEdgesIsComposition f g⟩
 
 /--
   The compositions of homotopic edges are homotopic
 -/
-lemma composeEdges_homotopic {x₀ x₁ x₂ : A _⦋0⦌₂} {f f' : Edge x₀ x₁} {g g' : Edge x₁ x₂}
-    (hf : HomotopicL f f') (hg : HomotopicL g g') :
+lemma composeEdges_homotopic {x₀ x₁ x₂ : A _⦋0⦌₂} {f f' : Truncated.Edge x₀ x₁}
+    {g g' : Truncated.Edge x₁ x₂} (hf : HomotopicL f f') (hg : HomotopicL g g') :
     HomotopicL (composeEdges f g) (composeEdges f' g') := by
   apply comp_unique' ⟨composeEdgesIsComposition f g⟩
   exact transport_all_edges (HomotopicL.symm hf) (HomotopicL.symm hg) (HomotopicL.refl)
@@ -701,7 +701,7 @@ def composeHEdges {x₀ x₁ x₂ : A _⦋0⦌₂} (f : HEdge x₀ x₁) (g : HE
 noncomputable
 instance : CategoryStruct (HomotopyCategory₂ A) where
   Hom x₀ x₁ := HEdge x₀ x₁
-  id x₀ := Quotient.mk' (Edge.id x₀)
+  id x₀ := Quotient.mk' (Truncated.Edge.id x₀)
   comp := composeHEdges
 
 @[blueprint
