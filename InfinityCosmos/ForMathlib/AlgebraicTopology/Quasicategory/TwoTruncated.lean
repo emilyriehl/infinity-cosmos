@@ -804,7 +804,7 @@ lemma qFunctor_map_toPath (x y : FreeRefl.{u} (OneTruncation₂ A))
 
 lemma qFunctor_map_path {x y : OneTruncation₂.{u} A} (p : Quiver.Path x y) :
     quotientFunctor₂.{u}.map (Quot.mk _ p) = (ReflQuiv.adj.counit.app (Cat.of (HomotopyCategory₂.{u} A))).toFunctor.map
-      (Quot.mk _ (quotientReflPrefunctor₂.{u}.mapPath p)) := by
+      (Quot.mk _ (quotientReflPrefunctor₂.{u}.mapPath p)) :=
   rfl
 
 /--
