@@ -44,7 +44,6 @@ lemma map_yonedaEquiv {n m : ℕ} {X : SSet} (f : ⦋n⦌ ⟶ ⦋m⦌) (g : Δ[m
   have : Δ[m].map f.op (stdSimplex.objEquiv.symm (𝟙 _)) = stdSimplex.objEquiv.symm f := by
     aesop_cat
   rw [this]
-  rfl
 
 /--
 If a simplex `σ` of a simplicial set `X` is equivalent to a composition `stdSimplex.map s ≫ g`
@@ -56,7 +55,7 @@ lemma push_yonedaEquiv {n m k : ℕ} {X : SSet} {f : ⦋m⦌ ⟶ ⦋n⦌}
     X.map f.op σ = X.map (f ≫ s).op (yonedaEquiv g) := by
   rw [← Equiv.apply_symm_apply yonedaEquiv σ, h]
   have : yonedaEquiv (stdSimplex.map s ≫ g) = X.map s.op (yonedaEquiv g) := by
-    rw [yonedaEquiv_comp, stdSimplex.yonedaEquiv_map, ← map_yonedaEquiv]
+    rw [yonedaEquiv_comp, SSet.yonedaEquiv_map, ← map_yonedaEquiv]
   rw [this, ← FunctorToTypes.map_comp_apply, ← op_comp]
 
 /--
@@ -64,7 +63,7 @@ A variant of `map_yonedaEquiv`.
 -/
 lemma map_yonedaEquiv' {n m : ℕ} {X : SSet} (f : ⦋m⦌ ⟶ ⦋n⦌) {g : Δ[n] ⟶ X} :
     yonedaEquiv (stdSimplex.map f ≫ g) = X.map f.op (yonedaEquiv g) := by
-  rw [yonedaEquiv_comp, map_yonedaEquiv, ← stdSimplex.yonedaEquiv_map]
+  rw [yonedaEquiv_comp, map_yonedaEquiv, ← SSet.yonedaEquiv_map]
 
 /--
 A specialization of `push_yonedaEquiv` to the case where `f` is the identity.
@@ -87,7 +86,7 @@ lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : ⦋n⦌ ⟶ ⦋m⦌)
   let s' := yonedaEquiv.symm s
   have : s = yonedaEquiv s' := (Equiv.symm_apply_eq yonedaEquiv).mp rfl
   rw [this, map_yonedaEquiv, yonedaEquiv_comp, Equiv.apply_symm_apply yonedaEquiv _,
-    stdSimplex.yonedaEquiv_map]
+    SSet.yonedaEquiv_map]
 
 /-- `yonedaEquiv` is natural. -/
 lemma yonedaEquiv_naturality

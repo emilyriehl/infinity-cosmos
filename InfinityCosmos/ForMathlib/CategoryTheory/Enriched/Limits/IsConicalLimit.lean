@@ -81,7 +81,7 @@ lemma hasConicalLimit (hc : IsConicalLimit V c) : HasConicalLimit V F where
   preservesLimit_eCoyoneda X :=
     { preserves := fun hd =>
         ⟨(hc.isConicalLimit X).ofIsoLimit
-          ((Cones.functoriality F (eCoyoneda V X)).mapIso
+          ((Cone.functoriality F (eCoyoneda V X)).mapIso
             (IsLimit.uniqueUpToIso hc.isLimit hd))⟩ }
 
 /-- Transport evidence that a cone is a `V`-enriched limit cone across an isomorphism of cones. -/
@@ -113,7 +113,11 @@ lemma limitComparison_eq_conePointUniqueUpToIso (hc : IsConicalLimit V c) (X : C
     [HasLimit (F ⋙ eCoyoneda V X)] :
     limitComparison V c X =
     ((hc.isConicalLimit X).conePointUniqueUpToIso (limit.isLimit _)).hom := by
-  apply limit.hom_ext; simp [limitComparison]
+  apply limit.hom_ext
+  intro
+  simp [limitComparison]
+  rfl
+
 
 /-- `IsConicalLimit.limitComparison` is an isomorphism. -/
 lemma isIso_limitComparison (hc : IsConicalLimit V c) (X : C) : IsIso (limitComparison V c X) := by
@@ -125,6 +129,7 @@ noncomputable def limitComparisonIso (hc : IsConicalLimit V c) (X : C) :
   haveI := isIso_limitComparison hc X
   asIso (limitComparison V c X)
 
+set_option backward.isDefEq.respectTransparency false in
 variable (V) in
 /-- Reverse direction: if the comparison map is an isomorphism, then `c` is a conical limit. -/
 noncomputable def ofIsIsoLimitComparison

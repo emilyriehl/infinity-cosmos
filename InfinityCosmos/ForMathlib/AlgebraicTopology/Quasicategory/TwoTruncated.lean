@@ -116,6 +116,7 @@ lemma horn_from_edges_restr₁ : ι₂ ≫ (fromEdges e₀₁ e₁₂) = yonedaE
   Limits.PushoutCocone.IsColimit.inr_desc pushoutIsPushout
     (edgeMap e₁₂) (edgeMap e₀₁) (path_edges_comm e₀₁ e₁₂)
 
+set_option backward.isDefEq.respectTransparency false in
 /--
 Given a map `Δ[2] ⟶ S` extending the horn given by `horn_from_edges`, construct
 and edge `e₀₂` such that `e₀₁`, `e₁₂`, `e₀₂` bound a 2-simplex of `S` (this is witnessed
@@ -156,16 +157,19 @@ def fromHornExtension
       have : yonedaEquiv.symm (e₀₁.edge) = stdSimplex.δ 2 ≫ g := by
         rw [← horn_from_edges_restr₁ e₀₁ e₁₂, comm, ← Category.assoc, horn₂₁.incl₂]
       rw [← push_yonedaEquiv' this]
+      rfl
     d₀ := by
       rw [trunc_map]
       have : yonedaEquiv.symm (e₁₂.edge) = stdSimplex.δ 0 ≫ g := by
         rw [← horn_from_edges_restr₀ e₀₁ e₁₂, comm, ← Category.assoc, horn₂₁.incl₀]
       rw [← push_yonedaEquiv' this]
+      rfl
     d₁ := by
       rw [trunc_map]
       dsimp only [len_mk, id_eq, Nat.reduceAdd, Fin.isValue, eq_mpr_eq_cast, cast_eq, op_comp,
         Fin.succ_zero_eq_one, Fin.castSucc_zero]
-      rw [← map_yonedaEquiv']; rfl
+      rw [← map_yonedaEquiv']
+      rfl
   }
 
 end horn₂₁
@@ -418,8 +422,6 @@ open Edge
 
 variable {A : Truncated 2}
 
-def idCompId (x : A _⦋0⦌₂) := compId (id x)
-
 end CompStruct
 
 end Edge
@@ -491,14 +493,15 @@ Left homotopy relation is reflexive
   Each statement follows from a single 3-dimensional horn filling, typically involving degenerate
   simplices.
   -/)
-  (latexEnv := "lemma")]
-def HomotopicL.refl {x y : A _⦋0⦌₂} {f : Edge x y} : HomotopicL f f := ⟨compId f⟩
+  (latexEnv := "lemma"), implicit_reducible]
+def HomotopicL.refl {x y : A _⦋0⦌₂} {f : Truncated.Edge x y} :
+    HomotopicL f f := ⟨compId f⟩
 
 /--
 Left homotopy relation is symmetric
 -/
-@[blueprint "lem:2-truncated-qcat-htpy"]
-def HomotopicL.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicL f g) :
+@[blueprint "lem:2-truncated-qcat-htpy", implicit_reducible]
+def HomotopicL.symm {x y : A _⦋0⦌₂} {f g : Truncated.Edge x y} (hfg : HomotopicL f g) :
     HomotopicL g f := by
   rcases hfg with ⟨hfg⟩
   exact Quasicategory₂.fill31 hfg (idCompId y) (compId f)
@@ -506,8 +509,8 @@ def HomotopicL.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicL f g
 /--
 Left homotopy relation is transitive
 -/
-@[blueprint "lem:2-truncated-qcat-htpy"]
-def HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicL f g)
+@[blueprint "lem:2-truncated-qcat-htpy", implicit_reducible]
+def HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Truncated.Edge x y} (hfg : HomotopicL f g)
     (hgh : HomotopicL g h) :
     HomotopicL f h := by
   rcases hfg with ⟨hfg⟩
@@ -517,14 +520,14 @@ def HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicL 
 /--
 Right homotopy relation is reflexive
 -/
-@[blueprint "lem:2-truncated-qcat-htpy"]
-def HomotopicR.refl  {x y : A _⦋0⦌₂} {f : Edge x y} : HomotopicR f f := ⟨idComp f⟩
+@[blueprint "lem:2-truncated-qcat-htpy", implicit_reducible]
+def HomotopicR.refl  {x y : A _⦋0⦌₂} {f : Truncated.Edge x y} : HomotopicR f f := ⟨idComp f⟩
 
 /--
 Right homotopy relation is symmetric
 -/
-@[blueprint "lem:2-truncated-qcat-htpy"]
-def HomotopicR.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicR f g) :
+@[blueprint "lem:2-truncated-qcat-htpy", implicit_reducible]
+def HomotopicR.symm {x y : A _⦋0⦌₂} {f g : Truncated.Edge x y} (hfg : HomotopicR f g) :
     HomotopicR g f := by
   rcases hfg with ⟨hfg⟩
   exact Quasicategory₂.fill32 (idCompId x) hfg (idComp f)
@@ -532,8 +535,8 @@ def HomotopicR.symm {x y : A _⦋0⦌₂} {f g : Edge x y} (hfg : HomotopicR f g
 /--
 Right homotopy relation is transitive
 -/
-@[blueprint "lem:2-truncated-qcat-htpy"]
-def HomotopicR.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicR f g)
+@[blueprint "lem:2-truncated-qcat-htpy", implicit_reducible]
+def HomotopicR.trans {x y : A _⦋0⦌₂} {f g h : Truncated.Edge x y} (hfg : HomotopicR f g)
     (hgh : HomotopicR g h) :
     HomotopicR f h := by
   rcases hfg with ⟨hfg⟩
@@ -544,7 +547,7 @@ def HomotopicR.trans {x y : A _⦋0⦌₂} {f g h : Edge x y} (hfg : HomotopicR 
 The right and left homotopy relations coincide
 -/
 @[blueprint "lem:2-truncated-qcat-htpy"]
-theorem HomotopicL_iff_HomotopicR {x y : A _⦋0⦌₂} {f g : Edge x y} :
+theorem HomotopicL_iff_HomotopicR {x y : A _⦋0⦌₂} {f g : Truncated.Edge x y} :
     HomotopicL f g ↔ HomotopicR f g := by
   constructor
   . rintro ⟨lhfg⟩
@@ -560,11 +563,11 @@ open Edge
 variable {A : Truncated 2} [Quasicategory₂ A]
 variable {x y z : A _⦋0⦌₂}
 
-lemma comp_unique {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
+lemma comp_unique {f : Truncated.Edge x y} {g : Truncated.Edge y z} {h h' : Truncated.Edge x z}
     (s : CompStruct f g h) (s' : CompStruct f g h') : HomotopicL h h' :=
   HomotopicL_iff_HomotopicR.mpr (Quasicategory₂.fill32 (idComp f) s s')
 
-lemma comp_unique' {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
+lemma comp_unique' {f : Truncated.Edge x y} {g : Truncated.Edge y z} {h h' : Truncated.Edge x z}
     (s : Nonempty (CompStruct f g h)) (s' : Nonempty (CompStruct f g h')) : HomotopicL h h' := by
   apply Nonempty.elim s
   apply Nonempty.elim s'
@@ -591,19 +594,19 @@ lemma comp_unique' {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
   are similar.
   -/)
   (latexEnv := "lemma")]
-lemma transport_edge₀ {f : Edge x y} {g g' : Edge y z} {h : Edge x z}
+lemma transport_edge₀ {f : Truncated.Edge x y} {g g' : Truncated.Edge y z} {h : Truncated.Edge x z}
     (s : CompStruct f g h) (htpy : HomotopicL g g') : Nonempty (CompStruct f g' h) := by
   rcases htpy with ⟨htpy⟩
   exact Quasicategory₂.fill32 s htpy (compId h)
 
 @[blueprint "lem:2-truncated-qcat-htpy-comp"]
-lemma transport_edge₁ {f : Edge x y} {g : Edge y z} {h h' : Edge x z}
+lemma transport_edge₁ {f : Truncated.Edge x y} {g : Truncated.Edge y z} {h h' : Truncated.Edge x z}
     (s : CompStruct f g h) (htpy : HomotopicL h h') : Nonempty (CompStruct f g h') := by
   rcases (HomotopicL_iff_HomotopicR.mp htpy) with ⟨htpy⟩
   exact Quasicategory₂.fill31 (idComp f) s htpy
 
 @[blueprint "lem:2-truncated-qcat-htpy-comp"]
-lemma transport_edge₂ {f f' : Edge x y} {g : Edge y z} {h : Edge x z}
+lemma transport_edge₂ {f f' : Truncated.Edge x y} {g : Truncated.Edge y z} {h : Truncated.Edge x z}
     (s : CompStruct f g h) (htpy : HomotopicL f f') : Nonempty (CompStruct f' g h) := by
   rcases (HomotopicL_iff_HomotopicR.mp htpy) with ⟨htpy⟩
   exact Quasicategory₂.fill31 htpy s (idComp h)
@@ -620,8 +623,8 @@ lemma transport_edge₂ {f f' : Edge x y} {g : Edge y z} {h : Edge x z}
   transform the given 2-simplex.
   -/)
   (latexEnv := "corollary")]
-lemma transport_all_edges {f f' : Edge x y} {g g' : Edge y z}
-    {h h' : Edge x z} (hf : HomotopicL f f') (hg : HomotopicL g g') (hh : HomotopicL h h')
+lemma transport_all_edges {f f' : Truncated.Edge x y} {g g' : Truncated.Edge y z}
+    {h h' : Truncated.Edge x z} (hf : HomotopicL f f') (hg : HomotopicL g g') (hh : HomotopicL h h')
     (s : CompStruct f g h) :
     Nonempty (CompStruct f' g' h') := by
   have a : Nonempty (CompStruct f' g h) := transport_edge₂ s hf
@@ -643,7 +646,7 @@ variable {A : Truncated 2} [Quasicategory₂ A]
 -/
 def HomotopyCategory₂ (A : Truncated 2) := A _⦋0⦌₂
 
-instance instSetoidEdge (x₀ x₁ : A _⦋0⦌₂) : Setoid (Edge x₀ x₁) where
+instance instSetoidEdge (x₀ x₁ : A _⦋0⦌₂) : Setoid (Truncated.Edge x₀ x₁) where
   r := HomotopicL
   iseqv := ⟨fun _ ↦ HomotopicL.refl, HomotopicL.symm, HomotopicL.trans⟩
 
@@ -658,12 +661,13 @@ def HEdge (x₀ x₁ : A _⦋0⦌₂) := Quotient (instSetoidEdge x₀ x₁)
   an edge that is the diagonal of a 2-simplex with spine given by `f` and `g`.
 -/
 noncomputable
-def composeEdges {x₀ x₁ x₂ : A _⦋0⦌₂} (f : Edge x₀ x₁) (g : Edge x₁ x₂) : Edge x₀ x₂ :=
+def composeEdges {x₀ x₁ x₂ : A _⦋0⦌₂} (f : Truncated.Edge x₀ x₁) (g : Truncated.Edge x₁ x₂) :
+    Truncated.Edge x₀ x₂ :=
   (Nonempty.some (Quasicategory₂.fill21 f g)).1
 
 noncomputable
-def composeEdgesIsComposition {x₀ x₁ x₂ : A _⦋0⦌₂} (f : Edge x₀ x₁) (g : Edge x₁ x₂) :
-    CompStruct f g (composeEdges f g) :=
+def composeEdgesIsComposition {x₀ x₁ x₂ : A _⦋0⦌₂} (f : Truncated.Edge x₀ x₁)
+    (g : Truncated.Edge x₁ x₂) : CompStruct f g (composeEdges f g) :=
   (Nonempty.some (Quasicategory₂.fill21 f g)).2
 
 /--

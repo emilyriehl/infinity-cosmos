@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Carranza
 -/
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Basic
-import Mathlib.CategoryTheory.Closed.Enrichment
+import Mathlib.CategoryTheory.Monoidal.Closed.Enrichment
 
 /-!
 

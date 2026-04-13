@@ -1,6 +1,6 @@
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
 import Mathlib.CategoryTheory.Enriched.Opposite
-import Mathlib.CategoryTheory.Closed.Enrichment
+import Mathlib.CategoryTheory.Monoidal.Closed.Enrichment
 
 universe u u₁ v w
 
@@ -166,6 +166,7 @@ lemma EhomPrecompose_coneNatTrans_eq {x : C} {w v : V} (wx : Cotensor w x) (vx :
     EhomPrecompose V wx vx ≫ wx.coneNatTrans _ = (ihom w).map vx.cone :=
   IhomPrecompose_coneNatTrans_eq V wx vx
 
+set_option backward.isDefEq.respectTransparency false in
 lemma IhomPrecompose_selfEval_comp_eq {x : C} {w v : V} (wx : Cotensor w x) (vx : Cotensor v x) :
     (IhomPrecompose V wx vx) ▷ _ ≫ (_ ◁ wx.cone) ≫ eComp V ..
       = (β_ _ _).hom ≫ (ihom.ev w).app v ≫ vx.cone := by
@@ -183,6 +184,7 @@ lemma EhomPrecompose_selfEval_comp_eq {x : C} {w v : V} (wx : Cotensor w x) (vx 
   IhomPrecompose_selfEval_comp_eq V wx vx
 
 -- Functoriality of precomposition
+set_option backward.isDefEq.respectTransparency false in
 theorem precompose_comp_eq {x : C} {u v w : V} (ux : Cotensor u x) (vx : Cotensor v x)
     (wx : Cotensor w x) : eComp V u v w ≫ EhomPrecompose V ux wx =
       (EhomPrecompose V ux vx ⊗ₘ EhomPrecompose V vx wx) ≫ (β_ _ _).hom ≫ eComp V .. := by
@@ -246,6 +248,7 @@ theorem precompose_comp_eq {x : C} {u v w : V} (ux : Cotensor u x) (vx : Cotenso
   simp only [Category.assoc]
   exact rfl
 
+set_option backward.isDefEq.respectTransparency false in
 theorem precompose_id_eq {x : C} {v : V} (vx : Cotensor v x) :
     eId V v ≫ EhomPrecompose V vx vx = eId V vx.obj := by
   -- Copied from the last proof
