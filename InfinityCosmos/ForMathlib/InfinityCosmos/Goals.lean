@@ -63,15 +63,15 @@ open CategoryTheory Simplicial
 
 variable (K : Type u) [Category.{v} K] [InfinityCosmos.{v} K]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- `QCat` obtains a `Cat`-enriched ordinary category structure by applying `hoFunctor` to the
 hom objects in its `SSet`-enriched ordinary structure. -/
 noncomputable instance catEnrichedOrdinaryCategory : EnrichedOrdinaryCategory Cat K :=
   TransportEnrichment.enrichedOrdinaryCategory K hoFunctor
-    sorry
-    -- ((hoFunctor.unitHomEquiv _).trans (Functor.equivCatHom _ _))
-      sorry
-      -- hoFunctor.unitHomEquiv_eq
+    (fun v ↦ (hoFunctor.unitHomEquiv v).trans (Functor.equivCatHom _ _)) <| by
+      intro v f
+      simp
+      erw [hoFunctor.unitHomEquiv_eq]
+      rfl
 
 section «workaround for #32063»
 
@@ -107,7 +107,10 @@ def ForgetEnrichment.equiv {D : Type u''} [Category.{v''} D] [EnrichedOrdinaryCa
   functor := equivFunctor V D
   inverse := equivInverse V D
   unitIso := NatIso.ofComponents (fun X => Iso.refl _)
-  counitIso := NatIso.ofComponents (fun X => Iso.refl _) sorry
+  counitIso := NatIso.ofComponents (fun X => Iso.refl _) <| by
+    intro X Y f
+    simp
+    erw [Equiv.symm_apply_apply]
   functor_unitIso_comp X := Equiv.injective
     (eHomEquiv V (X := ForgetEnrichment.to V X) (Y := ForgetEnrichment.to V X)) (by simp)
 

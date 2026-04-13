@@ -751,7 +751,7 @@ open Cat (FreeRefl)
 open Edge
 
 universe u
-variable {A : Truncated 2} [Quasicategory₂ A]
+variable {A : Truncated.{u} 2} [Quasicategory₂ A]
 
 /--
   The reflexive prefunctor sending edges (in the 1-truncation) of `A` to their homotopy class.
@@ -767,23 +767,23 @@ def quotientReflPrefunctor₂ : (OneTruncation₂ A) ⥤rq (HomotopyCategory₂ 
 -/
 noncomputable
 def quotientFunctor₂ : FreeRefl (OneTruncation₂ A) ⥤ HomotopyCategory₂ A :=
-  (ReflQuiv.adj.homEquiv
-    (ReflQuiv.of (OneTruncation₂ A))
-    (Cat.of (HomotopyCategory₂ A))).invFun quotientReflPrefunctor₂
+  ((ReflQuiv.adj.homEquiv
+    (V := (ReflQuiv.of (OneTruncation₂ A)))
+    (C := (Cat.of (HomotopyCategory₂ A)))).invFun quotientReflPrefunctor₂)
 
 /--
   The adjoint relation between `quotientReflPrefunctor₂` and `quotientFunctor₂` expressed
   on the level of functors.
 -/
 lemma unit_app_quotientFunctor : quotientReflPrefunctor₂ =
-    ReflQuiv.adj.unit.app (OneTruncation₂ A) ⋙rq quotientFunctor₂.{u}.toReflPrefunctor := by
-  let η := ReflQuiv.adj.unit.app (OneTruncation₂ A)
+    (ReflQuiv.adj.unit.app (ReflQuiv.of (OneTruncation₂ A))) ⋙rq quotientFunctor₂.{u}.toReflPrefunctor := by
+  let η := ReflQuiv.adj.unit.app (ReflQuiv.of (OneTruncation₂ A))
   let q : Cat.freeRefl.obj (ReflQuiv.of (OneTruncation₂ A)) ⟶ Cat.of (HomotopyCategory₂ A) :=
-    quotientFunctor₂.{u}
+    quotientFunctor₂.{u}.toCatHom
   let r : ReflQuiv.of (OneTruncation₂ A) ⟶ ReflQuiv.of (HomotopyCategory₂ A) :=
     quotientReflPrefunctor₂
   show r = η ≫ ReflQuiv.forget.map q
-  have : η ≫ ReflQuiv.forget.map q = (ReflQuiv.adj.homEquiv _ _).toFun q := rfl
+  have : η ≫ ReflQuiv.forget.map q = ReflQuiv.adj.homEquiv q.toFunctor := rfl
   rw [this]
   dsimp [r, q, quotientFunctor₂]
   symm
@@ -791,22 +791,28 @@ lemma unit_app_quotientFunctor : quotientReflPrefunctor₂ =
 
 lemma quotientFunctor_obj (x : FreeRefl (OneTruncation₂ A)) : quotientFunctor₂.obj x = x.as := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 lemma qFunctor_map_toPath (x y : FreeRefl.{u} (OneTruncation₂ A))
-    (f : OneTruncation₂.Hom x.as y.as) :
+    (f : Truncated.Edge x.as y.as) :
     quotientFunctor₂.map.{u} (Quot.mk _ (Quiver.Hom.toPath f)) = quotientReflPrefunctor₂.map f := by
-  dsimp [quotientFunctor₂, Adjunction.homEquiv]
+  dsimp [quotientFunctor₂, Adjunction.homEquiv, FreeRefl.lift]
+  dsimp [quotientReflPrefunctor₂, FreeRefl.homMk,
+    FreeRefl.quotientFunctor, Quotient.functor, ReflQuiv.adj, ReflQuiv.adj.homEquiv,
+    FreeRefl.lift, Paths.lift, CategoryTheory.Quotient.lift, Cat.Hom.equivFunctor]
   rw [Quot.liftOn_mk]
-  simp [FreeRefl.quotientFunctor, Quotient.functor, ReflQuiv.adj]
+  change 𝟙 _ ≫ _ = _
+  simp
 
 lemma qFunctor_map_path {x y : OneTruncation₂.{u} A} (p : Quiver.Path x y) :
-    quotientFunctor₂.{u}.map (Quot.mk _ p) = (ReflQuiv.adj.counit.app (HomotopyCategory₂.{u} A)).map
-      (Quot.mk _ (quotientReflPrefunctor₂.mapPath p)) := rfl
+    quotientFunctor₂.{u}.map (Quot.mk _ p) = (ReflQuiv.adj.counit.app (Cat.of (HomotopyCategory₂.{u} A))).toFunctor.map
+      (Quot.mk _ (quotientReflPrefunctor₂.{u}.mapPath p)) := by
+  rfl
 
 /--
   `quotientFunctor₂` respects the hom relation `HoRel₂`.
 -/
 theorem qFunctor_respects_horel₂ (x y : FreeRefl.{u} (OneTruncation₂.{u} A))
-    (f g : Quiver.Hom.{u + 1, u} x y) (r : HoRel₂ x y f g) :
+    (f g : x ⟶ y) (r : OneTruncation₂.HoRel₂ _ f g) :
     quotientFunctor₂.map.{u} f = quotientFunctor₂.map.{u} g := by
   rcases r with ⟨r⟩
   rw [qFunctor_map_toPath, qFunctor_map_path, Prefunctor.mapPath_comp,
@@ -821,7 +827,7 @@ theorem qFunctor_respects_horel₂ (x y : FreeRefl.{u} (OneTruncation₂.{u} A))
 An edge from `x₀` to `x₁` in a 2-truncated simplicial set defines an arrow in the refl quiver
 `OneTruncation₂.{u} A)` from `x₀` to `x₁`.
 -/
-def edgeToHom {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) :
+def edgeToHom {x₀ x₁ : A _⦋0⦌₂} (f : Truncated.Edge x₀ x₁) :
     @Quiver.Hom (OneTruncation₂.{u} A) _ x₀ x₁ where
   edge := f.edge
   src_eq := f.src_eq
@@ -831,14 +837,14 @@ def edgeToHom {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) :
 An edge from `x₀` to `x₁` in a 2-truncated simplicial set defines an arrow in the free category
 generated from the refl quiver `OneTruncation₂.{u} A)` from `x₀` to `x₁`.
 -/
-def edgeToFreeHom {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) :
+def edgeToFreeHom {x₀ x₁ : A _⦋0⦌₂} (f : Truncated.Edge x₀ x₁) :
     @Quiver.Hom (FreeRefl.{u} (OneTruncation₂.{u} A)) _ ⟨x₀⟩ ⟨x₁⟩ :=
   Quot.mk _ (edgeToHom f).toPath
 
 omit [Quasicategory₂ A] in
-lemma compose_id_path {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) :
+lemma compose_id_path {x₀ x₁ : A _⦋0⦌₂} (f : Truncated.Edge x₀ x₁) :
     edgeToFreeHom f = Quot.mk _
-      ((edgeToHom f).toPath.comp (edgeToHom (Edge.id x₁)).toPath) := by
+      ((edgeToHom f).toPath.comp (edgeToHom (Truncated.Edge.id x₁)).toPath) := by
   symm
   dsimp [edgeToFreeHom]
   apply Quot.sound
@@ -853,7 +859,7 @@ lemma compose_id_path {x₀ x₁ : A _⦋0⦌₂} (f : Edge x₀ x₁) :
   Two (left) homotopic edges `f`, `g` are equivalent under the hom-relation `HoRel₂`
   generated by 2-simplices.
 -/
-lemma homotopic_edges_are_equiv {x₀ x₁ : A _⦋0⦌₂} (f g : Edge.{u} x₀ x₁) (htpy : HomotopicL f g) :
+lemma homotopic_edges_are_equiv {x₀ x₁ : A _⦋0⦌₂} (f g : Truncated.Edge.{u} x₀ x₁) (htpy : HomotopicL f g) :
     HoRel₂ ⟨x₀⟩ ⟨x₁⟩ (edgeToFreeHom f) (edgeToFreeHom g) := by
   rw [compose_id_path g]
   dsimp [edgeToFreeHom]

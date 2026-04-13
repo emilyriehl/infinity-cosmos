@@ -88,19 +88,19 @@ theorem binary_prod_map_fibrant {X Y X' Y' : K} {f : X ↠ Y} {g : X' ↠ Y'} :
         (IsPullback.of_hasBinaryProduct' Y Y').flip)
 
 -- TODO: replace `cotensor.iso.underlying` with something for general cotensor API.
-noncomputable def cotensorInitialIso (A : K) : (⊥_ SSet ) ⋔ A ≅ ⊤_ K where
-  hom := terminal.from ((⊥_ SSet) ⋔ A)
-  inv := (cotensor.iso.underlying (⊥_ SSet) A (⊤_ K)).symm (initial.to (sHom (⊤_ K) A))
-  hom_inv_id := (cotensor.iso.underlying (⊥_ SSet) A ((⊥_ SSet ) ⋔ A)).injective
+noncomputable def cotensorInitialIso (A : K) : (⊥_ SSet.{v} ) ⋔ A ≅ ⊤_ K where
+  hom := terminal.from ((⊥_ SSet.{v}) ⋔ A)
+  inv := (cotensor.iso.underlying (⊥_ SSet.{v}) A (⊤_ K)).symm (initial.to (sHom (⊤_ K) A))
+  hom_inv_id := (cotensor.iso.underlying (⊥_ SSet.{v}) A ((⊥_ SSet.{v} ) ⋔ A)).injective
     (initial.hom_ext _ _)
   inv_hom_id := terminal.hom_ext _ _
 
-noncomputable instance cotensorInitial_isTerminal (A : K) : IsTerminal ((⊥_ SSet ) ⋔ A) :=
+noncomputable instance cotensorInitial_isTerminal (A : K) : IsTerminal ((⊥_ SSet.{v} ) ⋔ A) :=
   terminalIsTerminal.ofIso (cotensorInitialIso A).symm
 
-lemma cotensorCovMapInitial_isIso {A B : K} (f : A ⟶ B) : IsIso (cotensorCovMap (⊥_ SSet) f) :=
+lemma cotensorCovMapInitial_isIso {A B : K} (f : A ⟶ B) : IsIso (cotensorCovMap (⊥_ SSet.{v}) f) :=
   isIso_of_isTerminal (cotensorInitial_isTerminal A) (cotensorInitial_isTerminal B)
-    (cotensorCovMap (⊥_ SSet) f)
+    (cotensorCovMap (⊥_ SSet.{v}) f)
 
 -- TODO: replace `cotensor.iso.underlying` with something for general cotensor API.
 noncomputable def cotensorToTerminalIso (U : SSet) {T : K} (hT : IsConicalTerminal SSet T) :
@@ -127,7 +127,7 @@ lemma cotensorContraMapToTerminal_isIso {U V : SSet} (i : U ⟶ V)
 
 lemma cotensorInitialSquare_isPullback (V : SSet.{v}) {A B : K} (f : A ↠ B) :
     IsPullback (terminal.from (V ⋔ B) ≫ (cotensorInitialIso A).inv) (𝟙 _)
-      (cotensorCovMap (⊥_ SSet) f.1) (cotensorContraMap (initial.to V) B) := by
+      (cotensorCovMap (⊥_ SSet.{v}) f.1) (cotensorContraMap (initial.to V) B) := by
   have := cotensorCovMapInitial_isIso f.1
   refine IsPullback.of_vert_isIso ?_
   constructor
