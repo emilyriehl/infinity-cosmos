@@ -1,4 +1,4 @@
-import Mathlib.CategoryTheory.Closed.Monoidal
+import Mathlib.CategoryTheory.Monoidal.Closed.Basic
 import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
 
 universe v u
@@ -18,15 +18,17 @@ variable (C : Type u) [Bicategory.{w,v} C] [Bicategory.Strict C]
   obj g := f ≫ g
   map φ := f ◁ φ
 
+set_option backward.isDefEq.respectTransparency false in
 def HomFunctor : Cᵒᵖ ⥤ C ⥤ Cat where
   obj X :=
     { obj := fun Y => Cat.of (X.unop ⟶ Y)
-      map := fun φ => HomWhiskerLeft C X.unop φ
-      map_id _ := by fapply Functor.ext <;> simp [Strict.rightUnitor_eqToIso]
-      map_comp _ _ := by fapply Functor.ext <;> simp [Strict.associator_eqToIso] }
+      map := fun φ => (HomWhiskerLeft C X.unop φ).toCatHom
+      map_id _ := by apply Cat.ext; fapply Functor.ext <;> simp [Strict.rightUnitor_eqToIso]
+      map_comp _ _ := by apply Cat.ext; fapply Functor.ext <;> simp [Strict.associator_eqToIso] }
   map φ :=
-    { app := fun Y => HomWhiskerRight C Y φ.unop
-      naturality _ _ _ := by fapply Functor.ext <;> simp [Strict.associator_eqToIso] }
+    { app := fun Y => (HomWhiskerRight C Y φ.unop).toCatHom
+      naturality _ _ _ := by
+        apply Cat.ext; fapply Functor.ext <;> simp [Strict.associator_eqToIso] }
   map_id _ := by ext ; fapply Functor.ext <;> simp [Strict.leftUnitor_eqToIso]
   map_comp _ _ := by ext ; fapply Functor.ext <;> simp [Strict.associator_eqToIso]
 

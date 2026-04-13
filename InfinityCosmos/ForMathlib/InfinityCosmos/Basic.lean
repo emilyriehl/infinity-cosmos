@@ -3,9 +3,9 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
-import Mathlib.CategoryTheory.Closed.Cartesian
+import Mathlib.CategoryTheory.Monoidal.Closed.Cartesian
 import Mathlib.CategoryTheory.Enriched.Limits.HasConicalPullbacks
-import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
+import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.BicartesianSq
 
 namespace CategoryTheory
 
@@ -41,7 +41,7 @@ noncomputable def representableMap (X : K) {A B : K} (f : A ⟶ B) :
   representableMap' (eHomEquiv SSet f)
 
 noncomputable def toFunMap (X : K) {A B : K} (f : A ⟶ B) : Fun X A ⟶ Fun X B :=
-  representableMap X f
+  ObjectProperty.homMk <| representableMap X f
 
 /-- The subtype of isofibrations. Arguments of this type have the form `⟨ f hf ⟩`. -/
 def Isofibration (X Y : K) : Type v := {f : X ⟶ Y // IsIsofibration f}

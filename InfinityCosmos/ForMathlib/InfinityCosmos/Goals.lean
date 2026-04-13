@@ -67,7 +67,11 @@ variable (K : Type u) [Category.{v} K] [InfinityCosmos.{v} K]
 hom objects in its `SSet`-enriched ordinary structure. -/
 noncomputable instance catEnrichedOrdinaryCategory : EnrichedOrdinaryCategory Cat K :=
   TransportEnrichment.enrichedOrdinaryCategory K hoFunctor
-    hoFunctor.unitHomEquiv hoFunctor.unitHomEquiv_eq
+    (fun v ↦ (hoFunctor.unitHomEquiv v).trans (Functor.equivCatHom _ _)) <| by
+      intro v f
+      simp
+      erw [hoFunctor.unitHomEquiv_eq]
+      rfl
 
 section «workaround for #32063»
 
@@ -103,7 +107,10 @@ def ForgetEnrichment.equiv {D : Type u''} [Category.{v''} D] [EnrichedOrdinaryCa
   functor := equivFunctor V D
   inverse := equivInverse V D
   unitIso := NatIso.ofComponents (fun X => Iso.refl _)
-  counitIso := NatIso.ofComponents (fun X => Iso.refl _)
+  counitIso := NatIso.ofComponents (fun X => Iso.refl _) <| by
+    intro X Y f
+    simp
+    erw [Equiv.symm_apply_apply]
   functor_unitIso_comp X := Equiv.injective
     (eHomEquiv V (X := ForgetEnrichment.to V X) (Y := ForgetEnrichment.to V X)) (by simp)
 
