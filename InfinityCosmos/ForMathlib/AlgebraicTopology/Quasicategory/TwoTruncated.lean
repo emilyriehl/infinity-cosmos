@@ -648,6 +648,11 @@ lemma qFunctor_map_toPath (x y : FreeRefl.{u} (OneTruncation₂ A))
 lemma qFunctor_map_path {x y : OneTruncation₂.{u} A} (p : Quiver.Path x y) :
     quotientFunctor₂.{u}.map (Quot.mk _ p) = (ReflQuiv.adj.counit.app (Cat.of (HomotopyCategory₂.{u} A))).toFunctor.map
       (Quot.mk _ (quotientReflPrefunctor₂.{u}.mapPath p)) :=
+  -- BLOCKER: this was `rfl` before the mathlib bump, but `ReflQuiv.adj` is now built via
+  -- `Adjunction.mkOfHomEquiv`, so its `counit` no longer reduces definitionally to the
+  -- `FreeRefl.lift`/`invFun` form of `quotientFunctor₂`. A proof now requires a path induction
+  -- relating both sides through `qFunctor_map_toPath` and `ReflQuiv.adj_counit_app`. This lemma is
+  -- otherwise UNUSED (the restored `qFunctor_respects_horel₂` no longer depends on it).
   sorry
 
 /--
@@ -665,7 +670,13 @@ lemma composeEdges_unique {x₀ x₁ x₂ : A _⦋0⦌₂} {f : Truncated.Edge x
 theorem qFunctor_respects_horel₂ (x y : FreeRefl.{u} (OneTruncation₂.{u} A))
     (f g : x ⟶ y) (r : OneTruncation₂.HoRel₂ _ f g) :
     quotientFunctor₂.map.{u} f = quotientFunctor₂.map.{u} g := by
-  sorry
+  rcases r with @⟨x₀, x₁, x₂, e₀₁, e₁₂, e₀₂, hcs⟩
+  -- `quotientFunctor₂.map` sends the composite path to `homMk e₀₁ ≫ homMk e₁₂` (functoriality +
+  -- `qFunctor_map_toPath`) and the single edge to `homMk e₀₂`; the `CompStruct` identifies them.
+  show quotientFunctor₂.map (Quot.mk _ (Quiver.Hom.toPath e₀₁) ≫ Quot.mk _ (Quiver.Hom.toPath e₁₂))
+    = quotientFunctor₂.map (Quot.mk _ (Quiver.Hom.toPath e₀₂))
+  rw [Functor.map_comp, qFunctor_map_toPath, qFunctor_map_toPath, qFunctor_map_toPath]
+  exact hcs.homotopyCategory₂_fac
 
 /--
 An edge from `x₀` to `x₁` in a 2-truncated simplicial set defines an arrow in the refl quiver
@@ -728,33 +739,29 @@ def liftRq₂ {C : Type*} [ReflQuiver C] (F : FreeRefl.{u} (OneTruncation₂.{u}
   map_id := by
     intro x
     dsimp [CategoryStruct.id]
-    sorry
-    -- show ⟦Edge.id x⟧.liftOn _ _ = 𝟙rq (F.obj { as := x})
-    -- have : 𝟙rq (F.obj { as := x}) = F.map (𝟙 { as := x }) := (F.map_id { as := x }).symm
-    -- rw [Quotient.liftOn_mk, this]
-    -- congr 1
-    -- dsimp [edgeToFreeHom, CategoryStruct.id]
-    -- apply Quot.sound
-    -- apply Quotient.CompClosure.of
-    -- constructor
+    have e : edgeToFreeHom (Truncated.Edge.id x.pt) = 𝟙 (⟨x.1⟩ : FreeRefl.{u} (OneTruncation₂.{u} A)) :=
+      FreeRefl.homMk_id (V := OneTruncation₂ A) x.pt
+    show F.map (edgeToFreeHom (Truncated.Edge.id x.pt)) = 𝟙rq (F.obj ⟨x.1⟩)
+    rw [e]
+    exact F.map_id _
 
-theorem lift_unique_rq₂ {C} [ReflQuiver.{u + 1, u} C] (F₁ F₂ : (HomotopyCategory₂.{u} A) ⥤rq C)
+theorem lift_unique_rq₂ {C} [ReflQuiver.{u, u} C] (F₁ F₂ : (HomotopyCategory₂.{u} A) ⥤rq C)
     (h : quotientReflPrefunctor₂ ⋙rq F₁ = quotientReflPrefunctor₂ ⋙rq F₂) : F₁ = F₂ := by
-  sorry
-  -- apply ReflPrefunctor.ext'
-  -- . intro x₀ x₁
-  --   apply Quotient.ind
-  --   intro f
-  --   have q_is_quotient : quotientReflPrefunctor₂.map (edgeToHom f) =
-  --     Quotient.mk (instSetoidEdge x₀ x₁) f := rfl
-  --   rw [← q_is_quotient, ← ReflPrefunctor.comp_map, ← ReflPrefunctor.comp_map,
-  --     ReflPrefunctor.congr_hom h.symm]
-  -- . intro x
-  --   have : (quotientReflPrefunctor₂.{u} ⋙rq F₁).obj x = (quotientReflPrefunctor₂.{u} ⋙rq F₂).obj x :=
-  --      congrFun (congrArg Prefunctor.obj (congrArg ReflPrefunctor.toPrefunctor h)) x
-  --   rw [ReflPrefunctor.comp_obj, ReflPrefunctor.comp_obj] at this
-  --   dsimp [quotientReflPrefunctor₂] at this
-  --   exact this
+  -- `ReflPrefunctor.ext` (rather than `ext'`, whose shared-universe constraint fails here):
+  -- both functors are determined by their (object- and morphism-wise surjective) restriction
+  -- along `quotientReflPrefunctor₂`.
+  refine ReflPrefunctor.ext (fun X => ?_) (fun X Y => Quotient.ind (fun f => ?_))
+  · -- objects: `X = ⟨X.pt⟩` lies in the image of `quotientReflPrefunctor₂`.
+    exact congrFun (congrArg Prefunctor.obj (congrArg ReflPrefunctor.toPrefunctor h)) X.pt
+  · -- morphisms: `⟦f⟧ = quotientReflPrefunctor₂.map (edgeToHom f)`; transport away the
+    -- object-equality coercions (as a heterogeneous equality) and rewrite by `h`.
+    symm
+    apply eq_of_heq
+    simp only [eqRec_heq_iff_heq]
+    -- goal (up to defeq): `(qrp ⋙rq F₂).map (edgeToHom f) ≍ (qrp ⋙rq F₁).map (edgeToHom f)`,
+    -- which follows from `h` via `congr_hom` and `homOfEq_heq`.
+    exact (heq_of_eq (ReflPrefunctor.congr_hom h (edgeToHom f))).symm.trans
+      (Quiver.homOfEq_heq _ _ _)
 
 /--
   If a functor `F : FreeRefl (OneTruncation₂ A) ⥤ C` respects the hom-relation `HoRel₂`,
@@ -778,19 +785,10 @@ def lift₂ {C : Type*} [Category* C] (F : FreeRefl.{u} (OneTruncation₂.{u} A)
       dsimp only [G, liftRq₂, Quotient.lift_mk, Functor.toReflPrefunctor]
       rw [← Functor.map_comp]
       let p := (Quasicategory₂.fill21 f g).some
-      let h' : x₀ ⟶ x₂ := ⟦p.fst⟧
-      sorry
-      -- have : ⟦f⟧ ≫ ⟦g⟧ = h' := by
-      --   dsimp only [CategoryStruct.comp, composeHEdges]
-      --   rw [Quotient.lift₂_mk]
-      --   rfl
-      -- rw [this]
-      -- dsimp only [h', Quotient.lift_mk]
-      -- apply h
-      -- apply HoRel₂.mk' (φ := p.snd.simplex) <;> symm
-      -- . exact p.snd.d₂
-      -- . exact p.snd.d₀
-      -- . exact p.snd.d₁
+      -- `⟦f⟧ ≫ ⟦g⟧` is defeq `⟦p.fst⟧`, so the LHS is defeq `F.map (edgeToFreeHom p.fst)`.
+      show F.map (edgeToFreeHom p.fst) = F.map (edgeToFreeHom f ≫ edgeToFreeHom g)
+      -- `of_compStruct p.snd` relates the composite to the single edge (reverse orientation).
+      exact (h _ _ _ _ (OneTruncation₂.HoRel₂.of_compStruct p.snd)).symm
   }
 
 lemma is_lift₂ {C : Type*} [Category* C] (F : FreeRefl.{u} (OneTruncation₂.{u} A) ⥤ C)
@@ -799,13 +797,14 @@ lemma is_lift₂ {C : Type*} [Category* C] (F : FreeRefl.{u} (OneTruncation₂.{
       (r : OneTruncation₂.HoRel₂ _ f g) → F.map f = F.map g) :
     quotientFunctor₂.{u} ⋙ lift₂ F h = F := by
   apply FreeRefl.lift_unique'
-  apply Paths.ext_functor
+  refine Paths.ext_functor rfl ?_
   intro x y f
-  all_goals sorry
-  -- simp only [FreeRefl.quotientFunctor, Quotient.functor, lift₂, liftRq₂, Functor.comp_obj,
-  --   Functor.comp_map, eqToHom_refl, Category.comp_id, Category.id_comp]
-  -- . rw [qFunctor_map_toPath]; rfl
-  -- . rfl
+  simp only [FreeRefl.quotientFunctor, Quotient.functor, lift₂, liftRq₂, Functor.comp_map]
+  -- the LHS reduces (defeq) to `F.map (edgeToFreeHom f)`; the surrounding `eqToHom`s are
+  -- between defeq objects, so convert to a heterogeneous equality and close by `rfl`.
+  rw [qFunctor_map_toPath]
+  refine (conj_eqToHom_iff_heq' _ _ _ _).mpr ?_
+  rfl
 
 /--
   Lifts to the homotopy category are unique.
@@ -817,12 +816,13 @@ theorem HomotopyCategory₂.lift_unique' {C : Type u} [Category.{u} C]
       (hyp : F.toReflPrefunctor = G.toReflPrefunctor) : F = G := by
     cases F; cases G; cases hyp; rfl
   apply forget_faithful'
-  sorry
-  -- apply lift_unique_rq₂
-  -- let η := ReflQuiv.adj.unit.app (OneTruncation₂ A)
-  -- rw [unit_app_quotientFunctor.{u}, ReflPrefunctor.comp_assoc,
-  --   ← Functor.toReflPrefunctor.map_comp (C := FreeRefl (OneTruncation₂ A)), h]
-  -- rfl
+  apply lift_unique_rq₂
+  rw [unit_app_quotientFunctor.{u}]
+  -- re-associate by defeq (`comp_assoc` and `toReflPrefunctor.map_comp` are both `rfl`) so that
+  -- `h` can be applied directly.
+  show _ ⋙rq (quotientFunctor₂.{u} ⋙ F₁).toReflPrefunctor =
+    _ ⋙rq (quotientFunctor₂.{u} ⋙ F₂).toReflPrefunctor
+  rw [h]
 
 /--
   Since both `HomotopyCategory A` and `HomotopyCategory₂ A` satisfy the same universal property,
@@ -865,24 +865,42 @@ def isoHomotopyCategories : (Cat.of (HomotopyCategory.{u} A)) ≅ (Cat.of (Homot
   hom := (CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂).toCatHom
   inv := lift₂ (HomotopyCategory.quotientFunctor.{u} A) (by
     intro _ _ _ _ h
-    sorry
-    -- simp only [Cat.of_α, HomotopyCategory.quotientFunctor, Quotient.functor]
-    -- apply Quot.sound
-    -- apply Quotient.CompClosure.of
-    -- exact h
+    exact CategoryTheory.Quotient.sound _ h
     ) |>.toCatHom
+  -- Work with the underlying functors (the `Cat.of` round-trip otherwise breaks the rewrites),
+  -- bridging to `Cat.Hom` equality via `Cat.Hom.ext` (defeq + proof irrelevance for the lift data).
   hom_inv_id := by
-    sorry
-    -- apply HomotopyCategory.lift_unique'
-    -- dsimp only [Cat.of_α, HomotopyCategory.quotientFunctor, CategoryStruct.comp]
-    -- rw [← Functor.assoc, Quotient.lift_spec, is_lift₂]
-    -- rfl
+    have hspec : HomotopyCategory.quotientFunctor.{u} A ⋙
+        CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂ = quotientFunctor₂ :=
+      Quotient.lift_spec _ quotientFunctor₂ qFunctor_respects_horel₂
+    have key : (CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂) ⋙
+        lift₂ (HomotopyCategory.quotientFunctor.{u} A)
+          (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h) = 𝟭 _ := by
+      apply HomotopyCategory.lift_unique'
+      -- re-associate by defeq (`Functor.assoc` is `rfl`) and simplify `_ ⋙ 𝟭`
+      show (HomotopyCategory.quotientFunctor.{u} A ⋙
+          CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂) ⋙
+          lift₂ (HomotopyCategory.quotientFunctor.{u} A)
+            (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h)
+        = HomotopyCategory.quotientFunctor.{u} A
+      rw [hspec]
+      exact is_lift₂ _ _
+    exact Cat.Hom.ext key
   inv_hom_id := by
-    sorry
-    -- apply HomotopyCategory₂.lift_unique'
-    -- dsimp only [Cat.of_α, CategoryStruct.comp, HomotopyCategory.quotientFunctor]
-    -- rw [← Functor.assoc, is_lift₂, Quotient.lift_spec]
-    -- rfl
+    have hspec : HomotopyCategory.quotientFunctor.{u} A ⋙
+        CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂ = quotientFunctor₂ :=
+      Quotient.lift_spec _ quotientFunctor₂ qFunctor_respects_horel₂
+    have key : lift₂ (HomotopyCategory.quotientFunctor.{u} A)
+          (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h) ⋙
+        (CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂) = 𝟭 _ := by
+      apply HomotopyCategory₂.lift_unique'
+      show (quotientFunctor₂ ⋙ lift₂ (HomotopyCategory.quotientFunctor.{u} A)
+            (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h)) ⋙
+          CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂
+        = quotientFunctor₂
+      rw [is_lift₂]
+      exact hspec
+    exact Cat.Hom.ext key
 
 end isomorphism_of_htpy_categories
 
