@@ -689,16 +689,14 @@ omit [Quasicategory₂ A] in
 lemma compose_id_path {x₀ x₁ : A _⦋0⦌₂} (f : Truncated.Edge x₀ x₁) :
     edgeToFreeHom f = Quot.mk _
       ((edgeToHom f).toPath.comp (edgeToHom (Truncated.Edge.id x₁)).toPath) := by
-  symm
-  dsimp [edgeToFreeHom]
-  apply Quot.sound
-  have : (edgeToHom f).toPath = (edgeToHom f).toPath.comp .nil := rfl
-  nth_rw 2 [this]
-  rw [← Quiver.Path.comp_toPath_eq_cons]
-  sorry
-  -- apply Quotient.comp_left
-  -- apply Quotient.CompClosure.of
-  -- constructor
+  have key : FreeRefl.homMk (edgeToHom f) ≫ FreeRefl.homMk (edgeToHom (Truncated.Edge.id x₁)) =
+      Quot.mk _ ((edgeToHom f).toPath.comp (edgeToHom (Truncated.Edge.id x₁)).toPath) := by
+    rw [Quiver.Path.comp_toPath_eq_cons]; rfl
+  have e3 : FreeRefl.homMk (edgeToHom (Truncated.Edge.id x₁)) = 𝟙 _ :=
+    FreeRefl.homMk_id (V := OneTruncation₂ A) x₁
+  rw [show edgeToFreeHom f = FreeRefl.homMk (edgeToHom f) from rfl]
+  conv_lhs => rw [← Category.comp_id (FreeRefl.homMk (edgeToHom f)), ← e3]
+  exact key
 
 /--
   Two (left) homotopic edges `f`, `g` are equivalent under the hom-relation `HoRel₂`
@@ -706,15 +704,9 @@ lemma compose_id_path {x₀ x₁ : A _⦋0⦌₂} (f : Truncated.Edge x₀ x₁)
 -/
 lemma homotopic_edges_are_equiv {x₀ x₁ : A _⦋0⦌₂} (f g : Truncated.Edge.{u} x₀ x₁) (htpy : HomotopicL f g) :
     OneTruncation₂.HoRel₂ _ (edgeToFreeHom f) (edgeToFreeHom g) := by
-  rw [compose_id_path g]
-  dsimp [edgeToFreeHom]
-  rcases HomotopicL.symm htpy with ⟨htpy⟩
-  rw [← Quiver.Path.comp_toPath_eq_cons]
-  sorry
-  -- apply OneTruncation₂.HoRel₂.of_compStruct (h := htpy.simplex) <;> (dsimp [edgeToHom]; symm)
-  -- . exact htpy.d₂
-  -- . exact htpy.d₀
-  -- . exact htpy.d₁
+  rw [compose_id_path f]
+  rcases htpy with ⟨htpy⟩
+  exact OneTruncation₂.HoRel₂.of_compStruct htpy
 
 /--
   If a reflexive prefunctor `F : FreeRefl (OneTruncation₂ A) ⥤rq C` respects
