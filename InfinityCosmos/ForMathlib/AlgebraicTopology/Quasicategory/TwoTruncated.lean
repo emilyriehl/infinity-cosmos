@@ -645,16 +645,6 @@ lemma qFunctor_map_toPath (x y : FreeRefl.{u} (OneTruncation₂ A))
   change 𝟙 _ ≫ _ = _
   simp
 
-lemma qFunctor_map_path {x y : OneTruncation₂.{u} A} (p : Quiver.Path x y) :
-    quotientFunctor₂.{u}.map (Quot.mk _ p) = (ReflQuiv.adj.counit.app (Cat.of (HomotopyCategory₂.{u} A))).toFunctor.map
-      (Quot.mk _ (quotientReflPrefunctor₂.{u}.mapPath p)) :=
-  -- BLOCKER: this was `rfl` before the mathlib bump, but `ReflQuiv.adj` is now built via
-  -- `Adjunction.mkOfHomEquiv`, so its `counit` no longer reduces definitionally to the
-  -- `FreeRefl.lift`/`invFun` form of `quotientFunctor₂`. A proof now requires a path induction
-  -- relating both sides through `qFunctor_map_toPath` and `ReflQuiv.adj_counit_app`. This lemma is
-  -- otherwise UNUSED (the restored `qFunctor_respects_horel₂` no longer depends on it).
-  sorry
-
 /--
   The edge `composeEdges f g` is the unique edge up to homotopy such that there is
   a 2-simplex with spine given by `f` and `g`.
