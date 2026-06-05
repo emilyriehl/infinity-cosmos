@@ -73,49 +73,6 @@ noncomputable instance catEnrichedOrdinaryCategory : EnrichedOrdinaryCategory Ca
       erw [hoFunctor.unitHomEquiv_eq]
       rfl
 
-section «workaround for #32063»
-
-universe u'' v''
-variable (V : Type u') [Category.{v'} V] [MonoidalCategory V] (C : Type u) [Category.{v} C]
-variable [EnrichedOrdinaryCategory V C] {C}
-
-/-- If `D` is already an enriched ordinary category, there is a canonical functor from `D` to
-`ForgetEnrichment V D`. -/
-@[simps]
-def ForgetEnrichment.equivInverse (D : Type u'') [Category.{v''} D] [EnrichedOrdinaryCategory V D] :
-    D ⥤ ForgetEnrichment V D where
-  obj X := .of V X
-  map f := ForgetEnrichment.homOf V (eHomEquiv V f)
-  map_comp f g := by simp [eHomEquiv_comp]
-
-/-- If `D` is already an enriched ordinary category, there is a canonical functor from
-`ForgetEnrichment V D` to `D`. -/
-@[simps]
-def ForgetEnrichment.equivFunctor (D : Type u'') [Category.{v''} D] [EnrichedOrdinaryCategory V D] :
-    ForgetEnrichment V D ⥤ D where
-  obj X := ForgetEnrichment.to V X
-  map f := (eHomEquiv V).symm (ForgetEnrichment.homTo V f)
-  map_id X := by rw [ForgetEnrichment.homTo_id, ← eHomEquiv_id, Equiv.symm_apply_apply]
-  map_comp {X} {Y} {Z} f g :=  Equiv.injective
-    (eHomEquiv V (X := ForgetEnrichment.to V X) (Y := ForgetEnrichment.to V Z))
-    (by simp [eHomEquiv_comp])
-
-/-- If `D` is already an enriched ordinary category, it is equivalent to `ForgetEnrichment V D`. -/
-@[simps]
-def ForgetEnrichment.equiv {D : Type u''} [Category.{v''} D] [EnrichedOrdinaryCategory V D] :
-    ForgetEnrichment V D ≌ D where
-  functor := equivFunctor V D
-  inverse := equivInverse V D
-  unitIso := NatIso.ofComponents (fun X => Iso.refl _)
-  counitIso := NatIso.ofComponents (fun X => Iso.refl _) <| by
-    intro X Y f
-    simp
-    erw [Equiv.symm_apply_apply]
-  functor_unitIso_comp X := Equiv.injective
-    (eHomEquiv V (X := ForgetEnrichment.to V X) (Y := ForgetEnrichment.to V X)) (by simp)
-
-end «workaround for #32063»
-
 /-- The underlying category of the `Cat`-enriched ordinary category of quasicategories is
 equivalent to `QCat`. -/
 noncomputable def forgetEnrichment.equiv :
