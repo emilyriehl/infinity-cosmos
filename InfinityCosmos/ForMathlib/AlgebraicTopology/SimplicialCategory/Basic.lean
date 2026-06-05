@@ -5,8 +5,6 @@ Authors: Joël Riou
 -/
 import Architect
 import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
-import Mathlib.CategoryTheory.Closed.Cartesian
-import Mathlib.CategoryTheory.Closed.FunctorToTypes
 
 /-!
 # Simplicial categories
@@ -116,7 +114,7 @@ noncomputable instance : MonoidalClosed SSet where
       adj := FunctorToTypes.adj _ }
 
 /-- Required apparently due to some refactoring. -/
-noncomputable def sSetBraided : BraidedCategory SSet :=
+@[reducible] noncomputable def sSetBraided : BraidedCategory SSet :=
   BraidedCategory.ofCartesianMonoidalCategory
 
 noncomputable instance : SymmetricCategory SSet where
