@@ -95,7 +95,7 @@ noncomputable def cotensorInitialIso (A : K) : (⊥_ SSet.{v} ) ⋔ A ≅ ⊤_ K
     (initial.hom_ext _ _)
   inv_hom_id := terminal.hom_ext _ _
 
-noncomputable instance cotensorInitial_isTerminal (A : K) : IsTerminal ((⊥_ SSet.{v} ) ⋔ A) :=
+noncomputable def cotensorInitial_isTerminal (A : K) : IsTerminal ((⊥_ SSet.{v} ) ⋔ A) :=
   terminalIsTerminal.ofIso (cotensorInitialIso A).symm
 
 lemma cotensorCovMapInitial_isIso {A B : K} (f : A ⟶ B) : IsIso (cotensorCovMap (⊥_ SSet.{v}) f) :=
@@ -116,7 +116,7 @@ noncomputable def cotensorToTerminalIso (U : SSet) {T : K} (hT : IsConicalTermin
     apply IsTerminal.hom_ext this
   inv_hom_id := terminal.hom_ext _ _
 
-noncomputable instance cotensorToConicalTerminal_isTerminal
+noncomputable def cotensorToConicalTerminal_isTerminal
     (U : SSet) {T : K} (hT : IsConicalTerminal SSet T) : IsTerminal (U ⋔ T) :=
   terminalIsTerminal.ofIso (cotensorToTerminalIso U hT).symm
 

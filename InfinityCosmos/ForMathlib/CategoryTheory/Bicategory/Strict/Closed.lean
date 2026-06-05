@@ -23,14 +23,28 @@ def HomFunctor : Cᵒᵖ ⥤ C ⥤ Cat where
   obj X :=
     { obj := fun Y => Cat.of (X.unop ⟶ Y)
       map := fun φ => (HomWhiskerLeft C X.unop φ).toCatHom
-      map_id _ := by apply Cat.ext; fapply Functor.ext <;> simp [Strict.rightUnitor_eqToIso]
-      map_comp _ _ := by apply Cat.ext; fapply Functor.ext <;> simp [Strict.associator_eqToIso] }
+      map_id _ := by
+        apply Cat.ext
+        refine Functor.ext (fun _ => by simp [Functor.toCatHom]) (fun _ _ _ => by
+          simp [Functor.toCatHom, Strict.rightUnitor_eqToIso])
+      map_comp _ _ := by
+        apply Cat.ext
+        refine Functor.ext (fun _ => by simp [Functor.toCatHom]) (fun _ _ _ => by
+          simp [Functor.toCatHom, Strict.associator_eqToIso]) }
   map φ :=
     { app := fun Y => (HomWhiskerRight C Y φ.unop).toCatHom
       naturality _ _ _ := by
-        apply Cat.ext; fapply Functor.ext <;> simp [Strict.associator_eqToIso] }
-  map_id _ := by ext ; fapply Functor.ext <;> simp [Strict.leftUnitor_eqToIso]
-  map_comp _ _ := by ext ; fapply Functor.ext <;> simp [Strict.associator_eqToIso]
+        apply Cat.ext
+        refine Functor.ext (fun _ => by simp [Functor.toCatHom]) (fun _ _ _ => by
+          simp [Functor.toCatHom, Strict.associator_eqToIso]) }
+  map_id _ := by
+    ext
+    refine Functor.ext (fun _ => by simp [Functor.toCatHom]) (fun _ _ _ => by
+      simp [Functor.toCatHom, Strict.leftUnitor_eqToIso])
+  map_comp _ _ := by
+    ext
+    refine Functor.ext (fun _ => by simp [Functor.toCatHom]) (fun _ _ _ => by
+      simp [Functor.toCatHom, Strict.associator_eqToIso])
 
 class Strict.CartesianMonoidal extends CartesianMonoidalCategory C where
   isMonoidal (Z : C) : ((HomFunctor C).obj (Opposite.op Z) : C ⥤ Cat).Monoidal

@@ -57,15 +57,23 @@ namespace horn₂₁
 open Truncated (Edge Edge.edgeMap Edge.CompStruct truncEquiv trunc_map trunc_map')
 open Truncated.Edge
 
+/-- The inclusion `ι₁₂ : Δ[1] ⟶ Λ[2, 1]` restricts `Λ[2, 1].ι` to the face map `δ 0`. -/
+lemma incl₀ : horn₂₁.ι₁₂ ≫ Λ[2, 1].ι = stdSimplex.δ 0 := horn.ι_ι _ _ _
+
+/-- The inclusion `ι₀₁ : Δ[1] ⟶ Λ[2, 1]` restricts `Λ[2, 1].ι` to the face map `δ 2`. -/
+lemma incl₂ : horn₂₁.ι₀₁ ≫ Λ[2, 1].ι = stdSimplex.δ 2 := horn.ι_ι _ _ _
+
 variable {S : SSet} {x₀ x₁ x₂ : ((truncation 2).obj S) _⦋0⦌₂}
   (e₀₁ : Edge x₀ x₁) (e₁₂ : Edge x₁ x₂)
 
-lemma path_edges_comm : pt₁ ≫ edgeMap e₁₂ = pt₀ ≫ edgeMap e₀₁ := by
+lemma path_edges_comm :
+    stdSimplex.map (SimplexCategory.δ (0 : Fin 2)) ≫ edgeMap e₀₁ =
+      stdSimplex.map (SimplexCategory.δ (1 : Fin 2)) ≫ edgeMap e₁₂ := by
   rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
   congr 1
   apply Eq.trans
-  . exact e₁₂.src_eq
-  . symm; exact e₀₁.tgt_eq
+  . exact e₀₁.tgt_eq
+  . symm; exact e₁₂.src_eq
 
 /--
 Given the data of two consecutive edges `e₀₁` and `e₁₂`, construct a map
@@ -73,19 +81,16 @@ Given the data of two consecutive edges `e₀₁` and `e₁₂`, construct a map
 to the two edges (this is made precise in the lemmas `horn_from_edges_restr₀` and
 `horn_from_edges_restr₁`).
 -/
-def fromEdges : Λ[2, 1].toSSet ⟶ S :=
-  Limits.PushoutCocone.IsColimit.desc pushoutIsPushout
-    (edgeMap e₁₂) (edgeMap e₀₁) (path_edges_comm e₀₁ e₁₂)
+noncomputable def fromEdges : Λ[2, 1].toSSet ⟶ S :=
+  horn₂₁.isPushout.desc (edgeMap e₀₁) (edgeMap e₁₂) (path_edges_comm e₀₁ e₁₂)
 
 /-- See `horn_from_edges` for details. -/
-lemma horn_from_edges_restr₀ : ι₀ ≫ (fromEdges e₀₁ e₁₂) = yonedaEquiv.symm e₁₂.edge :=
-  Limits.PushoutCocone.IsColimit.inl_desc pushoutIsPushout
-    (edgeMap e₁₂) (edgeMap e₀₁) (path_edges_comm e₀₁ e₁₂)
+lemma horn_from_edges_restr₀ : horn₂₁.ι₁₂ ≫ (fromEdges e₀₁ e₁₂) = yonedaEquiv.symm e₁₂.edge :=
+  horn₂₁.isPushout.inr_desc (edgeMap e₀₁) (edgeMap e₁₂) (path_edges_comm e₀₁ e₁₂)
 
 /-- See `horn_from_edges` for details. -/
-lemma horn_from_edges_restr₁ : ι₂ ≫ (fromEdges e₀₁ e₁₂) = yonedaEquiv.symm e₀₁.edge :=
-  Limits.PushoutCocone.IsColimit.inr_desc pushoutIsPushout
-    (edgeMap e₁₂) (edgeMap e₀₁) (path_edges_comm e₀₁ e₁₂)
+lemma horn_from_edges_restr₁ : horn₂₁.ι₀₁ ≫ (fromEdges e₀₁ e₁₂) = yonedaEquiv.symm e₀₁.edge :=
+  horn₂₁.isPushout.inl_desc (edgeMap e₀₁) (edgeMap e₁₂) (path_edges_comm e₀₁ e₁₂)
 
 /--
 Given a map `Δ[2] ⟶ S` extending the horn given by `horn_from_edges`, construct
@@ -146,6 +151,14 @@ def fromHornExtension
 
 end horn₂₁
 
+/-- If two `2`-simplices of `S` have equal `i`-th and `j`-th faces, then the corresponding face
+restrictions `Δ[1] ⟶ S` of their classifying maps `Δ[2] ⟶ S` agree. -/
+lemma δ_comp_yonedaEquiv_symm_eq {S : SSet} {i j : Fin 3} {σ τ : S _⦋2⦌}
+    (h : S.map (SimplexCategory.δ i).op σ = S.map (SimplexCategory.δ j).op τ) :
+    stdSimplex.map (SimplexCategory.δ i) ≫ yonedaEquiv.symm σ =
+      stdSimplex.map (SimplexCategory.δ j) ≫ yonedaEquiv.symm τ := by
+  rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm, h]
+
 namespace horn₃₁
 open Truncated (Edge Edge.edgeMap Edge.CompStruct truncEquiv trunc_map trunc_map')
 open Truncated.Edge
@@ -159,50 +172,24 @@ variable
     (f₀ : CompStruct e₁₂ e₂₃ e₁₃)
     (f₂ : CompStruct e₀₁ e₁₃ e₀₃)
 
+/-- The face inclusions `ι₀/ι₂/ι₃ : Δ[2] ⟶ Λ[3, 1]` restrict `Λ[3, 1].ι` to `δ 0/2/3`. -/
+lemma incl₀ : horn₃₁.ι₀ ≫ Λ[3, 1].ι = stdSimplex.δ 0 := horn.ι_ι _ _ _
+lemma incl₂ : horn₃₁.ι₂ ≫ Λ[3, 1].ι = stdSimplex.δ 2 := horn.ι_ι _ _ _
+lemma incl₃ : horn₃₁.ι₃ ≫ Λ[3, 1].ι = stdSimplex.δ 3 := horn.ι_ι _ _ _
+
 include S x₀ x₁ x₂ x₃ e₀₁ e₁₂ e₂₃ e₀₂ e₁₃ e₀₃ f₃ f₀ f₂
 
 /--
-Choose the i-th face from the given faces, where i is represented by `a : horn₃₁.R`,
-i.e. `a` is 0, 2 or 3
+Glue the three faces `f₃`, `f₀`, `f₂` into a map `Λ[3, 1].toSSet ⟶ S` via the multicoequalizer
+presentation of the horn (`horn₃₁.desc`). The three hypotheses are the compatibilities of the
+faces along their shared edges `e₁₂`, `e₁₃`, `e₀₁`.
 -/
-def chooseFace (a : R) : (Δ[2] ⟶ S) := match a with
-  | R.f₀ => yonedaEquiv.symm f₀.simplex
-  | R.f₂ => yonedaEquiv.symm f₂.simplex
-  | R.f₃ => yonedaEquiv.symm f₃.simplex
-
-def chooseFace' (a : R) : S _⦋2⦌ := match a with
-  | R.f₀ => f₀.simplex
-  | R.f₂ => f₂.simplex
-  | R.f₃ => f₃.simplex
-
--- The multicofork `⨿ Δ[1] ⇉ ⨿ Δ[2] ⟶ S` defined by sending `Δ[2]`s to
--- each of the three faces `f₃`, `f₀`, `f₂`.
-def multicoforkFromFaces : Limits.Multicofork multispanIndex :=
-  Limits.Multicofork.ofπ multispanIndex S
-    (chooseFace f₃ f₀ f₂)
-    (by
-      rintro ⟨⟨⟨i, i_ne_1⟩, ⟨j, j_ne_1⟩⟩, i_lt_j⟩
-      all_goals
-        dsimp [J, multispanIndex, chooseFace, CosimplicialObject.δ]
-        rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
-        congr 1
-      -- rw doesn't work because the statement is about `SSet`, not `Truncated 2`
-      . apply Eq.trans
-        exact f₂.d₂
-        symm; exact f₃.d₂
-      . apply Eq.trans
-        exact f₃.d₀
-        symm; exact f₀.d₂
-      . apply Eq.trans
-        exact f₀.d₁
-        symm; exact f₂.d₀)
-
-/--
-Use the fact that `Λ[3, 1]` is the coequalizer of `multicoforkFromFaces` allows the
-construction of a map `Λ[3, 1].toSSet ⟶ S`.
--/
-def fromFaces : Λ[3, 1].toSSet ⟶ S := Limits.IsColimit.desc horn₃₁.isMulticoeq
-  (multicoforkFromFaces f₃ f₀ f₂)
+noncomputable def fromFaces : Λ[3, 1].toSSet ⟶ S :=
+  horn₃₁.desc (yonedaEquiv.symm f₀.simplex) (yonedaEquiv.symm f₂.simplex)
+    (yonedaEquiv.symm f₃.simplex)
+    (δ_comp_yonedaEquiv_symm_eq ((f₀.d₂).trans (f₃.d₀).symm))
+    (δ_comp_yonedaEquiv_symm_eq ((f₀.d₁).trans (f₂.d₀).symm))
+    (δ_comp_yonedaEquiv_symm_eq ((f₂.d₂).trans (f₃.d₂).symm))
 
 /-
 A group of lemmas stating that the faces of the simplex `Δ[3] ⟶ S` extending the horn
@@ -210,20 +197,20 @@ A group of lemmas stating that the faces of the simplex `Δ[3] ⟶ S` extending 
 -/
 lemma horn_extension_face₀ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₂ = Λ[3, 1].ι ≫ g) :
     yonedaEquiv.symm f₀.simplex = stdSimplex.δ 0 ≫ g := by
-  have : ι₀ ≫ (fromFaces f₃ f₀ f₂) = yonedaEquiv.symm f₀.simplex :=
-    isMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₂) (.right R.f₀)
+  have : horn₃₁.ι₀ ≫ (fromFaces f₃ f₀ f₂) = yonedaEquiv.symm f₀.simplex :=
+    horn₃₁.ι₀_desc _ _ _ _ _ _
   rw [← this, comm, ← Category.assoc, incl₀]
 
 lemma horn_extension_face₂ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₂ = Λ[3, 1].ι ≫ g) :
     yonedaEquiv.symm f₂.simplex = stdSimplex.δ 2 ≫ g := by
-  have : ι₂ ≫ (fromFaces f₃ f₀ f₂) = yonedaEquiv.symm f₂.simplex :=
-    isMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₂) (.right R.f₂)
+  have : horn₃₁.ι₂ ≫ (fromFaces f₃ f₀ f₂) = yonedaEquiv.symm f₂.simplex :=
+    horn₃₁.ι₂_desc _ _ _ _ _ _
   rw [← this, comm, ← Category.assoc, incl₂]
 
 lemma horn_extension_face₃ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₂ = Λ[3, 1].ι ≫ g) :
     yonedaEquiv.symm f₃.simplex = stdSimplex.δ 3 ≫ g := by
-  have : ι₃ ≫ (fromFaces f₃ f₀ f₂) = yonedaEquiv.symm f₃.simplex :=
-    isMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₂) (.right R.f₃)
+  have : horn₃₁.ι₃ ≫ (fromFaces f₃ f₀ f₂) = yonedaEquiv.symm f₃.simplex :=
+    horn₃₁.ι₃_desc _ _ _ _ _ _
   rw [← this, comm, ← Category.assoc, incl₃]
 
 /--
@@ -265,50 +252,24 @@ variable
     (f₀ : CompStruct e₁₂ e₂₃ e₁₃)
     (f₁ : CompStruct e₀₂ e₂₃ e₀₃)
 
+/-- The face inclusions `ι₀/ι₁/ι₃ : Δ[2] ⟶ Λ[3, 2]` restrict `Λ[3, 2].ι` to `δ 0/1/3`. -/
+lemma incl₀ : horn₃₂.ι₀ ≫ Λ[3, 2].ι = stdSimplex.δ 0 := horn.ι_ι _ _ _
+lemma incl₁ : horn₃₂.ι₁ ≫ Λ[3, 2].ι = stdSimplex.δ 1 := horn.ι_ι _ _ _
+lemma incl₃ : horn₃₂.ι₃ ≫ Λ[3, 2].ι = stdSimplex.δ 3 := horn.ι_ι _ _ _
+
 include S x₀ x₁ x₂ x₃ e₀₁ e₁₂ e₂₃ e₀₂ e₁₃ e₀₃ f₃ f₀ f₁
 
 /--
-Choose the i-th face from the given faces, where i is represented by `a : horn₃₂.R`,
-i.e. `a` is 0, 1 or 3
+Glue the three faces `f₃`, `f₀`, `f₁` into a map `Λ[3, 2].toSSet ⟶ S` via the multicoequalizer
+presentation of the horn (`horn₃₂.desc`). The three hypotheses are the compatibilities of the
+faces along their shared edges `e₀₂`, `e₁₂`, `e₂₃`.
 -/
-def chooseFace (a : R) : (Δ[2] ⟶ S) := match a with
-  | R.f₀ => yonedaEquiv.symm f₀.simplex
-  | R.f₁ => yonedaEquiv.symm f₁.simplex
-  | R.f₃ => yonedaEquiv.symm f₃.simplex
-
-def chooseFace' (a : R) : S _⦋2⦌ := match a with
-  | R.f₀ => f₀.simplex
-  | R.f₁ => f₁.simplex
-  | R.f₃ => f₃.simplex
-
--- The multicofork `⨿ Δ[1] ⇉ ⨿ Δ[2] ⟶ S` defined by sending `Δ[2]`s to
--- each of the three faces `f₃`, `f₀`, `f₁`.
-def multicoforkFromFaces : Limits.Multicofork multispanIndex :=
-  Limits.Multicofork.ofπ multispanIndex S
-    (chooseFace f₃ f₀ f₁)
-    (by
-      rintro ⟨⟨⟨i, i_ne_1⟩, ⟨j, j_ne_1⟩⟩, i_lt_j⟩
-      all_goals
-        dsimp [J, multispanIndex, chooseFace, CosimplicialObject.δ]
-        rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
-        congr 1
-      -- rw doesn't work because the statement is about `SSet`, not `Truncated 2`
-      . apply Eq.trans
-        exact f₁.d₂
-        symm; exact f₃.d₁
-      . apply Eq.trans
-        exact f₃.d₀
-        symm; exact f₀.d₂
-      . apply Eq.trans
-        exact f₀.d₀
-        symm; exact f₁.d₀)
-
-/--
-Use the fact that `Λ[3, 2]` is the coequalizer of `multicoforkFromFaces` allows the
-construction of a map `Λ[3, 2].toSSet ⟶ S`.
--/
-def fromFaces : Λ[3, 2].toSSet ⟶ S := Limits.IsColimit.desc horn₃₂.multicoforkIsMulticoeq
-  (multicoforkFromFaces f₃ f₀ f₁)
+noncomputable def fromFaces : Λ[3, 2].toSSet ⟶ S :=
+  horn₃₂.desc (yonedaEquiv.symm f₀.simplex) (yonedaEquiv.symm f₁.simplex)
+    (yonedaEquiv.symm f₃.simplex)
+    (δ_comp_yonedaEquiv_symm_eq ((f₁.d₂).trans (f₃.d₁).symm))
+    (δ_comp_yonedaEquiv_symm_eq ((f₀.d₂).trans (f₃.d₀).symm))
+    (δ_comp_yonedaEquiv_symm_eq ((f₀.d₀).trans (f₁.d₀).symm))
 
 /-
 A group of lemmas stating that the faces of the simplex `Δ[3] ⟶ S` extending the horn
@@ -316,20 +277,20 @@ A group of lemmas stating that the faces of the simplex `Δ[3] ⟶ S` extending 
 -/
 lemma horn_extension_face₀ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₁ = Λ[3, 2].ι ≫ g) :
     yonedaEquiv.symm f₀.simplex = stdSimplex.δ 0 ≫ g := by
-  have : ι₀ ≫ (fromFaces f₃ f₀ f₁) = yonedaEquiv.symm f₀.simplex :=
-    multicoforkIsMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₁) (.right R.f₀)
+  have : horn₃₂.ι₀ ≫ (fromFaces f₃ f₀ f₁) = yonedaEquiv.symm f₀.simplex :=
+    horn₃₂.ι₀_desc _ _ _ _ _ _
   rw [← this, comm, ← Category.assoc, incl₀]
 
 lemma horn_extension_face₁ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₁ = Λ[3, 2].ι ≫ g) :
     yonedaEquiv.symm f₁.simplex = stdSimplex.δ 1 ≫ g := by
-  have : ι₁ ≫ (fromFaces f₃ f₀ f₁) = yonedaEquiv.symm f₁.simplex :=
-    multicoforkIsMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₁) (.right R.f₁)
+  have : horn₃₂.ι₁ ≫ (fromFaces f₃ f₀ f₁) = yonedaEquiv.symm f₁.simplex :=
+    horn₃₂.ι₁_desc _ _ _ _ _ _
   rw [← this, comm, ← Category.assoc, incl₁]
 
 lemma horn_extension_face₃ {g : Δ[3] ⟶ S} (comm : fromFaces f₃ f₀ f₁ = Λ[3, 2].ι ≫ g) :
     yonedaEquiv.symm f₃.simplex = stdSimplex.δ 3 ≫ g := by
-  have : ι₃ ≫ (fromFaces f₃ f₀ f₁) = yonedaEquiv.symm f₃.simplex :=
-    multicoforkIsMulticoeq.fac (multicoforkFromFaces f₃ f₀ f₁) (.right R.f₃)
+  have : horn₃₂.ι₃ ≫ (fromFaces f₃ f₀ f₁) = yonedaEquiv.symm f₃.simplex :=
+    horn₃₂.ι₃_desc _ _ _ _ _ _
   rw [← this, comm, ← Category.assoc, incl₃]
 
 /--
@@ -770,7 +731,6 @@ def liftRq₂ {C : Type*} [ReflQuiver C] (F : FreeRefl.{u} (OneTruncation₂.{u}
     (fun e ↦ F.map (edgeToFreeHom e))
     (fun f g ↦ by
       intro htpy
-      dsimp
       apply h
       exact homotopic_edges_are_equiv f g htpy)
   map_id := by
