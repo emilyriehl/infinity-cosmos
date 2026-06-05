@@ -56,7 +56,7 @@ lemma push_yonedaEquiv {n m k : ℕ} {X : SSet} {f : ⦋m⦌ ⟶ ⦋n⦌}
   rw [← Equiv.apply_symm_apply yonedaEquiv σ, h]
   have : yonedaEquiv (stdSimplex.map s ≫ g) = X.map s.op (yonedaEquiv g) := by
     rw [yonedaEquiv_comp, SSet.yonedaEquiv_map, ← map_yonedaEquiv]
-  rw [this, ← FunctorToTypes.map_comp_apply, ← op_comp]
+  rw [this, ← Functor.map_comp_apply, ← op_comp]
 
 /--
 A variant of `map_yonedaEquiv`.
