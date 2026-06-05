@@ -730,13 +730,12 @@ def liftRq₂ {C : Type*} [ReflQuiver C] (F : FreeRefl.{u} (OneTruncation₂.{u}
     rw [e]
     exact F.map_id _
 
--- `{u, u}` is the `ReflQuiver` instance `Category.{u}` induces.
 theorem lift_unique_rq₂ {C} [ReflQuiver.{u, u} C] (F₁ F₂ : (HomotopyCategory₂.{u} A) ⥤rq C)
     (h : quotientReflPrefunctor₂ ⋙rq F₁ = quotientReflPrefunctor₂ ⋙rq F₂) : F₁ = F₂ := by
-  -- `ext`, not `ext'` (which needs `V`, `W` in one hom-universe); map goal is an `Eq.recOn` transport.
   refine ReflPrefunctor.ext (fun X => ?_) (fun X Y => Quotient.ind (fun f => ?_))
   · exact ReflPrefunctor.congr_obj h X.pt
-  · symm
+  · -- `F₁.map`/`F₂.map` lie over defeq-but-distinct objects; compare via `≍`.
+    symm
     apply eq_of_heq
     simp only [eqRec_heq_iff_heq]
     exact (heq_of_eq (ReflPrefunctor.congr_hom h (edgeToHom f))).symm.trans
@@ -780,7 +779,7 @@ lemma is_lift₂ {C : Type*} [Category* C] (F : FreeRefl.{u} (OneTruncation₂.{
   intro x y f
   simp only [FreeRefl.quotientFunctor, Quotient.functor, lift₂, liftRq₂, Functor.comp_map]
   rw [qFunctor_map_toPath]
-  -- `ext_functor`'s `eqToHom`s don't `simp` away (`quotientFunctor₂.obj` has no normal form); use `≍`.
+  -- the `eqToHom`s are between defeq objects; pass through `≍`.
   refine (conj_eqToHom_iff_heq' _ _ _ _).mpr ?_
   rfl
 
@@ -793,11 +792,9 @@ theorem HomotopyCategory₂.lift_unique' {C : Type u} [Category.{u} C]
   have : F₁.toReflPrefunctor = F₂.toReflPrefunctor := by
     apply lift_unique_rq₂
     rw [unit_app_quotientFunctor.{u}]
-    -- re-associate by defeq; `rw [comp_assoc]` fails on the `ReflQuiv` bundling coercions.
     show _ ⋙rq (quotientFunctor₂.{u} ⋙ F₁).toReflPrefunctor =
       _ ⋙rq (quotientFunctor₂.{u} ⋙ F₂).toReflPrefunctor
     rw [h]
-  -- a functor is determined by its underlying refl prefunctor
   cases F₁; cases F₂; cases this; rfl
 
 /--
@@ -841,10 +838,7 @@ def isoHomotopyCategories : (Cat.of (HomotopyCategory.{u} A)) ≅ (Cat.of (Homot
   hom := (CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂).toCatHom
   inv := lift₂ (HomotopyCategory.quotientFunctor.{u} A) (fun _ _ _ _ h =>
     CategoryTheory.Quotient.sound _ h) |>.toCatHom
-  -- `Cat.Hom` wraps functors: prove the bare-functor identity (`key`), then `Cat.Hom.ext`.
-  -- `rw` on `Cat`-morphisms fails: the `toCatHom.toFunctor` round-trip mismatches `(Cat.of _).str`.
   hom_inv_id := by
-    -- `lift_spec` in `quotientFunctor` form (a `dsimp` to expose it would also hit `lift₂`'s arg).
     have hspec : HomotopyCategory.quotientFunctor.{u} A ⋙
         CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂ = quotientFunctor₂ :=
       Quotient.lift_spec _ quotientFunctor₂ qFunctor_respects_horel₂
