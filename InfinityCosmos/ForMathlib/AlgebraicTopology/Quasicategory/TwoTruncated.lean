@@ -838,37 +838,29 @@ def isoHomotopyCategories : (Cat.of (HomotopyCategory.{u} A)) ≅ (Cat.of (Homot
   hom := (CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂).toCatHom
   inv := lift₂ (HomotopyCategory.quotientFunctor.{u} A) (fun _ _ _ _ h =>
     CategoryTheory.Quotient.sound _ h) |>.toCatHom
-  hom_inv_id := by
+  hom_inv_id := Cat.Hom.ext <| by
     have hspec : HomotopyCategory.quotientFunctor.{u} A ⋙
         CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂ = quotientFunctor₂ :=
       Quotient.lift_spec _ quotientFunctor₂ qFunctor_respects_horel₂
-    have key : (CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂) ⋙
+    apply HomotopyCategory.lift_unique'
+    show (HomotopyCategory.quotientFunctor.{u} A ⋙
+        CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂) ⋙
         lift₂ (HomotopyCategory.quotientFunctor.{u} A)
-          (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h) = 𝟭 _ := by
-      apply HomotopyCategory.lift_unique'
-      show (HomotopyCategory.quotientFunctor.{u} A ⋙
-          CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂) ⋙
-          lift₂ (HomotopyCategory.quotientFunctor.{u} A)
-            (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h)
-        = HomotopyCategory.quotientFunctor.{u} A
-      rw [hspec]
-      exact is_lift₂ _ _
-    exact Cat.Hom.ext key
-  inv_hom_id := by
+          (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h)
+      = HomotopyCategory.quotientFunctor.{u} A
+    rw [hspec]
+    exact is_lift₂ _ _
+  inv_hom_id := Cat.Hom.ext <| by
     have hspec : HomotopyCategory.quotientFunctor.{u} A ⋙
         CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂ = quotientFunctor₂ :=
       Quotient.lift_spec _ quotientFunctor₂ qFunctor_respects_horel₂
-    have key : lift₂ (HomotopyCategory.quotientFunctor.{u} A)
-          (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h) ⋙
-        (CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂) = 𝟭 _ := by
-      apply HomotopyCategory₂.lift_unique'
-      show (quotientFunctor₂ ⋙ lift₂ (HomotopyCategory.quotientFunctor.{u} A)
-            (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h)) ⋙
-          CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂
-        = quotientFunctor₂
-      rw [is_lift₂]
-      exact hspec
-    exact Cat.Hom.ext key
+    apply HomotopyCategory₂.lift_unique'
+    show (quotientFunctor₂ ⋙ lift₂ (HomotopyCategory.quotientFunctor.{u} A)
+          (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h)) ⋙
+        CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂
+      = quotientFunctor₂
+    rw [is_lift₂]
+    exact hspec
 
 end isomorphism_of_htpy_categories
 
