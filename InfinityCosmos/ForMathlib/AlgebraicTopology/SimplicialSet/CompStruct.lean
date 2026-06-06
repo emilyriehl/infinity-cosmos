@@ -10,9 +10,6 @@ namespace Edge
 
 variable (e : Edge x₀ x₁) (h₀ : x₀ = y₀) (h₁ : x₁ = y₁)
 
-/-- The `1`-simplex of `e.map f` is `f` applied to the edge. -/
-lemma map_edge (f : X ⟶ Y) : (e.map f).edge = f.app _ e.edge := rfl
-
 /-- Transports an edge along equalities on vertices. -/
 def ofEq : Edge y₀ y₁ where
   edge := e.edge
@@ -25,10 +22,6 @@ variable {e₀₁ : Edge x₀ x₁} {f₀₁ : Edge y₀ y₁}
   {e₁₂ : Edge x₁ x₂} {f₁₂ : Edge y₁ y₂}
   {e₀₂ : Edge x₀ x₂} {f₀₂ : Edge y₀ y₂}
   (c : CompStruct e₀₁ e₁₂ e₀₂)
-
-lemma d₂ : X.δ 2 c.simplex = e₀₁.edge := c.toTruncated.d₂
-lemma d₀ : X.δ 0 c.simplex = e₁₂.edge := c.toTruncated.d₀
-lemma d₁ : X.δ 1 c.simplex = e₀₂.edge := c.toTruncated.d₁
 
 /-- Transports a `CompStruct` along equalities on 1-simplices. -/
 def ofEq (h₀₁ : e₀₁.edge = f₀₁.edge) (h₁₂ : e₁₂.edge = f₁₂.edge)

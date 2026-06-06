@@ -108,7 +108,7 @@ def InnerHornIsoInclusions : MorphismProperty SSet := fun _ _ p ↦ InnerHornIso
   \end{center}
   To notationally distinguish the isofibrations, we depict them as arrows ``$\fib$'' with two heads.
   -/)]
-def Isofibration : MorphismProperty QCat := fun _ _ p ↦ InnerHornIsoInclusions.rlp p
+def Isofibration : MorphismProperty QCat := fun _ _ p ↦ InnerHornIsoInclusions.rlp p.hom
 
 end isoFibration
 

@@ -6,7 +6,7 @@ Authors: ? and Arnoud van der Leer
 
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
 import Mathlib.CategoryTheory.Enriched.Opposite
-import Mathlib.CategoryTheory.Closed.Enrichment
+import Mathlib.CategoryTheory.Monoidal.Closed.Enrichment
 
 /-!
   # Tensors in an enriched category
@@ -123,6 +123,7 @@ lemma whiskerRight_id
   rw [← MonoidalClosed.id_eq]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- An auxiliary lemma for what is to come. -/
 lemma cone_comp_whiskerRight_eq {x : C} {w v : V} (wx : Tensor w x) (vx : Tensor v x) :
   (wx.cone ⊗ₘ whiskerRight V wx vx) ≫ eComp V _ _ _
@@ -142,6 +143,7 @@ lemma cone_comp_whiskerRight_eq {x : C} {w v : V} (wx : Tensor w x) (vx : Tensor
   rw [← uncurry_eq]
   rw [wx.uncurry_coneNatTrans]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Whiskering on the right commutes with morphism composition. -/
 lemma whiskerRight_comp {u v w : V} {x : C} (ux : Tensor u x) (vx : Tensor v x) (wx : Tensor w x)
   : eComp V u v w ≫ whiskerRight V ux wx
@@ -291,6 +293,7 @@ lemma whiskerLeft_comp {v : V} {x y z : C} (vx : Tensor v x) (vy : Tensor v y) (
   rw [← associator_naturality_right_assoc]
   rw [e_assoc']
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Right whiskering commutes with left whiskering. -/
 lemma whiskerRight_right_eq_whiskerLeft_left {v w : V} {x y : C} (vx : Tensor v x) (wx : Tensor w x) (vy : Tensor v y) (wy : Tensor w y)
   : (whiskerRight V vx wx ⊗ₘ whiskerLeft V wx wy) ≫ eComp V vx.obj wx.obj wy.obj

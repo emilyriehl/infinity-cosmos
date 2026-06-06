@@ -3,9 +3,9 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
-import Mathlib.CategoryTheory.Closed.Cartesian
+import Mathlib.CategoryTheory.Monoidal.Closed.Cartesian
 import Mathlib.CategoryTheory.Enriched.Limits.HasConicalPullbacks
-import Mathlib.CategoryTheory.Limits.Shapes.Pullback.CommSq
+import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.BicartesianSq
 
 namespace CategoryTheory
 
@@ -41,7 +41,7 @@ noncomputable def representableMap (X : K) {A B : K} (f : A ⟶ B) :
   representableMap' (eHomEquiv SSet f)
 
 noncomputable def toFunMap (X : K) {A B : K} (f : A ⟶ B) : Fun X A ⟶ Fun X B :=
-  representableMap X f
+  ObjectProperty.homMk <| representableMap X f
 
 /-- The subtype of isofibrations. Arguments of this type have the form `⟨ f hf ⟩`. -/
 def Isofibration (X Y : K) : Type v := {f : X ⟶ Y // IsIsofibration f}
@@ -96,8 +96,8 @@ class InfinityCosmos extends PreInfinityCosmos K where
     HasConicalPullback SSet p.1 f]
   pullback_isIsofibration {E B A P : K} (p : E ↠ B) (f : A ⟶ B)
     (fst : P ⟶ E) (snd : P ⟶ A) (h : IsPullback fst snd p.1 f) : IsIsofibration snd
-  [has_limits_of_towers (F : ℕᵒᵖ ⥤ K) :
-    (∀ n : ℕ, IsIsofibration (F.map (homOfLE (Nat.le_succ n)).op)) → HasConicalLimit SSet F]
+  has_limits_of_towers (F : ℕᵒᵖ ⥤ K) :
+    (∀ n : ℕ, IsIsofibration (F.map (homOfLE (Nat.le_succ n)).op)) → HasConicalLimit SSet F
   has_limits_of_towers_isIsofibration (F : ℕᵒᵖ ⥤ K) (hf) :
     haveI := has_limits_of_towers F hf
     IsIsofibration (limit.π F (.op 0))
@@ -110,7 +110,7 @@ class InfinityCosmos extends PreInfinityCosmos K where
         (cotensor_bifunctoriality i f.1))
   local_isoFibration {X A B : K} (f : A ↠ B) : Isofibration (toFunMap X f.1)
 
-attribute [instance] has_products has_isofibration_pullbacks has_limits_of_towers has_cotensors
+attribute [instance] has_products has_isofibration_pullbacks has_cotensors
 
 namespace InfinityCosmos
 

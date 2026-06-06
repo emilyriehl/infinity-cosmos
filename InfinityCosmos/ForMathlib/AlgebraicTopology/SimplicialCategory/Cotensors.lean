@@ -39,6 +39,7 @@ lemma cotensorPrecompose_homEquiv {U V : SSet} {A : K} (ua : Cotensor U A) (va :
       eHomEquiv SSet i ≫ Cotensor.EhomPrecompose _ ua va := by
   simp [cotensorPrecompose]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem cotensor_local_bifunctoriality {U V : SSet} {A B : K}
     (ua : Cotensor U A) (ub : Cotensor U B) (va : Cotensor V A) (vb : Cotensor V B)
     (i : U ⟶ V) (f : A ⟶ B) :

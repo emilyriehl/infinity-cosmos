@@ -49,7 +49,7 @@ variable {V} in
 /-- Transport a term of type `IsConicalTerminal` across an isomorphism. -/
 noncomputable def IsConicalTerminal.of_iso {Y Z : C} (hY : IsConicalTerminal V Y) (i : Y ≅ Z) :
     IsConicalTerminal V Z :=
-  IsConicalLimit.of_iso hY <| Cones.ext i (by simp)
+  IsConicalLimit.of_iso hY <| Cone.ext i (by simp)
 
 namespace HasConicalTerminal
 
@@ -62,7 +62,7 @@ noncomputable def conicalTerminal : C := conicalLimit V (Functor.empty.{0} C)
 
 noncomputable def conicalTerminalIsConicalTerminal :
     IsConicalTerminal V (conicalTerminal V C) :=
-  (conicalLimit.isConicalLimit V _).of_iso <| Cones.ext (by rfl) (by simp)
+  (conicalLimit.isConicalLimit V _).of_iso <| Cone.ext (by rfl) (by simp)
 
 noncomputable def isTerminalIsConicalTerminal {T : C} (hT : IsTerminal T) :
     IsConicalTerminal V T :=
