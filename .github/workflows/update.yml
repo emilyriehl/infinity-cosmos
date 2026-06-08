@@ -1,43 +1,68 @@
 name: Update Dependencies
 on:
-  schedule:             # Sets a schedule to trigger the workflow
-  - cron: "0 8 */7 * *" # Every 7 days at 08:00 AM UTC (for more info on the cron syntax see https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule)
-  workflow_dispatch:    # Allows the workflow to be triggered manually via the GitHub interface
+  schedule:
+  - cron: "0 17 * * *"
+  workflow_dispatch:
+
+env:
+  LKG_BRANCH: hopscotch/lkg-bump
 
 jobs:
-  check-for-updates: # Determines which updates to apply.
-    runs-on: ubuntu-latest
-    outputs:
-      is-update-available: ${{ steps.check-for-updates.outputs.is-update-available }}
-      new-tags: ${{ steps.check-for-updates.outputs.new-tags }}
-    steps:
-      - name: Run the action
-        id: check-for-updates
-        uses: leanprover-community/mathlib-update-action@30121004826adb85f006e31ce5d25a33ce79c7a6 # 2025-06-16
-        with:
-          # START CONFIGURATION BLOCK 1
-          legacy_update: true
-          # END CONFIGURATION BLOCK 1
-  do-update: # Runs the upgrade, tests it, and makes a PR/issue/commit.
+  bump:
     runs-on: ubuntu-latest
     permissions:
-      contents: write      # Grants permission to push changes to the repository
-      issues: write        # Grants permission to create or update issues
-      pull-requests: write # Grants permission to create or update pull requests
-    needs: check-for-updates
-    if: ${{ needs.check-for-updates.outputs.is-update-available == 'true' }}
-    strategy: # Runs for each update discovered by the `check-for-updates` job.
-      max-parallel: 1 # Ensures that the PRs/issues are created in order.
-      matrix:
-        tag: ${{ fromJSON(needs.check-for-updates.outputs.new-tags) }}
+      contents: write
+      pull-requests: write
     steps:
-      - name: Run the action
-        id: update-the-repo
-        uses: leanprover-community/mathlib-update-action/do-update@30121004826adb85f006e31ce5d25a33ce79c7a6 # 2025-06-16
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+
+      - name: Check whether an incompatibility is reported
+        id: fkb
+        uses: leanprover-community/downstream-reports/.github/actions/query-latest@main
         with:
-          tag: ${{ matrix.tag }}
-          # START CONFIGURATION BLOCK 2
-          legacy_update: true
-          on_update_succeeds: pr # Create a pull request if the update succeeds
-          on_update_fails: issue # Create an issue if the update fails
-          # END CONFIGURATION BLOCK 2
+          query-type: first-known-bad
+
+      - name: Bump to latest mathlib
+        id: bump
+        if: steps.fkb.outputs.commit == ''
+        uses: leanprover-community/downstream-reports/.github/actions/bump-to-latest@main
+        with:
+          skip-build: 'false'
+
+      - name: Open or update PR
+        if: steps.fkb.outputs.commit == '' && steps.bump.outputs.updated == 'true'
+        uses: leanprover-community/downstream-reports/.github/actions/open-bump-pr@main
+        with:
+          branch: ${{ env.LKG_BRANCH }}
+          title: "chore: ${{ steps.bump.outputs.pr-title }}"
+          message: ${{ steps.bump.outputs.bump-description }}
+          commit-message: ${{ steps.bump.outputs.commit-message }}
+
+  open-issue:
+    runs-on: ubuntu-latest
+    needs: bump
+    permissions:
+      issues: write
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+      - name: Open or update incompatibility issue
+        id: track
+        uses: leanprover-community/downstream-reports/.github/actions/track-incompatibility@main
+        with:
+          open-pr: true
+
+      - name: Close last-known-good bump PR when a "fix first-known-bad PR" is open
+        if: steps.track.outputs.pr-action == 'created' || steps.track.outputs.pr-action == 'noop-existing'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FKB_PR: ${{ steps.track.outputs.pr-number }}
+        run: |
+          set -euo pipefail
+          lkg_pr=$(gh pr list --state open --head "$LKG_BRANCH" --json number --jq '.[0].number // empty')
+          if [ -z "$lkg_pr" ]; then
+            echo "No open LKG bump PR; nothing to close."
+            exit 0
+          fi
+          gh pr close "$lkg_pr" --comment "Closing in favor of #${FKB_PR}: infinity-cosmos is currently incompatible with the latest mathlib, so maintainer attention should go to the PR pinned at the first-known-bad commit. A new last-known-good bump PR will be opened automatically once the incompatibility is resolved."
