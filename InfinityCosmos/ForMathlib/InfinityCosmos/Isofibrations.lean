@@ -293,16 +293,19 @@ noncomputable def cotensorPointMap {A B : K} (f : A ⟶ B) : A ⟶ (Δ[0] : SSet
 noncomputable def cotensorPointIsoHom (B : K) : (Δ[0] : SSet.{v}) ⋔ B ⟶ B :=
   (eHomEquiv SSet).symm (SSet.pointIsUnit.inv ≫ cotensor.cone (Δ[0] : SSet.{v}) B)
 
+/-- The enriched morphism corresponding to `cotensorPointIsoHom`. -/
 lemma cotensorPointIsoHom_homEquiv (B : K) :
     eHomEquiv SSet (cotensorPointIsoHom B) =
       SSet.pointIsUnit.inv ≫ cotensor.cone (Δ[0] : SSet.{v}) B := by
   simp [cotensorPointIsoHom]
 
+/-- The underlying map represented by `cotensorPointMap`. -/
 lemma cotensorPointMap_underlying {A B : K} (f : A ⟶ B) :
     (cotensor.iso.underlying (Δ[0] : SSet.{v}) B A) (cotensorPointMap f) =
       SSet.pointIsUnit.hom ≫ eHomEquiv SSet f := by
   simp [cotensorPointMap]
 
+/-- Composing a point-cotensor map with the point-cotensor comparison recovers the original map. -/
 lemma cotensorPointMap_comp_cotensorPointIsoHom {A B : K} (f : A ⟶ B) :
     cotensorPointMap f ≫ cotensorPointIsoHom B = f := by
   apply (eHomEquiv SSet).injective
@@ -318,6 +321,7 @@ lemma cotensorPointMap_comp_cotensorPointIsoHom {A B : K} (f : A ⟶ B) :
   rw [hmap]
   rw [← Category.assoc, SSet.pointIsUnit.inv_hom_id, Category.id_comp]
 
+/-- One inverse identity for the point-cotensor comparison. -/
 lemma cotensorPointIso_hom_inv_id (B : K) :
     cotensorPointIsoHom B ≫ cotensorPointMap (𝟙 B) = 𝟙 ((Δ[0] : SSet.{v}) ⋔ B) := by
   apply (cotensor.iso.underlying (Δ[0] : SSet.{v}) B ((Δ[0] : SSet.{v}) ⋔ B)).injective
@@ -339,6 +343,7 @@ lemma cotensorPointIso_hom_inv_id (B : K) :
     (getCotensor (Δ[0] : SSet.{v}) B).cone ≫ 𝟙 _
   rw [Category.comp_id]
 
+/-- The other inverse identity for the point-cotensor comparison. -/
 lemma cotensorPointIso_inv_hom_id (B : K) :
     cotensorPointMap (𝟙 B) ≫ cotensorPointIsoHom B = 𝟙 B :=
   cotensorPointMap_comp_cotensorPointIsoHom (𝟙 B)
@@ -356,6 +361,7 @@ noncomputable def coherentIsoPathMap {A B : K} (f : A ⟶ B) : A ⟶ SSet.cohere
     ((SSet.isTerminalDeltaZero.from SSet.coherentIso ≫ SSet.pointIsUnit.hom) ≫
       (eHomEquiv SSet f : MonoidalCategoryStruct.tensorUnit SSet ⟶ sHom A B))
 
+/-- The source endpoint of the constant coherent-isomorphism path is `f`. -/
 lemma coherentIsoPathMap_src {A B : K} (f : A ⟶ B) :
     coherentIsoPathMap f ≫ cotensorContraMap SSet.coherentIso.src B = cotensorPointMap f := by
   apply (cotensor.iso.underlying (Δ[0] : SSet.{v}) B A).injective
@@ -367,6 +373,7 @@ lemma coherentIsoPathMap_src {A B : K} (f : A ⟶ B) :
     SSet.isTerminalDeltaZero.hom_ext _ _
   rw [← Category.assoc, hsrc, Category.id_comp]
 
+/-- The target endpoint of the constant coherent-isomorphism path is also `f`. -/
 lemma coherentIsoPathMap_tgt {A B : K} (f : A ⟶ B) :
     coherentIsoPathMap f ≫ cotensorContraMap SSet.coherentIso.tgt B = cotensorPointMap f := by
   apply (cotensor.iso.underlying (Δ[0] : SSet.{v}) B A).injective
@@ -412,16 +419,19 @@ noncomputable def brownFactorizationSection {A B : K} (f : A ⟶ B) :
   pullback.lift (coherentIsoPathMap f) (𝟙 A) (by
     rw [Category.id_comp, coherentIsoPathMap_src])
 
+/-- The path projection of the Brown section is the constant coherent-isomorphism path. -/
 lemma brownFactorizationSection_path {A B : K} (f : A ⟶ B) :
     brownFactorizationSection f ≫ brownFactorizationPath f = coherentIsoPathMap f := by
   unfold brownFactorizationSection brownFactorizationPath
   exact pullback.lift_fst _ _ _
 
+/-- The left projection of the Brown section is the identity. -/
 lemma brownFactorizationSection_left {A B : K} (f : A ⟶ B) :
     brownFactorizationSection f ≫ brownFactorizationLeft f = 𝟙 A := by
   unfold brownFactorizationSection brownFactorizationLeft
   exact pullback.lift_snd _ _ _
 
+/-- The right endpoint of the Brown section is the point-cotensor map of `f`. -/
 lemma brownFactorizationSection_rightPoint {A B : K} (f : A ⟶ B) :
     brownFactorizationSection f ≫ brownFactorizationRightPoint f = cotensorPointMap f := by
   rw [brownFactorizationRightPoint, ← Category.assoc, brownFactorizationSection_path,
@@ -432,14 +442,21 @@ noncomputable def brownFactorizationRight {A B : K} (f : A ⟶ B) :
     brownFactorizationObj f ⟶ B :=
   brownFactorizationRightPoint f ≫ (cotensorPointIso B).hom
 
+/-- The Brown section followed by the right map is the original morphism. -/
 lemma brownFactorization_fac {A B : K} (f : A ⟶ B) :
     brownFactorizationSection f ≫ brownFactorizationRight f = f := by
   unfold brownFactorizationRight
   rw [← Category.assoc, brownFactorizationSection_rightPoint]
   exact cotensorPointMap_comp_cotensorPointIsoHom f
 
-/- The conclusion that the left map in this factorization is a trivial fibration, and hence an
-equivalence, is not asserted here. That part depends on the unresolved stability work tracked in
-issues #114 and #115. -/
+/-
+This file only proves the Brown factorization construction. The conclusion needed to finish
+Lemma 1.5.12 is intentionally not asserted here: the missing downstream statement is that
+`brownFactorizationLeft f` is a trivial fibration, and hence that the section above exhibits the
+left map as an equivalence. In a later API this would have the shape
+`brownFactorizationLeft_trivialFibration (f) : IsTrivialFibration (brownFactorizationLeft f)`.
+That statement depends on the stability of trivial fibrations under products, pullbacks, and
+inverse limits of towers from #114, and under Leibniz cotensors with monomorphisms from #115.
+-/
 
 end InfinityCosmos
