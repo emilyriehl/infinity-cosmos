@@ -4,6 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: JHU Category Theory Seminar
 -/
 import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
+
+open scoped Simplicial
 
 /-!
 # Explicit isofibrations in an ∞-cosmos.
@@ -252,5 +256,71 @@ noncomputable def leibnizCotensorIsofibration {U V : SSet.{v}} (i : U ⟶ V) [Mo
 
 lemma leibnizCotensorIsofibration_map {U V : SSet.{v}} (i : U ⟶ V) [Mono i] {A B : K} (f : A ↠ B) :
     (leibnizCotensorIsofibration i f).1 = leibnizCotensorMap i f := rfl
+
+/-- The source vertex inclusion of the coherent isomorphism is a monomorphism. -/
+instance coherentIsoSrc_mono : Mono SSet.coherentIso.src := by
+  rw [NatTrans.mono_iff_mono_app]
+  intro n
+  rw [CategoryTheory.mono_iff_injective]
+  intro a b _h
+  apply (SSet.stdSimplex.objEquiv (n := ⦋0⦌) (m := n)).injective
+  apply SimplexCategory.Hom.ext
+  ext x
+  have ha : ((SSet.stdSimplex.objEquiv a).toOrderHom x : Fin 1) = 0 := Fin.eq_zero _
+  have hb : ((SSet.stdSimplex.objEquiv b).toOrderHom x : Fin 1) = 0 := Fin.eq_zero _
+  rw [ha, hb]
+
+/-- The target vertex inclusion of the coherent isomorphism is a monomorphism. -/
+instance coherentIsoTgt_mono : Mono SSet.coherentIso.tgt := by
+  rw [NatTrans.mono_iff_mono_app]
+  intro n
+  rw [CategoryTheory.mono_iff_injective]
+  intro a b _h
+  apply (SSet.stdSimplex.objEquiv (n := ⦋0⦌) (m := n)).injective
+  apply SimplexCategory.Hom.ext
+  ext x
+  have ha : ((SSet.stdSimplex.objEquiv a).toOrderHom x : Fin 1) = 0 := Fin.eq_zero _
+  have hb : ((SSet.stdSimplex.objEquiv b).toOrderHom x : Fin 1) = 0 := Fin.eq_zero _
+  rw [ha, hb]
+
+/-- The map into the point cotensor corresponding to an ordinary morphism. -/
+noncomputable def cotensorPointMap {A B : K} (f : A ⟶ B) : A ⟶ (Δ[0] : SSet.{v}) ⋔ B :=
+  (cotensor.iso.underlying (Δ[0] : SSet.{v}) B A).symm
+    (SSet.pointIsUnit.hom ≫
+      (eHomEquiv SSet f : MonoidalCategoryStruct.tensorUnit SSet ⟶ sHom A B))
+
+/-- The constant coherent-isomorphism path corresponding to an ordinary morphism. -/
+noncomputable def coherentIsoPathMap {A B : K} (f : A ⟶ B) : A ⟶ SSet.coherentIso ⋔ B :=
+  (cotensor.iso.underlying SSet.coherentIso B A).symm
+    ((SSet.isTerminalDeltaZero.from SSet.coherentIso ≫ SSet.pointIsUnit.hom) ≫
+      (eHomEquiv SSet f : MonoidalCategoryStruct.tensorUnit SSet ⟶ sHom A B))
+
+/-- The pullback used to define the Brown factorization object exists. -/
+noncomputable instance brownFactorization_hasPullback {A B : K} (f : A ⟶ B) :
+    HasPullback (cotensorContraMap SSet.coherentIso.src B) (cotensorPointMap f) := by
+  have : HasConicalPullback SSet
+      (cotensorContraMap SSet.coherentIso.src B) (cotensorPointMap f) := by
+    exact has_isofibration_pullbacks (cotensorContraIsofibration SSet.coherentIso.src B)
+      (cotensorPointMap f)
+  infer_instance
+
+/-- The Brown factorization pullback object, before identifying `Δ[0] ⋔ B` with `B`. -/
+noncomputable def brownFactorizationObj {A B : K} (f : A ⟶ B) : K :=
+  pullback (cotensorContraMap SSet.coherentIso.src B) (cotensorPointMap f)
+
+/-- The projection from the Brown factorization object to the coherent-isomorphism path object. -/
+noncomputable def brownFactorizationPath {A B : K} (f : A ⟶ B) :
+    brownFactorizationObj f ⟶ SSet.coherentIso ⋔ B :=
+  pullback.fst (cotensorContraMap SSet.coherentIso.src B) (cotensorPointMap f)
+
+/-- The left projection from the Brown factorization object. -/
+noncomputable def brownFactorizationLeft {A B : K} (f : A ⟶ B) :
+    brownFactorizationObj f ⟶ A :=
+  pullback.snd (cotensorContraMap SSet.coherentIso.src B) (cotensorPointMap f)
+
+/-- The right endpoint map from the Brown factorization object, valued in the point cotensor. -/
+noncomputable def brownFactorizationRightPoint {A B : K} (f : A ⟶ B) :
+    brownFactorizationObj f ⟶ (Δ[0] : SSet.{v}) ⋔ B :=
+  brownFactorizationPath f ≫ cotensorContraMap SSet.coherentIso.tgt B
 
 end InfinityCosmos
