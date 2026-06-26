@@ -5,6 +5,7 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIsoAnodyne
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CompStruct
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Coskeletal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
