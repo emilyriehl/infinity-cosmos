@@ -10,6 +10,7 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Monoidal.Closed.Cartesian
 import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
+import Mathlib.AlgebraicTopology.SimplicialSet.AnodyneExtensions.Inner.PushoutProduct
 
 universe u v w
 
@@ -201,6 +202,64 @@ lemma curry_endpoint_eval {I A B : SSet.{u}} (endpoint : Δ[0] ⟶ I) (H : I ⊗
   rw [comp_whiskerRight]
   rfl
 
+lemma unitHomEquiv_symm_yonedaEquiv {X : SSet.{u}} (q : Δ[0] ⟶ X) :
+    (SSet.unitHomEquiv X).symm (yonedaEquiv q) = SSet.pointIsUnit.inv ≫ q := by
+  ext n x
+  cases n using Opposite.rec with
+  | op n =>
+    dsimp [SSet.unitHomEquiv]
+    let z : (Δ[0] : SSet.{u}).obj (Opposite.op ⦋0⦌) :=
+      yonedaEquiv (𝟙 (Δ[0] : SSet.{u}))
+    have hz : (ConcreteCategory.hom (q.app (Opposite.op ⦋0⦌))) z = yonedaEquiv q := by
+      rfl
+    rw [← hz]
+    have hnat :=
+      ConcreteCategory.congr_hom (q.naturality (SimplexCategory.const n ⦋0⦌ 0).op) z
+    dsimp at hnat
+    rw [← hnat]
+    congr 1
+
+lemma curry_right_endpoint_eval {I A B : SSet.{u}} (endpoint : Δ[0] ⟶ I)
+    (H : A ⊗ I ⟶ B) :
+    (eHomEquiv SSet).symm (SSet.pointIsUnit.inv ≫ endpoint ≫ MonoidalClosed.curry H) =
+      (ρ_ A).inv ≫ (A ◁ (SSet.pointIsUnit.inv ≫ endpoint)) ≫ H := by
+  apply (eHomEquiv SSet).injective
+  rw [Equiv.apply_symm_apply]
+  apply MonoidalClosed.uncurry_injective (A := A)
+  change MonoidalClosed.uncurry ((SSet.pointIsUnit.inv ≫ endpoint) ≫
+      MonoidalClosed.curry H) =
+    MonoidalClosed.uncurry ((eHomEquiv SSet)
+      ((ρ_ A).inv ≫ (A ◁ (SSet.pointIsUnit.inv ≫ endpoint)) ≫ H))
+  rw [MonoidalClosed.uncurry_natural_left, MonoidalClosed.uncurry_curry]
+  change (A ◁ (SSet.pointIsUnit.inv ≫ endpoint)) ≫ H =
+    (ρ_ A).hom ≫ ((ρ_ A).inv ≫
+      (A ◁ (SSet.pointIsUnit.inv ≫ endpoint)) ≫ H)
+  simp
+
+lemma right_endpoint_braiding {I A : SSet.{u}} (endpoint : Δ[0] ⟶ I) :
+    (ρ_ A).inv ≫ (A ◁ (SSet.pointIsUnit.inv ≫ endpoint)) ≫ (β_ A I).hom =
+      (λ_ A).inv ≫ ((SSet.pointIsUnit.inv ≫ endpoint) ▷ A) := by
+  ext n x <;> cases n using Opposite.rec <;> rfl
+
+lemma left_endpoint_braiding {I A : SSet.{u}} (endpoint : Δ[0] ⟶ I) :
+    (λ_ A).inv ≫ ((SSet.pointIsUnit.inv ≫ endpoint) ▷ A) ≫ (β_ I A).hom =
+      (ρ_ A).inv ≫ (A ◁ (SSet.pointIsUnit.inv ≫ endpoint)) := by
+  ext n x <;> cases n using Opposite.rec <;> rfl
+
+namespace coherentIso
+
+lemma map_src_apply {X : SSet.{u}} (F : coherentIso ⟶ X) :
+    F.app _ coherentIso.x₀ = yonedaEquiv (coherentIso.src ≫ F) := by
+  rw [coherentIso.src, yonedaEquiv_symm_comp]
+  exact (Equiv.apply_symm_apply yonedaEquiv _).symm
+
+lemma map_tgt_apply {X : SSet.{u}} (F : coherentIso ⟶ X) :
+    F.app _ coherentIso.x₁ = yonedaEquiv (coherentIso.tgt ≫ F) := by
+  rw [coherentIso.tgt, yonedaEquiv_symm_comp]
+  exact (Equiv.apply_symm_apply yonedaEquiv _).symm
+
+end coherentIso
+
 section
 
 variable {I : SSet.{u}} [Interval I]
@@ -351,6 +410,158 @@ noncomputable def Homotopy.postcomp {A B C : SSet.{u}} {f g : A ⟶ B}
             rw [Category.assoc]
       _ = g ≫ h := by
             exact congrArg (fun q => q ≫ h) H.target_eq
+
+namespace Homotopy
+
+variable {A B : SSet.{u}} {f g h : A ⟶ B}
+
+noncomputable def toCoherentIsoMap (H : Homotopy (I := coherentIso) f g) :
+    coherentIso ⟶ sHom A B :=
+  MonoidalClosed.curry ((β_ A coherentIso).hom ≫ MonoidalClosed.uncurry H.homotopy)
+
+set_option backward.isDefEq.respectTransparency false in
+lemma toCoherentIsoMap_src (H : Homotopy (I := coherentIso) f g) :
+    (SimplicialCategory.homEquiv' A B).symm
+      (yonedaEquiv (coherentIso.src ≫ H.toCoherentIsoMap)) = f := by
+  change (eHomEquiv SSet).symm ((SSet.unitHomEquiv (sHom A B)).symm
+    (yonedaEquiv (coherentIso.src ≫ H.toCoherentIsoMap))) = f
+  rw [unitHomEquiv_symm_yonedaEquiv]
+  dsimp [toCoherentIsoMap]
+  rw [curry_right_endpoint_eval]
+  calc
+    ((ρ_ A).inv ≫ A ◁ (pointIsUnit.inv ≫ coherentIso.src)) ≫
+        (β_ A coherentIso).hom ≫ uncurry H.homotopy =
+      ((λ_ A).inv ≫ (pointIsUnit.inv ≫ coherentIso.src) ▷ A) ≫
+        uncurry H.homotopy := by
+        simpa only [Category.assoc] using congrArg (fun q => q ≫ uncurry H.homotopy)
+          (right_endpoint_braiding (A := A) coherentIso.src)
+    _ = H.homotopy ≫ (MonoidalClosed.pre coherentIso.src).app B ≫
+          B.expPointIsoSelf.hom := by
+        have h_eval := SSet.curry_endpoint_eval coherentIso.src
+          (MonoidalClosed.uncurry H.homotopy)
+        rw [MonoidalClosed.curry_uncurry] at h_eval
+        simpa [Category.assoc] using h_eval.symm
+    _ = H.homotopy ≫ pathSpace.src (I := coherentIso) B := by
+        rfl
+    _ = f := H.source_eq
+
+set_option backward.isDefEq.respectTransparency false in
+lemma toCoherentIsoMap_tgt (H : Homotopy (I := coherentIso) f g) :
+    (SimplicialCategory.homEquiv' A B).symm
+      (yonedaEquiv (coherentIso.tgt ≫ H.toCoherentIsoMap)) = g := by
+  change (eHomEquiv SSet).symm ((SSet.unitHomEquiv (sHom A B)).symm
+    (yonedaEquiv (coherentIso.tgt ≫ H.toCoherentIsoMap))) = g
+  rw [unitHomEquiv_symm_yonedaEquiv]
+  dsimp [toCoherentIsoMap]
+  rw [curry_right_endpoint_eval]
+  calc
+    ((ρ_ A).inv ≫ A ◁ (pointIsUnit.inv ≫ coherentIso.tgt)) ≫
+        (β_ A coherentIso).hom ≫ uncurry H.homotopy =
+      ((λ_ A).inv ≫ (pointIsUnit.inv ≫ coherentIso.tgt) ▷ A) ≫
+        uncurry H.homotopy := by
+        simpa only [Category.assoc] using congrArg (fun q => q ≫ uncurry H.homotopy)
+          (right_endpoint_braiding (A := A) coherentIso.tgt)
+    _ = H.homotopy ≫ (MonoidalClosed.pre coherentIso.tgt).app B ≫
+          B.expPointIsoSelf.hom := by
+        have h_eval := SSet.curry_endpoint_eval coherentIso.tgt
+          (MonoidalClosed.uncurry H.homotopy)
+        rw [MonoidalClosed.curry_uncurry] at h_eval
+        simpa [Category.assoc] using h_eval.symm
+    _ = H.homotopy ≫ pathSpace.tgt (I := coherentIso) B := by
+        rfl
+    _ = g := H.target_eq
+
+noncomputable def toEdge (H : Homotopy (I := coherentIso) f g) :
+    Edge ((SimplicialCategory.homEquiv' A B) f) ((SimplicialCategory.homEquiv' A B) g) := by
+  refine (coherentIso.hom.map H.toCoherentIsoMap).ofEq ?_ ?_
+  · rw [coherentIso.map_src_apply]
+    apply (SimplicialCategory.homEquiv' A B).symm.injective
+    simpa using H.toCoherentIsoMap_src
+  · rw [coherentIso.map_tgt_apply]
+    apply (SimplicialCategory.homEquiv' A B).symm.injective
+    simpa using H.toCoherentIsoMap_tgt
+
+noncomputable def toEdge_isIso (H : Homotopy (I := coherentIso) f g) :
+    H.toEdge.IsIso :=
+  (coherentIso.isIsoMapHom H.toCoherentIsoMap).ofEq rfl
+
+noncomputable def ofCoherentIsoMapHom (F : coherentIso ⟶ sHom A B) :
+    A ⟶ sHom coherentIso B :=
+  MonoidalClosed.curry ((β_ coherentIso A).hom ≫ MonoidalClosed.uncurry F)
+
+lemma ofCoherentIsoMap_endpoint (F : coherentIso ⟶ sHom A B)
+    (endpoint : Δ[0] ⟶ coherentIso) :
+    ofCoherentIsoMapHom (A := A) (B := B) F ≫
+        (MonoidalClosed.pre endpoint).app B ≫ B.expPointIsoSelf.hom =
+      (SimplicialCategory.homEquiv' A B).symm (yonedaEquiv (endpoint ≫ F)) := by
+  change MonoidalClosed.curry ((β_ coherentIso A).hom ≫ uncurry F) ≫
+      (MonoidalClosed.pre endpoint).app B ≫ B.expPointIsoSelf.hom =
+    (eHomEquiv SSet).symm
+      ((SSet.unitHomEquiv (sHom A B)).symm (yonedaEquiv (endpoint ≫ F)))
+  rw [unitHomEquiv_symm_yonedaEquiv]
+  rw [← MonoidalClosed.curry_uncurry F]
+  rw [curry_right_endpoint_eval]
+  calc
+    MonoidalClosed.curry ((β_ coherentIso A).hom ≫ uncurry F) ≫
+        (MonoidalClosed.pre endpoint).app B ≫ B.expPointIsoSelf.hom =
+      ((λ_ A).inv ≫ (pointIsUnit.inv ≫ endpoint) ▷ A) ≫
+        (β_ coherentIso A).hom ≫ uncurry F := by
+        simpa only [Category.assoc] using
+          SSet.curry_endpoint_eval endpoint ((β_ coherentIso A).hom ≫ uncurry F)
+    _ = ((ρ_ A).inv ≫ A ◁ (pointIsUnit.inv ≫ endpoint)) ≫ uncurry F := by
+        simpa only [Category.assoc] using congrArg (fun q => q ≫ uncurry F)
+          (left_endpoint_braiding (A := A) endpoint)
+
+noncomputable def ofCoherentIsoMap (F : coherentIso ⟶ sHom A B)
+    (hsrc : yonedaEquiv (coherentIso.src ≫ F) = (SimplicialCategory.homEquiv' A B) f)
+    (htgt : yonedaEquiv (coherentIso.tgt ≫ F) = (SimplicialCategory.homEquiv' A B) g) :
+    Homotopy (I := coherentIso) f g where
+  homotopy := ofCoherentIsoMapHom F
+  source_eq := by
+    change ofCoherentIsoMapHom F ≫ (MonoidalClosed.pre coherentIso.src).app B ≫
+      B.expPointIsoSelf.hom = f
+    rw [ofCoherentIsoMap_endpoint, hsrc]
+    exact Equiv.symm_apply_apply (SimplicialCategory.homEquiv' A B) f
+  target_eq := by
+    change ofCoherentIsoMapHom F ≫ (MonoidalClosed.pre coherentIso.tgt).app B ≫
+      B.expPointIsoSelf.hom = g
+    rw [ofCoherentIsoMap_endpoint, htgt]
+    exact Equiv.symm_apply_apply (SimplicialCategory.homEquiv' A B) g
+
+noncomputable def trans [Quasicategory B] (H : Homotopy (I := coherentIso) f g)
+    (K : Homotopy (I := coherentIso) g h) : Homotopy (I := coherentIso) f h := by
+  haveI : Quasicategory (sHom A B) := by
+    change Quasicategory ((ihom A).obj B)
+    infer_instance
+  let efg := H.toEdge
+  let egh := K.toEdge
+  let ecomp := Edge.comp efg egh
+  have hcomp : ecomp.IsIso := H.toEdge_isIso.comp K.toEdge_isIso
+  let F := Classical.choose (coherentIso.lift hcomp)
+  have hF : (coherentIso.hom.map F).edge = ecomp.edge :=
+    Classical.choose_spec (coherentIso.lift hcomp)
+  refine ofCoherentIsoMap F ?_ ?_
+  · rw [← coherentIso.map_src_apply F]
+    rw [← (coherentIso.hom.map F).src_eq, hF, ecomp.src_eq]
+  · rw [← coherentIso.map_tgt_apply F]
+    rw [← (coherentIso.hom.map F).tgt_eq, hF, ecomp.tgt_eq]
+
+noncomputable def symm [Quasicategory B] (H : Homotopy (I := coherentIso) f g) :
+    Homotopy (I := coherentIso) g f := by
+  haveI : Quasicategory (sHom A B) := by
+    change Quasicategory ((ihom A).obj B)
+    infer_instance
+  have hinv : H.toEdge_isIso.inv.IsIso := H.toEdge_isIso.isIsoInv
+  let F := Classical.choose (coherentIso.lift hinv)
+  have hF : (coherentIso.hom.map F).edge = H.toEdge_isIso.inv.edge :=
+    Classical.choose_spec (coherentIso.lift hinv)
+  refine ofCoherentIsoMap F ?_ ?_
+  · rw [← coherentIso.map_src_apply F]
+    rw [← (coherentIso.hom.map F).src_eq, hF, H.toEdge_isIso.inv.src_eq]
+  · rw [← coherentIso.map_tgt_apply F]
+    rw [← (coherentIso.hom.map F).tgt_eq, hF, H.toEdge_isIso.inv.tgt_eq]
+
+end Homotopy
 
 namespace pathSpace
 
@@ -525,6 +736,86 @@ noncomputable def congrIso {A B A' B' : SSet.{u}} (eA : A' ≅ A) (eB : B' ≅ B
     · simp
     · simp
 
+noncomputable def comp {A B C : SSet.{u}} [Quasicategory A] [Quasicategory B]
+    [Quasicategory C] (eAB : Equiv (I := coherentIso) A B)
+    (eBC : Equiv (I := coherentIso) B C) : Equiv (I := coherentIso) A C where
+  toFun := eAB.toFun ≫ eBC.toFun
+  invFun := eBC.invFun ≫ eAB.invFun
+  left_inv := by
+    have H₁ := (eBC.left_inv.precomp eAB.toFun).postcomp eAB.invFun
+    have H₂ := eAB.left_inv
+    refine SSet.Homotopy.trans ?_ H₂
+    convert H₁ using 1
+    all_goals simp [Category.assoc]
+  right_inv := by
+    have H₁ := (eAB.right_inv.precomp eBC.invFun).postcomp eBC.toFun
+    have H₂ := eBC.right_inv
+    refine SSet.Homotopy.trans ?_ H₂
+    convert H₁ using 1
+    all_goals simp [Category.assoc]
+
+noncomputable def of_comp_left {A B C : SSet.{u}} [Quasicategory A] [Quasicategory B]
+    [Quasicategory C] (f : A ⟶ B) (g : B ⟶ C)
+    (eg : Equiv (I := coherentIso) B C) (heg : eg.toFun = g)
+    (efg : Equiv (I := coherentIso) A C) (hefg : efg.toFun = f ≫ g) :
+    Equiv (I := coherentIso) A B where
+  toFun := f
+  invFun := g ≫ efg.invFun
+  left_inv := by
+    convert efg.left_inv using 1
+    all_goals simp [hefg, Category.assoc]
+  right_inv := by
+    let u : B ⟶ B := g ≫ efg.invFun ≫ f
+    have HuGinv_to_u : Homotopy (I := coherentIso) (u ≫ g ≫ eg.invFun) u := by
+      have Hleft := eg.left_inv.precomp u
+      convert Hleft using 1
+      all_goals simp [heg]
+    have Hu_to_uGinv : Homotopy (I := coherentIso) u (u ≫ g ≫ eg.invFun) :=
+      SSet.Homotopy.symm HuGinv_to_u
+    have HuGGinv_to_GGinv : Homotopy (I := coherentIso) (u ≫ g ≫ eg.invFun)
+        (g ≫ eg.invFun) := by
+      have Hfg := efg.right_inv.precomp g
+      have Hfg' := Hfg.postcomp eg.invFun
+      convert Hfg' using 1
+      all_goals simp [u, hefg, Category.assoc]
+    have HGGinv_to_id : Homotopy (I := coherentIso) (g ≫ eg.invFun) (𝟙 B) := by
+      convert eg.left_inv using 1
+      all_goals simp [heg]
+    have Htmp := SSet.Homotopy.trans Hu_to_uGinv HuGGinv_to_GGinv
+    have Hall := SSet.Homotopy.trans Htmp HGGinv_to_id
+    convert Hall using 1
+    all_goals simp [u, Category.assoc]
+
+noncomputable def of_comp_right {A B C : SSet.{u}} [Quasicategory A] [Quasicategory B]
+    [Quasicategory C] (f : A ⟶ B) (g : B ⟶ C)
+    (ef : Equiv (I := coherentIso) A B) (hef : ef.toFun = f)
+    (efg : Equiv (I := coherentIso) A C) (hefg : efg.toFun = f ≫ g) :
+    Equiv (I := coherentIso) B C where
+  toFun := g
+  invFun := efg.invFun ≫ f
+  left_inv := by
+    let u : B ⟶ B := g ≫ efg.invFun ≫ f
+    have Hu_to_invfu : Homotopy (I := coherentIso) u (ef.invFun ≫ f ≫ u) := by
+      have Hright := ef.right_inv.postcomp u
+      have Hright' : Homotopy (I := coherentIso) (ef.invFun ≫ f ≫ u) u := by
+        convert Hright using 1
+        all_goals simp [hef, Category.assoc]
+      exact SSet.Homotopy.symm Hright'
+    have Hinvfu_to_invf : Homotopy (I := coherentIso) (ef.invFun ≫ f ≫ u)
+        (ef.invFun ≫ f) := by
+      have Hfg := efg.left_inv.postcomp f
+      have Hfg' := Hfg.precomp ef.invFun
+      convert Hfg' using 1
+      all_goals simp [u, hefg, Category.assoc]
+    have Hinvf_to_id : Homotopy (I := coherentIso) (ef.invFun ≫ f) (𝟙 B) := by
+      convert ef.right_inv using 1
+      all_goals simp [hef]
+    have Htmp := SSet.Homotopy.trans Hu_to_invfu Hinvfu_to_invf
+    exact SSet.Homotopy.trans Htmp Hinvf_to_id
+  right_inv := by
+    convert efg.right_inv using 1
+    all_goals simp [hefg, Category.assoc]
+
 end Equiv
 
 namespace pathSpace
@@ -590,6 +881,15 @@ open SSet
   -/)]
 def Equiv (A B : SSet.{u}) [Quasicategory A] [Quasicategory B] :=
     SSet.Equiv (I := coherentIso) A B
+
+namespace Equiv
+
+noncomputable def comp {A B C : SSet.{u}} [Quasicategory A] [Quasicategory B]
+    [Quasicategory C] (eAB : QCat.Equiv A B) (eBC : QCat.Equiv B C) :
+    QCat.Equiv A C :=
+  SSet.Equiv.comp eAB eBC
+
+end Equiv
 
 end QCat
 

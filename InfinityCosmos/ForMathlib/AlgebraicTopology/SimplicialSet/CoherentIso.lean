@@ -7,6 +7,7 @@ Authors: Johns Hopkins Category Theory Seminar
 import Architect
 import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
 import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
+import Mathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CompStruct
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 
@@ -88,6 +89,7 @@ end CategoryTheory
 namespace SSet
 
 open Simplicial Edge
+open CategoryTheory
 
 @[blueprint
   "defn:coherent-isomorphism"
@@ -165,6 +167,38 @@ def isIsoOfEqMapHom
   (hfg : f.edge = g.app _ hom.edge)
   : f.IsIso
   := (isIsoMapHom g).ofEq hfg.symm
+
+/-- Forward-edge inclusion `Δ[1] ⟶ coherentIso` classifying `coherentIso.hom`. -/
+noncomputable def homInclusion : Δ[1] ⟶ coherentIso := yonedaEquiv.symm coherentIso.hom.edge
+
+/-- The simplex-level target equation is equivalent to a categorical extension square. -/
+theorem edge_map_eq_iff_comp {A : SSet} {a₀ a₁ : A _⦋0⦌} (e : Edge a₀ a₁)
+    (F : coherentIso ⟶ A) :
+    (coherentIso.hom.map F).edge = e.edge ↔
+      homInclusion ≫ F = yonedaEquiv.symm e.edge := by
+  rw [homInclusion, yonedaEquiv_symm_comp, Edge.map_edge,
+    yonedaEquiv.symm.injective.eq_iff]
+
+/-- Lifting an edge to a map out of `coherentIso` is equivalent to extending it along the
+forward-edge inclusion. -/
+theorem lift_iff_extension {A : SSet} {a₀ a₁ : A _⦋0⦌} (e : Edge a₀ a₁) :
+    (∃ F : coherentIso ⟶ A, (coherentIso.hom.map F).edge = e.edge) ↔
+      (∃ F : coherentIso ⟶ A, homInclusion ≫ F = yonedaEquiv.symm e.edge) :=
+  exists_congr (fun F => edge_map_eq_iff_comp e F)
+
+/-- Easy direction: a lift of an edge through `coherentIso` certifies that the edge is an
+isomorphism. -/
+def isIso_of_lift {A : SSet} {a₀ a₁ : A _⦋0⦌} {e : Edge a₀ a₁}
+    (F : coherentIso ⟶ A) (hF : (coherentIso.hom.map F).edge = e.edge) : e.IsIso :=
+  coherentIso.isIsoOfEqMapHom hF.symm
+
+/- This is the single local proof hole isolated by the phase-3 scout: it is the special
+outer-horn extension theorem for isomorphism edges in a quasi-category. -/
+theorem lift {A : SSet} [Quasicategory A] {a₀ a₁ : A _⦋0⦌}
+    {e : Edge a₀ a₁} (he : e.IsIso) :
+    ∃ F : coherentIso ⟶ A, (coherentIso.hom.map F).edge = e.edge := by
+  rw [coherentIso.lift_iff_extension]
+  sorry
 
 /-- The inclusion of the source vertex of `CoherentIso`. -/
 def src : Δ[0] ⟶ coherentIso := yonedaEquiv.symm (coherentIso.x₀)
