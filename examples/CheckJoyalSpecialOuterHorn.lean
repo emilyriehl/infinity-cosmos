@@ -9,6 +9,8 @@ open SSet Simplicial
 #check SSet.image_sup
 #check SSet.image_range_joinMap_left
 #check SSet.image_range_joinMap_right
+#check SSet.range_joinMap_boundary_eq_iSup
+#check SSet.image_range_joinMap_boundary_eq_iSup
 #check SSet.tensorHomOf_δ_left
 #check SSet.tensorHomOf_δ_right
 #check SSet.fhorn_identity_of_faceImages
@@ -18,6 +20,8 @@ open SSet Simplicial
 #print axioms SSet.image_sup
 #print axioms SSet.image_range_joinMap_left
 #print axioms SSet.image_range_joinMap_right
+#print axioms SSet.range_joinMap_boundary_eq_iSup
+#print axioms SSet.image_range_joinMap_boundary_eq_iSup
 #print axioms SSet.tensorHomOf_δ_left
 #print axioms SSet.tensorHomOf_δ_right
 #print axioms SSet.fhorn_identity_of_faceImages

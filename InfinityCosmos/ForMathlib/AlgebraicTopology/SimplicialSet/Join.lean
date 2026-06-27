@@ -1,7 +1,11 @@
 import Mathlib.AlgebraicTopology.SimplexCategory.Augmented.Monoidal
+import Mathlib.AlgebraicTopology.SimplicialSet.Boundary
+import Mathlib.AlgebraicTopology.SimplicialSet.FiniteColimits
+import Mathlib.AlgebraicTopology.SimplicialSet.SubcomplexColimits
 import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 import Mathlib.CategoryTheory.Adjunction.Evaluation
 import Mathlib.CategoryTheory.Adjunction.Limits
+import Mathlib.CategoryTheory.IsConnected
 import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
 import Mathlib.CategoryTheory.Monoidal.Closed.Braided
 import Mathlib.CategoryTheory.Monoidal.Closed.Types
@@ -9,6 +13,7 @@ import Mathlib.CategoryTheory.Monoidal.DayConvolution.DayFunctor
 import Mathlib.CategoryTheory.Monoidal.ExternalProduct.Basic
 import Mathlib.CategoryTheory.Limits.Connected
 import Mathlib.CategoryTheory.Limits.Preserves.FunctorCategory
+import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Multiequalizer
 import Mathlib.CategoryTheory.Limits.Shapes.Equalizers
 import Mathlib.CategoryTheory.Limits.Types.Coproducts
 import Mathlib.CategoryTheory.Whiskering
@@ -909,6 +914,147 @@ lemma image_range_joinMap_right (a b b' : ℕ) (g : ⦋b⦌ ⟶ ⦋b'⦌) :
       (stdSimplex.{u}.map_id _).symm,
     joinStdSimplex_naturality (𝟙 ⦋a⦌) g,
     Subcomplex.range_comp, Subcomplex.range_eq_top, Subcomplex.image_top]
+
+/-- `joinMap g (𝟙 K)` is the action of the functor `(- ⋆ K)`. -/
+lemma joinMap_id_right {X X' K : SSet.{u}} (g : X ⟶ X') :
+    joinMap g (𝟙 K) = (joinFunctor.flip.obj K).map g := by
+  unfold joinMap
+  change (joinFunctor.map g).app K ≫ (joinFunctor.obj X').map (𝟙 K) =
+    (joinFunctor.map g).app K
+  simp
+
+/-- `joinMap (-, 𝟙 K)` is functorial in the left argument. -/
+lemma joinMap_comp_left {X Y Z K : SSet.{u}} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    joinMap (f ≫ g) (𝟙 K) = joinMap f (𝟙 K) ≫ joinMap g (𝟙 K) := by
+  rw [joinMap_id_right, joinMap_id_right, joinMap_id_right]
+  exact Functor.map_comp _ _ _
+
+/-- The multispan shape covering `∂Δ[n+1]` by its facets. -/
+abbrev BSpan (n : ℕ) : MultispanShape :=
+  MultispanShape.prod (Fin (n + 2))
+
+instance bspan_nonempty (n : ℕ) : Nonempty (WalkingMultispan (BSpan n)) :=
+  ⟨WalkingMultispan.right (0 : Fin (n + 2))⟩
+
+instance bspan_connected (n : ℕ) : IsConnected (WalkingMultispan (BSpan n)) := by
+  have hright : ∀ i : Fin (n + 2),
+      Zigzag (WalkingMultispan.right i : WalkingMultispan (BSpan n))
+        (WalkingMultispan.right (0 : Fin (n + 2))) := by
+    intro i
+    have z1 : Zag (WalkingMultispan.right i : WalkingMultispan (BSpan n))
+        (WalkingMultispan.left (i, (0 : Fin (n + 2)))) :=
+      Or.inr ⟨@WalkingMultispan.Hom.fst (BSpan n) (i, (0 : Fin (n + 2)))⟩
+    have z2 : Zag (WalkingMultispan.left (i, (0 : Fin (n + 2))) :
+        WalkingMultispan (BSpan n))
+        (WalkingMultispan.right (0 : Fin (n + 2))) :=
+      Or.inl ⟨@WalkingMultispan.Hom.snd (BSpan n) (i, (0 : Fin (n + 2)))⟩
+    exact (Relation.ReflTransGen.single z1).trans (Relation.ReflTransGen.single z2)
+  have zz0 : ∀ x : WalkingMultispan (BSpan n),
+      Zigzag x (WalkingMultispan.right (0 : Fin (n + 2))) := by
+    intro x
+    cases x with
+    | left a =>
+        have z0 : Zag (WalkingMultispan.left a : WalkingMultispan (BSpan n))
+            (WalkingMultispan.right a.1) :=
+          Or.inl ⟨@WalkingMultispan.Hom.fst (BSpan n) a⟩
+        exact (Relation.ReflTransGen.single z0).trans (hright a.1)
+    | right i =>
+        exact hright i
+  exact zigzag_isConnected (fun j₁ j₂ => (zz0 j₁).trans (zz0 j₂).symm)
+
+instance bspan_flip_pres (n m : ℕ) :
+    PreservesColimitsOfShape (WalkingMultispan (BSpan n))
+      (joinFunctor.flip.obj (Δ[m] : SSet.{u})) :=
+  joinFunctor_flip_preservesConnectedColimits_of_tensorRight _ _
+
+/-- `∂Δ[n+1]` is the supremum of its facets, with facet pairwise intersections. -/
+lemma boundaryDiagram (n : ℕ) :
+    Subcomplex.MulticoequalizerDiagram (∂Δ[n + 1] : (Δ[n + 1] : SSet.{u}).Subcomplex)
+      (fun i : Fin (n + 2) => stdSimplex.face {i}ᶜ)
+      (fun i j => stdSimplex.face {i}ᶜ ⊓ stdSimplex.face {j}ᶜ) where
+  iSup_eq := (boundary_eq_iSup (n + 1)).symm
+  eq_inf _ _ := rfl
+
+/-- The `i`-th facet leg of the mapped multicofork, composed with `∂Δ`'s
+inclusion, is the facet inclusion. -/
+lemma boundaryDiagram_legcomp (n : ℕ) (i : Fin (n + 2)) :
+    ((boundaryDiagram n).multicofork.map Subcomplex.toSSetFunctor).π i ≫
+        (∂Δ[n + 1] : (Δ[n + 1] : SSet.{u}).Subcomplex).ι =
+      (stdSimplex.face {i}ᶜ : (Δ[n + 1] : SSet.{u}).Subcomplex).ι :=
+  Subcomplex.homOfLE_ι (face_singleton_compl_le_boundary i)
+
+/-- Range of the facet-join is below range of the corresponding coface-join. -/
+lemma range_joinMap_face_le_delta (n m : ℕ) (i : Fin (n + 2)) :
+    Subcomplex.range
+        (joinMap (stdSimplex.face {i}ᶜ : (Δ[n + 1] : SSet.{u}).Subcomplex).ι
+          (𝟙 (Δ[m] : SSet.{u}))) ≤
+      Subcomplex.range (joinMap (stdSimplex.δ i) (𝟙 (Δ[m] : SSet.{u}))) := by
+  have hfac : (stdSimplex.face {i}ᶜ : (Δ[n + 1] : SSet.{u}).Subcomplex).ι =
+      (stdSimplex.faceSingletonComplIso i).inv ≫ stdSimplex.δ i := by
+    rw [← boundary.ι_ι i, ← Category.assoc, boundary.faceSingletonComplIso_inv_ι i]
+    exact (boundary.faceι_ι i).symm
+  rw [hfac, joinMap_comp_left, Subcomplex.range_comp]
+  exact Subcomplex.image_le_range _ _
+
+/-- The right facet leg of the F-mapped colimit cocone, composed with
+`joinMap ∂Δ.ι 𝟙`, is the corresponding facet-join. -/
+lemma boundaryDiagram_rightleg (n m : ℕ) (i : Fin (n + 2)) :
+    ((joinFunctor.flip.obj (Δ[m] : SSet.{u})).mapCocone
+        ((boundaryDiagram n).multicofork.map Subcomplex.toSSetFunctor)).ι.app
+        (WalkingMultispan.right i) ≫
+        joinMap (∂Δ[n + 1] : (Δ[n + 1] : SSet.{u}).Subcomplex).ι
+          (𝟙 (Δ[m] : SSet.{u})) =
+      joinMap (stdSimplex.face {i}ᶜ : (Δ[n + 1] : SSet.{u}).Subcomplex).ι
+        (𝟙 (Δ[m] : SSet.{u})) := by
+  have key := boundaryDiagram_legcomp n i
+  rw [Functor.mapCocone_ι_app, Multicofork.π_eq_app_right, ← joinMap_id_right, ← key,
+    joinMap_comp_left]
+
+/-- Boundary-join distribution in the left factor: the range of
+`∂Δ[n+1] ⋆ Δ[m]` is the supremum of the ranges of the facet-joins. -/
+theorem range_joinMap_boundary_eq_iSup (n m : ℕ) :
+    Subcomplex.range (joinMap (∂Δ[n + 1] : (Δ[n + 1] : SSet.{u}).Subcomplex).ι
+        (𝟙 (Δ[m] : SSet.{u}))) =
+      ⨆ (i : Fin (n + 2)), Subcomplex.range
+        (joinMap (stdSimplex.δ i) (𝟙 (Δ[m] : SSet.{u}))) := by
+  apply le_antisymm
+  · have hcolim := isColimitOfPreserves (joinFunctor.flip.obj (Δ[m] : SSet.{u}))
+      (boundaryDiagram n).isColimit
+    refine le_trans (le_of_eq (range_eq_iSup_of_isColimit hcolim _)) ?_
+    apply iSup_le
+    intro j
+    cases j with
+    | right i =>
+        rw [boundaryDiagram_rightleg n m i]
+        exact le_trans (range_joinMap_face_le_delta n m i)
+          (le_iSup
+            (fun i => Subcomplex.range
+              (joinMap (stdSimplex.δ i) (𝟙 (Δ[m] : SSet.{u})))) i)
+    | left a =>
+        have hw := ((joinFunctor.flip.obj (Δ[m] : SSet.{u})).mapCocone
+          ((boundaryDiagram n).multicofork.map Subcomplex.toSSetFunctor)).w
+            (WalkingMultispan.Hom.fst a)
+        rw [← hw, Category.assoc, Subcomplex.range_comp]
+        refine le_trans (Subcomplex.image_le_range _ _) ?_
+        rw [boundaryDiagram_rightleg n m ((MultispanShape.prod (Fin (n + 2))).fst a)]
+        exact le_trans (range_joinMap_face_le_delta n m _)
+          (le_iSup
+            (fun i => Subcomplex.range
+              (joinMap (stdSimplex.δ i) (𝟙 (Δ[m] : SSet.{u})))) _)
+  · apply iSup_le
+    intro i
+    rw [← boundary.ι_ι i, joinMap_comp_left, Subcomplex.range_comp]
+    exact Subcomplex.image_le_range _ _
+
+/-- Image form of `range_joinMap_boundary_eq_iSup`, using the standard-simplex
+naturality core for each facet. -/
+theorem image_range_joinMap_boundary_eq_iSup (n m : ℕ) :
+    (Subcomplex.range (joinMap (∂Δ[n + 1] : (Δ[n + 1] : SSet.{u}).Subcomplex).ι
+        (𝟙 (Δ[m] : SSet.{u})))).image (joinStdSimplex.{u} (n + 1) m).hom =
+      ⨆ (i : Fin (n + 2)), Subcomplex.range (stdSimplex.{u}.map
+        (AugmentedSimplexCategory.tensorHomOf (SimplexCategory.δ i) (𝟙 ⦋m⦌))) := by
+  rw [range_joinMap_boundary_eq_iSup, Subcomplex.image_iSup]
+  exact iSup_congr (fun i => image_range_joinMap_left n (n + 1) m (SimplexCategory.δ i))
 
 end
 
