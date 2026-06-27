@@ -32,6 +32,10 @@ open SSet Simplicial
 #check SSet.genCell_range_image_identity
 #check SSet.genCell_mono_of_iden
 #check SSet.genCell_innerAnodyne_of_iden
+#check SSet.genCell_iso_targetHorn_of_mono
+#check SSet.genCell_mono
+#check SSet.genCell_iso_targetHorn
+#check SSet.genCell_innerAnodyne
 #print axioms SSet.mem_joyalBase_horn_iff
 #print axioms SSet.joyalBase_horn_eq_vertexBlocks
 #print axioms SSet.joyalBase_innerAnodyne
@@ -59,3 +63,7 @@ open SSet Simplicial
 #print axioms SSet.genCell_range_image_identity
 #print axioms SSet.genCell_mono_of_iden
 #print axioms SSet.genCell_innerAnodyne_of_iden
+#print axioms SSet.genCell_iso_targetHorn_of_mono
+#print axioms SSet.genCell_mono
+#print axioms SSet.genCell_iso_targetHorn
+#print axioms SSet.genCell_innerAnodyne

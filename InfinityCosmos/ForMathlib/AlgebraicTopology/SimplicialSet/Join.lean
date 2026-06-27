@@ -2549,6 +2549,97 @@ theorem hcompat (n : ℕ) (z : joinObj X Y n) :
 theorem join_mono (hf : Mono f) (hg : Mono g) : Mono (joinMap f g) :=
   join_mono_of_joinObjEquiv joinObjEquiv (fun f g n z => hcompat f g n z) f g hf hg
 
+/-! pullback square and Leibniz-join mono -/
+variable {A B C D : SSet.{u}} (f : A ⟶ B) (g : C ⟶ D)
+
+theorem joinObjMap_pb_comm (n : ℕ) (z : joinObj A C n) :
+    joinObjMap (𝟙 B) g n (joinObjMap f (𝟙 C) n z)
+      = joinObjMap f (𝟙 D) n (joinObjMap (𝟙 A) g n z) := by
+  rcases z with a | c | ⟨p, x, y⟩ <;>
+    simp [joinObjMap, Sum.map, Sigma.map, Prod.map, NatTrans.id_app, CategoryTheory.id_apply]
+
+theorem joinObjMap_pb_inj (n : ℕ) (z₁ z₂ : joinObj A C n)
+    (h₁ : joinObjMap f (𝟙 C) n z₁ = joinObjMap f (𝟙 C) n z₂)
+    (h₂ : joinObjMap (𝟙 A) g n z₁ = joinObjMap (𝟙 A) g n z₂) :
+    z₁ = z₂ := by
+  rcases z₁ with a₁ | c₁ | ⟨p₁, x₁, y₁⟩ <;> rcases z₂ with a₂ | c₂ | ⟨p₂, x₂, y₂⟩ <;>
+    simp_all [joinObjMap, Sum.map, Sigma.map, Prod.map, NatTrans.id_app, CategoryTheory.id_apply] <;>
+    grind
+
+theorem joinObjMap_pb_lift (n : ℕ) (x₂ : joinObj B C n) (x₃ : joinObj A D n)
+    (h : joinObjMap (𝟙 B) g n x₂ = joinObjMap f (𝟙 D) n x₃) :
+    ∃ z : joinObj A C n, joinObjMap f (𝟙 C) n z = x₂ ∧ joinObjMap (𝟙 A) g n z = x₃ := by
+  rcases x₂ with b | c | ⟨p, b, c⟩ <;> rcases x₃ with a | d | ⟨q, a, d⟩ <;>
+    simp only [joinObjMap, Sum.map_inl, Sum.map_inr, Sigma.map_mk, Prod.map_apply,
+      NatTrans.id_app, CategoryTheory.id_apply, id_eq] at h
+  · injection h with hb
+    exact ⟨Sum.inl a, by
+      simp only [joinObjMap, Sum.map_inl, NatTrans.id_app]; rw [hb],
+      by simp only [joinObjMap, Sum.map_inl, NatTrans.id_app, CategoryTheory.id_apply]⟩
+  · injection h
+  · injection h
+  · injection h
+  · injection h with h1; injection h1 with hd
+    refine ⟨Sum.inr (Sum.inl c), by
+      simp only [joinObjMap, Sum.map_inr, Sum.map_inl, NatTrans.id_app, CategoryTheory.id_apply], ?_⟩
+    simp only [joinObjMap, Sum.map_inr, Sum.map_inl, NatTrans.id_app]; rw [hd]
+  · injection h with h1; injection h1
+  · injection h
+  · injection h with h1; injection h1
+  · injection h with h1; injection h1 with hsig
+    obtain ⟨rfl, hbc⟩ := Sigma.mk.injEq .. ▸ hsig
+    have hbc' := eq_of_heq hbc
+    rw [Prod.mk.injEq] at hbc'
+    obtain ⟨hb, hd⟩ := hbc'
+    refine ⟨Sum.inr (Sum.inr ⟨p, a, c⟩), ?_, ?_⟩
+    · simp only [joinObjMap, Sum.map_inr, Sigma.map_mk, Prod.map_apply,
+        NatTrans.id_app, CategoryTheory.id_apply, id_eq]; rw [hb]
+    · simp only [joinObjMap, Sum.map_inr, Sigma.map_mk, Prod.map_apply,
+        NatTrans.id_app, CategoryTheory.id_apply, id_eq]; rw [hd]
+
+/-- The level-`n` join naturality square is a pullback of types. -/
+theorem joinMap_app_isPullback (n : ℕ) :
+    IsPullback ((joinMap f (𝟙 C)).app (op ⦋n⦌)) ((joinMap (𝟙 A) g).app (op ⦋n⦌))
+      ((joinMap (𝟙 B) g).app (op ⦋n⦌)) ((joinMap f (𝟙 D)).app (op ⦋n⦌)) := by
+  have key : ∀ {X X' Y Y' : SSet.{u}} (f : X ⟶ X') (g : Y ⟶ Y') (w : (X ⋆ Y) _⦋n⦌),
+      joinObjMap f g n (joinObjEquiv X Y n w)
+        = joinObjEquiv X' Y' n ((joinMap f g).app (op ⦋n⦌) w) := by
+    intro X X' Y Y' f g w
+    rw [← hcompat f g n (joinObjEquiv X Y n w), Equiv.symm_apply_apply]
+  rw [Types.isPullback_iff]
+  refine ⟨?_, ?_, ?_⟩
+  · rw [← NatTrans.comp_app, ← NatTrans.comp_app, joinMap_comm]
+  · rintro w₁ w₂ ⟨e₁, e₂⟩
+    apply (joinObjEquiv A C n).injective
+    apply joinObjMap_pb_inj f g n (joinObjEquiv A C n w₁) (joinObjEquiv A C n w₂)
+    · rw [key f (𝟙 C) w₁, key f (𝟙 C) w₂, e₁]
+    · rw [key (𝟙 A) g w₁, key (𝟙 A) g w₂, e₂]
+  · intro x₂ x₃ e
+    have e' : joinObjMap (𝟙 B) g n (joinObjEquiv B C n x₂)
+        = joinObjMap f (𝟙 D) n (joinObjEquiv A D n x₃) := by
+      rw [key (𝟙 B) g x₂, key f (𝟙 D) x₃, e]
+    obtain ⟨z, hz₁, hz₂⟩ := joinObjMap_pb_lift f g n _ _ e'
+    refine ⟨(joinObjEquiv A C n).symm z, ?_, ?_⟩
+    · apply (joinObjEquiv B C n).injective
+      rw [hcompat f (𝟙 C) n z, hz₁]
+    · apply (joinObjEquiv A D n).injective
+      rw [hcompat (𝟙 A) g n z, hz₂]
+
+/-- The join naturality square is a pullback. -/
+theorem joinPullback :
+    IsPullback (joinMap f (𝟙 C)) (joinMap (𝟙 A) g) (joinMap (𝟙 B) g) (joinMap f (𝟙 D)) := by
+  apply IsPullback.of_forall_isPullback_app
+  intro k
+  have hk : k = op ⦋k.unop.len⦌ := by rw [SimplexCategory.mk_len]
+  rw [hk]
+  exact joinMap_app_isPullback f g k.unop.len
+
+/-- Leibniz join of monomorphisms is a monomorphism. -/
+theorem leibnizJoin_mono (hf : Mono f) (hg : Mono g) : Mono (leibnizJoin f g) := by
+  haveI : Mono (joinMap (𝟙 B) g) := join_mono (𝟙 B) g inferInstance hg
+  haveI : Mono (joinMap f (𝟙 D)) := join_mono f (𝟙 D) hf inferInstance
+  exact leibnizJoin_mono_of_pullback f g (joinPullback f g)
+
 end
 
 end SSet

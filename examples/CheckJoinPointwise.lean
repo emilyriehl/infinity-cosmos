@@ -15,6 +15,8 @@ example (X Y : SSet.{u}) (n : ℕ) : joinDiagram' X Y n = joinDiagram X Y n := r
 #check hcompat
 #check join_mono
 #check leibnizJoin_mono_of_pullback
+#check joinPullback
+#check leibnizJoin_mono
 
 #print axioms SSet.colimitJoinIso
 #print axioms SSet.joinObjEquiv
@@ -23,5 +25,7 @@ example (X Y : SSet.{u}) (n : ℕ) : joinDiagram' X Y n = joinDiagram X Y n := r
 #print axioms SSet.hcompat
 #print axioms SSet.join_mono
 #print axioms SSet.leibnizJoin_mono_of_pullback
+#print axioms SSet.joinPullback
+#print axioms SSet.leibnizJoin_mono
 
 end SSet

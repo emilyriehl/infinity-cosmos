@@ -312,4 +312,57 @@ theorem genCell_innerAnodyne_of_iden (p m : ℕ) (k : Fin (m + 1)) (hk : k < Fin
       (Λ[m, k] : (Δ[m] : SSet.{u}).Subcomplex).ι) :=
   (innerAnodyneExtensions.arrow_mk_iso_iff iden).mpr (joyalBase_innerAnodyne p m k hk)
 
+/-- A monomorphism with a prescribed range subcomplex is the inclusion of that
+subcomplex, at the level of arrows. -/
+noncomputable def arrowMk_iso_of_mono_range {X Y : SSet.{u}} (g : X ⟶ Y) [Mono g]
+    {A : Y.Subcomplex} (h : Subcomplex.range g = A) :
+    Arrow.mk g ≅ Arrow.mk A.ι := by
+  subst h
+  exact Arrow.isoMk' g (Subcomplex.range g).ι (asIso (Subcomplex.toRange g)) (Iso.refl _) (by
+    simp)
+
+/-- The arrow-level identification of the generating Leibniz join with the inner
+horn inclusion, given that the generating Leibniz join is a monomorphism. -/
+noncomputable def genCell_iso_targetHorn_of_mono (P M : ℕ) (k : Fin (M + 1 + 1))
+    [Mono (leibnizJoin (∂Δ[P + 1] : (Δ[P + 1] : SSet.{u}).Subcomplex).ι
+      (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι)] :
+    genCell.{u} (P + 1) (M + 1) k ≅ targetHorn.{u} (P + 1) (M + 1) k := by
+  haveI : Mono (joinStdSimplex.{u} (P + 1) (M + 1)).hom := inferInstance
+  haveI : Mono (leibnizJoin (∂Δ[P + 1] : (Δ[P + 1] : SSet.{u}).Subcomplex).ι
+      (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι ≫
+        (joinStdSimplex.{u} (P + 1) (M + 1)).hom) := inferInstance
+  have hrange :
+      Subcomplex.range (leibnizJoin (∂Δ[P + 1] : (Δ[P + 1] : SSet.{u}).Subcomplex).ι
+          (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι ≫
+        (joinStdSimplex.{u} (P + 1) (M + 1)).hom) =
+        Λ[(P + 1) + (M + 1) + 1, joinRightVertex (P + 1) (M + 1) k] :=
+    genCell_range_image_identity P M k
+  refine (Arrow.isoMk (Iso.refl _) (joinStdSimplex.{u} (P + 1) (M + 1)) (by
+      rfl) :
+      genCell.{u} (P + 1) (M + 1) k ≅
+        Arrow.mk (leibnizJoin (∂Δ[P + 1] : (Δ[P + 1] : SSet.{u}).Subcomplex).ι
+          (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι ≫
+            (joinStdSimplex.{u} (P + 1) (M + 1)).hom)) ≪≫ ?_
+  exact arrowMk_iso_of_mono_range _ hrange
+
+/-- The generating Leibniz join is a monomorphism. -/
+theorem genCell_mono (P M : ℕ) (k : Fin (M + 1 + 1)) :
+    Mono (leibnizJoin (∂Δ[P + 1] : (Δ[P + 1] : SSet.{u}).Subcomplex).ι
+      (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι) :=
+  leibnizJoin_mono _ _ inferInstance inferInstance
+
+/-- The arrow-level identification of the generating Leibniz join with the
+target inner horn inclusion. -/
+noncomputable def genCell_iso_targetHorn (P M : ℕ) (k : Fin (M + 1 + 1)) :
+    genCell.{u} (P + 1) (M + 1) k ≅ targetHorn.{u} (P + 1) (M + 1) k := by
+  haveI := genCell_mono P M k
+  exact genCell_iso_targetHorn_of_mono P M k
+
+/-- The generating Leibniz join is inner-anodyne for the interior right horn. -/
+theorem genCell_innerAnodyne (P M : ℕ) (k : Fin (M + 1 + 1)) (hk : k < Fin.last (M + 1)) :
+    innerAnodyneExtensions.{u}
+      (leibnizJoin (∂Δ[P + 1] : (Δ[P + 1] : SSet.{u}).Subcomplex).ι
+        (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι) :=
+  genCell_innerAnodyne_of_iden (P + 1) (M + 1) k hk (genCell_iso_targetHorn P M k)
+
 end SSet
