@@ -7,12 +7,12 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Join
 # Vertex bookkeeping for the Joyal special outer horn argument
 
 This file records the horn-side combinatorics for the base case
-`∂Δ[p] ⋆̂ Λ[m,k]`.  The actual comparison with the image of the
-Leibniz join under `joinStdSimplex` still needs simplex-level naturality
-of that isomorphism with respect to the two standard-simplex factors.
+`∂Δ[p] ⋆̂ Λ[m,k]`.  The image comparison under `joinStdSimplex` is
+tracked here; the remaining stronger generator step is the Arrow-level
+pushout identification with the target horn inclusion.
 -/
 
-open CategoryTheory Simplicial Opposite
+open CategoryTheory Simplicial Opposite Limits MorphismProperty
 
 namespace SSet
 
@@ -226,6 +226,64 @@ theorem fhorn_image_identity (P M : ℕ) (k : Fin (M + 1 + 1)) :
       horn.{u} ((P + 1) + (M + 1) + 1) (joinRightVertex (P + 1) (M + 1) k) :=
   fhorn_identity_of_faceImages (P + 1) (M + 1) k (fhorn_H1 P M) (fhorn_H2 (P + 1) M k)
 
+set_option backward.isDefEq.respectTransparency false in
+/-- The range of a Leibniz join is the union of the ranges of its two outgoing
+pushout legs. -/
+lemma range_leibnizJoin {A B C D : SSet.{u}} (f : A ⟶ B) (g : C ⟶ D) :
+    Subcomplex.range (leibnizJoin f g) =
+      Subcomplex.range (joinMap (𝟙 B) g) ⊔ Subcomplex.range (joinMap f (𝟙 D)) := by
+  conv_lhs =>
+    rw [range_eq_iSup_of_isColimit
+      (pushout.isColimit (joinMap f (𝟙 C)) (joinMap (𝟙 A) g)) (leibnizJoin f g)]
+  apply le_antisymm
+  · simp only [iSup_le_iff]
+    intro j
+    cases j with
+    | none =>
+        have hz : (pushout.cocone (joinMap f (𝟙 C)) (joinMap (𝟙 A) g)).ι.app
+            WalkingSpan.zero ≫ leibnizJoin f g =
+          joinMap f (𝟙 C) ≫ joinMap (𝟙 B) g := by
+          simp [leibnizJoin]
+        rw [hz, Subcomplex.range_comp]
+        exact le_trans (Subcomplex.image_le_range _ _) le_sup_left
+    | some val =>
+        cases val
+        · simp [leibnizJoin]
+        · simp [leibnizJoin]
+  · apply sup_le
+    · exact le_iSup_of_le WalkingSpan.left (by simp [leibnizJoin])
+    · exact le_iSup_of_le WalkingSpan.right (by simp [leibnizJoin])
+
+/-- The generating Leibniz join, as an arrow. -/
+noncomputable abbrev genCell (p m : ℕ) (k : Fin (m + 1)) : Arrow SSet.{u} :=
+  Arrow.mk (leibnizJoin (∂Δ[p] : (Δ[p] : SSet.{u}).Subcomplex).ι
+    (Λ[m, k] : (Δ[m] : SSet.{u}).Subcomplex).ι)
+
+/-- The target inner horn inclusion, as an arrow. -/
+abbrev targetHorn (p m : ℕ) (k : Fin (m + 1)) : Arrow SSet.{u} :=
+  Arrow.mk (Λ[p + m + 1, joinRightVertex p m k].ι)
+
+/-- The F-horn identity expressed as the range of the actual generating Leibniz
+join after the standard-simplex join isomorphism. -/
+theorem genCell_range_image_identity (P M : ℕ) (k : Fin (M + 1 + 1)) :
+    Subcomplex.range
+        (leibnizJoin (∂Δ[P + 1] : (Δ[P + 1] : SSet.{u}).Subcomplex).ι
+            (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι ≫
+          (joinStdSimplex.{u} (P + 1) (M + 1)).hom) =
+      horn.{u} ((P + 1) + (M + 1) + 1) (joinRightVertex (P + 1) (M + 1) k) := by
+  rw [Subcomplex.range_comp, range_leibnizJoin, sup_comm]
+  exact fhorn_image_identity P M k
+
+/-- Given the arrow-level identification with the inner horn inclusion, the
+generating Leibniz join is a monomorphism. -/
+theorem genCell_mono_of_iden (p m : ℕ) (k : Fin (m + 1))
+    (iden : genCell.{u} p m k ≅ targetHorn.{u} p m k) :
+    Mono (leibnizJoin (∂Δ[p] : (Δ[p] : SSet.{u}).Subcomplex).ι
+      (Λ[m, k] : (Δ[m] : SSet.{u}).Subcomplex).ι) := by
+  have hhorn : Mono (Λ[p + m + 1, joinRightVertex p m k].ι : _ ⟶ (Δ[p + m + 1] : SSet.{u})) :=
+    inferInstance
+  exact ((monomorphisms SSet.{u}).arrow_mk_iso_iff iden).mpr hhorn
+
 lemma joyalBaseIndex_interior (p m : ℕ) (k : Fin (m + 1)) (hk : k < Fin.last m) :
     (0 : Fin (p + m + 1 + 1)) < joinRightVertex p m k ∧
       joinRightVertex p m k < Fin.last (p + m + 1) := by
@@ -245,5 +303,13 @@ lemma joyalBase_innerAnodyne (p m : ℕ) (k : Fin (m + 1)) (hk : k < Fin.last m)
       (Λ[p + m + 1, joinRightVertex p m k].ι) :=
   let ⟨h0, hn⟩ := joyalBaseIndex_interior p m k hk
   innerAnodyneExtensions.horn_ι h0 hn
+
+/-- Given the arrow-level identification with the inner horn inclusion, the
+generating Leibniz join is inner-anodyne. -/
+theorem genCell_innerAnodyne_of_iden (p m : ℕ) (k : Fin (m + 1)) (hk : k < Fin.last m)
+    (iden : genCell.{u} p m k ≅ targetHorn.{u} p m k) :
+    innerAnodyneExtensions.{u} (leibnizJoin (∂Δ[p] : (Δ[p] : SSet.{u}).Subcomplex).ι
+      (Λ[m, k] : (Δ[m] : SSet.{u}).Subcomplex).ι) :=
+  (innerAnodyneExtensions.arrow_mk_iso_iff iden).mpr (joyalBase_innerAnodyne p m k hk)
 
 end SSet

@@ -26,6 +26,12 @@ open SSet Simplicial
 #check SSet.fhorn_H2
 #check SSet.fhorn_identity_of_faceImages
 #check SSet.fhorn_image_identity
+#check SSet.range_leibnizJoin
+#check SSet.genCell
+#check SSet.targetHorn
+#check SSet.genCell_range_image_identity
+#check SSet.genCell_mono_of_iden
+#check SSet.genCell_innerAnodyne_of_iden
 #print axioms SSet.mem_joyalBase_horn_iff
 #print axioms SSet.joyalBase_horn_eq_vertexBlocks
 #print axioms SSet.joyalBase_innerAnodyne
@@ -49,3 +55,7 @@ open SSet Simplicial
 #print axioms SSet.fhorn_H2
 #print axioms SSet.fhorn_identity_of_faceImages
 #print axioms SSet.fhorn_image_identity
+#print axioms SSet.range_leibnizJoin
+#print axioms SSet.genCell_range_image_identity
+#print axioms SSet.genCell_mono_of_iden
+#print axioms SSet.genCell_innerAnodyne_of_iden
