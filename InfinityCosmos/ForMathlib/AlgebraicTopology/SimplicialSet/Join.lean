@@ -2393,3 +2393,162 @@ theorem leibnizJoin_mono_of_pullback {A B C D : SSet.{u}} (f : A ⟶ B) (g : C �
 end
 
 end SSet
+
+namespace SSet
+noncomputable section
+open SSet.JoinDecomp AugmentedSimplexCategory
+variable {X X' Y Y' : SSet.{u}}
+
+/-! combinatorial core -/
+theorem clsOO_functoriality (f : X ⟶ X') (g : Y ⟶ Y') {n a b : ℕ}
+    (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌) (x : X _⦋a⦌) (y : Y _⦋b⦌) :
+    clsOO (X := X') (Y := Y') n a b φ (f.app (op ⦋a⦌) x) (g.app (op ⦋b⦌) y)
+      = joinObjMap f g n (clsOO (X := X) (Y := Y) n a b φ x y) := by
+  rcases mapsInto_trichotomy φ with ⟨ψ, hψ⟩ | ⟨ψ, hψ⟩ | ⟨p, q, hpq, ψL, ψR, hψ⟩
+  · rw [clsOO_left φ ψ hψ (f.app (op ⦋a⦌) x) (g.app (op ⦋b⦌) y), clsOO_left φ ψ hψ x y,
+        ← NatTrans.naturality_apply f ψ.op x]; rfl
+  · rw [clsOO_right φ ψ hψ (f.app (op ⦋a⦌) x) (g.app (op ⦋b⦌) y), clsOO_right φ ψ hψ x y,
+        ← NatTrans.naturality_apply g ψ.op y]; rfl
+  · subst hpq
+    have hsimp : φ = tensorHomOf ψL ψR := by rw [hψ]; simp only [eqToHom_refl, Category.id_comp]
+    rw [hsimp, clsOO_split ψL ψR (f.app (op ⦋a⦌) x) (g.app (op ⦋b⦌) y), clsOO_split ψL ψR x y,
+        ← NatTrans.naturality_apply f ψL.op x, ← NatTrans.naturality_apply g ψR.op y]; rfl
+
+theorem cls_functoriality (f : X ⟶ X') (g : Y ⟶ Y') (n : ℕ)
+    (j : CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)))
+    (x : (augmentedDay.obj X).functor.obj j.left.1)
+    (y : (augmentedDay.obj Y).functor.obj j.left.2) :
+    cls (X := X') (Y := Y') n j
+        ((augmentedDay.map f).natTrans.app j.left.1 x)
+        ((augmentedDay.map g).natTrans.app j.left.2 y)
+      = joinObjMap f g n (cls (X := X) (Y := Y) n j x y) := by
+  obtain ⟨⟨A, B⟩, ⟨⟨⟩⟩, φ⟩ := j
+  obtain ⟨Au⟩ := A; obtain ⟨Bu⟩ := B
+  cases Au with
+  | of A0 => cases Bu with
+    | of B0 =>
+        show clsOO (X:=X') n A0.len B0.len (WithInitial.down φ.unop)
+              (f.app (op A0) x) (g.app (op B0) y)
+          = joinObjMap f g n (clsOO (X:=X) n A0.len B0.len (WithInitial.down φ.unop) x y)
+        exact clsOO_functoriality f g (WithInitial.down φ.unop) x y
+    | star =>
+        show Sum.inl (X'.map (WithInitial.down φ.unop).op (f.app (op A0) x))
+          = joinObjMap f g n (Sum.inl (X.map (WithInitial.down φ.unop).op x))
+        rw [← NatTrans.naturality_apply f (WithInitial.down φ.unop).op x]; rfl
+  | star => cases Bu with
+    | of B0 =>
+        show Sum.inr (Sum.inl (Y'.map (WithInitial.down φ.unop).op (g.app (op B0) y)))
+          = joinObjMap f g n (Sum.inr (Sum.inl (Y.map (WithInitial.down φ.unop).op y)))
+        rw [← NatTrans.naturality_apply g (WithInitial.down φ.unop).op y]; rfl
+    | star => exact (WithInitial.false_of_to_star φ.unop).elim
+
+/-! colimit bridge -/
+theorem colimitJoinIso_hom_ι (n : ℕ)
+    (j : CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)))
+    (p : (joinDiagram X Y n).obj j) :
+    (colimitJoinIso X Y n).hom (colimit.ι (joinDiagram X Y n) j p) = cls n j p.1 p.2 := by
+  show colimit.desc (joinDiagram' X Y n)
+      ((joinDiagram' X Y n).coconeTypesEquiv (joinCoconeTypes X Y n))
+        (colimit.ι (joinDiagram' X Y n) j p) = _
+  rw [colimit.ι_desc_apply]; rfl
+
+/-! Day naturality of the Kan-extension presentation -/
+theorem genInv (m : AC) (j : CostructuredArrow (tensor AC) m) :
+    colimit.ι (CostructuredArrow.proj (tensor AC) m
+          ⋙ (augmentedDay.obj X).functor ⊠ (augmentedDay.obj Y).functor) j
+        ≫ (DayFunctor.isoPointwiseLeftKanExtension (augmentedDay.obj X) (augmentedDay.obj Y)).inv.app m
+      = (DayFunctor.η (augmentedDay.obj X) (augmentedDay.obj Y)).app j.left
+        ≫ ((augmentedDay.obj X) ⊗ (augmentedDay.obj Y)).functor.map j.hom := by
+  set F := augmentedDay.obj X
+  set G := augmentedDay.obj Y
+  have helper : ∀ (jl : AC × AC),
+      colimit.ι (CostructuredArrow.proj (tensor AC) ((tensor AC).obj jl) ⋙ F.functor ⊠ G.functor)
+          (CostructuredArrow.mk (𝟙 ((tensor AC).obj jl)))
+        ≫ (DayFunctor.isoPointwiseLeftKanExtension F G).inv.app ((tensor AC).obj jl)
+      = (DayFunctor.η F G).app jl := by
+    rintro ⟨x, y⟩
+    exact DayFunctor.ι_comp_isoPointwiseLeftKanExtension_inv F G x y
+  have e1 : colimit.ι (CostructuredArrow.proj (tensor AC) m ⋙ F.functor ⊠ G.functor) j
+      = colimit.ι (CostructuredArrow.proj (tensor AC) ((tensor AC).obj j.left) ⋙ F.functor ⊠ G.functor)
+          (CostructuredArrow.mk (𝟙 ((tensor AC).obj j.left)))
+        ≫ ((tensor AC).pointwiseLeftKanExtension (F.functor ⊠ G.functor)).map j.hom := by
+    rw [Functor.pointwiseLeftKanExtension_map, colimit.ι_desc]
+    simp only [CostructuredArrow.map_mk]
+    rw [Category.id_comp]; rfl
+  rw [e1, Category.assoc, (DayFunctor.isoPointwiseLeftKanExtension F G).inv.naturality j.hom,
+      ← Category.assoc, helper]
+
+/-! derived: forward Kan-extension presentation -/
+theorem genHom (m : AC) (j : CostructuredArrow (tensor AC) m) :
+    (DayFunctor.η (augmentedDay.obj X) (augmentedDay.obj Y)).app j.left
+        ≫ ((augmentedDay.obj X) ⊗ (augmentedDay.obj Y)).functor.map j.hom
+        ≫ (DayFunctor.isoPointwiseLeftKanExtension (augmentedDay.obj X) (augmentedDay.obj Y)).hom.app m
+      = colimit.ι (CostructuredArrow.proj (tensor AC) m
+          ⋙ (augmentedDay.obj X).functor ⊠ (augmentedDay.obj Y).functor) j := by
+  rw [← Category.assoc, ← genInv m j, Category.assoc, Iso.inv_hom_id_app]
+  exact Category.comp_id _
+
+variable (f : X ⟶ X') (g : Y ⟶ Y')
+
+/-! the Day naturality square in functor-variable direction -/
+theorem bigSQ (n : ℕ)
+    (j : CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))) :
+    colimit.ι (joinDiagram X Y n) j
+        ≫ (joinObjColimitIso X Y n).inv
+        ≫ (joinMap f g).app (op ⦋n⦌)
+        ≫ (joinObjColimitIso X' Y' n).hom
+      = ((augmentedDay.map f).natTrans.app j.left.1 ⊗ₘ (augmentedDay.map g).natTrans.app j.left.2)
+        ≫ colimit.ι (joinDiagram X' Y' n) j := by
+  have hB2 : joinMap f g = restrictAugmentedDay.map (augmentedDay.map f ⊗ₘ augmentedDay.map g) := by
+    rw [joinMap, tensorHom_def, Functor.map_comp]; rfl
+  have hB3 : (joinMap f g).app (op ⦋n⦌)
+      = (augmentedDay.map f ⊗ₘ augmentedDay.map g).natTrans.app
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) := by rw [hB2]; rfl
+  have helper2 : ∀ (jl : AC × AC),
+      (DayFunctor.η (augmentedDay.obj X) (augmentedDay.obj Y)).app jl
+          ≫ (augmentedDay.map f ⊗ₘ augmentedDay.map g).natTrans.app ((tensor AC).obj jl)
+        = ((augmentedDay.map f).natTrans.app jl.1 ⊗ₘ (augmentedDay.map g).natTrans.app jl.2)
+          ≫ (DayFunctor.η (augmentedDay.obj X') (augmentedDay.obj Y')).app jl := by
+    rintro ⟨x, y⟩
+    exact LawfulDayConvolutionMonoidalCategoryStruct.convolutionExtensionUnit_comp_ι_map_tensorHom_app
+      AC (Type u) (augmentedDay.map f) (augmentedDay.map g) x y
+  rw [show (joinObjColimitIso X Y n).inv
+        = (DayFunctor.isoPointwiseLeftKanExtension (augmentedDay.obj X) (augmentedDay.obj Y)).inv.app
+            (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) from rfl,
+      show (joinObjColimitIso X' Y' n).hom
+        = (DayFunctor.isoPointwiseLeftKanExtension (augmentedDay.obj X') (augmentedDay.obj Y')).hom.app
+            (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) from rfl,
+      hB3]
+  rw [reassoc_of% (genInv (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) j),
+      reassoc_of% ((augmentedDay.map f ⊗ₘ augmentedDay.map g).natTrans.naturality j.hom),
+      reassoc_of% (helper2 j.left),
+      genHom (X := X') (Y := Y') (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) j]
+
+/-! the assembled naturality of `joinObjEquiv` -/
+theorem hcompat (n : ℕ) (z : joinObj X Y n) :
+    joinObjEquiv X' Y' n ((joinMap f g).app (op ⦋n⦌) ((joinObjEquiv X Y n).symm z))
+      = joinObjMap f g n z := by
+  obtain ⟨j, p, hjp⟩ := Limits.Types.jointly_surjective' ((colimitJoinIso X Y n).inv z)
+  have hz : z = cls n j p.1 p.2 := by
+    have hh := colimitJoinIso_hom_ι (X := X) (Y := Y) n j p
+    rw [hjp, Iso.inv_hom_id_apply] at hh
+    exact hh
+  have hsq := ConcreteCategory.congr_hom (bigSQ f g n j) p
+  show (colimitJoinIso X' Y' n).hom ((joinObjColimitIso X' Y' n).hom ((joinMap f g).app (op ⦋n⦌)
+      ((joinObjColimitIso X Y n).inv ((colimitJoinIso X Y n).inv z)))) = joinObjMap f g n z
+  rw [← hjp]
+  rw [show (joinObjColimitIso X' Y' n).hom ((joinMap f g).app (op ⦋n⦌)
+        ((joinObjColimitIso X Y n).inv (colimit.ι (joinDiagram X Y n) j p)))
+      = colimit.ι (joinDiagram X' Y' n) j
+          ((augmentedDay.map f).natTrans.app j.left.1 p.1,
+           (augmentedDay.map g).natTrans.app j.left.2 p.2) from hsq]
+  rw [colimitJoinIso_hom_ι (X := X') (Y := Y') n j]
+  rw [cls_functoriality f g n j p.1 p.2, hz]
+
+/-! `join_mono` follows unconditionally -/
+theorem join_mono (hf : Mono f) (hg : Mono g) : Mono (joinMap f g) :=
+  join_mono_of_joinObjEquiv joinObjEquiv (fun f g n z => hcompat f g n z) f g hf hg
+
+end
+
+end SSet
