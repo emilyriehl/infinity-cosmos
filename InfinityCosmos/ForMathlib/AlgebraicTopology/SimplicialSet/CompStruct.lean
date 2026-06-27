@@ -161,6 +161,76 @@ noncomputable def comp {f : Edge x₀ x₁} {g : Edge x₁ x₂} (hf : IsIso f) 
       _ = SSet.Truncated.HomotopyCategory₂.homMk (Edge.id x₂).toTruncated := by
           rw [hg.invHomId.toTruncated.homotopyCategory₂_fac]
 
+/-- If `h` is a composite of `f` and `g`, and both `f` and `g` are isomorphism edges,
+then `h` is an isomorphism edge. -/
+noncomputable def ofCompStruct {f : Edge x₀ x₁} {g : Edge x₁ x₂} {h : Edge x₀ x₂}
+    (c : Edge.CompStruct f g h) (hf : IsIso f) (hg : IsIso g) : IsIso h where
+  inv := Edge.comp hg.inv hf.inv
+  homInvId := by
+    apply Edge.CompStruct.ofTruncated
+    apply SSet.Truncated.Edge.CompStruct.ofHomotopyCategory₂Fac
+    have hid₁ : SSet.Truncated.HomotopyCategory₂.homMk (Edge.id x₁).toTruncated =
+        𝟙 ({ pt := x₁ } : SSet.Truncated.HomotopyCategory₂ ((truncation 2).obj X)) := by
+      exact SSet.Truncated.HomotopyCategory₂.homMk_id
+        ({ pt := x₁ } : SSet.Truncated.HomotopyCategory₂ ((truncation 2).obj X))
+    calc
+      SSet.Truncated.HomotopyCategory₂.homMk h.toTruncated ≫
+          SSet.Truncated.HomotopyCategory₂.homMk (Edge.comp hg.inv hf.inv).toTruncated =
+        (SSet.Truncated.HomotopyCategory₂.homMk f.toTruncated ≫
+            SSet.Truncated.HomotopyCategory₂.homMk g.toTruncated) ≫
+          (SSet.Truncated.HomotopyCategory₂.homMk hg.inv.toTruncated ≫
+            SSet.Truncated.HomotopyCategory₂.homMk hf.inv.toTruncated) := by
+          rw [c.toTruncated.homotopyCategory₂_fac]
+          rw [← (Edge.compStruct hg.inv hf.inv).toTruncated.homotopyCategory₂_fac]
+      _ = SSet.Truncated.HomotopyCategory₂.homMk f.toTruncated ≫
+            ((SSet.Truncated.HomotopyCategory₂.homMk g.toTruncated ≫
+              SSet.Truncated.HomotopyCategory₂.homMk hg.inv.toTruncated) ≫
+              SSet.Truncated.HomotopyCategory₂.homMk hf.inv.toTruncated) := by
+          simp only [Category.assoc]
+      _ = SSet.Truncated.HomotopyCategory₂.homMk f.toTruncated ≫
+            (SSet.Truncated.HomotopyCategory₂.homMk (Edge.id x₁).toTruncated ≫
+              SSet.Truncated.HomotopyCategory₂.homMk hf.inv.toTruncated) := by
+          rw [hg.homInvId.toTruncated.homotopyCategory₂_fac]
+      _ = SSet.Truncated.HomotopyCategory₂.homMk f.toTruncated ≫
+            (𝟙 _ ≫ SSet.Truncated.HomotopyCategory₂.homMk hf.inv.toTruncated) := by
+          rw [hid₁]
+      _ = SSet.Truncated.HomotopyCategory₂.homMk f.toTruncated ≫
+            SSet.Truncated.HomotopyCategory₂.homMk hf.inv.toTruncated := by rw [Category.id_comp]
+      _ = SSet.Truncated.HomotopyCategory₂.homMk (Edge.id x₀).toTruncated := by
+          rw [hf.homInvId.toTruncated.homotopyCategory₂_fac]
+  invHomId := by
+    apply Edge.CompStruct.ofTruncated
+    apply SSet.Truncated.Edge.CompStruct.ofHomotopyCategory₂Fac
+    have hid₁ : SSet.Truncated.HomotopyCategory₂.homMk (Edge.id x₁).toTruncated =
+        𝟙 ({ pt := x₁ } : SSet.Truncated.HomotopyCategory₂ ((truncation 2).obj X)) := by
+      exact SSet.Truncated.HomotopyCategory₂.homMk_id
+        ({ pt := x₁ } : SSet.Truncated.HomotopyCategory₂ ((truncation 2).obj X))
+    calc
+      SSet.Truncated.HomotopyCategory₂.homMk (Edge.comp hg.inv hf.inv).toTruncated ≫
+          SSet.Truncated.HomotopyCategory₂.homMk h.toTruncated =
+        (SSet.Truncated.HomotopyCategory₂.homMk hg.inv.toTruncated ≫
+            SSet.Truncated.HomotopyCategory₂.homMk hf.inv.toTruncated) ≫
+          (SSet.Truncated.HomotopyCategory₂.homMk f.toTruncated ≫
+            SSet.Truncated.HomotopyCategory₂.homMk g.toTruncated) := by
+          rw [c.toTruncated.homotopyCategory₂_fac]
+          rw [← (Edge.compStruct hg.inv hf.inv).toTruncated.homotopyCategory₂_fac]
+      _ = SSet.Truncated.HomotopyCategory₂.homMk hg.inv.toTruncated ≫
+            ((SSet.Truncated.HomotopyCategory₂.homMk hf.inv.toTruncated ≫
+              SSet.Truncated.HomotopyCategory₂.homMk f.toTruncated) ≫
+              SSet.Truncated.HomotopyCategory₂.homMk g.toTruncated) := by
+          simp only [Category.assoc]
+      _ = SSet.Truncated.HomotopyCategory₂.homMk hg.inv.toTruncated ≫
+            (SSet.Truncated.HomotopyCategory₂.homMk (Edge.id x₁).toTruncated ≫
+              SSet.Truncated.HomotopyCategory₂.homMk g.toTruncated) := by
+          rw [hf.invHomId.toTruncated.homotopyCategory₂_fac]
+      _ = SSet.Truncated.HomotopyCategory₂.homMk hg.inv.toTruncated ≫
+            (𝟙 _ ≫ SSet.Truncated.HomotopyCategory₂.homMk g.toTruncated) := by
+          rw [hid₁]
+      _ = SSet.Truncated.HomotopyCategory₂.homMk hg.inv.toTruncated ≫
+            SSet.Truncated.HomotopyCategory₂.homMk g.toTruncated := by rw [Category.id_comp]
+      _ = SSet.Truncated.HomotopyCategory₂.homMk (Edge.id x₂).toTruncated := by
+          rw [hg.invHomId.toTruncated.homotopyCategory₂_fac]
+
 end IsIso
 
 end Edge

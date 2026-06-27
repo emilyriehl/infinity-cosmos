@@ -5,9 +5,10 @@ Authors: Johns Hopkins Category Theory Seminar
 -/
 
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
 
-open CategoryTheory Simplicial
+open CategoryTheory Simplicial Opposite
 
 namespace SSet
 
@@ -96,5 +97,114 @@ theorem range_edge_le_isoCore {A : SSet} {a₀ a₁ : A _⦋0⦌} {e : Edge a₀
     Subcomplex.range (yonedaEquiv.symm e.edge) ≤ isoCore A := by
   rw [Subcomplex.range_eq_ofSimplex, Equiv.apply_symm_apply]
   exact ofSimplex_edge_le_isoCore he
+
+/-- Recover an `Edge.IsIso` from the proposition that the underlying 1-simplex is an iso simplex. -/
+theorem Edge.isIso_of_isIsoSimplex {A : SSet} {x₀ x₁ : A _⦋0⦌} (e : Edge x₀ x₁)
+    (h : IsIsoSimplex e.edge) : Nonempty e.IsIso := by
+  obtain ⟨he⟩ := h
+  exact ⟨he.ofEq rfl⟩
+
+/-- Closure for a single `2`-simplex: in a quasicategory, if the outer faces `δ 2` and `δ 0`
+of a `2`-simplex are iso 1-simplices, then so is the diagonal face `δ 1`. -/
+theorem isIsoSimplex_δ₁_of_outer {A : SSet} [Quasicategory A] (σ : A _⦋2⦌)
+    (h₂ : IsIsoSimplex (A.δ 2 σ)) (h₀ : IsIsoSimplex (A.δ 0 σ)) :
+    IsIsoSimplex (A.δ 1 σ) := by
+  obtain ⟨x₀, x₁, x₂, e₀₁, e₁₂, e₀₂, c, hc⟩ := Edge.CompStruct.exists_of_simplex σ
+  subst hc
+  rw [c.d₁]
+  rw [c.d₂] at h₂
+  rw [c.d₀] at h₀
+  obtain ⟨hf⟩ := Edge.isIso_of_isIsoSimplex e₀₁ h₂
+  obtain ⟨hg⟩ := Edge.isIso_of_isIsoSimplex e₁₂ h₀
+  exact isIsoSimplex_of_edge (Edge.IsIso.ofCompStruct c hf hg)
+
+/-- If `g : Δ[n] ⟶ A` extends a horn map `τ : Λ[n, i] ⟶ isoCore A`, then `g`'s
+value on any simplex coming from the horn lands in `isoCore A`. -/
+theorem app_mem_isoCore_of_mem_horn {A : SSet} {n : ℕ} {i : Fin (n + 1)}
+    {τ : (Λ[n, i] : SSet) ⟶ (isoCore A : SSet)} {g : Δ[n] ⟶ A}
+    (hg : τ ≫ (isoCore A).ι = Λ[n, i].ι ≫ g)
+    {m : SimplexCategoryᵒᵖ} (y : (Λ[n, i] : SSet).obj m) :
+    g.app m y.val ∈ (isoCore A).obj m := by
+  have key : g.app m y.val = (τ.app m y).val := by
+    have hgm : (Λ[n, i].ι ≫ g).app m y = (τ ≫ (isoCore A).ι).app m y := by rw [hg]
+    simpa using hgm
+  rw [key]
+  exact (τ.app m y).property
+
+/-- Inner-horn closure: a filler of an inner horn in `A` whose boundary lands in `isoCore A`
+also lands in `isoCore A`. -/
+theorem filler_mem_isoCore {A : SSet} [Quasicategory A] {n : ℕ} {i : Fin (n + 1)}
+    (h0 : 0 < i) (hn : i < Fin.last n)
+    {τ : (Λ[n, i] : SSet) ⟶ (isoCore A : SSet)} {g : Δ[n] ⟶ A}
+    (hg : τ ≫ (isoCore A).ι = Λ[n, i].ι ≫ g) :
+    yonedaEquiv g ∈ (isoCore A).obj (op ⦋n⦌) := by
+  rw [mem_isoCore_obj_iff]
+  intro f
+  by_cases hmem : stdSimplex.objEquiv.symm f ∈ Λ[n, i].obj (op ⦋1⦌)
+  · rw [map_yonedaEquiv]
+    exact (mem_isoCore_obj_one_iff _).mp (app_mem_isoCore_of_mem_horn hg ⟨_, hmem⟩)
+  · rw [Fin.lt_def, Fin.val_zero] at h0
+    rw [Fin.lt_def, Fin.val_last] at hn
+    by_cases hn3 : 1 + 1 < n
+    · rw [horn_obj_eq_univ i 1 hn3] at hmem
+      exact absurd (Set.mem_univ _) hmem
+    · have hn2 : n = 2 := by omega
+      subst hn2
+      have hi1 : i = 1 := by
+        apply Fin.ext
+        simp only [Fin.val_one]
+        omega
+      subst hi1
+      have hf1 : f = SimplexCategory.δ 1 := by
+        rw [mem_horn_iff, not_not, stdSimplex.coe_asOrderHom_objEquiv_symm] at hmem
+        have m0 : (0 : Fin 3) ∈ Set.range ⇑(ConcreteCategory.hom f) := by
+          have h : (0 : Fin 3) ∈ Set.range ⇑(ConcreteCategory.hom f) ∪ ({1} : Set (Fin 3)) :=
+            hmem ▸ Set.mem_univ _
+          rcases h with h | h
+          · exact h
+          · exact absurd h (by decide)
+        have m2 : (2 : Fin 3) ∈ Set.range ⇑(ConcreteCategory.hom f) := by
+          have h : (2 : Fin 3) ∈ Set.range ⇑(ConcreteCategory.hom f) ∪ ({1} : Set (Fin 3)) :=
+            hmem ▸ Set.mem_univ _
+          rcases h with h | h
+          · exact h
+          · exact absurd h (by decide)
+        obtain ⟨k0, hk0⟩ := m0
+        obtain ⟨k2, hk2⟩ := m2
+        have b0 := ((ConcreteCategory.hom f) 0).isLt
+        have b1 := ((ConcreteCategory.hom f) 1).isLt
+        have hmono : ((ConcreteCategory.hom f) 0).val ≤ ((ConcreteCategory.hom f) 1).val :=
+          (ConcreteCategory.hom f).monotone' (show (0 : Fin 2) ≤ 1 by decide)
+        have v0 := congrArg Fin.val hk0
+        have v2 := congrArg Fin.val hk2
+        have hval : ((ConcreteCategory.hom f) 0).val = 0 ∧
+            ((ConcreteCategory.hom f) 1).val = 2 := by
+          fin_cases k0 <;> fin_cases k2 <;> simp_all
+        obtain ⟨hv0, hv2⟩ := hval
+        apply SimplexCategory.Hom.ext
+        ext k
+        fin_cases k
+        · show ((ConcreteCategory.hom f) 0).val = _
+          rw [hv0]
+          decide
+        · show ((ConcreteCategory.hom f) 1).val = _
+          rw [hv2]
+          decide
+      subst hf1
+      apply isIsoSimplex_δ₁_of_outer
+      · show IsIsoSimplex (A.map (SimplexCategory.δ 2).op (yonedaEquiv g))
+        rw [map_yonedaEquiv]
+        have hm2 : stdSimplex.objEquiv.symm (SimplexCategory.δ (2 : Fin 3))
+            ∈ Λ[2, 1].obj (op ⦋1⦌) := by
+          rw [objEquiv_symm_δ_mem_horn_iff]
+          decide
+        exact (mem_isoCore_obj_one_iff _).mp (app_mem_isoCore_of_mem_horn hg ⟨_, hm2⟩)
+      · show IsIsoSimplex (A.map (SimplexCategory.δ 0).op (yonedaEquiv g))
+        rw [map_yonedaEquiv]
+        have hm0 : stdSimplex.objEquiv.symm (SimplexCategory.δ (0 : Fin 3))
+            ∈ Λ[2, 1].obj (op ⦋1⦌) := by
+          rw [objEquiv_symm_δ_mem_horn_iff]
+          decide
+        exact (mem_isoCore_obj_one_iff _).mp (app_mem_isoCore_of_mem_horn hg ⟨_, hm0⟩)
 
 end SSet
