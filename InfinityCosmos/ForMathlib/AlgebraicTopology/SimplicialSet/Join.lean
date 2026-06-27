@@ -141,6 +141,28 @@ theorem joinInr_naturality_left {X X' : SSet.{u}} (f : X ⟶ X') (Y : SSet.{u}) 
   congr 1
   rw [Category.assoc, ← MonoidalCategory.comp_whiskerRight, augmentedDayUnitTo_naturality f]
 
+/-- The left-factor inclusion `X ⟶ X ⋆ Y`. -/
+def joinInl' (X Y : SSet.{u}) : X ⟶ X ⋆ Y := by
+  change restrictAugmentedDay.obj (augmentedDay.obj X) ⟶
+    restrictAugmentedDay.obj (augmentedDay.obj X ⊗ augmentedDay.obj Y)
+  exact restrictAugmentedDay.map
+    ((ρ_ (augmentedDay.obj X)).inv ≫
+      (augmentedDay.obj X) ◁ (augmentedDayUnitTo Y))
+
+theorem joinInl'_naturality_right {Y Y' : SSet.{u}} (g : Y ⟶ Y') (X : SSet.{u}) :
+    joinInl' X Y ≫ (joinFunctor.obj X).map g = joinInl' X Y' := by
+  change
+    restrictAugmentedDay.map
+          ((ρ_ (augmentedDay.obj X)).inv ≫
+            (augmentedDay.obj X) ◁ (augmentedDayUnitTo Y)) ≫
+        restrictAugmentedDay.map ((augmentedDay.obj X) ◁ (augmentedDay.map g)) =
+      restrictAugmentedDay.map
+          ((ρ_ (augmentedDay.obj X)).inv ≫
+            (augmentedDay.obj X) ◁ (augmentedDayUnitTo Y'))
+  rw [← Functor.map_comp]
+  congr 1
+  rw [Category.assoc, ← MonoidalCategory.whiskerLeft_comp, augmentedDayUnitTo_naturality g]
+
 /-- Index of the mixed simplices in the expected pointwise formula. -/
 def JoinIndex (n : ℕ) : Type :=
   { p : ℕ × ℕ // p.1 + p.2 + 1 = n }

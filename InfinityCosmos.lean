@@ -19,6 +19,7 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Slice
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.TrivialFibration
 import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Closed
