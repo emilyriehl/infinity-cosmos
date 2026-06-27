@@ -82,6 +82,14 @@ abbrev AugDay : Type (u + 1) :=
 
 abbrev AC := AugmentedSimplexCategoryᵒᵖ
 
+lemma externalProduct_map_app_eq_tensorHom
+    {F F' G G' : AC ⥤ Type u} (α : F ⟶ F') (β : G ⟶ G')
+    (x y : AC) :
+    ((externalProductBifunctor AC AC (Type u)).map
+        (show (F, G) ⟶ (F', G') from ⟨α, β⟩)).app (x, y) =
+      α.app x ⊗ₘ β.app y := by
+  rw [externalProductBifunctor_map_app, tensorHom_def]
+
 def rightExt (D : AugDay.{u}) : (AC ⥤ Type u) ⥤ (AC × AC ⥤ Type u) :=
   Functor.prod' (𝟭 _) ((Functor.const _).obj D.functor) ⋙
     externalProductBifunctor AC AC (Type u)
@@ -401,6 +409,12 @@ def leibnizJoin {A B C D : SSet.{u}} (f : A ⟶ B) (g : C ⟶ D) :
 def ucoyDay (X : AugmentedSimplexCategoryᵒᵖ) : AugDay.{u} :=
   DayFunctor.mk (uliftCoyoneda.{u}.obj (op X))
 
+/-- The map of augmented representables induced by a map of ordinary simplex objects. -/
+def ucoyMapOf {a b : ℕ} (f : ⦋a⦌ ⟶ ⦋b⦌) :
+    ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌)) ⟶
+      ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌)) :=
+  DayFunctor.Hom.mk (uliftCoyoneda.{u}.map ((AugmentedSimplexCategory.inclusion.map f).op).op)
+
 /-- Two-variable Yoneda identifies the Day convolution of two augmented
 representables with the representable at their tensor product. -/
 def twoVarYonedaCorep (X Y : AugmentedSimplexCategoryᵒᵖ) :
@@ -495,6 +509,138 @@ def ucoyTensorIso (X Y : AugmentedSimplexCategoryᵒᵖ) :
   (DayFunctor.equiv AugmentedSimplexCategoryᵒᵖ (Type u)).inverse.mapIso
     (ucoyTensorFunctorIso.{u} X Y)
 
+lemma ucoyTensorIso_hom_η_apply (X Y x y : AugmentedSimplexCategoryᵒᵖ)
+    (fg : ((externalProduct (ucoyDay.{u} X).functor (ucoyDay.{u} Y).functor).obj (x, y))) :
+    ((ConcreteCategory.hom ((ucoyTensorIso.{u} X Y).hom.natTrans.app (x ⊗ y)))
+      ((ConcreteCategory.hom ((η (ucoyDay.{u} X) (ucoyDay.{u} Y)).app (x, y))) fg)) =
+    ULift.up (fg.1.down ⊗ₘ fg.2.down) := by
+  letI : DayConvolution (ucoyDay.{u} X).functor (ucoyDay.{u} Y).functor :=
+    LawfulDayConvolutionMonoidalCategoryStruct.convolution
+      (C := AugmentedSimplexCategoryᵒᵖ) (V := Type u) AugDay.{u}
+      (ucoyDay.{u} X) (ucoyDay.{u} Y)
+  have hcore :
+      (DayConvolution.corepresentableBy (ucoyDay.{u} X).functor (ucoyDay.{u} Y).functor).homEquiv
+          (((ucoyTensorIso.{u} X Y).hom).natTrans) =
+      (twoVarYonedaCorep.{u} X Y).homEquiv (𝟙 (uliftCoyoneda.{u}.obj (op (X ⊗ Y)))) := by
+    let e := DayConvolution.corepresentableBy (ucoyDay.{u} X).functor (ucoyDay.{u} Y).functor
+    let e' := twoVarYonedaCorep.{u} X Y
+    change e.homEquiv (((ucoyTensorIso.{u} X Y).hom).natTrans) =
+      e'.homEquiv (𝟙 (uliftCoyoneda.{u}.obj (op (X ⊗ Y))))
+    dsimp [ucoyTensorIso, ucoyTensorFunctorIso]
+    change e.homEquiv ((e.uniqueUpToIso e').hom) = e'.homEquiv (𝟙 _)
+    dsimp [Functor.CorepresentableBy.uniqueUpToIso]
+    change e.homEquiv (e.homEquiv.symm (e'.homEquiv (𝟙 _))) = e'.homEquiv (𝟙 _)
+    exact e.homEquiv.apply_symm_apply (e'.homEquiv (𝟙 _))
+  have h := DayConvolution.corepresentableBy_homEquiv_apply_app
+    (ucoyDay.{u} X).functor (ucoyDay.{u} Y).functor (((ucoyTensorIso.{u} X Y).hom).natTrans) (x, y)
+  have happ := congrArg (fun α => α.app (x, y)) hcore
+  have h2 :
+      ((twoVarYonedaCorep.{u} X Y).homEquiv (𝟙 (uliftCoyoneda.{u}.obj (op (X ⊗ Y))))).app (x, y) =
+        (DayConvolution.unit (ucoyDay.{u} X).functor (ucoyDay.{u} Y).functor).app (x, y) ≫
+          (((ucoyTensorIso.{u} X Y).hom).natTrans.app (x ⊗ y)) := by
+    rw [← happ]
+    exact h
+  change (ConcreteCategory.hom (((DayConvolution.unit (ucoyDay.{u} X).functor
+      (ucoyDay.{u} Y).functor).app (x, y)) ≫
+      (((ucoyTensorIso.{u} X Y).hom).natTrans.app (x ⊗ y)))) fg =
+    ULift.up (fg.1.down ⊗ₘ fg.2.down)
+  rw [← h2]
+  rcases fg with ⟨f, g⟩
+  rcases f with ⟨f⟩
+  rcases g with ⟨g⟩
+  simp [twoVarYonedaCorep, uliftCoyonedaEquiv]
+
+lemma ucoyTensorIso_naturality {a a' b b' : ℕ}
+    (f : ⦋a⦌ ⟶ ⦋a'⦌) (g : ⦋b⦌ ⟶ ⦋b'⦌) :
+    (ucoyMapOf.{u} f ▷ ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌)) ≫
+        ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a'⦌)) ◁ ucoyMapOf.{u} g ≫
+        (ucoyTensorIso.{u}
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋a'⦌))
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋b'⦌))).hom) =
+      (ucoyTensorIso.{u}
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌))).hom ≫
+        ucoyMapOf.{u} (AugmentedSimplexCategory.tensorHomOf f g) := by
+  rw [← Category.assoc]
+  rw [← MonoidalCategory.tensorHom_def (ucoyMapOf.{u} f) (ucoyMapOf.{u} g)]
+  apply DayFunctor.tensor_hom_ext
+  intro x y
+  simp only [DayFunctor.comp_natTrans, NatTrans.comp_app]
+  change (LawfulDayConvolutionMonoidalCategoryStruct.convolutionExtensionUnit
+      AugmentedSimplexCategoryᵒᵖ (Type u)
+      (ucoyDay (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌)))
+      (ucoyDay (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌)))).app (x, y) ≫
+      ((LawfulDayConvolutionMonoidalCategoryStruct.ι
+        AugmentedSimplexCategoryᵒᵖ (Type u) AugDay.{u}).map
+          (ucoyMapOf.{u} f ⊗ₘ ucoyMapOf.{u} g)).app (x ⊗ y) ≫
+        (ucoyTensorIso.{u}
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋a'⦌))
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋b'⦌))).hom.natTrans.app (x ⊗ y) =
+    (LawfulDayConvolutionMonoidalCategoryStruct.convolutionExtensionUnit
+      AugmentedSimplexCategoryᵒᵖ (Type u)
+      (ucoyDay (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌)))
+      (ucoyDay (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌)))).app (x, y) ≫
+        (ucoyTensorIso.{u}
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌))).hom.natTrans.app (x ⊗ y) ≫
+          (ucoyMapOf.{u} (AugmentedSimplexCategory.tensorHomOf f g)).natTrans.app (x ⊗ y)
+  rw [reassoc_of% LawfulDayConvolutionMonoidalCategoryStruct.convolutionExtensionUnit_comp_ι_map_tensorHom_app
+    (C := AugmentedSimplexCategoryᵒᵖ) (V := Type u) (D := AugDay.{u})]
+  ext fg
+  rcases fg with ⟨φ, ψ⟩
+  rcases φ with ⟨φ⟩
+  rcases ψ with ⟨ψ⟩
+  let fg₀ :
+      ((externalProduct
+          (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))).functor
+          (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌))).functor).obj
+        (x, y)) := ({ down := φ }, { down := ψ })
+  let α : (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))).functor ⟶
+      (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a'⦌))).functor :=
+    (ucoyMapOf.{u} f).natTrans
+  let β : (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌))).functor ⟶
+      (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋b'⦌))).functor :=
+    (ucoyMapOf.{u} g).natTrans
+  let fg₁ :
+      ((externalProduct
+          (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a'⦌))).functor
+          (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋b'⦌))).functor).obj
+        (x, y)) :=
+    (ConcreteCategory.hom
+      (α.app x ⊗ₘ β.app y)) fg₀
+  change
+    (ConcreteCategory.hom
+      ((ucoyTensorIso.{u}
+        (op (AugmentedSimplexCategory.inclusion.obj ⦋a'⦌))
+        (op (AugmentedSimplexCategory.inclusion.obj ⦋b'⦌))).hom.natTrans.app (x ⊗ y)))
+      ((ConcreteCategory.hom
+        ((η (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a'⦌)))
+          (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋b'⦌)))).app (x, y))) fg₁) =
+    (ConcreteCategory.hom
+      ((ucoyMapOf.{u} (AugmentedSimplexCategory.tensorHomOf f g)).natTrans.app (x ⊗ y)))
+      ((ConcreteCategory.hom
+        ((ucoyTensorIso.{u}
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))
+          (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌))).hom.natTrans.app (x ⊗ y)))
+        ((ConcreteCategory.hom
+          ((η (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌)))
+            (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌)))).app (x, y))) fg₀))
+  rw [ucoyTensorIso_hom_η_apply
+    (X := op (AugmentedSimplexCategory.inclusion.obj ⦋a'⦌))
+    (Y := op (AugmentedSimplexCategory.inclusion.obj ⦋b'⦌)) (x := x) (y := y) fg₁]
+  rw [ucoyTensorIso_hom_η_apply
+    (X := op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))
+    (Y := op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌)) (x := x) (y := y) fg₀]
+  simp [fg₀, fg₁, α, β, ucoyMapOf]
+  apply ULift.ext
+  change
+    ((AugmentedSimplexCategory.inclusion.map f).op ≫ φ) ⊗ₘ
+        ((AugmentedSimplexCategory.inclusion.map g).op ≫ ψ) =
+      (AugmentedSimplexCategory.inclusion.map
+          (AugmentedSimplexCategory.tensorHomOf f g)).op ≫ (φ ⊗ₘ ψ)
+  rw [← MonoidalCategory.tensorHom_comp_tensorHom]
+  rfl
+
 /-- On ordinary simplex objects, the augmented inclusion is fully faithful. -/
 def augmentedInclusionHomEquiv (m n : SimplexCategory) :
     (AugmentedSimplexCategory.inclusion.obj m ⟶
@@ -581,6 +727,29 @@ def augmentedDayStdIso (a : ℕ) :
   (DayFunctor.equiv AugmentedSimplexCategoryᵒᵖ (Type u)).inverse.mapIso
     (augmentedPresheafStdIso.{u} a)
 
+@[reassoc]
+lemma augmentedDayStdIso_naturality {a b : ℕ} (f : ⦋a⦌ ⟶ ⦋b⦌) :
+    (augmentedDayStdIso.{u} a).hom ≫ ucoyMapOf.{u} f =
+      augmentedDay.map (stdSimplex.map f) ≫ (augmentedDayStdIso.{u} b).hom := by
+  ext n x
+  cases n using Opposite.rec with
+  | _ n =>
+    cases n with
+    | star =>
+      cases x
+      simp [ucoyMapOf, augmentedDayStdIso, augmentedPresheafStdIso, ucoyAugmentedStdIso,
+        ucoyDropStdIso, ucoyPointStdIso, terminalAugmented, terminalAugmentedObj,
+        augmentedPresheaf, augmentedDay]
+      apply ULift.ext
+      apply Quiver.Hom.unop_inj
+      change WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋a⦌) ≫
+          AugmentedSimplexCategory.inclusion.map f =
+        WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋b⦌)
+      simp
+    | of n =>
+      rcases x with ⟨x⟩
+      rfl
+
 /-- Ordinal-sum arithmetic in the augmented simplex category. -/
 theorem ordinalSum_eq (a b : ℕ) :
     AugmentedSimplexCategory.inclusion.obj ⦋a⦌ ⊗
@@ -618,6 +787,54 @@ def joinMiddleIso (a b : ℕ) :
       (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌)) ≪≫
     (augmentedDayStdIso.{u} (a + b + 1)).symm
 
+lemma joinMiddleIso_naturality {a a' b b' : ℕ}
+    (f : ⦋a⦌ ⟶ ⦋a'⦌) (g : ⦋b⦌ ⟶ ⦋b'⦌) :
+    augmentedDay.map (stdSimplex.{u}.map f) ▷ augmentedDay.obj (stdSimplex.{u}.obj ⦋b⦌) ≫
+      augmentedDay.obj (stdSimplex.{u}.obj ⦋a'⦌) ◁ augmentedDay.map (stdSimplex.{u}.map g) ≫
+      (joinMiddleIso.{u} a' b').hom =
+    (joinMiddleIso.{u} a b).hom ≫
+      augmentedDay.map (stdSimplex.{u}.map (AugmentedSimplexCategory.tensorHomOf f g)) := by
+  dsimp [joinMiddleIso]
+  simp only [Category.assoc]
+  rw [← MonoidalCategory.tensorHom_def_assoc]
+  rw [MonoidalCategory.tensorHom_comp_tensorHom_assoc]
+  rw [← augmentedDayStdIso_naturality f]
+  rw [← augmentedDayStdIso_naturality g]
+  rw [← MonoidalCategory.tensorHom_comp_tensorHom_assoc]
+  rw [MonoidalCategory.tensorHom_def_assoc (ucoyMapOf.{u} f) (ucoyMapOf.{u} g)]
+  have htensor := ucoyTensorIso_naturality f g
+  change (ucoyMapOf.{u} f ▷
+      ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌)) ≫
+      ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a'⦌)) ◁ ucoyMapOf.{u} g ≫
+      (ucoyTensorIso.{u} (op (WithInitial.of ⦋a'⦌)) (op (WithInitial.of ⦋b'⦌))).hom) =
+    (ucoyTensorIso.{u} (op (WithInitial.of ⦋a⦌)) (op (WithInitial.of ⦋b⦌))).hom ≫
+      ucoyMapOf.{u} (AugmentedSimplexCategory.tensorHomOf f g) at htensor
+  rw [reassoc_of% htensor]
+  have hfinal :
+      ucoyMapOf.{u} (AugmentedSimplexCategory.tensorHomOf f g) ≫
+          (augmentedDayStdIso.{u} (a' + b' + 1)).inv =
+        (augmentedDayStdIso.{u} (a + b + 1)).inv ≫
+          augmentedDay.map
+            (stdSimplex.{u}.map (AugmentedSimplexCategory.tensorHomOf f g)) := by
+    rw [Iso.comp_inv_eq]
+    rw [Category.assoc]
+    rw [Iso.eq_inv_comp]
+    exact augmentedDayStdIso_naturality (AugmentedSimplexCategory.tensorHomOf f g)
+  change ((augmentedDayStdIso.{u} a).hom ⊗ₘ (augmentedDayStdIso.{u} b).hom) ≫
+      (ucoyTensorIso.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))
+        (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌))).hom ≫
+      ucoyMapOf.{u} (AugmentedSimplexCategory.tensorHomOf f g) ≫
+      (augmentedDayStdIso.{u} (a' + b' + 1)).inv =
+    ((augmentedDayStdIso.{u} a).hom ⊗ₘ (augmentedDayStdIso.{u} b).hom) ≫
+      (ucoyTensorIso.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))
+        (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌))).hom ≫
+      (augmentedDayStdIso.{u} (a + b + 1)).inv ≫
+      augmentedDay.map (stdSimplex.{u}.map (AugmentedSimplexCategory.tensorHomOf f g))
+  exact congrArg
+    (fun k => ((augmentedDayStdIso.{u} a).hom ⊗ₘ (augmentedDayStdIso.{u} b).hom) ≫
+      (ucoyTensorIso.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))
+        (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌))).hom ≫ k) hfinal
+
 /-- Given the middle augmented-Day isomorphism, restriction gives the standard
 simplex join isomorphism. -/
 def joinStdSimplexOf (a b : ℕ)
@@ -633,6 +850,28 @@ def joinStdSimplex (a b : ℕ) :
     SSet.stdSimplex.{u}.obj ⦋a⦌ ⋆ SSet.stdSimplex.{u}.obj ⦋b⦌ ≅
       SSet.stdSimplex.{u}.obj ⦋a + b + 1⦌ :=
   joinStdSimplexOf.{u} a b (joinMiddleIso.{u} a b)
+
+theorem joinStdSimplex_naturality {a a' b b' : ℕ}
+    (f : ⦋a⦌ ⟶ ⦋a'⦌) (g : ⦋b⦌ ⟶ ⦋b'⦌) :
+    joinMap (stdSimplex.{u}.map f) (stdSimplex.{u}.map g) ≫ (joinStdSimplex.{u} a' b').hom =
+      (joinStdSimplex.{u} a b).hom ≫
+        stdSimplex.{u}.map (AugmentedSimplexCategory.tensorHomOf f g) := by
+  unfold joinStdSimplex joinStdSimplexOf joinMap joinFunctor
+  simp only [Functor.comp_map, Category.assoc]
+  change restrictAugmentedDay.map
+        ((augmentedDay.map (stdSimplex.{u}.map f)) ▷
+          augmentedDay.obj (stdSimplex.{u}.obj ⦋b⦌)) ≫
+      restrictAugmentedDay.map
+        (augmentedDay.obj (stdSimplex.{u}.obj ⦋a'⦌) ◁
+          (augmentedDay.map (stdSimplex.{u}.map g))) ≫
+        restrictAugmentedDay.map (joinMiddleIso.{u} a' b').hom =
+    restrictAugmentedDay.map (joinMiddleIso.{u} a b).hom ≫
+      restrictAugmentedDay.map
+        (augmentedDay.map
+          (stdSimplex.{u}.map (AugmentedSimplexCategory.tensorHomOf f g)))
+  rw [← Functor.map_comp, ← Functor.map_comp, ← Functor.map_comp]
+  congr 1
+  exact joinMiddleIso_naturality f g
 
 end
 
