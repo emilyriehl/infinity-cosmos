@@ -20,6 +20,9 @@ import Mathlib.CategoryTheory.Limits.Shapes.Equalizers
 import Mathlib.CategoryTheory.Limits.Types.Coproducts
 import Mathlib.CategoryTheory.Whiskering
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
+import Mathlib.CategoryTheory.Adhesive.Basic
+import Mathlib.CategoryTheory.Limits.Types.Colimits
+import Mathlib.CategoryTheory.Limits.Types.ColimitType
 
 set_option backward.defeqAttrib.useBackward true
 set_option backward.isDefEq.respectTransparency false
@@ -1348,6 +1351,1044 @@ theorem image_range_joinMap_horn_eq_iSup_right (p M : ℕ) (k : Fin (M + 2)) :
         (AugmentedSimplexCategory.tensorHomOf (𝟙 ⦋p⦌) (SimplexCategory.δ j.1))) := by
   rw [range_joinMap_horn_eq_iSup_right, Subcomplex.image_iSup]
   exact iSup_congr (fun j => image_range_joinMap_right p M (M + 1) (SimplexCategory.δ j.1))
+
+end
+
+end SSet
+
+open CategoryTheory Simplicial Finset
+open AugmentedSimplexCategory
+
+namespace SSet.JoinDecomp
+
+/-! ### Step 1: the cut point of a monotone map into an ordinal -/
+
+/-- A monotone map `f : Fin (n+1) → ℕ` crosses any threshold `A` at a unique cut
+position `i`: the preimage of `[0, A)` is the initial segment `[0, i)`. -/
+theorem cut_exists {n A : ℕ} (f : Fin (n+1) →o ℕ) :
+    ∃ i : ℕ, i ≤ n+1 ∧ ∀ j : Fin (n+1), (f j < A ↔ (j:ℕ) < i) := by
+  classical
+  set R : Finset (Fin (n+1)) := univ.filter (fun j => A ≤ f j) with hRdef
+  by_cases hR : R.Nonempty
+  · refine ⟨(R.min' hR : Fin (n+1)).val, by omega, ?_⟩
+    intro j
+    have hmem : ∀ k : Fin (n+1), k ∈ R ↔ A ≤ f k := by intro k; simp [hRdef]
+    constructor
+    · intro hj
+      by_contra hcon
+      simp only [not_lt] at hcon
+      have hle : (R.min' hR) ≤ j := by rw [Fin.le_def]; exact hcon
+      have : A ≤ f j := le_trans ((hmem _).1 (R.min'_mem hR)) (f.monotone hle)
+      omega
+    · intro hj
+      have hlt : j < R.min' hR := by rw [Fin.lt_def]; exact hj
+      have hjnot : j ∉ R := fun hjmem => absurd (R.min'_le j hjmem) (not_le.2 hlt)
+      rw [hmem] at hjnot; omega
+  · refine ⟨n+1, le_refl _, ?_⟩
+    intro j
+    rw [Finset.not_nonempty_iff_eq_empty] at hR
+    have hjnot : j ∉ R := by rw [hR]; exact Finset.notMem_empty j
+    simp only [hRdef, Finset.mem_filter, Finset.mem_univ, true_and, not_le] at hjnot
+    exact ⟨fun _ => by omega, fun _ => hjnot⟩
+
+/-! ### Step 2: pointwise evaluation of `tensorHomOf` on the two blocks -/
+
+lemma inl'_comp_tensorHomOf {p q a b : ℕ} (f : ⦋p⦌ ⟶ ⦋a⦌) (g : ⦋q⦌ ⟶ ⦋b⦌) :
+    inl' ⦋p⦌ ⦋q⦌ ≫ tensorHomOf f g = f ≫ inl' ⦋a⦌ ⦋b⦌ := by
+  ext i : 3
+  dsimp [tensorHomOf]
+  have e₁ := inl'_eval ⦋p⦌ ⦋q⦌ i
+  have e₂ := inl'_eval ⦋a⦌ ⦋b⦌ (f.toOrderHom i)
+  simp only [SimplexCategory.len_mk] at e₁ e₂
+  rw [e₁, e₂]
+  simp only [SimplexCategory.eqToHom_toOrderHom, SimplexCategory.len_mk,
+    OrderEmbedding.toOrderHom_coe, OrderIso.coe_toOrderEmbedding, Fin.castOrderIso_apply,
+    Fin.cast_cast, Fin.cast_eq_self, Fin.cast_inj]
+  conv_lhs =>
+    change Fin.addCases (fun i ↦ Fin.castAdd (b + 1) (f.toOrderHom i))
+      (fun i ↦ Fin.natAdd (a + 1) (g.toOrderHom i)) (Fin.castAdd (q + 1) i)
+    rw [Fin.addCases_left]
+
+lemma inr'_comp_tensorHomOf {p q a b : ℕ} (f : ⦋p⦌ ⟶ ⦋a⦌) (g : ⦋q⦌ ⟶ ⦋b⦌) :
+    inr' ⦋p⦌ ⦋q⦌ ≫ tensorHomOf f g = g ≫ inr' ⦋a⦌ ⦋b⦌ := by
+  ext i : 3
+  dsimp [tensorHomOf]
+  have e₁ := inr'_eval ⦋p⦌ ⦋q⦌ i
+  have e₂ := inr'_eval ⦋a⦌ ⦋b⦌ (g.toOrderHom i)
+  simp only [SimplexCategory.len_mk] at e₁ e₂
+  rw [e₁, e₂]
+  simp only [SimplexCategory.eqToHom_toOrderHom, SimplexCategory.len_mk,
+    OrderEmbedding.toOrderHom_coe, OrderIso.coe_toOrderEmbedding, Fin.castOrderIso_apply,
+    Fin.cast_cast, Fin.cast_eq_self, Fin.cast_inj]
+  conv_lhs =>
+    change Fin.addCases (fun i ↦ Fin.castAdd (b + 1) (f.toOrderHom i))
+      (fun i ↦ Fin.natAdd (a + 1) (g.toOrderHom i)) (Fin.natAdd (p + 1) i)
+    rw [Fin.addCases_right]
+
+lemma inl'_tensorHomOf_apply {p q a b : ℕ} (f : ⦋p⦌ ⟶ ⦋a⦌) (g : ⦋q⦌ ⟶ ⦋b⦌) (k : Fin (p+1)) :
+    ((tensorHomOf f g).toOrderHom ((inl' ⦋p⦌ ⦋q⦌).toOrderHom k) : ℕ)
+      = ((f.toOrderHom k : Fin (a+1)) : ℕ) := by
+  have h := congrArg (fun m => (m.toOrderHom k : ℕ)) (inl'_comp_tensorHomOf f g)
+  rw [SimplexCategory.comp_toOrderHom] at h
+  simp only [OrderHom.comp_coe, Function.comp_apply] at h
+  rw [h, SimplexCategory.comp_toOrderHom]
+  simp only [OrderHom.comp_coe, Function.comp_apply]
+  rw [inl'_eval]; simp
+
+lemma inr'_tensorHomOf_apply {p q a b : ℕ} (f : ⦋p⦌ ⟶ ⦋a⦌) (g : ⦋q⦌ ⟶ ⦋b⦌) (k : Fin (q+1)) :
+    ((tensorHomOf f g).toOrderHom ((inr' ⦋p⦌ ⦋q⦌).toOrderHom k) : ℕ)
+      = (a+1) + ((g.toOrderHom k : Fin (b+1)) : ℕ) := by
+  have h := congrArg (fun m => (m.toOrderHom k : ℕ)) (inr'_comp_tensorHomOf f g)
+  rw [SimplexCategory.comp_toOrderHom] at h
+  simp only [OrderHom.comp_coe, Function.comp_apply] at h
+  rw [h, SimplexCategory.comp_toOrderHom]
+  simp only [OrderHom.comp_coe, Function.comp_apply]
+  rw [inr'_eval]; simp
+
+/-- `inl'` is left-cancellable (it is injective). -/
+lemma inl'_left_cancel {n a b : ℕ} (f g : ⦋n⦌ ⟶ ⦋a⦌)
+    (h : f ≫ inl' ⦋a⦌ ⦋b⦌ = g ≫ inl' ⦋a⦌ ⦋b⦌) : f = g := by
+  apply SimplexCategory.Hom.ext; apply OrderHom.ext; funext k
+  have hk := congrArg (fun m => (m.toOrderHom k : ℕ)) h
+  rw [SimplexCategory.comp_toOrderHom, SimplexCategory.comp_toOrderHom] at hk
+  simp only [OrderHom.comp_coe, Function.comp_apply] at hk
+  rw [inl'_eval, inl'_eval] at hk
+  apply Fin.ext; simpa using hk
+
+/-- `inr'` is left-cancellable (it is injective). -/
+lemma inr'_left_cancel {n a b : ℕ} (f g : ⦋n⦌ ⟶ ⦋b⦌)
+    (h : f ≫ inr' ⦋a⦌ ⦋b⦌ = g ≫ inr' ⦋a⦌ ⦋b⦌) : f = g := by
+  apply SimplexCategory.Hom.ext; apply OrderHom.ext; funext k
+  have hk := congrArg (fun m => (m.toOrderHom k : ℕ)) h
+  rw [SimplexCategory.comp_toOrderHom, SimplexCategory.comp_toOrderHom] at hk
+  simp only [OrderHom.comp_coe, Function.comp_apply] at hk
+  rw [inr'_eval, inr'_eval] at hk
+  apply Fin.ext
+  simp only [Fin.val_cast, Fin.val_natAdd] at hk
+  omega
+
+/-- Uniqueness of the block restrictions: `tensorHomOf` is injective in both
+arguments. This is the uniqueness half of the maps-into decomposition (it makes
+the canonical split a terminal object in its connected component of the comma
+category). -/
+theorem tensorHomOf_injective {p q a b : ℕ} {ψL ψL' : ⦋p⦌ ⟶ ⦋a⦌} {ψR ψR' : ⦋q⦌ ⟶ ⦋b⦌}
+    (h : tensorHomOf ψL ψR = tensorHomOf ψL' ψR') : ψL = ψL' ∧ ψR = ψR' := by
+  refine ⟨inl'_left_cancel (b := b) ψL ψL' ?_, inr'_left_cancel (a := a) ψR ψR' ?_⟩
+  · rw [← inl'_comp_tensorHomOf, ← inl'_comp_tensorHomOf, h]
+  · rw [← inr'_comp_tensorHomOf, ← inr'_comp_tensorHomOf, h]
+
+/-! ### Step 3: the three-way decomposition of a map into `⦋a⦌ ⊗ ⦋b⦌` -/
+
+/-- All-left: a map whose image lies entirely in the left block `⦋a⦌` factors
+through `inl'`. -/
+theorem fact_left {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌)
+    (h : ∀ j, ((φ.toOrderHom j : Fin (a+b+2)) : ℕ) < a+1) :
+    ∃ ψ : ⦋n⦌ ⟶ ⦋a⦌, φ = ψ ≫ inl' ⦋a⦌ ⦋b⦌ := by
+  refine ⟨SimplexCategory.mkHom ⟨fun j => ⟨(φ.toOrderHom j).val, h j⟩, ?_⟩, ?_⟩
+  · intro i j hij; rw [Fin.le_def]; exact φ.toOrderHom.monotone hij
+  · apply SimplexCategory.Hom.ext; apply OrderHom.ext; funext j
+    rw [SimplexCategory.comp_toOrderHom]
+    simp only [OrderHom.comp_coe, Function.comp_apply]
+    rw [inl'_eval]; apply Fin.ext; simp
+
+/-- All-right: a map whose image lies entirely in the right block `⦋b⦌` factors
+through `inr'`. -/
+theorem fact_right {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌)
+    (h : ∀ j, ¬ ((φ.toOrderHom j : Fin (a+b+2)) : ℕ) < a+1) :
+    ∃ ψ : ⦋n⦌ ⟶ ⦋b⦌, φ = ψ ≫ inr' ⦋a⦌ ⦋b⦌ := by
+  refine ⟨SimplexCategory.mkHom ⟨fun j => ⟨(φ.toOrderHom j).val - (a+1), ?_⟩, ?_⟩, ?_⟩
+  · have h2 : (φ.toOrderHom j).val < a + b + 2 := (φ.toOrderHom j).isLt; omega
+  · intro i j hij
+    have hm := φ.toOrderHom.monotone hij; rw [Fin.le_def] at hm
+    rw [Fin.le_def]; exact Nat.sub_le_sub_right hm (a+1)
+  · apply SimplexCategory.Hom.ext; apply OrderHom.ext; funext j
+    rw [SimplexCategory.comp_toOrderHom]
+    simp only [OrderHom.comp_coe, Function.comp_apply]
+    rw [inr'_eval]; apply Fin.ext
+    have hj := h j
+    simp only [SimplexCategory.mkHom, SimplexCategory.Hom.toOrderHom_mk, OrderHom.coe_mk,
+      Fin.val_natAdd, Fin.val_cast]
+    omega
+
+/-- Genuine split: a map that crosses the boundary at cut position `i` (with
+`1 ≤ i ≤ n`) factors as the canonical order-iso `⦋n⦌ ≅ ⦋i-1⦌ ⊗ ⦋n-i⦌` followed by
+`tensorHomOf ψL ψR`, with `ψL` the left restriction and `ψR` the right restriction. -/
+theorem fact_split {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌)
+    (i : ℕ) (hi1 : 1 ≤ i) (hin : i ≤ n)
+    (hcut : ∀ j : Fin (n+1), ((φ.toOrderHom j : Fin (a+b+2)) : ℕ) < a+1 ↔ (j:ℕ) < i) :
+    ∃ (p q : ℕ) (_ : p + q + 1 = n) (ψL : ⦋p⦌ ⟶ ⦋a⦌) (ψR : ⦋q⦌ ⟶ ⦋b⦌),
+      φ = eqToHom (show (⦋n⦌ : SimplexCategory) = tensorObjOf ⦋p⦌ ⦋q⦌ from
+            by simp only [tensorObjOf, SimplexCategory.len_mk]; congr 1; omega)
+            ≫ tensorHomOf ψL ψR := by
+  refine ⟨i-1, n-i, by omega, ?_, ?_, ?_⟩
+  · refine SimplexCategory.mkHom ⟨fun k => ⟨(φ.toOrderHom (⟨k.val, by have := k.isLt; omega⟩ : Fin (n+1))).val, ?_⟩, ?_⟩
+    · have hk : (k : ℕ) < i := by have := k.isLt; omega
+      exact (hcut (⟨k.val, by have := k.isLt; omega⟩ : Fin (n+1))).2 hk
+    · intro x y hxy
+      rw [Fin.le_def]
+      exact φ.toOrderHom.monotone (by rw [Fin.le_def] at hxy ⊢; exact hxy)
+  · refine SimplexCategory.mkHom ⟨fun k => ⟨(φ.toOrderHom (⟨i + k.val, by have := k.isLt; omega⟩ : Fin (n+1))).val - (a+1), ?_⟩, ?_⟩
+    · have h2 : (φ.toOrderHom (⟨i + k.val, by have := k.isLt; omega⟩ : Fin (n+1)) : Fin (a+b+2)).val < a+b+2 :=
+        (φ.toOrderHom _).isLt
+      omega
+    · intro x y hxy
+      rw [Fin.le_def] at hxy ⊢
+      have hm := φ.toOrderHom.monotone (show (⟨i + x.val, by have := x.isLt; omega⟩ : Fin (n+1)) ≤ ⟨i + y.val, by have := y.isLt; omega⟩ by rw [Fin.le_def]; simp only; omega)
+      rw [Fin.le_def] at hm
+      exact Nat.sub_le_sub_right hm (a+1)
+  · apply SimplexCategory.Hom.ext; apply OrderHom.ext; funext j
+    rw [SimplexCategory.comp_toOrderHom]
+    simp only [OrderHom.comp_coe, Function.comp_apply]
+    rw [SimplexCategory.eqToHom_toOrderHom]
+    apply Fin.ext
+    set j' : Fin ((i-1) + (n-i) + 1 + 1) :=
+      (Fin.castOrderIso (congrArg (fun t => t.len + 1)
+        (show (⦋n⦌ : SimplexCategory) = tensorObjOf ⦋(i-1)⦌ ⦋(n-i)⦌ from
+          by simp only [tensorObjOf, SimplexCategory.len_mk]; congr 1; omega))).toOrderEmbedding.toOrderHom j with hj'
+    have hjval : (j' : ℕ) = (j : ℕ) := by simp [hj']
+    by_cases hjlt : (j:ℕ) < i
+    · have hkbd : (j:ℕ) < (i-1) + 1 := by omega
+      have hjeq : j' = (inl' ⦋(i-1)⦌ ⦋(n-i)⦌).toOrderHom ⟨j.val, hkbd⟩ := by
+        apply Fin.ext; rw [inl'_eval]; simp [hjval]
+      rw [hjeq, inl'_tensorHomOf_apply]
+      simp only [SimplexCategory.mkHom, SimplexCategory.Hom.toOrderHom_mk, OrderHom.coe_mk]
+    · have hkbd : (j:ℕ) - i < (n-i) + 1 := by have := j.isLt; omega
+      have hjeq : j' = (inr' ⦋(i-1)⦌ ⦋(n-i)⦌).toOrderHom ⟨j.val - i, hkbd⟩ := by
+        apply Fin.ext; rw [inr'_eval]
+        simp only [Fin.val_cast, Fin.val_natAdd, hjval]
+        omega
+      rw [hjeq, inr'_tensorHomOf_apply]
+      simp only [SimplexCategory.mkHom, SimplexCategory.Hom.toOrderHom_mk, OrderHom.coe_mk]
+      have hge : a + 1 ≤ (φ.toOrderHom j : Fin (a+b+2)).val := by
+        by_contra hlt; push_neg at hlt
+        exact hjlt ((hcut j).1 hlt)
+      have hje : (⟨i + (j.val - i), by have := j.isLt; omega⟩ : Fin (n+1)) = j := by
+        apply Fin.ext; simp only; omega
+      rw [hje]; omega
+
+/-- The full trichotomy: every `φ : ⦋n⦌ ⟶ ⦋a⦌ ⊗ ⦋b⦌` is exactly one of all-left,
+all-right, or a genuine split at a cut `1 ≤ i ≤ n`. -/
+theorem mapsInto_trichotomy {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌) :
+    (∃ ψ : ⦋n⦌ ⟶ ⦋a⦌, φ = ψ ≫ inl' ⦋a⦌ ⦋b⦌) ∨
+    (∃ ψ : ⦋n⦌ ⟶ ⦋b⦌, φ = ψ ≫ inr' ⦋a⦌ ⦋b⦌) ∨
+    (∃ (p q : ℕ) (_ : p + q + 1 = n) (ψL : ⦋p⦌ ⟶ ⦋a⦌) (ψR : ⦋q⦌ ⟶ ⦋b⦌),
+      φ = eqToHom (show (⦋n⦌ : SimplexCategory) = tensorObjOf ⦋p⦌ ⦋q⦌ from
+            by simp only [tensorObjOf, SimplexCategory.len_mk]; congr 1; omega)
+            ≫ tensorHomOf ψL ψR) := by
+  obtain ⟨i, hi, hcut⟩ := cut_exists (A := a+1)
+    (f := ⟨fun j => ((φ.toOrderHom j : Fin (a+b+2)) : ℕ), fun x y hxy => by
+      have := φ.toOrderHom.monotone hxy; rw [Fin.le_def] at this; exact this⟩)
+  rcases Nat.lt_or_ge 0 i with hpos | hzero
+  · rcases Nat.lt_or_ge i (n+1) with hilt | hige
+    · -- 1 ≤ i ≤ n : genuine split
+      right; right
+      exact fact_split φ i hpos (by omega) hcut
+    · -- i = n+1 : all-left
+      left
+      apply fact_left
+      intro j
+      exact (hcut j).2 (by have h := j.isLt; simp only [SimplexCategory.len_mk] at h; omega)
+  · -- i = 0 : all-right
+    right; left
+    apply fact_right
+    intro j hlt
+    have : (j:ℕ) < i := (hcut j).1 hlt
+    omega
+
+
+/-! ### Deterministic classifier for a genuine map into a tensor -/
+
+variable {X Y : SSet.{u}}
+
+/-- The cut position of a genuine map `φ : ⦋n⦌ ⟶ ⦋a⦌ ⊗ ⦋b⦌`: the number of vertices
+landing in the left block. Deterministic (no choice on which trichotomy branch). -/
+noncomputable def cutOf {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌) : ℕ :=
+  Classical.choose (cut_exists (A := a+1)
+    (f := ⟨fun j => ((φ.toOrderHom j : Fin (a+b+2)) : ℕ),
+       fun p q hpq => by have := φ.toOrderHom.monotone hpq; rwa [Fin.le_def] at this⟩))
+
+theorem cutOf_spec {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌) :
+    cutOf φ ≤ n+1 ∧ ∀ j : Fin (n+1),
+      (((φ.toOrderHom j : Fin (a+b+2)) : ℕ) < a+1 ↔ (j:ℕ) < cutOf φ) :=
+  Classical.choose_spec (cut_exists (A := a+1)
+    (f := ⟨fun j => ((φ.toOrderHom j : Fin (a+b+2)) : ℕ),
+       fun p q hpq => by have := φ.toOrderHom.monotone hpq; rwa [Fin.le_def] at this⟩))
+
+/-- The classifier on a genuine `(of ⦋a⦌, of ⦋b⦌)` object: deterministic via `cutOf`. -/
+noncomputable def clsOO (n a b : ℕ) (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌)
+    (x : X _⦋a⦌) (y : Y _⦋b⦌) : joinObj X Y n :=
+  if hi0 : cutOf φ = 0 then
+    Sum.inr (Sum.inl (Y.map (Classical.choose (fact_right φ (fun j hlt => by
+      have h := ((cutOf_spec φ).2 j).1 hlt; omega))).op y))
+  else if hin : cutOf φ = n+1 then
+    Sum.inl (X.map (Classical.choose (fact_left φ (fun j => by
+      have h := (cutOf_spec φ).2 j
+      have hj : (j:ℕ) < n + 1 := j.isLt
+      exact h.2 (by omega)))).op x)
+  else
+    let hs := fact_split φ (cutOf φ) (Nat.one_le_iff_ne_zero.2 hi0)
+      (by have := (cutOf_spec φ).1; omega) (cutOf_spec φ).2
+    let p := Classical.choose hs
+    let hsp := Classical.choose_spec hs
+    let q := Classical.choose hsp
+    let hsq := Classical.choose_spec hsp
+    let hpq := Classical.choose hsq
+    let hsL := Classical.choose_spec hsq
+    let ψL := Classical.choose hsL
+    let hsR := Classical.choose_spec hsL
+    let ψR := Classical.choose hsR
+    Sum.inr (Sum.inr ⟨⟨(p, q), hpq⟩, (X.map ψL.op x, Y.map ψR.op y)⟩)
+
+
+open CategoryTheory.MonoidalCategory Opposite Limits
+
+/-- The full object classifier (cocone leg) on a general object of the comma category. -/
+noncomputable def cls (n : ℕ)
+    (j : CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)))
+    (x : (augmentedDay.obj X).functor.obj j.left.1)
+    (y : (augmentedDay.obj Y).functor.obj j.left.2) : joinObj X Y n := by
+  obtain ⟨⟨A, B⟩, r, φ⟩ := j
+  obtain ⟨Au⟩ := A
+  obtain ⟨Bu⟩ := B
+  cases Au with
+  | of A0 =>
+    cases Bu with
+    | of B0 => exact clsOO n A0.len B0.len (WithInitial.down φ.unop) x y
+    | star => exact Sum.inl (X.map (WithInitial.down φ.unop).op x)
+  | star =>
+    cases Bu with
+    | of B0 => exact Sum.inr (Sum.inl (Y.map (WithInitial.down φ.unop).op y))
+    | star => exact (WithInitial.false_of_to_star φ.unop).elim
+
+
+/-! ## Verified additions toward `colimitJoinIso` (RESIDUAL 1 + computational core) -/
+open CategoryTheory.MonoidalCategory Opposite Limits
+
+theorem cut_unique {n : ℕ} {P : Fin (n+1) → Prop} {i i' : ℕ}
+    (hi : i ≤ n+1) (hi' : i' ≤ n+1)
+    (h : ∀ j : Fin (n+1), (P j ↔ (j:ℕ) < i)) (h' : ∀ j : Fin (n+1), (P j ↔ (j:ℕ) < i')) :
+    i = i' := by
+  rcases Nat.lt_trichotomy i i' with hlt | heq | hgt
+  · exfalso; have hwit : i < n+1 := by omega
+    have key : ((⟨i, hwit⟩ : Fin (n+1)) : ℕ) < i ↔ ((⟨i, hwit⟩ : Fin (n+1)) : ℕ) < i' := by
+      rw [← h ⟨i, hwit⟩, ← h' ⟨i, hwit⟩]
+    simp only [Fin.val_mk] at key; omega
+  · exact heq
+  · exfalso; have hwit : i' < n+1 := by omega
+    have key : ((⟨i', hwit⟩ : Fin (n+1)) : ℕ) < i ↔ ((⟨i', hwit⟩ : Fin (n+1)) : ℕ) < i' := by
+      rw [← h ⟨i', hwit⟩, ← h' ⟨i', hwit⟩]
+    simp only [Fin.val_mk] at key; omega
+
+theorem cutOf_left {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌) (ψ : ⦋n⦌ ⟶ ⦋a⦌)
+    (hψ : φ = ψ ≫ inl' ⦋a⦌ ⦋b⦌) : cutOf φ = n + 1 := by
+  have hspec := cutOf_spec φ
+  refine cut_unique (n := n) (i := cutOf φ) (i' := n+1) hspec.1 le_rfl hspec.2 (fun j => ?_)
+  have hlt : ((φ.toOrderHom j : Fin (a+b+2)) : ℕ) < a + 1 := by
+    subst hψ; rw [SimplexCategory.comp_toOrderHom]
+    simp only [OrderHom.comp_coe, Function.comp_apply]; rw [inl'_eval]
+    simp only [Fin.cast, Fin.coe_castAdd]; exact (ψ.toOrderHom j).isLt
+  exact ⟨fun _ => j.isLt, fun _ => hlt⟩
+
+theorem cutOf_right {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌) (ψ : ⦋n⦌ ⟶ ⦋b⦌)
+    (hψ : φ = ψ ≫ inr' ⦋a⦌ ⦋b⦌) : cutOf φ = 0 := by
+  have hspec := cutOf_spec φ
+  refine cut_unique (n := n) (i := cutOf φ) (i' := 0) hspec.1 (by omega) hspec.2 (fun j => ?_)
+  have hge : a + 1 ≤ ((φ.toOrderHom j : Fin (a+b+2)) : ℕ) := by
+    subst hψ; rw [SimplexCategory.comp_toOrderHom]
+    simp only [OrderHom.comp_coe, Function.comp_apply]; rw [inr'_eval]
+    simp only [Fin.val_natAdd, Fin.val_cast]; omega
+  exact ⟨fun hcon => by omega, fun hcon => absurd hcon (by omega)⟩
+
+theorem cutOf_tensorHomOf {p q a b : ℕ} (ψL : ⦋p⦌ ⟶ ⦋a⦌) (ψR : ⦋q⦌ ⟶ ⦋b⦌) :
+    cutOf (tensorHomOf ψL ψR) = p + 1 := by
+  have hspec := cutOf_spec (tensorHomOf ψL ψR)
+  refine cut_unique (n := p+q+1) (i := cutOf _) (i' := p+1) hspec.1 (by omega) hspec.2 (fun j => ?_)
+  by_cases hjp : (j : ℕ) < p + 1
+  · have hje : j = (inl' ⦋p⦌ ⦋q⦌).toOrderHom ⟨j.val, by simpa using hjp⟩ := by
+      apply Fin.ext; rw [inl'_eval]; simp
+    have hval : ((tensorHomOf ψL ψR).toOrderHom j : Fin (a+b+2)).val < a + 1 := by
+      rw [hje, inl'_tensorHomOf_apply]; exact (ψL.toOrderHom _).isLt
+    exact ⟨fun _ => hjp, fun _ => hval⟩
+  · have hjq : (j : ℕ) - (p+1) < q + 1 := by have := j.isLt; omega
+    have hje : j = (inr' ⦋p⦌ ⦋q⦌).toOrderHom ⟨j.val - (p+1), hjq⟩ := by
+      apply Fin.ext; rw [inr'_eval]; simp only [Fin.val_natAdd, Fin.val_cast]; omega
+    have hval : a + 1 ≤ ((tensorHomOf ψL ψR).toOrderHom j : Fin (a+b+2)).val := by
+      rw [hje, inr'_tensorHomOf_apply]; omega
+    exact ⟨fun hcon => by omega, fun hcon => absurd hcon (by omega)⟩
+
+theorem cutOf_split_form {n p q a b : ℕ} (h : (⦋n⦌ : SimplexCategory) = tensorObjOf ⦋p⦌ ⦋q⦌)
+    (ψL : ⦋p⦌ ⟶ ⦋a⦌) (ψR : ⦋q⦌ ⟶ ⦋b⦌) :
+    cutOf (eqToHom h ≫ tensorHomOf ψL ψR) = p + 1 := by
+  have hn : n = p + q + 1 := by
+    have := congrArg SimplexCategory.len h; simpa [tensorObjOf] using this
+  subst hn
+  rw [show eqToHom h ≫ tensorHomOf ψL ψR = tensorHomOf ψL ψR from by
+    rw [Subsingleton.elim h rfl, eqToHom_refl, Category.id_comp]]
+  exact cutOf_tensorHomOf ψL ψR
+
+theorem cutOf_id (p q : ℕ) : cutOf (𝟙 (tensorObjOf ⦋p⦌ ⦋q⦌)) = p + 1 := by
+  have hspec := cutOf_spec (𝟙 (tensorObjOf ⦋p⦌ ⦋q⦌))
+  have hP : ∀ j : Fin (p+q+1+1),
+      (((SimplexCategory.Hom.toOrderHom (𝟙 (tensorObjOf ⦋p⦌ ⦋q⦌)) j : Fin (p+q+2))) : ℕ)
+        < p+1 ↔ (j:ℕ) < p+1 := by
+    intro j; rw [SimplexCategory.id_toOrderHom]; rfl
+  exact cut_unique (n := p+q+1) (i := cutOf _) (i' := p+1) hspec.1 (by omega) hspec.2 hP
+
+theorem tensorHomOf_id (p q : ℕ) :
+    tensorHomOf (𝟙 ⦋p⦌) (𝟙 ⦋q⦌) = 𝟙 (tensorObjOf ⦋p⦌ ⦋q⦌) :=
+  MonoidalCategory.id_tensorHom_id (WithInitial.of ⦋p⦌) (WithInitial.of ⦋q⦌)
+
+/-- RESIDUAL 1 (all-left star case): `tensorHom (inc ψ) (star→of b) = inc (ψ ≫ inl')`. -/
+theorem tensorHom_star_left (a b n : ℕ) (ψ : ⦋n⦌ ⟶ ⦋a⦌) :
+    MonoidalCategoryStruct.tensorHom (AugmentedSimplexCategory.inclusion.map ψ)
+        (WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋b⦌))
+      = AugmentedSimplexCategory.inclusion.map (ψ ≫ AugmentedSimplexCategory.inl' ⦋a⦌ ⦋b⦌) := by
+  have h := AugmentedSimplexCategory.inl_comp_tensorHom
+    (x₁ := AugmentedSimplexCategory.inclusion.obj ⦋n⦌) (x₂ := WithInitial.star)
+    (y₁ := AugmentedSimplexCategory.inclusion.obj ⦋a⦌)
+    (y₂ := AugmentedSimplexCategory.inclusion.obj ⦋b⦌)
+    (AugmentedSimplexCategory.inclusion.map ψ)
+    (WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋b⦌))
+  rw [show AugmentedSimplexCategory.inl (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)
+        WithInitial.star = 𝟙 _ from rfl, Category.id_comp] at h
+  rw [h]; rfl
+
+/-- RESIDUAL 1 (all-right star case): `tensorHom (star→of a) (inc ψ) = inc (ψ ≫ inr')`. -/
+theorem tensorHom_star_right (a b n : ℕ) (ψ : ⦋n⦌ ⟶ ⦋b⦌) :
+    MonoidalCategoryStruct.tensorHom
+        (WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))
+        (AugmentedSimplexCategory.inclusion.map ψ)
+      = AugmentedSimplexCategory.inclusion.map (ψ ≫ AugmentedSimplexCategory.inr' ⦋a⦌ ⦋b⦌) := by
+  have h := AugmentedSimplexCategory.inr_comp_tensorHom
+    (x₁ := WithInitial.star) (x₂ := AugmentedSimplexCategory.inclusion.obj ⦋n⦌)
+    (y₁ := AugmentedSimplexCategory.inclusion.obj ⦋a⦌)
+    (y₂ := AugmentedSimplexCategory.inclusion.obj ⦋b⦌)
+    (WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))
+    (AugmentedSimplexCategory.inclusion.map ψ)
+  rw [show AugmentedSimplexCategory.inr WithInitial.star
+        (AugmentedSimplexCategory.inclusion.obj ⦋n⦌) = 𝟙 _ from rfl, Category.id_comp] at h
+  rw [h]; rfl
+
+variable {X Y : SSet.{u}}
+
+/-- `clsOO` on an all-left factorization computes to the `X`-summand. -/
+theorem clsOO_left {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌) (ψ : ⦋n⦌ ⟶ ⦋a⦌)
+    (hψ : φ = ψ ≫ inl' ⦋a⦌ ⦋b⦌) (x : X _⦋a⦌) (y : Y _⦋b⦌) :
+    clsOO (X := X) (Y := Y) n a b φ x y = Sum.inl (X.map ψ.op x) := by
+  have hcut : cutOf φ = n + 1 := cutOf_left φ ψ hψ
+  have hH : ∀ j : Fin (n+1), ((φ.toOrderHom j : Fin (a+b+2)) : ℕ) < a + 1 := by
+    intro j; have h := (cutOf_spec φ).2 j; exact h.2 (by rw [hcut]; exact j.isLt)
+  have key : Classical.choose (fact_left φ hH) = ψ := by
+    apply inl'_left_cancel (b := b)
+    rw [← Classical.choose_spec (fact_left φ hH)]; exact hψ
+  unfold clsOO
+  rw [dif_neg (show ¬ cutOf φ = 0 by omega), dif_pos hcut]
+  show Sum.inl (X.map (Classical.choose (fact_left φ hH)).op x) = Sum.inl (X.map ψ.op x)
+  rw [key]
+
+/-- `clsOO` on an all-right factorization computes to the `Y`-summand. -/
+theorem clsOO_right {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌) (ψ : ⦋n⦌ ⟶ ⦋b⦌)
+    (hψ : φ = ψ ≫ inr' ⦋a⦌ ⦋b⦌) (x : X _⦋a⦌) (y : Y _⦋b⦌) :
+    clsOO (X := X) (Y := Y) n a b φ x y = Sum.inr (Sum.inl (Y.map ψ.op y)) := by
+  have hcut : cutOf φ = 0 := cutOf_right φ ψ hψ
+  have hH : ∀ j : Fin (n+1), ¬ ((φ.toOrderHom j : Fin (a+b+2)) : ℕ) < a + 1 := by
+    intro j hlt; have h := ((cutOf_spec φ).2 j).1 hlt; omega
+  have key : Classical.choose (fact_right φ hH) = ψ := by
+    apply inr'_left_cancel (a := a)
+    rw [← Classical.choose_spec (fact_right φ hH)]; exact hψ
+  unfold clsOO
+  rw [dif_pos hcut]
+  show Sum.inr (Sum.inl (Y.map (Classical.choose (fact_right φ hH)).op y)) = _
+  rw [key]
+
+/-! ### Canonical comma terminals and `cls` reductions on them -/
+
+def tLeft (n : ℕ) :
+    CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) :=
+  CostructuredArrow.mk (Y := (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌), op WithInitial.star))
+    (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)))
+
+def tRight (n : ℕ) :
+    CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) :=
+  CostructuredArrow.mk (Y := (op WithInitial.star, op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)))
+    (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)))
+
+def tSplit (p q : ℕ) :
+    CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋p + q + 1⦌)) :=
+  CostructuredArrow.mk (Y := (op (AugmentedSimplexCategory.inclusion.obj ⦋p⦌),
+      op (AugmentedSimplexCategory.inclusion.obj ⦋q⦌)))
+    (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋p + q + 1⦌)))
+
+theorem cls_tLeft (n : ℕ) (x : X _⦋n⦌) (y : PUnit.{u+1}) :
+    cls (X := X) (Y := Y) n (tLeft n) x y = Sum.inl x := by
+  show Sum.inl (X.map (WithInitial.down (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))).unop).op x) = Sum.inl x
+  rw [show WithInitial.down (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))).unop = 𝟙 ⦋n⦌ from rfl]
+  simp
+
+theorem cls_tRight (n : ℕ) (x : PUnit.{u+1}) (y : Y _⦋n⦌) :
+    cls (X := X) (Y := Y) n (tRight n) x y = Sum.inr (Sum.inl y) := by
+  show Sum.inr (Sum.inl (Y.map (WithInitial.down (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))).unop).op y)) = _
+  rw [show WithInitial.down (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))).unop = 𝟙 ⦋n⦌ from rfl]
+  simp
+
+
+/-- `clsOO` on a genuine `tensorHomOf` computes to the split summand. -/
+theorem clsOO_split {a b p q : ℕ} (ψL : ⦋p⦌ ⟶ ⦋a⦌) (ψR : ⦋q⦌ ⟶ ⦋b⦌)
+    (x : X _⦋a⦌) (y : Y _⦋b⦌) :
+    clsOO (X := X) (Y := Y) (p+q+1) a b (tensorHomOf ψL ψR) x y
+      = Sum.inr (Sum.inr ⟨⟨(p, q), rfl⟩, (X.map ψL.op x, Y.map ψR.op y)⟩) := by
+  have hcut : cutOf (tensorHomOf ψL ψR) = p + 1 := cutOf_tensorHomOf ψL ψR
+  have key : ∀ (P1 Q1 : ℕ) (H1 : P1 + Q1 + 1 = p + q + 1)
+      (HE : (⦋p+q+1⦌ : SimplexCategory) = tensorObjOf ⦋P1⦌ ⦋Q1⦌)
+      (L1 : ⦋P1⦌ ⟶ ⦋a⦌) (R1 : ⦋Q1⦌ ⟶ ⦋b⦌)
+      (_ : tensorHomOf ψL ψR = eqToHom HE ≫ tensorHomOf L1 R1),
+      (Sum.inr (Sum.inr ⟨⟨(P1, Q1), H1⟩, (X.map L1.op x, Y.map R1.op y)⟩) : joinObj X Y (p+q+1))
+        = Sum.inr (Sum.inr ⟨⟨(p, q), rfl⟩, (X.map ψL.op x, Y.map ψR.op y)⟩) := by
+    intro P1 Q1 H1 HE L1 R1 hf
+    have hP1 : P1 = p := by
+      have hc := cutOf_split_form HE L1 R1
+      rw [← hf] at hc; omega
+    subst hP1
+    have hQ1 : Q1 = q := by omega
+    subst hQ1
+    rw [show eqToHom HE ≫ tensorHomOf L1 R1 = tensorHomOf L1 R1 from by
+      rw [Subsingleton.elim HE rfl, eqToHom_refl, Category.id_comp]] at hf
+    obtain ⟨hL, hR⟩ := tensorHomOf_injective hf.symm
+    subst hL; subst hR
+    rfl
+  unfold clsOO
+  rw [dif_neg (show ¬ cutOf (tensorHomOf ψL ψR) = 0 by rw [hcut]; omega),
+      dif_neg (show ¬ cutOf (tensorHomOf ψL ψR) = (p+q+1)+1 by rw [hcut]; omega)]
+  exact key _ _ _ _ _ _
+    (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec
+      (Classical.choose_spec (Classical.choose_spec
+        (fact_split (tensorHomOf ψL ψR) (cutOf (tensorHomOf ψL ψR))
+          (by rw [hcut]; omega) (by rw [hcut]; simp only [SimplexCategory.len_mk]; omega)
+          (cutOf_spec (tensorHomOf ψL ψR)).2))))))
+
+end SSet.JoinDecomp
+
+
+namespace SSet.JoinDecomp
+open CategoryTheory Simplicial Finset
+open AugmentedSimplexCategory
+variable {X Y : SSet.{u}}
+
+theorem tensorObjOf_hom_ext {x y z : SimplexCategory} (f g : tensorObjOf x y ⟶ z)
+    (h₁ : inl' x y ≫ f = inl' x y ≫ g) (h₂ : inr' x y ≫ f = inr' x y ≫ g) : f = g := by
+  ext i
+  let j : Fin ((x.len + 1) + (y.len + 1)) := i.cast (Nat.succ_add x.len (y.len + 1)).symm
+  have hij : i = j.cast (Nat.succ_add x.len (y.len + 1)) := rfl
+  rw [hij]
+  cases j using Fin.addCases (m := x.len + 1) (n := y.len + 1) with
+  | left j =>
+    rw [SimplexCategory.Hom.ext_iff, OrderHom.ext_iff] at h₁
+    simpa [← inl'_eval, ConcreteCategory.hom, Fin.ext_iff] using congrFun h₁ j
+  | right j =>
+    rw [SimplexCategory.Hom.ext_iff, OrderHom.ext_iff] at h₂
+    simpa [← inr'_eval, ConcreteCategory.hom, Fin.ext_iff] using congrFun h₂ j
+
+lemma tensorHomOf_comp {x₁ y₁ z₁ x₂ y₂ z₂ : SimplexCategory}
+    (f₁ : x₁ ⟶ y₁) (g₁ : y₁ ⟶ z₁) (f₂ : x₂ ⟶ y₂) (g₂ : y₂ ⟶ z₂) :
+    tensorHomOf f₁ f₂ ≫ tensorHomOf g₁ g₂ = tensorHomOf (f₁ ≫ g₁) (f₂ ≫ g₂) := by
+  apply tensorObjOf_hom_ext
+  · rw [← Category.assoc, inl'_comp_tensorHomOf, Category.assoc, inl'_comp_tensorHomOf,
+        ← Category.assoc, inl'_comp_tensorHomOf]
+  · rw [← Category.assoc, inr'_comp_tensorHomOf, Category.assoc, inr'_comp_tensorHomOf,
+        ← Category.assoc, inr'_comp_tensorHomOf]
+
+end SSet.JoinDecomp
+
+namespace SSet.JoinDecomp
+open CategoryTheory Simplicial Finset
+open AugmentedSimplexCategory
+variable {X Y : SSet.{u}}
+
+/-- `tensorHomOf gA gB` preserves left-block membership. -/
+lemma tensorHomOf_lt_iff {a0 b0 a0' b0' : ℕ} (gA : ⦋a0'⦌ ⟶ ⦋a0⦌) (gB : ⦋b0'⦌ ⟶ ⦋b0⦌)
+    (w : Fin (a0'+b0'+2)) :
+    (((tensorHomOf gA gB).toOrderHom w : Fin (a0+b0+2)) : ℕ) < a0+1 ↔ (w:ℕ) < a0'+1 := by
+  by_cases hw : (w:ℕ) < a0'+1
+  · have hwe : w = (inl' ⦋a0'⦌ ⦋b0'⦌).toOrderHom ⟨w.val, by simpa using hw⟩ := by
+      apply Fin.ext; rw [inl'_eval]; simp
+    have hval : (((tensorHomOf gA gB).toOrderHom w : Fin (a0+b0+2)) : ℕ) < a0+1 := by
+      rw [hwe, inl'_tensorHomOf_apply]; exact (gA.toOrderHom _).isLt
+    exact iff_of_true hval hw
+  · have hwq : (w:ℕ) - (a0'+1) < b0' + 1 := by have := w.isLt; omega
+    have hwe : w = (inr' ⦋a0'⦌ ⦋b0'⦌).toOrderHom ⟨w.val - (a0'+1), hwq⟩ := by
+      apply Fin.ext; rw [inr'_eval]; simp only [Fin.val_natAdd, Fin.val_cast]; omega
+    have hval : ¬ (((tensorHomOf gA gB).toOrderHom w : Fin (a0+b0+2)) : ℕ) < a0+1 := by
+      rw [hwe, inr'_tensorHomOf_apply]; omega
+    exact iff_of_false hval hw
+
+lemma cutOf_comp_tensorHomOf {n a0 b0 a0' b0' : ℕ} (φ' : ⦋n⦌ ⟶ tensorObjOf ⦋a0'⦌ ⦋b0'⦌)
+    (gA : ⦋a0'⦌ ⟶ ⦋a0⦌) (gB : ⦋b0'⦌ ⟶ ⦋b0⦌) :
+    cutOf (φ' ≫ tensorHomOf gA gB) = cutOf φ' := by
+  have hspec' := cutOf_spec φ'
+  have hspecc := cutOf_spec (φ' ≫ tensorHomOf gA gB)
+  refine cut_unique (n := n) (i := cutOf (φ' ≫ tensorHomOf gA gB)) (i' := cutOf φ')
+    hspecc.1 hspec'.1 hspecc.2 (fun j => ?_)
+  rw [← hspec'.2 j, SimplexCategory.comp_toOrderHom]
+  simp only [OrderHom.comp_coe, Function.comp_apply]
+  exact tensorHomOf_lt_iff gA gB _
+
+end SSet.JoinDecomp
+
+namespace SSet.JoinDecomp
+open CategoryTheory Simplicial Finset
+open AugmentedSimplexCategory
+variable {X Y : SSet.{u}}
+
+/-- Naturality of the deterministic `(of,of)` classifier under block maps. -/
+lemma clsOO_naturality {n a0 b0 a0' b0' : ℕ} (φ' : ⦋n⦌ ⟶ tensorObjOf ⦋a0'⦌ ⦋b0'⦌)
+    (gA : ⦋a0'⦌ ⟶ ⦋a0⦌) (gB : ⦋b0'⦌ ⟶ ⦋b0⦌) (x : X _⦋a0⦌) (y : Y _⦋b0⦌) :
+    clsOO (X := X) (Y := Y) n a0' b0' φ' (X.map gA.op x) (Y.map gB.op y)
+      = clsOO (X := X) (Y := Y) n a0 b0 (φ' ≫ tensorHomOf gA gB) x y := by
+  rcases mapsInto_trichotomy φ' with ⟨ψ, hψ⟩ | ⟨ψ, hψ⟩ | ⟨p, q, hpq, ψL, ψR, hψ⟩
+  · -- all-left
+    have hfac : φ' ≫ tensorHomOf gA gB = (ψ ≫ gA) ≫ inl' ⦋a0⦌ ⦋b0⦌ := by
+      rw [hψ, Category.assoc, inl'_comp_tensorHomOf, ← Category.assoc]
+    rw [clsOO_left φ' ψ hψ (X.map gA.op x) (Y.map gB.op y),
+        clsOO_left (φ' ≫ tensorHomOf gA gB) (ψ ≫ gA) hfac x y]
+    simp only [op_comp, FunctorToTypes.map_comp_apply]
+  · -- all-right
+    have hfac : φ' ≫ tensorHomOf gA gB = (ψ ≫ gB) ≫ inr' ⦋a0⦌ ⦋b0⦌ := by
+      rw [hψ, Category.assoc, inr'_comp_tensorHomOf, ← Category.assoc]
+    rw [clsOO_right φ' ψ hψ (X.map gA.op x) (Y.map gB.op y),
+        clsOO_right (φ' ≫ tensorHomOf gA gB) (ψ ≫ gB) hfac x y]
+    simp only [op_comp, FunctorToTypes.map_comp_apply]
+  · -- split
+    subst hpq
+    have hsimp : φ' = tensorHomOf ψL ψR := by
+      rw [hψ]; simp only [eqToHom_refl, Category.id_comp]
+    rw [hsimp, clsOO_split ψL ψR (X.map gA.op x) (Y.map gB.op y),
+        tensorHomOf_comp ψL gA ψR gB, clsOO_split (ψL ≫ gA) (ψR ≫ gB) x y]
+    simp only [op_comp, FunctorToTypes.map_comp_apply]
+
+end SSet.JoinDecomp
+
+namespace SSet
+noncomputable section
+open CategoryTheory Simplicial Opposite Limits Function
+open CategoryTheory.MonoidalCategory
+open CategoryTheory.MonoidalCategory.DayFunctor
+open AugmentedSimplexCategory
+open scoped CategoryTheory.MonoidalCategory.ExternalProduct
+
+/-- The comma-category diagram whose colimit gives the pointwise Day-convolution formula for `(X ⋆ Y)_n`. -/
+abbrev joinDiagram (X Y : SSet.{u}) (n : ℕ) :
+    CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) ⥤ Type u :=
+  CostructuredArrow.proj (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) ⋙
+    ((augmentedDay.obj X).functor ⊠ (augmentedDay.obj Y).functor)
+
+/-- Compatibility alias for the scratch proof port. This is definitionally equal to `joinDiagram`. -/
+abbrev joinDiagram' (X Y : SSet.{u}) (n : ℕ) :
+    CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) ⥤ Type u :=
+  joinDiagram X Y n
+
+noncomputable def joinCoconeTypes (X Y : SSet.{u}) (n : ℕ) :
+    (joinDiagram' X Y n).CoconeTypes where
+  pt := joinObj X Y n
+  ι := fun j z => JoinDecomp.cls n j z.1 z.2
+  ι_naturality := by
+    rintro j j' f
+    obtain ⟨⟨A, B⟩, ⟨⟨⟩⟩, φ⟩ := j
+    obtain ⟨⟨A', B'⟩, ⟨⟨⟩⟩, φ'⟩ := j'
+    obtain ⟨Au⟩ := A; obtain ⟨Bu⟩ := B
+    obtain ⟨Au'⟩ := A'; obtain ⟨Bu'⟩ := B'
+    funext z; obtain ⟨a, b⟩ := z
+    have hw := f.w
+    simp only [CostructuredArrow.mk_hom_eq_self, Functor.const_obj_obj, Functor.const_obj_map,
+      Category.comp_id] at hw
+    cases Au with
+    | of A0 => cases Bu with
+      | of B0 => cases Au' with
+        | of A0' => cases Bu' with
+          | of B0' =>
+            -- MAIN: (of,of)->(of,of)
+            show JoinDecomp.clsOO n A0'.len B0'.len (WithInitial.down φ'.unop)
+                (X.map (WithInitial.down f.left.1.unop).op a)
+                (Y.map (WithInitial.down f.left.2.unop).op b)
+              = JoinDecomp.clsOO n A0.len B0.len (WithInitial.down φ.unop) a b
+            have h3 : WithInitial.down φ.unop
+                = WithInitial.down φ'.unop ≫ tensorHomOf (WithInitial.down f.left.1.unop)
+                    (WithInitial.down f.left.2.unop) := by
+              rw [← congrArg (fun m => WithInitial.down (Quiver.Hom.unop m)) hw]; rfl
+            rw [h3]
+            exact JoinDecomp.clsOO_naturality (WithInitial.down φ'.unop)
+              (WithInitial.down f.left.1.unop) (WithInitial.down f.left.2.unop) a b
+          | star =>
+            -- (of,of)->(of,star): right-block collapse
+            show Sum.inl (X.map (WithInitial.down φ'.unop).op
+                  (X.map (WithInitial.down f.left.1.unop).op a))
+                = JoinDecomp.clsOO n A0.len B0.len (WithInitial.down φ.unop) a b
+            have he2 : f.left.2.unop
+                = WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋B0.len⦌) :=
+              WithInitial.starInitial.hom_ext _ _
+            have hkey : WithInitial.down ((tensor AC).map f.left).unop
+                = WithInitial.down f.left.1.unop ≫ inl' ⦋A0.len⦌ ⦋B0.len⦌ := by
+              have hstar := JoinDecomp.tensorHom_star_left A0.len B0.len A0'.len (WithInitial.down f.left.1.unop)
+              have hlhs : ((tensor AC).map f.left).unop
+                  = MonoidalCategoryStruct.tensorHom
+                      (AugmentedSimplexCategory.inclusion.map (WithInitial.down f.left.1.unop))
+                      (WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋B0.len⦌)) := by
+                rw [← he2]; rfl
+              rw [hlhs, hstar]; rfl
+            have h3 : WithInitial.down φ.unop
+                = (WithInitial.down φ'.unop ≫ WithInitial.down f.left.1.unop) ≫ inl' ⦋A0.len⦌ ⦋B0.len⦌ := by
+              rw [← congrArg (fun m => WithInitial.down (Quiver.Hom.unop m)) hw]
+              show WithInitial.down φ'.unop ≫ WithInitial.down ((tensor AC).map f.left).unop = _
+              rw [hkey, Category.assoc]
+            rw [JoinDecomp.clsOO_left (WithInitial.down φ.unop)
+                (WithInitial.down φ'.unop ≫ WithInitial.down f.left.1.unop) h3 a b]
+            congr 1
+            rw [op_comp]
+            exact (FunctorToTypes.map_comp_apply X
+              (WithInitial.down f.left.1.unop).op (WithInitial.down φ'.unop).op a).symm
+        | star => cases Bu' with
+          | of B0' =>
+            -- (of,of)->(star,of): left-block collapse
+            show Sum.inr (Sum.inl (Y.map (WithInitial.down φ'.unop).op
+                  (Y.map (WithInitial.down f.left.2.unop).op b)))
+                = JoinDecomp.clsOO n A0.len B0.len (WithInitial.down φ.unop) a b
+            have he1 : f.left.1.unop
+                = WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋A0.len⦌) :=
+              WithInitial.starInitial.hom_ext _ _
+            have hkey : WithInitial.down ((tensor AC).map f.left).unop
+                = WithInitial.down f.left.2.unop ≫ inr' ⦋A0.len⦌ ⦋B0.len⦌ := by
+              have hstar := JoinDecomp.tensorHom_star_right A0.len B0.len B0'.len
+                (WithInitial.down f.left.2.unop)
+              have hlhs : ((tensor AC).map f.left).unop
+                  = MonoidalCategoryStruct.tensorHom
+                      (WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋A0.len⦌))
+                      (AugmentedSimplexCategory.inclusion.map (WithInitial.down f.left.2.unop)) := by
+                rw [← he1]; rfl
+              rw [hlhs, hstar]; rfl
+            have h3 : WithInitial.down φ.unop
+                = (WithInitial.down φ'.unop ≫ WithInitial.down f.left.2.unop) ≫ inr' ⦋A0.len⦌ ⦋B0.len⦌ := by
+              rw [← congrArg (fun m => WithInitial.down (Quiver.Hom.unop m)) hw]
+              show WithInitial.down φ'.unop ≫ WithInitial.down ((tensor AC).map f.left).unop = _
+              rw [hkey, Category.assoc]
+            rw [JoinDecomp.clsOO_right (WithInitial.down φ.unop)
+                (WithInitial.down φ'.unop ≫ WithInitial.down f.left.2.unop) h3 a b]
+            congr 2
+            rw [op_comp]
+            exact (FunctorToTypes.map_comp_apply Y
+              (WithInitial.down f.left.2.unop).op (WithInitial.down φ'.unop).op b).symm
+          | star => exact (WithInitial.false_of_to_star φ'.unop).elim
+      | star => cases Au' with
+        | of A0' => cases Bu' with
+          | of B0' => exact (WithInitial.false_of_to_star f.left.2.unop).elim
+          | star =>
+            -- (of,star)->(of,star)
+            show Sum.inl (X.map (WithInitial.down φ'.unop).op
+                  (X.map (WithInitial.down f.left.1.unop).op a))
+                = Sum.inl (X.map (WithInitial.down φ.unop).op a)
+            have h3 : WithInitial.down φ.unop
+                = WithInitial.down φ'.unop ≫ WithInitial.down f.left.1.unop := by
+              rw [← congrArg (fun m => WithInitial.down (Quiver.Hom.unop m)) hw]; rfl
+            rw [h3]; simp only [op_comp, FunctorToTypes.map_comp_apply]
+        | star => cases Bu' with
+          | of B0' => exact (WithInitial.false_of_to_star f.left.2.unop).elim
+          | star => exact (WithInitial.false_of_to_star φ'.unop).elim
+    | star => cases Bu with
+      | of B0 => cases Au' with
+        | of A0' => exact (WithInitial.false_of_to_star f.left.1.unop).elim
+        | star => cases Bu' with
+          | of B0' =>
+            -- (star,of)->(star,of)
+            show Sum.inr (Sum.inl (Y.map (WithInitial.down φ'.unop).op
+                  (Y.map (WithInitial.down f.left.2.unop).op b)))
+                = Sum.inr (Sum.inl (Y.map (WithInitial.down φ.unop).op b))
+            have h3 : WithInitial.down φ.unop
+                = WithInitial.down φ'.unop ≫ WithInitial.down f.left.2.unop := by
+              rw [← congrArg (fun m => WithInitial.down (Quiver.Hom.unop m)) hw]; rfl
+            rw [h3]; simp only [op_comp, FunctorToTypes.map_comp_apply]
+          | star => exact (WithInitial.false_of_to_star φ'.unop).elim
+      | star => exact (WithInitial.false_of_to_star φ.unop).elim
+
+end
+end SSet
+
+
+namespace SSet
+noncomputable section
+open CategoryTheory Simplicial Opposite Limits Function
+open CategoryTheory.MonoidalCategory
+open CategoryTheory.MonoidalCategory.DayFunctor
+open AugmentedSimplexCategory
+open scoped CategoryTheory.MonoidalCategory.ExternalProduct
+
+/-- The canonical split comma object over `⦋n⦌` for a split index `p+q+1=n`. -/
+def jSplitN (n p q : ℕ) (h : p + q + 1 = n) :
+    CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) :=
+  CostructuredArrow.mk (Y := (op (AugmentedSimplexCategory.inclusion.obj ⦋p⦌),
+      op (AugmentedSimplexCategory.inclusion.obj ⦋q⦌)))
+    (eqToHom (by subst h; rfl) :
+      (tensor AC).obj (op (AugmentedSimplexCategory.inclusion.obj ⦋p⦌),
+        op (AugmentedSimplexCategory.inclusion.obj ⦋q⦌)) ⟶ op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))
+
+/-- Canonical colimit representative of each summand. -/
+def rep (X Y : SSet.{u}) (n : ℕ) : joinObj X Y n → (joinDiagram' X Y n).ColimitType
+  | Sum.inl x => (joinDiagram' X Y n).ιColimitType (JoinDecomp.tLeft n) (x, PUnit.unit)
+  | Sum.inr (Sum.inl y) => (joinDiagram' X Y n).ιColimitType (JoinDecomp.tRight n) (PUnit.unit, y)
+  | Sum.inr (Sum.inr ⟨⟨(p, q), h⟩, (x, y)⟩) =>
+      (joinDiagram' X Y n).ιColimitType (jSplitN n p q h) (x, y)
+
+/-- Right inverse: `descColimitType c ∘ rep = id`. -/
+theorem desc_rep (X Y : SSet.{u}) (n : ℕ) (z : joinObj X Y n) :
+    (joinDiagram' X Y n).descColimitType (joinCoconeTypes X Y n) (rep X Y n z) = z := by
+  rcases z with x | y | ⟨⟨⟨p, q⟩, h⟩, x, y⟩
+  · show JoinDecomp.cls n (JoinDecomp.tLeft n) x PUnit.unit = Sum.inl x
+    exact JoinDecomp.cls_tLeft n x PUnit.unit
+  · show JoinDecomp.cls n (JoinDecomp.tRight n) PUnit.unit y = Sum.inr (Sum.inl y)
+    exact JoinDecomp.cls_tRight n PUnit.unit y
+  · subst h
+    show JoinDecomp.cls (p+q+1) (jSplitN (p+q+1) p q rfl) x y
+      = Sum.inr (Sum.inr ⟨⟨(p, q), rfl⟩, (x, y)⟩)
+    rw [show JoinDecomp.cls (p+q+1) (jSplitN (p+q+1) p q rfl) x y
+          = JoinDecomp.clsOO (p+q+1) p q (𝟙 (tensorObjOf ⦋p⦌ ⦋q⦌)) x y from rfl,
+        ← JoinDecomp.tensorHomOf_id p q, JoinDecomp.clsOO_split]
+    simp
+
+end
+end SSet
+
+namespace SSet
+noncomputable section
+open CategoryTheory Simplicial Opposite Limits Function
+open CategoryTheory.MonoidalCategory
+open CategoryTheory.MonoidalCategory.DayFunctor
+open AugmentedSimplexCategory
+open scoped CategoryTheory.MonoidalCategory.ExternalProduct
+
+theorem keyred (X Y : SSet.{u}) (n : ℕ)
+    (j : CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)))
+    (x : (augmentedDay.obj X).functor.obj j.left.1)
+    (y : (augmentedDay.obj Y).functor.obj j.left.2) :
+    rep X Y n (JoinDecomp.cls n j x y) = (joinDiagram' X Y n).ιColimitType j (x, y) := by
+  obtain ⟨⟨A, B⟩, ⟨⟨⟩⟩, φ⟩ := j
+  obtain ⟨Au⟩ := A; obtain ⟨Bu⟩ := B
+  cases Au with
+  | of A0 => cases Bu with
+    | of B0 =>
+      show rep X Y n (JoinDecomp.clsOO n A0.len B0.len (WithInitial.down φ.unop) x y)
+        = (joinDiagram' X Y n).ιColimitType
+            (CostructuredArrow.mk (Y := (op (WithInitial.of A0), op (WithInitial.of B0))) φ) (x, y)
+      rcases JoinDecomp.mapsInto_trichotomy (WithInitial.down φ.unop) with
+        ⟨ψ, hψ⟩ | ⟨ψ, hψ⟩ | ⟨p, q, hpq, ψL, ψR, hψ⟩
+      · -- all-left → tLeft
+        rw [JoinDecomp.clsOO_left (WithInitial.down φ.unop) ψ hψ x y]
+        let hpair : (op (WithInitial.of A0), op (WithInitial.of B0))
+            ⟶ (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌), op WithInitial.star) :=
+          ((AugmentedSimplexCategory.inclusion.map ψ).op,
+           (WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋B0.len⦌)).op)
+        let g : (CostructuredArrow.mk (Y := (op (WithInitial.of A0), op (WithInitial.of B0))) φ)
+            ⟶ JoinDecomp.tLeft n :=
+          CostructuredArrow.homMk hpair (by
+            apply Quiver.Hom.unop_inj
+            show (𝟙 (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))
+                ≫ MonoidalCategoryStruct.tensorHom (AugmentedSimplexCategory.inclusion.map ψ)
+                    (WithInitial.starInitial.to
+                      (AugmentedSimplexCategory.inclusion.obj ⦋B0.len⦌)) = φ.unop
+            rw [Category.id_comp, JoinDecomp.tensorHom_star_left A0.len B0.len n ψ, ← hψ]
+            rfl)
+        rw [← (joinDiagram' X Y n).ιColimitType_map g (x, y)]
+        exact rfl
+      · -- all-right → tRight
+        rw [JoinDecomp.clsOO_right (WithInitial.down φ.unop) ψ hψ x y]
+        let hpair : (op (WithInitial.of A0), op (WithInitial.of B0))
+            ⟶ (op WithInitial.star, op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) :=
+          ((WithInitial.starInitial.to (AugmentedSimplexCategory.inclusion.obj ⦋A0.len⦌)).op,
+           (AugmentedSimplexCategory.inclusion.map ψ).op)
+        let g : (CostructuredArrow.mk (Y := (op (WithInitial.of A0), op (WithInitial.of B0))) φ)
+            ⟶ JoinDecomp.tRight n :=
+          CostructuredArrow.homMk hpair (by
+            apply Quiver.Hom.unop_inj
+            show (𝟙 (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))
+                ≫ MonoidalCategoryStruct.tensorHom
+                    (WithInitial.starInitial.to
+                      (AugmentedSimplexCategory.inclusion.obj ⦋A0.len⦌))
+                    (AugmentedSimplexCategory.inclusion.map ψ) = φ.unop
+            rw [Category.id_comp, JoinDecomp.tensorHom_star_right A0.len B0.len n ψ, ← hψ]
+            rfl)
+        rw [← (joinDiagram' X Y n).ιColimitType_map g (x, y)]
+        exact rfl
+      · -- split → jSplitN
+        subst hpq
+        have hψ' : WithInitial.down φ.unop = tensorHomOf ψL ψR := hψ
+        rw [hψ', JoinDecomp.clsOO_split ψL ψR x y]
+        let hpair : (op (WithInitial.of A0), op (WithInitial.of B0))
+            ⟶ (op (AugmentedSimplexCategory.inclusion.obj ⦋p⦌),
+                op (AugmentedSimplexCategory.inclusion.obj ⦋q⦌)) :=
+          ((AugmentedSimplexCategory.inclusion.map ψL).op,
+           (AugmentedSimplexCategory.inclusion.map ψR).op)
+        let g : (CostructuredArrow.mk (Y := (op (WithInitial.of A0), op (WithInitial.of B0))) φ)
+            ⟶ jSplitN (p + q + 1) p q rfl :=
+          CostructuredArrow.homMk hpair (by
+            apply Quiver.Hom.unop_inj
+            show (𝟙 (AugmentedSimplexCategory.inclusion.obj ⦋p + q + 1⦌))
+                ≫ MonoidalCategoryStruct.tensorHom (AugmentedSimplexCategory.inclusion.map ψL)
+                    (AugmentedSimplexCategory.inclusion.map ψR) = φ.unop
+            rw [Category.id_comp]
+            show AugmentedSimplexCategory.inclusion.map (tensorHomOf ψL ψR) = φ.unop
+            rw [← hψ']
+            rfl)
+        rw [← (joinDiagram' X Y (p + q + 1)).ιColimitType_map g (x, y)]
+        exact rfl
+    | star =>
+      let g : (CostructuredArrow.mk (Y := (op (WithInitial.of A0), op WithInitial.star)) φ)
+          ⟶ JoinDecomp.tLeft n :=
+        CostructuredArrow.homMk (φ, 𝟙 (op WithInitial.star)) (by
+          simp only [JoinDecomp.tLeft, CostructuredArrow.mk_hom_eq_self, Category.comp_id,
+            MonoidalCategory.tensorHom_id]
+          exact MonoidalCategory.whiskerRight_id φ ▸ rfl)
+      show rep X Y n (JoinDecomp.cls n (CostructuredArrow.mk
+          (Y := (op (WithInitial.of A0), op WithInitial.star)) φ) x y)
+        = (joinDiagram' X Y n).ιColimitType (CostructuredArrow.mk
+          (Y := (op (WithInitial.of A0), op WithInitial.star)) φ) (x, y)
+      rw [← (joinDiagram' X Y n).ιColimitType_map g (x, y)]
+      exact rfl
+  | star => cases Bu with
+    | of B0 =>
+      let g : (CostructuredArrow.mk (Y := (op WithInitial.star, op (WithInitial.of B0))) φ)
+          ⟶ JoinDecomp.tRight n :=
+        CostructuredArrow.homMk (𝟙 (op WithInitial.star), φ) (by
+          simp only [JoinDecomp.tRight, CostructuredArrow.mk_hom_eq_self, Category.comp_id,
+            MonoidalCategory.id_tensorHom]
+          exact MonoidalCategory.id_whiskerLeft φ ▸ rfl)
+      show rep X Y n (JoinDecomp.cls n (CostructuredArrow.mk
+          (Y := (op WithInitial.star, op (WithInitial.of B0))) φ) x y)
+        = (joinDiagram' X Y n).ιColimitType (CostructuredArrow.mk
+          (Y := (op WithInitial.star, op (WithInitial.of B0))) φ) (x, y)
+      rw [← (joinDiagram' X Y n).ιColimitType_map g (x, y)]
+      exact rfl
+    | star => exact (WithInitial.false_of_to_star φ.unop).elim
+
+end
+end SSet
+
+namespace SSet
+noncomputable section
+open CategoryTheory Simplicial Opposite Limits Function
+open CategoryTheory.MonoidalCategory
+open CategoryTheory.MonoidalCategory.DayFunctor
+open AugmentedSimplexCategory
+open scoped CategoryTheory.MonoidalCategory.ExternalProduct
+
+/-- The classifier cocone is a colimit: `descColimitType` is bijective. -/
+theorem joinIsColimit (X Y : SSet.{u}) (n : ℕ) :
+    (joinCoconeTypes X Y n).IsColimit := by
+  refine ⟨fun a b hab => ?_, fun z => ⟨rep X Y n z, desc_rep X Y n z⟩⟩
+  obtain ⟨ja, xa, rfl⟩ := (joinDiagram' X Y n).ιColimitType_jointly_surjective a
+  obtain ⟨jb, xb, rfl⟩ := (joinDiagram' X Y n).ιColimitType_jointly_surjective b
+  have ha : (joinDiagram' X Y n).ιColimitType ja xa = rep X Y n (JoinDecomp.cls n ja xa.1 xa.2) :=
+    (keyred X Y n ja xa.1 xa.2).symm
+  have hb : (joinDiagram' X Y n).ιColimitType jb xb = rep X Y n (JoinDecomp.cls n jb xb.1 xb.2) :=
+    (keyred X Y n jb xb.1 xb.2).symm
+  rw [ha, hb]
+  exact congrArg (rep X Y n) hab
+
+/-- **The pointwise join formula colimit**: `colimit (joinDiagram' X Y n) ≅ joinObj X Y n`. -/
+def colimitJoinIso (X Y : SSet.{u}) (n : ℕ) :
+    colimit (joinDiagram' X Y n) ≅ joinObj X Y n :=
+  (colimit.isColimit (joinDiagram' X Y n)).coconePointUniqueUpToIso
+    (((joinCoconeTypes X Y n).isColimit_iff).1 (joinIsColimit X Y n)).some
+
+end
+end SSet
+
+namespace SSet
+
+noncomputable section
+
+open CategoryTheory Simplicial Opposite Limits Function
+open CategoryTheory.MonoidalCategory
+open CategoryTheory.MonoidalCategory.DayFunctor
+open scoped CategoryTheory.MonoidalCategory.ExternalProduct
+
+/-- The pointwise left-Kan-extension colimit presentation of `(X ⋆ Y)_n`. -/
+def joinObjColimitIso (X Y : SSet.{u}) (n : ℕ) :
+    (X ⋆ Y) _⦋n⦌ ≅ colimit (joinDiagram X Y n) :=
+  (isoPointwiseLeftKanExtension (augmentedDay.obj X) (augmentedDay.obj Y)).app
+    (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))
+
+/-- Pointwise description of the simplicial join. -/
+def joinObjEquiv (X Y : SSet.{u}) (n : ℕ) :
+    (X ⋆ Y) _⦋n⦌ ≃ joinObj X Y n :=
+  (joinObjColimitIso X Y n ≪≫ colimitJoinIso X Y n).toEquiv
+
+variable {X X' Y Y' : SSet.{u}}
+
+/-- The explicit summand-wise map on the pointwise join formula. -/
+def joinObjMap (f : X ⟶ X') (g : Y ⟶ Y') (n : ℕ) :
+    joinObj X Y n → joinObj X' Y' n :=
+  Sum.map (f.app (op ⦋n⦌))
+    (Sum.map (g.app (op ⦋n⦌))
+      (Sigma.map id (fun p => Prod.map (f.app (op ⦋p.1.1⦌)) (g.app (op ⦋p.1.2⦌)))))
+
+/-- The summand-wise join map is injective when both component maps are levelwise injective. -/
+theorem joinObjMap_injective (f : X ⟶ X') (g : Y ⟶ Y') (n : ℕ)
+    (hf : ∀ m, Function.Injective (f.app (op ⦋m⦌)))
+    (hg : ∀ m, Function.Injective (g.app (op ⦋m⦌))) :
+    Function.Injective (joinObjMap f g n) :=
+  (hf n).sumMap ((hg n).sumMap
+    (Function.injective_id.sigma_map (fun p => (hf p.1.1).prodMap (hg p.1.2))))
+
+/-- Reduction of `join_mono` to compatibility of the pointwise equivalence with `joinMap`. -/
+theorem join_mono_of_joinObjEquiv
+    (E : ∀ (X Y : SSet.{u}) (n : ℕ), (X ⋆ Y) _⦋n⦌ ≃ joinObj X Y n)
+    (hcompat : ∀ {X X' Y Y' : SSet.{u}} (f : X ⟶ X') (g : Y ⟶ Y') (n : ℕ)
+        (z : joinObj X Y n),
+        E X' Y' n ((joinMap f g).app (op ⦋n⦌) ((E X Y n).symm z)) = joinObjMap f g n z)
+    (f : X ⟶ X') (g : Y ⟶ Y') (hf : Mono f) (hg : Mono g) :
+    Mono (joinMap f g) := by
+  have hfm : ∀ m, Function.Injective (f.app (op ⦋m⦌)) := fun m =>
+    (mono_iff_injective _).mp ((NatTrans.mono_iff_mono_app (f := f)).mp hf (op ⦋m⦌))
+  have hgm : ∀ m, Function.Injective (g.app (op ⦋m⦌)) := fun m =>
+    (mono_iff_injective _).mp ((NatTrans.mono_iff_mono_app (f := g)).mp hg (op ⦋m⦌))
+  rw [NatTrans.mono_iff_mono_app (f := joinMap f g)]
+  intro k
+  have hk : k = op ⦋k.unop.len⦌ := by rw [SimplexCategory.mk_len]
+  rw [hk, mono_iff_injective]
+  set n := k.unop.len
+  intro w₁ w₂ hw
+  apply (E X Y n).injective
+  apply joinObjMap_injective f g n hfm hgm
+  rw [← hcompat f g n ((E X Y n) w₁), ← hcompat f g n ((E X Y n) w₂),
+    Equiv.symm_apply_apply, Equiv.symm_apply_apply, hw]
+
+/-- Adhesive reduction for the Leibniz join: if the naturality square is a pullback and
+the two target-side join maps are monos, then the Leibniz join is mono. -/
+theorem leibnizJoin_mono_of_pullback {A B C D : SSet.{u}} (f : A ⟶ B) (g : C ⟶ D)
+    [Mono (joinMap (𝟙 B) g)] [Mono (joinMap f (𝟙 D))]
+    (hpb : IsPullback (joinMap f (𝟙 C)) (joinMap (𝟙 A) g)
+        (joinMap (𝟙 B) g) (joinMap f (𝟙 D))) :
+    Mono (leibnizJoin f g) := by
+  have hm : Mono (pushout.desc (joinMap (𝟙 B) g) (joinMap f (𝟙 D)) pullback.condition) :=
+    inferInstance
+  have e₁ : joinMap f (𝟙 C) ≫ (𝟙 (B ⋆ C)) =
+      hpb.isoPullback.hom ≫ pullback.fst (joinMap (𝟙 B) g) (joinMap f (𝟙 D)) := by
+    rw [Category.comp_id]; exact hpb.isoPullback_hom_fst.symm
+  have e₂ : joinMap (𝟙 A) g ≫ (𝟙 (A ⋆ D)) =
+      hpb.isoPullback.hom ≫ pullback.snd (joinMap (𝟙 B) g) (joinMap f (𝟙 D)) := by
+    rw [Category.comp_id]; exact hpb.isoPullback_hom_snd.symm
+  have hΦiso : IsIso (pushout.map (joinMap f (𝟙 C)) (joinMap (𝟙 A) g)
+      (pullback.fst (joinMap (𝟙 B) g) (joinMap f (𝟙 D)))
+      (pullback.snd (joinMap (𝟙 B) g) (joinMap f (𝟙 D)))
+      (𝟙 (B ⋆ C)) (𝟙 (A ⋆ D)) hpb.isoPullback.hom e₁ e₂) :=
+    pushout.map_isIso _ _ _ _ _ _ _ e₁ e₂
+  have hfac : leibnizJoin f g =
+      (pushout.map (joinMap f (𝟙 C)) (joinMap (𝟙 A) g)
+        (pullback.fst (joinMap (𝟙 B) g) (joinMap f (𝟙 D)))
+        (pullback.snd (joinMap (𝟙 B) g) (joinMap f (𝟙 D)))
+        (𝟙 (B ⋆ C)) (𝟙 (A ⋆ D)) hpb.isoPullback.hom e₁ e₂) ≫
+      pushout.desc (joinMap (𝟙 B) g) (joinMap f (𝟙 D)) pullback.condition := by
+    apply pushout.hom_ext <;>
+      simp only [leibnizJoin, pushout.map, pushout.inl_desc, pushout.inr_desc,
+        pushout.inl_desc_assoc, pushout.inr_desc_assoc, Category.id_comp]
+  rw [hfac]
+  exact mono_comp _ _
 
 end
 
