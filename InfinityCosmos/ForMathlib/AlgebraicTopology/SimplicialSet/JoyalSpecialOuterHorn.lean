@@ -165,6 +165,67 @@ theorem fhorn_identity_of_faceImages (p m : ℕ) (k : Fin (m + 1))
       horn.{u} (p + m + 1) (joinRightVertex p m k) := by
   rw [image_sup, H1, H2, ← joyalBase_horn_eq_vertexBlocks]
 
+/-- Image transport along an `eqToHom` between simplicial sets. -/
+lemma image_eqToHom_aux {X Y : SSet.{u}} (h : X = Y) (A : X.Subcomplex) :
+    A.image (eqToHom h) = h ▸ A := by
+  subst h
+  simp [Subcomplex.image_id]
+
+/-- The right `tensorHomOf` coface range is the shifted right-block face. -/
+lemma range_tensorHomOf_right (p M : ℕ) (j : Fin (M + 2)) :
+    Subcomplex.range (stdSimplex.{u}.map
+        (AugmentedSimplexCategory.tensorHomOf (𝟙 ⦋p⦌) (SimplexCategory.δ j))) =
+      stdSimplex.face {joinRightVertex p (M + 1) j}ᶜ := by
+  rw [tensorHomOf_δ_right p M j, Functor.map_comp, Functor.map_comp,
+      eqToHom_map, eqToHom_map, Subcomplex.range_comp, Subcomplex.range_eq_top,
+      Subcomplex.image_top, Subcomplex.range_comp,
+      show stdSimplex.{u}.map (SimplexCategory.δ (joinRightVertex p (M + 1) j))
+          = stdSimplex.{u}.δ (joinRightVertex p (M + 1) j) from rfl,
+      stdSimplex.range_δ, image_eqToHom_aux]
+
+/-- The left `tensorHomOf` coface range is the shifted left-block face. -/
+lemma range_tensorHomOf_left (p m : ℕ) (i : Fin (p + 2)) :
+    Subcomplex.range (stdSimplex.{u}.map
+        (AugmentedSimplexCategory.tensorHomOf (SimplexCategory.δ i) (𝟙 ⦋m⦌))) =
+      stdSimplex.face {joinLeftVertex (p + 1) m i}ᶜ := by
+  rw [tensorHomOf_δ_left p m i, Functor.map_comp, Functor.map_comp,
+      eqToHom_map, eqToHom_map, Subcomplex.range_comp, Subcomplex.range_eq_top,
+      Subcomplex.image_top, Subcomplex.range_comp,
+      show stdSimplex.{u}.map (SimplexCategory.δ (joinLeftVertex (p + 1) m i))
+          = stdSimplex.{u}.δ (joinLeftVertex (p + 1) m i) from rfl,
+      stdSimplex.range_δ, image_eqToHom_aux]
+
+/-- The right-horn join image is the supremum of its shifted right-block faces. -/
+theorem fhorn_H2 (p M : ℕ) (k : Fin (M + 1 + 1)) :
+    (Subcomplex.range (joinMap (𝟙 (Δ[p] : SSet.{u}))
+        (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι)).image
+        (joinStdSimplex.{u} p (M + 1)).hom =
+      ⨆ j : {j : Fin (M + 1 + 1) // j ≠ k},
+        stdSimplex.face {joinRightVertex p (M + 1) j.1}ᶜ := by
+  rw [image_range_joinMap_horn_eq_iSup_right]
+  exact iSup_congr (fun j => range_tensorHomOf_right p M j.1)
+
+/-- The left-boundary join image is the supremum of its shifted left-block faces. -/
+theorem fhorn_H1 (P M : ℕ) :
+    (Subcomplex.range (joinMap (∂Δ[P + 1] : (Δ[P + 1] : SSet.{u}).Subcomplex).ι
+        (𝟙 (Δ[M + 1] : SSet.{u})))).image (joinStdSimplex.{u} (P + 1) (M + 1)).hom =
+      ⨆ i : Fin (P + 1 + 1),
+        stdSimplex.face {joinLeftVertex (P + 1) (M + 1) i}ᶜ := by
+  rw [image_range_joinMap_boundary_eq_iSup P (M + 1)]
+  exact iSup_congr (fun i => range_tensorHomOf_left P (M + 1) i)
+
+/-- The full base-case F-horn image identity for `p, m ≥ 1`. -/
+theorem fhorn_image_identity (P M : ℕ) (k : Fin (M + 1 + 1)) :
+    (Subcomplex.range
+          (joinMap (∂Δ[P + 1] : (Δ[P + 1] : SSet.{u}).Subcomplex).ι
+            (𝟙 (Δ[M + 1] : SSet.{u}))) ⊔
+        Subcomplex.range
+          (joinMap (𝟙 (Δ[P + 1] : SSet.{u}))
+            (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι)).image
+          (joinStdSimplex.{u} (P + 1) (M + 1)).hom =
+      horn.{u} ((P + 1) + (M + 1) + 1) (joinRightVertex (P + 1) (M + 1) k) :=
+  fhorn_identity_of_faceImages (P + 1) (M + 1) k (fhorn_H1 P M) (fhorn_H2 (P + 1) M k)
+
 lemma joyalBaseIndex_interior (p m : ℕ) (k : Fin (m + 1)) (hk : k < Fin.last m) :
     (0 : Fin (p + m + 1 + 1)) < joinRightVertex p m k ∧
       joinRightVertex p m k < Fin.last (p + m + 1) := by

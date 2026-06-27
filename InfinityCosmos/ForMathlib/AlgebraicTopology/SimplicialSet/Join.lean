@@ -1,6 +1,8 @@
 import Mathlib.AlgebraicTopology.SimplexCategory.Augmented.Monoidal
 import Mathlib.AlgebraicTopology.SimplicialSet.Boundary
 import Mathlib.AlgebraicTopology.SimplicialSet.FiniteColimits
+import Mathlib.AlgebraicTopology.SimplicialSet.Horn
+import Mathlib.AlgebraicTopology.SimplicialSet.HornColimits
 import Mathlib.AlgebraicTopology.SimplicialSet.SubcomplexColimits
 import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 import Mathlib.CategoryTheory.Adjunction.Evaluation
@@ -1055,6 +1057,297 @@ theorem image_range_joinMap_boundary_eq_iSup (n m : ℕ) :
         (AugmentedSimplexCategory.tensorHomOf (SimplexCategory.δ i) (𝟙 ⦋m⦌))) := by
   rw [range_joinMap_boundary_eq_iSup, Subcomplex.image_iSup]
   exact iSup_congr (fun i => image_range_joinMap_left n (n + 1) m (SimplexCategory.δ i))
+
+/-- External product with a fixed left argument. -/
+def leftExt (K : AugDay.{u}) : (AC ⥤ Type u) ⥤ (AC × AC ⥤ Type u) :=
+  Functor.prod' ((Functor.const _).obj K.functor) (𝟭 _) ⋙
+    externalProductBifunctor AC AC (Type u)
+
+/-- Transport of `tensorLeft` across the Day equivalence. -/
+def smallLam (K : AugDay.{u}) : (AC ⥤ Type u) ⥤ (AC ⥤ Type u) :=
+  (DayFunctor.equiv AC (Type u)).inverse ⋙ tensorLeft K ⋙
+    (DayFunctor.equiv AC (Type u)).functor
+
+/-- Whiskering by the augmented-simplex tensor. -/
+abbrev RwhiskL : (AC ⥤ Type u) ⥤ (AC × AC ⥤ Type u) :=
+  (Functor.whiskeringLeft (AC × AC) AC (Type u)).obj (tensor AC)
+
+/-- The external-product comparison map for the left Day tensor. -/
+def thetaL (K : AugDay.{u}) : leftExt K ⟶ smallLam K ⋙ RwhiskL where
+  app F := DayFunctor.η K (DayFunctor.mk F)
+  naturality {F G} f := by
+    apply NatTrans.ext
+    funext ab
+    obtain ⟨x, y⟩ := ab
+    have key :
+        (DayFunctor.η K (DayFunctor.mk F)).app (x, y) ≫
+            ((K ◁ DayFunctor.Hom.mk f).natTrans).app (x ⊗ y) =
+          (K.functor.obj x ◁ f.app y) ≫
+            (DayFunctor.η K (DayFunctor.mk G)).app (x, y) :=
+      LawfulDayConvolutionMonoidalCategoryStruct.convolutionExtensionUnit_comp_ι_map_whiskerLeft_app
+        (C := AC) (V := Type u) (D := AugDay) K (DayFunctor.Hom.mk f) x y
+    simp only [NatTrans.comp_app, Functor.comp_map, Functor.whiskeringLeft_obj_map,
+      Functor.whiskerLeft_app]
+    exact key.symm
+
+/-- Left Day tensor as the pointwise left Kan extension of fixed-left external product. -/
+def thetaBarL (K : AugDay.{u}) :
+    leftExt K ⋙ Functor.lan (tensor AC) ⟶ smallLam K :=
+  Functor.whiskerRight (thetaL K) (Functor.lan (tensor AC)) ≫
+    Functor.whiskerLeft (smallLam K) (Functor.lanAdjunction (tensor AC) (Type u)).counit
+
+instance thetaBarL_app_isIso (K : AugDay.{u}) (F : AC ⥤ Type u) :
+    IsIso ((thetaBarL K).app F) := by
+  have h3 : (thetaBarL K).app F =
+      ((Functor.lanAdjunction (tensor AC) (Type u)).homEquiv ((leftExt K).obj F)
+        ((smallLam K).obj F)).symm ((thetaL K).app F) := by
+    simp only [thetaBarL, NatTrans.comp_app, Functor.whiskerRight_app, Functor.whiskerLeft_app,
+      Adjunction.homEquiv_counit]
+  rw [h3]
+  refine (Functor.isIso_lanAdjunction_homEquiv_symm_iff
+    (L := tensor AC) (G := (smallLam K).obj F) ((thetaL K).app F)).mpr ?_
+  exact inferInstanceAs
+    ((K ⊗ (DayFunctor.mk F)).functor.IsLeftKanExtension (DayFunctor.η K (DayFunctor.mk F)))
+
+instance thetaBarL_isIso (K : AugDay.{u}) : IsIso (thetaBarL K) :=
+  NatIso.isIso_of_isIso_app _
+
+/-- The Kan-extension comparison isomorphism for fixed-left Day tensor. -/
+def smallLamIso (K : AugDay.{u}) : leftExt K ⋙ Functor.lan (tensor AC) ≅ smallLam K :=
+  asIso (thetaBarL K)
+
+instance leftExt_pres (K : AugDay.{u}) (J : Type w) [Category.{w'} J]
+    [HasColimitsOfShape J (Type u)] :
+    PreservesColimitsOfShape J (leftExt K) := by
+  apply preservesColimitsOfShape_of_evaluation
+  intro ab
+  exact preservesColimitsOfShape_of_natIso
+    (NatIso.ofComponents (fun F => Iso.refl _) (by intro F G f; rfl) :
+      (evaluation AC (Type u)).obj ab.2 ⋙ tensorLeft (K.functor.obj ab.1) ≅
+        leftExt K ⋙ (evaluation (AC × AC) (Type u)).obj ab)
+
+instance smallLam_pres (K : AugDay.{u}) (J : Type w) [Category.{w'} J]
+    [HasColimitsOfShape J (Type u)] :
+    PreservesColimitsOfShape J (smallLam K) :=
+  preservesColimitsOfShape_of_natIso (smallLamIso K)
+
+/-- The left Day tensor preserves colimits of any shape preserved by `Type`. -/
+instance tensorLeft_pres (K : AugDay.{u}) (J : Type w) [Category.{w'} J]
+    [HasColimitsOfShape J (Type u)] :
+    PreservesColimitsOfShape J (tensorLeft K) := by
+  haveI : PreservesColimitsOfShape J
+      (tensorLeft K ⋙ (DayFunctor.equiv AC (Type u)).functor) := by
+    rw [show tensorLeft K ⋙ (DayFunctor.equiv AC (Type u)).functor =
+        (DayFunctor.equiv AC (Type u)).functor ⋙ smallLam K from rfl]
+    infer_instance
+  exact Limits.preservesColimitsOfShape_of_reflects_of_preserves
+    (tensorLeft K) (DayFunctor.equiv AC (Type u)).functor
+
+/-- The functor `(K ⋆ -)` preserves connected colimits when the underlying
+left Day tensor does. -/
+theorem joinFunctor_obj_preservesConnectedColimits_of_tensorLeft
+    (J : Type w) [Category.{w'} J] [IsConnected J] [HasColimitsOfShape J (Type u)]
+    (K : SSet.{u})
+    [PreservesColimitsOfShape J (tensorLeft (augmentedDay.obj K))] :
+    PreservesColimitsOfShape J (joinFunctor.obj K) := by
+  change PreservesColimitsOfShape J
+    (augmentedDay ⋙ tensorLeft (augmentedDay.obj K) ⋙ restrictAugmentedDay)
+  infer_instance
+
+/-- `joinMap (𝟙 K) g` is the action of the functor `(K ⋆ -)`. -/
+lemma joinMap_id_left {Y Y' K : SSet.{u}} (g : Y ⟶ Y') :
+    joinMap (𝟙 K) g = (joinFunctor.obj K).map g := by
+  unfold joinMap
+  change (joinFunctor.map (𝟙 K)).app Y ≫ (joinFunctor.obj K).map g =
+    (joinFunctor.obj K).map g
+  simp
+
+/-- `joinMap (𝟙 K, -)` is functorial in the right argument. -/
+lemma joinMap_comp_right {K Y Y' Z : SSet.{u}} (f : Y ⟶ Y') (g : Y' ⟶ Z) :
+    joinMap (𝟙 K) (f ≫ g) = joinMap (𝟙 K) f ≫ joinMap (𝟙 K) g := by
+  rw [joinMap_id_left, joinMap_id_left, joinMap_id_left]
+  exact Functor.map_comp _ _ _
+
+instance bspan_obj_pres (p m : ℕ) :
+    PreservesColimitsOfShape (WalkingMultispan (BSpan m))
+      (joinFunctor.obj (Δ[p] : SSet.{u})) :=
+  joinFunctor_obj_preservesConnectedColimits_of_tensorLeft _ _
+
+/-- Range of a right-factor facet join is below the corresponding right coface join. -/
+lemma range_joinMap_face_le_delta_right (p m : ℕ) (j : Fin (m + 2)) :
+    Subcomplex.range (joinMap (𝟙 (Δ[p] : SSet.{u}))
+        (stdSimplex.face {j}ᶜ : (Δ[m + 1] : SSet.{u}).Subcomplex).ι) ≤
+      Subcomplex.range (joinMap (𝟙 (Δ[p] : SSet.{u})) (stdSimplex.δ j)) := by
+  have hfac : (stdSimplex.face {j}ᶜ : (Δ[m + 1] : SSet.{u}).Subcomplex).ι =
+      (stdSimplex.faceSingletonComplIso j).inv ≫ stdSimplex.δ j := by
+    rw [← boundary.ι_ι j, ← Category.assoc, boundary.faceSingletonComplIso_inv_ι j]
+    exact (boundary.faceι_ι j).symm
+  rw [hfac, joinMap_comp_right, Subcomplex.range_comp]
+  exact Subcomplex.image_le_range _ _
+
+/-- The right facet leg of the right-factor boundary colimit, after applying
+`Δ[p] ⋆ -`, is the corresponding facet join. -/
+lemma boundaryDiagram_rightleg_right (p m : ℕ) (j : Fin (m + 2)) :
+    ((joinFunctor.obj (Δ[p] : SSet.{u})).mapCocone
+        ((boundaryDiagram m).multicofork.map Subcomplex.toSSetFunctor)).ι.app
+        (WalkingMultispan.right j) ≫
+        joinMap (𝟙 (Δ[p] : SSet.{u}))
+          (∂Δ[m + 1] : (Δ[m + 1] : SSet.{u}).Subcomplex).ι =
+      joinMap (𝟙 (Δ[p] : SSet.{u}))
+        (stdSimplex.face {j}ᶜ : (Δ[m + 1] : SSet.{u}).Subcomplex).ι := by
+  have key := boundaryDiagram_legcomp m j
+  rw [Functor.mapCocone_ι_app, Multicofork.π_eq_app_right, ← joinMap_id_left, ← key,
+    joinMap_comp_right]
+
+/-- Boundary-join distribution in the right factor. -/
+theorem range_joinMap_boundary_eq_iSup_right (p m : ℕ) :
+    Subcomplex.range (joinMap (𝟙 (Δ[p] : SSet.{u}))
+        (∂Δ[m + 1] : (Δ[m + 1] : SSet.{u}).Subcomplex).ι) =
+      ⨆ (j : Fin (m + 2)), Subcomplex.range
+        (joinMap (𝟙 (Δ[p] : SSet.{u})) (stdSimplex.δ j)) := by
+  apply le_antisymm
+  · have hcolim := isColimitOfPreserves (joinFunctor.obj (Δ[p] : SSet.{u}))
+      (boundaryDiagram m).isColimit
+    refine le_trans (le_of_eq (range_eq_iSup_of_isColimit hcolim _)) ?_
+    apply iSup_le
+    intro j
+    cases j with
+    | right j =>
+        rw [boundaryDiagram_rightleg_right p m j]
+        exact le_trans (range_joinMap_face_le_delta_right p m j)
+          (le_iSup
+            (fun j => Subcomplex.range
+              (joinMap (𝟙 (Δ[p] : SSet.{u})) (stdSimplex.δ j))) j)
+    | left a =>
+        have hw := ((joinFunctor.obj (Δ[p] : SSet.{u})).mapCocone
+          ((boundaryDiagram m).multicofork.map Subcomplex.toSSetFunctor)).w
+            (WalkingMultispan.Hom.fst a)
+        rw [← hw, Category.assoc, Subcomplex.range_comp]
+        refine le_trans (Subcomplex.image_le_range _ _) ?_
+        rw [boundaryDiagram_rightleg_right p m ((MultispanShape.prod (Fin (m + 2))).fst a)]
+        exact le_trans (range_joinMap_face_le_delta_right p m _)
+          (le_iSup
+            (fun j => Subcomplex.range
+              (joinMap (𝟙 (Δ[p] : SSet.{u})) (stdSimplex.δ j))) _)
+  · apply iSup_le
+    intro j
+    rw [← boundary.ι_ι j, joinMap_comp_right, Subcomplex.range_comp]
+    exact Subcomplex.image_le_range _ _
+
+/-- Image form of the right-factor boundary distribution. -/
+theorem image_range_joinMap_boundary_eq_iSup_right (p m : ℕ) :
+    (Subcomplex.range (joinMap (𝟙 (Δ[p] : SSet.{u}))
+        (∂Δ[m + 1] : (Δ[m + 1] : SSet.{u}).Subcomplex).ι)).image
+        (joinStdSimplex.{u} p (m + 1)).hom =
+      ⨆ (j : Fin (m + 2)), Subcomplex.range (stdSimplex.{u}.map
+        (AugmentedSimplexCategory.tensorHomOf (𝟙 ⦋p⦌) (SimplexCategory.δ j))) := by
+  rw [range_joinMap_boundary_eq_iSup_right, Subcomplex.image_iSup]
+  exact iSup_congr (fun j => image_range_joinMap_right p m (m + 1) (SimplexCategory.δ j))
+
+instance prodMultispan_connected {ι : Type w} [hne : Nonempty ι] :
+    IsConnected (WalkingMultispan (MultispanShape.prod ι)) := by
+  obtain ⟨i₀⟩ := hne
+  have hright : ∀ i : ι,
+      Zigzag (WalkingMultispan.right i : WalkingMultispan (MultispanShape.prod ι))
+        (WalkingMultispan.right i₀) := by
+    intro i
+    have z1 : Zag (WalkingMultispan.right i : WalkingMultispan (MultispanShape.prod ι))
+        (WalkingMultispan.left (i, i₀)) :=
+      Or.inr ⟨@WalkingMultispan.Hom.fst (MultispanShape.prod ι) (i, i₀)⟩
+    have z2 : Zag (WalkingMultispan.left (i, i₀) : WalkingMultispan (MultispanShape.prod ι))
+        (WalkingMultispan.right i₀) :=
+      Or.inl ⟨@WalkingMultispan.Hom.snd (MultispanShape.prod ι) (i, i₀)⟩
+    exact (Relation.ReflTransGen.single z1).trans (Relation.ReflTransGen.single z2)
+  have zz0 : ∀ x : WalkingMultispan (MultispanShape.prod ι),
+      Zigzag x (WalkingMultispan.right i₀) := by
+    intro x
+    cases x with
+    | left a =>
+        have z0 : Zag (WalkingMultispan.left a : WalkingMultispan (MultispanShape.prod ι))
+            (WalkingMultispan.right a.1) :=
+          Or.inl ⟨@WalkingMultispan.Hom.fst (MultispanShape.prod ι) a⟩
+        exact (Relation.ReflTransGen.single z0).trans (hright a.1)
+    | right i => exact hright i
+  haveI : Nonempty (WalkingMultispan (MultispanShape.prod ι)) :=
+    ⟨WalkingMultispan.right i₀⟩
+  exact zigzag_isConnected (fun j₁ j₂ => (zz0 j₁).trans (zz0 j₂).symm)
+
+instance horn_index_nonempty (M : ℕ) (k : Fin (M + 2)) :
+    Nonempty ↑({k}ᶜ : Set (Fin (M + 2))) := by
+  obtain ⟨j, hj⟩ := exists_ne k
+  exact ⟨⟨j, hj⟩⟩
+
+instance hspan_obj_pres (p M : ℕ) (k : Fin (M + 2)) :
+    PreservesColimitsOfShape
+      (WalkingMultispan (MultispanShape.prod ↑({k}ᶜ : Set (Fin (M + 2)))))
+      (joinFunctor.obj (Δ[p] : SSet.{u})) :=
+  joinFunctor_obj_preservesConnectedColimits_of_tensorLeft _ _
+
+/-- The `j`-th horn facet leg composed with horn inclusion is the facet inclusion. -/
+lemma horn_legcomp (M : ℕ) (k : Fin (M + 2)) (j : ↑({k}ᶜ : Set (Fin (M + 2)))) :
+    ((horn.multicoequalizerDiagram k).multicofork.map Subcomplex.toSSetFunctor).π j ≫
+        (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι =
+      (stdSimplex.face {j.1}ᶜ : (Δ[M + 1] : SSet.{u}).Subcomplex).ι :=
+  Subcomplex.homOfLE_ι (face_le_horn j.1 k j.2)
+
+/-- The `j`-th horn facet leg, after applying `Δ[p] ⋆ -`, is the corresponding
+facet join. -/
+lemma horn_rightleg (p M : ℕ) (k : Fin (M + 2)) (j : ↑({k}ᶜ : Set (Fin (M + 2)))) :
+    ((joinFunctor.obj (Δ[p] : SSet.{u})).mapCocone
+        ((horn.multicoequalizerDiagram k).multicofork.map Subcomplex.toSSetFunctor)).ι.app
+        (WalkingMultispan.right j) ≫
+        joinMap (𝟙 (Δ[p] : SSet.{u})) (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι =
+      joinMap (𝟙 (Δ[p] : SSet.{u}))
+        (stdSimplex.face {j.1}ᶜ : (Δ[M + 1] : SSet.{u}).Subcomplex).ι := by
+  have key := horn_legcomp M k j
+  rw [Functor.mapCocone_ι_app, Multicofork.π_eq_app_right, ← joinMap_id_left, ← key,
+    joinMap_comp_right]
+
+/-- Horn-join distribution in the right factor. -/
+theorem range_joinMap_horn_eq_iSup_right (p M : ℕ) (k : Fin (M + 2)) :
+    Subcomplex.range (joinMap (𝟙 (Δ[p] : SSet.{u}))
+        (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι) =
+      ⨆ (j : ↑({k}ᶜ : Set (Fin (M + 2)))), Subcomplex.range
+        (joinMap (𝟙 (Δ[p] : SSet.{u})) (stdSimplex.δ j.1)) := by
+  apply le_antisymm
+  · have hcolim := isColimitOfPreserves (joinFunctor.obj (Δ[p] : SSet.{u}))
+      (horn.multicoequalizerDiagram k).isColimit
+    refine le_trans (le_of_eq (range_eq_iSup_of_isColimit hcolim _)) ?_
+    apply iSup_le
+    intro w
+    cases w with
+    | right j =>
+        rw [horn_rightleg p M k j]
+        exact le_trans (range_joinMap_face_le_delta_right p M j.1)
+          (le_iSup
+            (fun j : ↑({k}ᶜ : Set (Fin (M + 2))) => Subcomplex.range
+              (joinMap (𝟙 (Δ[p] : SSet.{u})) (stdSimplex.δ j.1))) j)
+    | left a =>
+        have hw := ((joinFunctor.obj (Δ[p] : SSet.{u})).mapCocone
+          ((horn.multicoequalizerDiagram k).multicofork.map Subcomplex.toSSetFunctor)).w
+            (WalkingMultispan.Hom.fst a)
+        rw [← hw, Category.assoc, Subcomplex.range_comp]
+        refine le_trans (Subcomplex.image_le_range _ _) ?_
+        rw [horn_rightleg p M k ((MultispanShape.prod ↑({k}ᶜ : Set (Fin (M + 2)))).fst a)]
+        exact le_trans (range_joinMap_face_le_delta_right p M _)
+          (le_iSup
+            (fun j : ↑({k}ᶜ : Set (Fin (M + 2))) => Subcomplex.range
+              (joinMap (𝟙 (Δ[p] : SSet.{u})) (stdSimplex.δ j.1))) _)
+  · apply iSup_le
+    intro j
+    have hne : (j.1 : Fin (M + 2)) ≠ k := j.2
+    rw [← horn.ι_ι k j.1 hne, joinMap_comp_right, Subcomplex.range_comp]
+    exact Subcomplex.image_le_range _ _
+
+/-- Image form of the right-factor horn distribution. -/
+theorem image_range_joinMap_horn_eq_iSup_right (p M : ℕ) (k : Fin (M + 2)) :
+    (Subcomplex.range (joinMap (𝟙 (Δ[p] : SSet.{u}))
+        (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι)).image
+        (joinStdSimplex.{u} p (M + 1)).hom =
+      ⨆ (j : ↑({k}ᶜ : Set (Fin (M + 2)))), Subcomplex.range (stdSimplex.{u}.map
+        (AugmentedSimplexCategory.tensorHomOf (𝟙 ⦋p⦌) (SimplexCategory.δ j.1))) := by
+  rw [range_joinMap_horn_eq_iSup_right, Subcomplex.image_iSup]
+  exact iSup_congr (fun j => image_range_joinMap_right p M (M + 1) (SimplexCategory.δ j.1))
 
 end
 
