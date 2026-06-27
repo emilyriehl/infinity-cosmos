@@ -5,6 +5,7 @@ import Mathlib.CategoryTheory.Adjunction.Limits
 import Mathlib.CategoryTheory.Monoidal.Closed.Braided
 import Mathlib.CategoryTheory.Monoidal.Closed.Types
 import Mathlib.CategoryTheory.Monoidal.DayConvolution.DayFunctor
+import Mathlib.CategoryTheory.Limits.Connected
 import Mathlib.CategoryTheory.Limits.Preserves.FunctorCategory
 import Mathlib.CategoryTheory.Whiskering
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
@@ -79,6 +80,36 @@ functor category. -/
 def augmentedDay : SSet.{u} ⥤ AugDay.{u} :=
   augmentedPresheaf ⋙
     (DayFunctor.equiv AugmentedSimplexCategoryᵒᵖ (Type u)).inverse
+
+theorem constPUnit_preservesConnectedColimits (J : Type u) [Category.{u} J] [IsConnected J] :
+    PreservesColimitsOfShape J ((Functor.const SSet.{u}).obj PUnit.{u+1}) where
+  preservesColimit {K} :=
+    { preserves := fun {c} _ => ⟨by
+        refine IsColimit.ofIsoColimit (isColimitConstCocone J PUnit.{u+1}) ?_
+        refine Cocone.ext (Iso.refl _) ?_
+        intro j
+        ext x
+        rfl⟩ }
+
+instance augmentedPresheaf_preservesConnectedColimits (J : Type u) [Category.{u} J]
+    [IsConnected J] :
+    PreservesColimitsOfShape J augmentedPresheaf.{u} := by
+  apply preservesColimitsOfShape_of_evaluation
+  intro a
+  rcases a with ⟨a⟩
+  cases a with
+  | star =>
+      exact constPUnit_preservesConnectedColimits J
+  | of n =>
+      change PreservesColimitsOfShape J
+        (((evaluation SimplexCategoryᵒᵖ (Type u)).obj (op n) : SSet.{u} ⥤ Type u))
+      infer_instance
+
+instance augmentedDay_preservesConnectedColimits (J : Type u) [Category.{u} J]
+    [IsConnected J] :
+    PreservesColimitsOfShape J augmentedDay.{u} := by
+  dsimp [augmentedDay]
+  infer_instance
 
 /-- Restrict an augmented presheaf to ordinary simplices. -/
 def restrictAugmentedPresheaf :
