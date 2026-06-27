@@ -1,5 +1,6 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Join
 import Mathlib.CategoryTheory.Comma.Over.Basic
+import Mathlib.CategoryTheory.Limits.Constructions.Over.Connected
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Terminal
 import Mathlib.CategoryTheory.Limits.Types.Coproducts
 
@@ -13,6 +14,7 @@ relative setting where the empty-colimit obstruction for the plain functor
 -/
 
 open CategoryTheory Simplicial Opposite Limits
+open CategoryTheory.MonoidalCategory
 open scoped Simplicial
 
 universe u
@@ -63,6 +65,23 @@ def joinUnder (K : SSet.{u}) : SSet.{u} ⥤ Under K where
 theorem joinUnder_forget (K : SSet.{u}) :
     joinUnder K ⋙ Under.forget K = joinFunctor.flip.obj K :=
   rfl
+
+theorem joinUnder_preservesConnectedColimits_of_joinFunctor_flip
+    (J : Type u) [Category.{u} J] [IsConnected J] (K : SSet.{u})
+    [PreservesColimitsOfShape J (joinFunctor.flip.obj K)] :
+    PreservesColimitsOfShape J (joinUnder K) := by
+  haveI : PreservesColimitsOfShape J (joinUnder K ⋙ Under.forget K) := by
+    change PreservesColimitsOfShape J (joinFunctor.flip.obj K)
+    infer_instance
+  exact Limits.preservesColimitsOfShape_of_reflects_of_preserves (joinUnder K) (Under.forget K)
+
+theorem joinUnder_preservesConnectedColimits_of_tensorRight
+    (J : Type u) [Category.{u} J] [IsConnected J] (K : SSet.{u})
+    [PreservesColimitsOfShape J (tensorRight (augmentedDay.obj K))] :
+    PreservesColimitsOfShape J (joinUnder K) := by
+  haveI : PreservesColimitsOfShape J (joinFunctor.flip.obj K) :=
+    joinFunctor_flip_preservesConnectedColimits_of_tensorRight J K
+  exact joinUnder_preservesConnectedColimits_of_joinFunctor_flip J K
 
 /-- Maps out of `joinUnder K` are exactly maps `Y ⋆ K ⟶ C` restricting to `p` on `K`. -/
 def overPtEquivUnderHom {K C : SSet.{u}} (p : K ⟶ C) (Y : SSet.{u}) :

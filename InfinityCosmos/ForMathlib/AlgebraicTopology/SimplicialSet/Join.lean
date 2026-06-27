@@ -141,6 +141,14 @@ def joinFunctor : SSet.{u} ⥤ SSet.{u} ⥤ SSet.{u} :=
     (Functor.whiskeringLeft SSet.{u} AugDay.{u} AugDay.{u}).obj augmentedDay ⋙
     (Functor.whiskeringRight SSet.{u} AugDay.{u} SSet.{u}).obj restrictAugmentedDay
 
+theorem joinFunctor_flip_preservesConnectedColimits_of_tensorRight
+    (J : Type u) [Category.{u} J] [IsConnected J] (K : SSet.{u})
+    [PreservesColimitsOfShape J (tensorRight (augmentedDay.obj K))] :
+    PreservesColimitsOfShape J (joinFunctor.flip.obj K) := by
+  change PreservesColimitsOfShape J
+    (augmentedDay ⋙ tensorRight (augmentedDay.obj K) ⋙ restrictAugmentedDay)
+  infer_instance
+
 /-- The join of two simplicial sets `X ⋆ Y`. -/
 def join (X Y : SSet.{u}) : SSet.{u} :=
   (joinFunctor.obj X).obj Y
