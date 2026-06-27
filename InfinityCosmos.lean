@@ -12,6 +12,7 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Coskeletal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.InnerFiller
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.IsoCore
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Join
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeftFibration
