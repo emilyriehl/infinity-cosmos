@@ -873,6 +873,43 @@ theorem joinStdSimplex_naturality {a a' b b' : ℕ}
   congr 1
   exact joinMiddleIso_naturality f g
 
+/-- The image of a binary join of subcomplexes is the binary join of their images. -/
+lemma image_sup {X Y : SSet.{u}} (A B : X.Subcomplex) (f : X ⟶ Y) :
+    (A ⊔ B).image f = A.image f ⊔ B.image f := by
+  apply le_antisymm
+  · rw [Subcomplex.image_le_iff]
+    apply sup_le
+    · rw [← Subcomplex.image_le_iff]
+      exact le_sup_left
+    · rw [← Subcomplex.image_le_iff]
+      exact le_sup_right
+  · exact sup_le (Subcomplex.image_monotone f le_sup_left)
+      (Subcomplex.image_monotone f le_sup_right)
+
+/-- Image under `joinStdSimplex` of a standard-simplex range in the left join variable. -/
+lemma image_range_joinMap_left (a a' b : ℕ) (f : ⦋a⦌ ⟶ ⦋a'⦌) :
+    (Subcomplex.range (joinMap (stdSimplex.{u}.map f)
+        (𝟙 (stdSimplex.{u}.obj ⦋b⦌)))).image (joinStdSimplex.{u} a' b).hom =
+      Subcomplex.range
+        (stdSimplex.{u}.map (AugmentedSimplexCategory.tensorHomOf f (𝟙 ⦋b⦌))) := by
+  rw [← Subcomplex.range_comp,
+    show (𝟙 (stdSimplex.{u}.obj ⦋b⦌)) = stdSimplex.{u}.map (𝟙 ⦋b⦌) from
+      (stdSimplex.{u}.map_id _).symm,
+    joinStdSimplex_naturality f (𝟙 ⦋b⦌),
+    Subcomplex.range_comp, Subcomplex.range_eq_top, Subcomplex.image_top]
+
+/-- Image under `joinStdSimplex` of a standard-simplex range in the right join variable. -/
+lemma image_range_joinMap_right (a b b' : ℕ) (g : ⦋b⦌ ⟶ ⦋b'⦌) :
+    (Subcomplex.range (joinMap (𝟙 (stdSimplex.{u}.obj ⦋a⦌))
+        (stdSimplex.{u}.map g))).image (joinStdSimplex.{u} a b').hom =
+      Subcomplex.range
+        (stdSimplex.{u}.map (AugmentedSimplexCategory.tensorHomOf (𝟙 ⦋a⦌) g)) := by
+  rw [← Subcomplex.range_comp,
+    show (𝟙 (stdSimplex.{u}.obj ⦋a⦌)) = stdSimplex.{u}.map (𝟙 ⦋a⦌) from
+      (stdSimplex.{u}.map_id _).symm,
+    joinStdSimplex_naturality (𝟙 ⦋a⦌) g,
+    Subcomplex.range_comp, Subcomplex.range_eq_top, Subcomplex.image_top]
+
 end
 
 end SSet

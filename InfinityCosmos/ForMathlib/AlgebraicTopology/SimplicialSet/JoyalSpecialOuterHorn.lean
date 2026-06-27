@@ -1,6 +1,7 @@
 import Mathlib.AlgebraicTopology.SimplicialSet.AnodyneExtensions.Inner.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.Boundary
 import Mathlib.AlgebraicTopology.SimplicialSet.Horn
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Join
 
 /-!
 # Vertex bookkeeping for the Joyal special outer horn argument
@@ -48,6 +49,36 @@ lemma joinRightVertex_injective (p m : ℕ) :
   apply Fin.ext
   have hv := congrArg (fun x : Fin (p + m + 2) => (x : ℕ)) h
   simpa using Nat.add_left_cancel hv
+
+/-- Tensoring a left coface with an identity is the coface missing the corresponding
+left-block vertex, up to the associativity casts in the ordinal arithmetic. -/
+lemma tensorHomOf_δ_left (p m : ℕ) (i : Fin (p + 2)) :
+    AugmentedSimplexCategory.tensorHomOf (SimplexCategory.δ i) (𝟙 ⦋m⦌) =
+      eqToHom (by
+        have h : p + m + 1 = (p + 1) + m := by omega
+        simp [AugmentedSimplexCategory.tensorObjOf, h]) ≫
+      SimplexCategory.δ (joinLeftVertex (p + 1) m i) ≫
+      eqToHom (by
+        simp [AugmentedSimplexCategory.tensorObjOf]) := by
+  ext r : 3
+  simp [AugmentedSimplexCategory.tensorHomOf, SimplexCategory.δ, joinLeftVertex,
+    Fin.succAbove, Fin.addCases]
+  grind
+
+/-- Tensoring an identity with a right coface is the coface missing the corresponding
+right-block vertex, up to the associativity casts in the ordinal arithmetic. -/
+lemma tensorHomOf_δ_right (p m : ℕ) (j : Fin (m + 2)) :
+    AugmentedSimplexCategory.tensorHomOf (𝟙 ⦋p⦌) (SimplexCategory.δ j) =
+      eqToHom (by
+        have h : p + m + 1 = p + (m + 1) := by omega
+        simp [AugmentedSimplexCategory.tensorObjOf, h]) ≫
+      SimplexCategory.δ (joinRightVertex p (m + 1) j) ≫
+      eqToHom (by
+        simp [AugmentedSimplexCategory.tensorObjOf]) := by
+  ext r : 3
+  simp [AugmentedSimplexCategory.tensorHomOf, SimplexCategory.δ, joinRightVertex,
+    Fin.succAbove, Fin.addCases]
+  grind
 
 /-- A simplex lies in the complementary face `{i}ᶜ` iff it misses vertex `i`. -/
 lemma mem_face_compl_singleton_iff {n d : ℕ} (i : Fin (n + 1))
@@ -112,6 +143,27 @@ lemma joyalBase_horn_eq_vertexBlocks (p m : ℕ) (k : Fin (m + 1)) :
       · rintro (⟨i, hi⟩ | ⟨⟨j, hj_ne⟩, hj⟩)
         · exact Or.inl ⟨i, (mem_face_compl_singleton_iff _ _).mp hi⟩
         · exact Or.inr ⟨j, hj_ne, (mem_face_compl_singleton_iff _ _).mp hj⟩
+
+/-- The F-horn image identity once the left-boundary and right-horn face-image
+computations have been supplied. -/
+theorem fhorn_identity_of_faceImages (p m : ℕ) (k : Fin (m + 1))
+    (H1 : (Subcomplex.range (joinMap (∂Δ[p] : (Δ[p] : SSet.{u}).Subcomplex).ι
+            (𝟙 (Δ[m] : SSet.{u})))).image (joinStdSimplex.{u} p m).hom =
+          ⨆ i : Fin (p + 1), stdSimplex.face {joinLeftVertex p m i}ᶜ)
+    (H2 : (Subcomplex.range (joinMap (𝟙 (Δ[p] : SSet.{u}))
+            (Λ[m, k] : (Δ[m] : SSet.{u}).Subcomplex).ι)).image
+            (joinStdSimplex.{u} p m).hom =
+          ⨆ j : {j : Fin (m + 1) // j ≠ k},
+            stdSimplex.face {joinRightVertex p m j.1}ᶜ) :
+    (Subcomplex.range
+          (joinMap (∂Δ[p] : (Δ[p] : SSet.{u}).Subcomplex).ι
+            (𝟙 (Δ[m] : SSet.{u}))) ⊔
+        Subcomplex.range
+          (joinMap (𝟙 (Δ[p] : SSet.{u}))
+            (Λ[m, k] : (Δ[m] : SSet.{u}).Subcomplex).ι)).image
+          (joinStdSimplex.{u} p m).hom =
+      horn.{u} (p + m + 1) (joinRightVertex p m k) := by
+  rw [image_sup, H1, H2, ← joyalBase_horn_eq_vertexBlocks]
 
 lemma joyalBaseIndex_interior (p m : ℕ) (k : Fin (m + 1)) (hk : k < Fin.last m) :
     (0 : Fin (p + m + 1 + 1)) < joinRightVertex p m k ∧
