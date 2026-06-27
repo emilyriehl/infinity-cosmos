@@ -106,6 +106,41 @@ def joinMap {X X' Y Y' : SSet.{u}} (f : X ⟶ X') (g : Y ⟶ Y') :
     X ⋆ Y ⟶ X' ⋆ Y' :=
   (joinFunctor.map f).app Y ≫ (joinFunctor.obj X').map g
 
+/-- The Day-unit map into the terminal augmentation of a simplicial set. -/
+def augmentedDayUnitTo (X : SSet.{u}) : 𝟙_ AugDay.{u} ⟶ augmentedDay.obj X :=
+  DayFunctor.unitDesc (C := AugmentedSimplexCategoryᵒᵖ) (V := Type u)
+    (↾fun _ => PUnit.unit)
+
+theorem augmentedDayUnitTo_naturality {X X' : SSet.{u}} (f : X ⟶ X') :
+    augmentedDayUnitTo X ≫ augmentedDay.map f = augmentedDayUnitTo X' := by
+  apply DayFunctor.unit_hom_ext
+  ext x
+  simp [augmentedDayUnitTo]
+  change PUnit.unit = PUnit.unit
+  rfl
+
+/-- The right-factor inclusion `Y ⟶ X ⋆ Y`. -/
+def joinInr (X Y : SSet.{u}) : Y ⟶ X ⋆ Y := by
+  change restrictAugmentedDay.obj (augmentedDay.obj Y) ⟶
+    restrictAugmentedDay.obj (augmentedDay.obj X ⊗ augmentedDay.obj Y)
+  exact restrictAugmentedDay.map
+    ((λ_ (augmentedDay.obj Y)).inv ≫
+      (augmentedDayUnitTo X) ▷ (augmentedDay.obj Y))
+
+theorem joinInr_naturality_left {X X' : SSet.{u}} (f : X ⟶ X') (Y : SSet.{u}) :
+    joinInr X Y ≫ (joinFunctor.map f).app Y = joinInr X' Y := by
+  change
+    restrictAugmentedDay.map
+          ((λ_ (augmentedDay.obj Y)).inv ≫
+            (augmentedDayUnitTo X) ▷ (augmentedDay.obj Y)) ≫
+        restrictAugmentedDay.map ((augmentedDay.map f) ▷ (augmentedDay.obj Y)) =
+      restrictAugmentedDay.map
+          ((λ_ (augmentedDay.obj Y)).inv ≫
+            (augmentedDayUnitTo X') ▷ (augmentedDay.obj Y))
+  rw [← Functor.map_comp]
+  congr 1
+  rw [Category.assoc, ← MonoidalCategory.comp_whiskerRight, augmentedDayUnitTo_naturality f]
+
 /-- Index of the mixed simplices in the expected pointwise formula. -/
 def JoinIndex (n : ℕ) : Type :=
   { p : ℕ × ℕ // p.1 + p.2 + 1 = n }
