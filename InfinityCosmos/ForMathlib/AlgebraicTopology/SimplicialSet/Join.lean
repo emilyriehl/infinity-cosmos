@@ -6,6 +6,9 @@ import Mathlib.CategoryTheory.Monoidal.DayConvolution.DayFunctor
 import Mathlib.CategoryTheory.Whiskering
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 
+set_option backward.defeqAttrib.useBackward true
+set_option backward.isDefEq.respectTransparency false
+
 /-!
 # The simplicial join
 
@@ -135,6 +138,243 @@ theorem joinMap_comm {A B C D : SSet.{u}} (f : A ⟶ B) (g : C ⟶ D) :
 def leibnizJoin {A B C D : SSet.{u}} (f : A ⟶ B) (g : C ⟶ D) :
     pushout (joinMap f (𝟙 C)) (joinMap (𝟙 A) g) ⟶ B ⋆ D :=
   pushout.desc (joinMap (𝟙 B) g) (joinMap f (𝟙 D)) (joinMap_comm f g)
+
+/-- The augmented representable presheaf, packaged as a Day functor. -/
+def ucoyDay (X : AugmentedSimplexCategoryᵒᵖ) : AugDay.{u} :=
+  DayFunctor.mk (uliftCoyoneda.{u}.obj (op X))
+
+/-- Two-variable Yoneda identifies the Day convolution of two augmented
+representables with the representable at their tensor product. -/
+def twoVarYonedaCorep (X Y : AugmentedSimplexCategoryᵒᵖ) :
+    ((Functor.whiskeringLeft (AugmentedSimplexCategoryᵒᵖ × AugmentedSimplexCategoryᵒᵖ)
+          AugmentedSimplexCategoryᵒᵖ (Type u)).obj
+        (tensor AugmentedSimplexCategoryᵒᵖ) ⋙
+      coyoneda.obj (op (externalProduct (ucoyDay.{u} X).functor
+        (ucoyDay.{u} Y).functor))).CorepresentableBy
+      (uliftCoyoneda.{u}.obj (op (X ⊗ Y))) where
+  homEquiv {H} :=
+    { toFun := fun τ =>
+        { app := fun xy => ↾fun fg =>
+            H.map (fg.1.down ⊗ₘ fg.2.down) (uliftCoyonedaEquiv.{u} τ)
+          naturality := by
+            intro xy xy' h
+            ext fg
+            rcases fg with ⟨f, g⟩
+            dsimp
+            rw [← Functor.map_comp_apply H]
+            apply congrArg (fun k => H.map k (uliftCoyonedaEquiv τ))
+            change (f.down ≫ h.1) ⊗ₘ (g.down ≫ h.2) =
+              (f.down ⊗ₘ g.down) ≫ (h.1 ⊗ₘ h.2)
+            simp }
+      invFun := fun α =>
+        uliftCoyonedaEquiv.{u}.symm (α.app (X, Y) (ULift.up (𝟙 X), ULift.up (𝟙 Y)))
+      left_inv := by
+        intro τ
+        apply uliftCoyonedaEquiv.injective
+        simp [uliftCoyonedaEquiv]
+      right_inv := by
+        intro α
+        apply NatTrans.ext
+        funext xy
+        ext fg
+        rcases fg with ⟨f, g⟩
+        let hxy : (X, Y) ⟶ xy := (f.down, g.down)
+        have hα := congrArg
+          (fun e => (ConcreteCategory.hom e) (ULift.up (𝟙 X), ULift.up (𝟙 Y)))
+          (α.naturality hxy)
+        have hfg :
+            (ConcreteCategory.hom
+                ((externalProduct (ucoyDay.{u} X).functor (ucoyDay.{u} Y).functor).map hxy))
+              (ULift.up (𝟙 X), ULift.up (𝟙 Y)) = (f, g) := by
+          rcases f with ⟨f⟩
+          rcases g with ⟨g⟩
+          apply Prod.ext
+          · change ULift.up ((𝟙 X) ≫ f) = ULift.up f
+            simp
+          · change ULift.up ((𝟙 Y) ≫ g) = ULift.up g
+            simp
+        simp only [Equiv.apply_symm_apply]
+        change (ConcreteCategory.hom (H.map (f.down ⊗ₘ g.down)))
+            ((ConcreteCategory.hom (α.app (X, Y))) (ULift.up (𝟙 X), ULift.up (𝟙 Y))) =
+          (ConcreteCategory.hom (α.app xy)) (f, g)
+        have hα' :
+            (ConcreteCategory.hom (H.map (f.down ⊗ₘ g.down)))
+                ((ConcreteCategory.hom (α.app (X, Y))) (ULift.up (𝟙 X), ULift.up (𝟙 Y))) =
+              (ConcreteCategory.hom (α.app xy))
+                ((ConcreteCategory.hom
+                    ((externalProduct (ucoyDay.{u} X).functor (ucoyDay.{u} Y).functor).map hxy))
+                  (ULift.up (𝟙 X), ULift.up (𝟙 Y))) := by
+          simpa [hxy, ucoyDay, uliftCoyoneda, tensorHom_def, Category.assoc] using hα.symm
+        rw [hfg] at hα'
+        simpa using hα' }
+  homEquiv_comp {H H'} β τ := by
+    apply NatTrans.ext
+    funext xy
+    ext fg
+    rcases fg with ⟨f, g⟩
+    change (ConcreteCategory.hom (H'.map (f.down ⊗ₘ g.down)))
+        (uliftCoyonedaEquiv.{u} (τ ≫ β)) =
+      (ConcreteCategory.hom (β.app (xy.1 ⊗ xy.2)))
+        ((ConcreteCategory.hom (H.map (f.down ⊗ₘ g.down))) (uliftCoyonedaEquiv.{u} τ))
+    rw [uliftCoyonedaEquiv_comp]
+    simp
+
+/-- The Day tensor product of two augmented representables is the augmented
+representable at their tensor product. -/
+def ucoyTensorFunctorIso (X Y : AugmentedSimplexCategoryᵒᵖ) :
+    (ucoyDay.{u} X ⊗ ucoyDay.{u} Y).functor ≅ (ucoyDay.{u} (X ⊗ Y)).functor :=
+  letI : DayConvolution (ucoyDay.{u} X).functor (ucoyDay.{u} Y).functor :=
+    LawfulDayConvolutionMonoidalCategoryStruct.convolution
+      (C := AugmentedSimplexCategoryᵒᵖ) (V := Type u) AugDay.{u}
+      (ucoyDay.{u} X) (ucoyDay.{u} Y)
+  (DayConvolution.corepresentableBy
+      (ucoyDay.{u} X).functor (ucoyDay.{u} Y).functor).uniqueUpToIso
+    (twoVarYonedaCorep.{u} X Y)
+
+/-- Day-functor form of `ucoyTensorFunctorIso`. -/
+def ucoyTensorIso (X Y : AugmentedSimplexCategoryᵒᵖ) :
+    ucoyDay.{u} X ⊗ ucoyDay.{u} Y ≅ ucoyDay.{u} (X ⊗ Y) :=
+  (DayFunctor.equiv AugmentedSimplexCategoryᵒᵖ (Type u)).inverse.mapIso
+    (ucoyTensorFunctorIso.{u} X Y)
+
+/-- On ordinary simplex objects, the augmented inclusion is fully faithful. -/
+def augmentedInclusionHomEquiv (m n : SimplexCategory) :
+    (AugmentedSimplexCategory.inclusion.obj m ⟶
+      AugmentedSimplexCategory.inclusion.obj n) ≃ (m ⟶ n) where
+  toFun f := WithInitial.down f
+  invFun f := AugmentedSimplexCategory.inclusion.map f
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+/-- Restricting the augmented representable on `⦋a⦌` recovers `Δ[a]`. -/
+def ucoyRestrictedStdEquiv (a : ℕ) (n : SimplexCategoryᵒᵖ) :
+    (AugmentedSimplexCategory.inclusion.op ⋙
+        (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))).functor).obj n ≃
+      (SSet.stdSimplex.{u}.obj ⦋a⦌).obj n where
+  toFun x := ULift.up (WithInitial.down x.down.unop)
+  invFun y := ULift.up (AugmentedSimplexCategory.inclusion.map y.down).op
+  left_inv x := by
+    rcases x with ⟨x⟩
+    rfl
+  right_inv y := by
+    rcases y with ⟨y⟩
+    rfl
+
+/-- The restricted augmented representable on `⦋a⦌` is `Δ[a]`. -/
+def ucoyRestrictedStdIso (a : ℕ) :
+    AugmentedSimplexCategory.inclusion.op ⋙
+        (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))).functor ≅
+      SSet.stdSimplex.{u}.obj ⦋a⦌ :=
+  NatIso.ofComponents (fun n => Equiv.toIso <| ucoyRestrictedStdEquiv.{u} a n) (by
+    intro n m f
+    ext x
+    rcases x with ⟨x⟩
+    rfl)
+
+/-- The drop of the augmented representable on `⦋a⦌` is `Δ[a]`. -/
+def ucoyDropStdIso (a : ℕ) :
+    (AugmentedSimplexCategory.equivAugmentedSimplicialObject.functor.obj
+        (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))).functor).left ≅
+      (terminalAugmented.obj (SSet.stdSimplex.{u}.obj ⦋a⦌)).left :=
+  (AugmentedSimplexCategory.equivAugmentedSimplicialObjectFunctorCompDropIso.app
+      (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))).functor) ≪≫
+    ucoyRestrictedStdIso.{u} a
+
+/-- The augmentation point of the augmented representable on `⦋a⦌` is terminal. -/
+def ucoyPointStdIso (a : ℕ) :
+    (AugmentedSimplexCategory.equivAugmentedSimplicialObject.functor.obj
+        (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))).functor).right ≅
+      (terminalAugmented.obj (SSet.stdSimplex.{u}.obj ⦋a⦌)).right :=
+  Equiv.toIso
+    { toFun := fun _ => PUnit.unit
+      invFun := fun _ => ULift.up (WithInitial.homTo ⦋a⦌).op
+      left_inv := by
+        intro x
+        rcases x with ⟨x⟩
+        cases x.unop
+        rfl
+      right_inv := by
+        intro x
+        cases x
+        rfl }
+
+/-- The augmented representable on `⦋a⦌` is the terminally augmented standard simplex. -/
+def ucoyAugmentedStdIso (a : ℕ) :
+    AugmentedSimplexCategory.equivAugmentedSimplicialObject.functor.obj
+        (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))).functor ≅
+      terminalAugmented.obj (SSet.stdSimplex.{u}.obj ⦋a⦌) :=
+  Comma.isoMk (ucoyDropStdIso.{u} a) (ucoyPointStdIso.{u} a) (by
+    ext n x
+    rfl)
+
+/-- The terminal augmented standard simplex is the augmented representable on `⦋a⦌`. -/
+def augmentedPresheafStdIso (a : ℕ) :
+    augmentedPresheaf.obj (SSet.stdSimplex.{u}.obj ⦋a⦌) ≅
+      (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))).functor :=
+  AugmentedSimplexCategory.equivAugmentedSimplicialObject.inverse.mapIso
+      (ucoyAugmentedStdIso.{u} a).symm ≪≫
+    AugmentedSimplexCategory.equivAugmentedSimplicialObject.unitIso.symm.app
+      (ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))).functor
+
+/-- Day-functor form of `augmentedPresheafStdIso`. -/
+def augmentedDayStdIso (a : ℕ) :
+    augmentedDay.obj (SSet.stdSimplex.{u}.obj ⦋a⦌) ≅
+      ucoyDay.{u} (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌)) :=
+  (DayFunctor.equiv AugmentedSimplexCategoryᵒᵖ (Type u)).inverse.mapIso
+    (augmentedPresheafStdIso.{u} a)
+
+/-- Ordinal-sum arithmetic in the augmented simplex category. -/
+theorem ordinalSum_eq (a b : ℕ) :
+    AugmentedSimplexCategory.inclusion.obj ⦋a⦌ ⊗
+        AugmentedSimplexCategory.inclusion.obj ⦋b⦌ =
+      AugmentedSimplexCategory.inclusion.obj ⦋a + b + 1⦌ :=
+  rfl
+
+/-- Ordinal-sum arithmetic after passing to the opposite category. -/
+theorem opOrdinalSum_eq (a b : ℕ) :
+    op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌) ⊗
+        op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌) =
+      op (AugmentedSimplexCategory.inclusion.obj ⦋a + b + 1⦌) :=
+  rfl
+
+/-- The join definition is the restriction of the Day tensor of terminal
+augmentations. -/
+theorem join_eq_restrict (X Y : SSet.{u}) :
+    X ⋆ Y = restrictAugmentedDay.obj (augmentedDay.obj X ⊗ augmentedDay.obj Y) :=
+  rfl
+
+/-- Restricting a terminal augmentation returns the original simplicial set. -/
+theorem restrict_augmentedDay_roundtrip (X : SSet.{u}) :
+    restrictAugmentedDay.obj (augmentedDay.obj X) = X :=
+  rfl
+
+/-- The middle representable-monoidal isomorphism for standard simplices. -/
+def joinMiddleIso (a b : ℕ) :
+    augmentedDay.{u}.obj (SSet.stdSimplex.{u}.obj ⦋a⦌) ⊗
+        augmentedDay.{u}.obj (SSet.stdSimplex.{u}.obj ⦋b⦌) ≅
+      augmentedDay.{u}.obj (SSet.stdSimplex.{u}.obj ⦋a + b + 1⦌) :=
+  (MonoidalCategory.tensorIso (C := AugDay.{u})
+      (augmentedDayStdIso.{u} a) (augmentedDayStdIso.{u} b)) ≪≫
+    ucoyTensorIso.{u}
+      (op (AugmentedSimplexCategory.inclusion.obj ⦋a⦌))
+      (op (AugmentedSimplexCategory.inclusion.obj ⦋b⦌)) ≪≫
+    (augmentedDayStdIso.{u} (a + b + 1)).symm
+
+/-- Given the middle augmented-Day isomorphism, restriction gives the standard
+simplex join isomorphism. -/
+def joinStdSimplexOf (a b : ℕ)
+    (B : augmentedDay.{u}.obj (SSet.stdSimplex.{u}.obj ⦋a⦌) ⊗
+        augmentedDay.{u}.obj (SSet.stdSimplex.{u}.obj ⦋b⦌) ≅
+      augmentedDay.{u}.obj (SSet.stdSimplex.{u}.obj ⦋a + b + 1⦌)) :
+    SSet.stdSimplex.{u}.obj ⦋a⦌ ⋆ SSet.stdSimplex.{u}.obj ⦋b⦌ ≅
+      SSet.stdSimplex.{u}.obj ⦋a + b + 1⦌ :=
+  restrictAugmentedDay.mapIso B
+
+/-- The join of standard simplices is the standard simplex on the ordinal sum. -/
+def joinStdSimplex (a b : ℕ) :
+    SSet.stdSimplex.{u}.obj ⦋a⦌ ⋆ SSet.stdSimplex.{u}.obj ⦋b⦌ ≅
+      SSet.stdSimplex.{u}.obj ⦋a + b + 1⦌ :=
+  joinStdSimplexOf.{u} a b (joinMiddleIso.{u} a b)
 
 end
 
