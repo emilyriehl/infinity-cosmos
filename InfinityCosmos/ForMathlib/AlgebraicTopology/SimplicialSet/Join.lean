@@ -2,11 +2,15 @@ import Mathlib.AlgebraicTopology.SimplexCategory.Augmented.Monoidal
 import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 import Mathlib.CategoryTheory.Adjunction.Evaluation
 import Mathlib.CategoryTheory.Adjunction.Limits
+import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
 import Mathlib.CategoryTheory.Monoidal.Closed.Braided
 import Mathlib.CategoryTheory.Monoidal.Closed.Types
 import Mathlib.CategoryTheory.Monoidal.DayConvolution.DayFunctor
+import Mathlib.CategoryTheory.Monoidal.ExternalProduct.Basic
 import Mathlib.CategoryTheory.Limits.Connected
 import Mathlib.CategoryTheory.Limits.Preserves.FunctorCategory
+import Mathlib.CategoryTheory.Limits.Shapes.Equalizers
+import Mathlib.CategoryTheory.Limits.Types.Coproducts
 import Mathlib.CategoryTheory.Whiskering
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 
@@ -28,8 +32,9 @@ open CategoryTheory Simplicial Opposite Limits
 open CategoryTheory.MonoidalCategory
 open CategoryTheory.MonoidalCategory.DayFunctor
 open scoped Simplicial
+open scoped CategoryTheory.MonoidalCategory.ExternalProduct
 
-universe u
+universe u w w'
 
 namespace SSet
 
@@ -75,13 +80,97 @@ def augmentedPresheaf :
 abbrev AugDay : Type (u + 1) :=
   AugmentedSimplexCategoryᵒᵖ ⊛⥤ Type u
 
+abbrev AC := AugmentedSimplexCategoryᵒᵖ
+
+def rightExt (D : AugDay.{u}) : (AC ⥤ Type u) ⥤ (AC × AC ⥤ Type u) :=
+  Functor.prod' (𝟭 _) ((Functor.const _).obj D.functor) ⋙
+    externalProductBifunctor AC AC (Type u)
+
+def bigLam (D : AugDay.{u}) : (AC ⥤ Type u) ⥤ (AC ⥤ Type u) :=
+  (DayFunctor.equiv AC (Type u)).inverse ⋙ tensorRight D ⋙
+    (DayFunctor.equiv AC (Type u)).functor
+
+abbrev Rwhisk : (AC ⥤ Type u) ⥤ (AC × AC ⥤ Type u) :=
+  (Functor.whiskeringLeft (AC × AC) AC (Type u)).obj (tensor AC)
+
+def theta (D : AugDay.{u}) : rightExt D ⟶ bigLam D ⋙ Rwhisk where
+  app F := DayFunctor.η (DayFunctor.mk F) D
+  naturality {F G} f := by
+    apply NatTrans.ext
+    funext ab
+    obtain ⟨x, y⟩ := ab
+    have key :
+        (DayFunctor.η (DayFunctor.mk F) D).app (x, y) ≫
+            ((DayFunctor.Hom.mk f ▷ D).natTrans).app (x ⊗ y) =
+          (f.app x ▷ D.functor.obj y) ≫
+            (DayFunctor.η (DayFunctor.mk G) D).app (x, y) :=
+      LawfulDayConvolutionMonoidalCategoryStruct.convolutionExtensionUnit_comp_ι_map_whiskerRight_app
+        (C := AC) (V := Type u) (D := AugDay) (DayFunctor.Hom.mk f) D x y
+    simp only [NatTrans.comp_app, Functor.comp_map, Functor.whiskeringLeft_obj_map,
+      Functor.whiskerLeft_app]
+    exact key.symm
+
+def thetaBar (D : AugDay.{u}) :
+    rightExt D ⋙ Functor.lan (tensor AC) ⟶ bigLam D :=
+  Functor.whiskerRight (theta D) (Functor.lan (tensor AC)) ≫
+    Functor.whiskerLeft (bigLam D) (Functor.lanAdjunction (tensor AC) (Type u)).counit
+
+instance thetaBar_app_isIso (D : AugDay.{u}) (F : AC ⥤ Type u) :
+    IsIso ((thetaBar D).app F) := by
+  have h3 : (thetaBar D).app F =
+      ((Functor.lanAdjunction (tensor AC) (Type u)).homEquiv ((rightExt D).obj F)
+        ((bigLam D).obj F)).symm ((theta D).app F) := by
+    simp only [thetaBar, NatTrans.comp_app, Functor.whiskerRight_app, Functor.whiskerLeft_app,
+      Adjunction.homEquiv_counit]
+  rw [h3]
+  refine (Functor.isIso_lanAdjunction_homEquiv_symm_iff
+    (L := tensor AC) (G := (bigLam D).obj F) ((theta D).app F)).mpr ?_
+  exact inferInstanceAs
+    (((DayFunctor.mk F) ⊗ D).functor.IsLeftKanExtension (DayFunctor.η (DayFunctor.mk F) D))
+
+instance thetaBar_isIso (D : AugDay.{u}) : IsIso (thetaBar D) :=
+  NatIso.isIso_of_isIso_app _
+
+def bigLamIso (D : AugDay.{u}) : rightExt D ⋙ Functor.lan (tensor AC) ≅ bigLam D :=
+  asIso (thetaBar D)
+
+instance rightExt_pres (D : AugDay.{u}) (J : Type w) [Category.{w'} J]
+    [HasColimitsOfShape J (Type u)] :
+    PreservesColimitsOfShape J (rightExt D) := by
+  apply preservesColimitsOfShape_of_evaluation
+  intro ab
+  exact preservesColimitsOfShape_of_natIso
+    (NatIso.ofComponents (fun F => Iso.refl _) (by intro F G f; rfl) :
+      (evaluation AC (Type u)).obj ab.1 ⋙ tensorRight (D.functor.obj ab.2) ≅
+        rightExt D ⋙ (evaluation (AC × AC) (Type u)).obj ab)
+
+instance lan_pres (J : Type w) [Category.{w'} J] :
+    PreservesColimitsOfShape J
+      (Functor.lan (tensor AC) : (AC × AC ⥤ Type u) ⥤ (AC ⥤ Type u)) :=
+  (Functor.lanAdjunction (tensor AC) (Type u)).leftAdjoint_preservesColimits.preservesColimitsOfShape
+
+instance bigLam_pres (D : AugDay.{u}) (J : Type w) [Category.{w'} J]
+    [HasColimitsOfShape J (Type u)] :
+    PreservesColimitsOfShape J (bigLam D) :=
+  preservesColimitsOfShape_of_natIso (bigLamIso D)
+
+instance tensorRight_pres (D : AugDay.{u}) (J : Type w) [Category.{w'} J]
+    [HasColimitsOfShape J (Type u)] :
+    PreservesColimitsOfShape J (tensorRight D) := by
+  haveI : PreservesColimitsOfShape J (tensorRight D ⋙ (DayFunctor.equiv AC (Type u)).functor) := by
+    rw [show tensorRight D ⋙ (DayFunctor.equiv AC (Type u)).functor =
+        (DayFunctor.equiv AC (Type u)).functor ⋙ bigLam D from rfl]
+    infer_instance
+  exact Limits.preservesColimitsOfShape_of_reflects_of_preserves
+    (tensorRight D) (DayFunctor.equiv AC (Type u)).functor
+
 /-- The augmented presheaf associated to a simplicial set, viewed in the Day
 functor category. -/
 def augmentedDay : SSet.{u} ⥤ AugDay.{u} :=
   augmentedPresheaf ⋙
     (DayFunctor.equiv AugmentedSimplexCategoryᵒᵖ (Type u)).inverse
 
-theorem constPUnit_preservesConnectedColimits (J : Type u) [Category.{u} J] [IsConnected J] :
+theorem constPUnit_preservesConnectedColimits {J : Type w} [Category.{w'} J] [IsConnected J] :
     PreservesColimitsOfShape J ((Functor.const SSet.{u}).obj PUnit.{u+1}) where
   preservesColimit {K} :=
     { preserves := fun {c} _ => ⟨by
@@ -91,22 +180,22 @@ theorem constPUnit_preservesConnectedColimits (J : Type u) [Category.{u} J] [IsC
         ext x
         rfl⟩ }
 
-instance augmentedPresheaf_preservesConnectedColimits (J : Type u) [Category.{u} J]
-    [IsConnected J] :
+instance augmentedPresheaf_preservesConnectedColimits (J : Type w) [Category.{w'} J]
+    [IsConnected J] [HasColimitsOfShape J (Type u)] :
     PreservesColimitsOfShape J augmentedPresheaf.{u} := by
   apply preservesColimitsOfShape_of_evaluation
   intro a
   rcases a with ⟨a⟩
   cases a with
   | star =>
-      exact constPUnit_preservesConnectedColimits J
+      exact constPUnit_preservesConnectedColimits
   | of n =>
       change PreservesColimitsOfShape J
         (((evaluation SimplexCategoryᵒᵖ (Type u)).obj (op n) : SSet.{u} ⥤ Type u))
       infer_instance
 
-instance augmentedDay_preservesConnectedColimits (J : Type u) [Category.{u} J]
-    [IsConnected J] :
+instance augmentedDay_preservesConnectedColimits (J : Type w) [Category.{w'} J]
+    [IsConnected J] [HasColimitsOfShape J (Type u)] :
     PreservesColimitsOfShape J augmentedDay.{u} := by
   dsimp [augmentedDay]
   infer_instance
@@ -121,14 +210,16 @@ def restrictAugmentedDay : AugDay.{u} ⥤ SSet.{u} :=
   (DayFunctor.equiv AugmentedSimplexCategoryᵒᵖ (Type u)).functor ⋙
     restrictAugmentedPresheaf
 
-instance restrictAugmentedPresheaf_preservesColimitsOfShape (J : Type u) [Category.{u} J] :
+instance restrictAugmentedPresheaf_preservesColimitsOfShape (J : Type w) [Category.{w'} J]
+    [HasColimitsOfShape J (Type u)] :
     PreservesColimitsOfShape J restrictAugmentedPresheaf.{u} := by
   change PreservesColimitsOfShape J
     (((Functor.whiskeringLeft SimplexCategoryᵒᵖ AugmentedSimplexCategoryᵒᵖ (Type u)).obj
       AugmentedSimplexCategory.inclusion.op))
   infer_instance
 
-instance restrictAugmentedDay_preservesColimitsOfShape (J : Type u) [Category.{u} J] :
+instance restrictAugmentedDay_preservesColimitsOfShape (J : Type w) [Category.{w'} J]
+    [HasColimitsOfShape J (Type u)] :
     PreservesColimitsOfShape J restrictAugmentedDay.{u} := by
   dsimp [restrictAugmentedDay]
   infer_instance
@@ -142,7 +233,8 @@ def joinFunctor : SSet.{u} ⥤ SSet.{u} ⥤ SSet.{u} :=
     (Functor.whiskeringRight SSet.{u} AugDay.{u} SSet.{u}).obj restrictAugmentedDay
 
 theorem joinFunctor_flip_preservesConnectedColimits_of_tensorRight
-    (J : Type u) [Category.{u} J] [IsConnected J] (K : SSet.{u})
+    (J : Type w) [Category.{w'} J] [IsConnected J] [HasColimitsOfShape J (Type u)]
+    (K : SSet.{u})
     [PreservesColimitsOfShape J (tensorRight (augmentedDay.obj K))] :
     PreservesColimitsOfShape J (joinFunctor.flip.obj K) := by
   change PreservesColimitsOfShape J
@@ -164,6 +256,61 @@ def joinMap {X X' Y Y' : SSet.{u}} (f : X ⟶ X') (g : Y ⟶ Y') :
 def augmentedDayUnitTo (X : SSet.{u}) : 𝟙_ AugDay.{u} ⟶ augmentedDay.obj X :=
   DayFunctor.unitDesc (C := AugmentedSimplexCategoryᵒᵖ) (V := Type u)
     (↾fun _ => PUnit.unit)
+
+theorem isIso_of_isEmpty_target {S T : Type u} (f : S ⟶ T) [IsEmpty T] : IsIso f := by
+  haveI : IsEmpty S := Function.isEmpty f
+  rw [isIso_iff_bijective]
+  exact ⟨fun a => isEmptyElim a, fun b => isEmptyElim b⟩
+
+theorem isIso_of_subsingleton {S T : Type u} (f : S ⟶ T)
+    [Subsingleton S] [Nonempty S] [Subsingleton T] : IsIso f := by
+  rw [isIso_iff_bijective]
+  exact ⟨fun a b _ => Subsingleton.elim a b, fun _ => ⟨Classical.arbitrary S, Subsingleton.elim _ _⟩⟩
+
+instance nu_isIso : IsIso (DayFunctor.ν AC (Type u)) := by
+  haveI hsub : Subsingleton ((𝟙_ AC : AC) ⟶ 𝟙_ AC) :=
+    inferInstanceAs (Subsingleton (op WithInitial.star ⟶ (op WithInitial.star : AC)))
+  haveI : (Functor.fromPUnit.{0} (𝟙_ AC)).Full :=
+    { map_surjective := fun {a b} f =>
+        ⟨Discrete.eqToHom (Subsingleton.elim _ _), @Subsingleton.elim _ hsub _ f⟩ }
+  have hpt : (Functor.LeftExtension.mk _ (DayFunctor.νNatTrans AC (Type u))).IsPointwiseLeftKanExtensionAt
+      (𝟙_ AC) :=
+    (LawfulDayConvolutionMonoidalCategoryStruct.isPointwiseLeftKanExtensionUnitUnit AC
+      (Type u) AugDay) (𝟙_ AC)
+  exact hpt.isIso_hom_app (X := Discrete.mk PUnit.unit)
+
+instance bot_obj_isEmpty (m : SimplexCategory) : IsEmpty ((⊥_ SSet.{u}).obj (op m)) :=
+  Function.isEmpty
+    ((PreservesInitial.iso ((evaluation SimplexCategoryᵒᵖ (Type u)).obj (op m)) ≪≫
+      Types.initialIso).hom)
+
+instance augmentedDayUnitTo_initial_isIso : IsIso (augmentedDayUnitTo (⊥_ SSet.{u})) := by
+  have hnt : IsIso ((augmentedDayUnitTo (⊥_ SSet.{u})).natTrans) := by
+    haveI : ∀ c, IsIso (((augmentedDayUnitTo (⊥_ SSet.{u})).natTrans).app c) := by
+      intro c
+      obtain ⟨a⟩ := c
+      cases a with
+      | star =>
+          haveI : Subsingleton (𝟙_ (Type u)) := inferInstanceAs (Subsingleton PUnit.{u+1})
+          haveI : Subsingleton ((𝟙_ AugDay.{u}).functor.obj (op WithInitial.star)) :=
+            Equiv.subsingleton ((asIso (DayFunctor.ν AC (Type u))).toEquiv).symm
+          haveI : Nonempty ((𝟙_ AugDay.{u}).functor.obj (op WithInitial.star)) :=
+            ⟨(DayFunctor.ν AC (Type u)) PUnit.unit⟩
+          haveI : Subsingleton ((augmentedDay.obj (⊥_ SSet.{u})).functor.obj
+              (op WithInitial.star)) :=
+            inferInstanceAs (Subsingleton PUnit.{u+1})
+          exact isIso_of_subsingleton _
+      | of m =>
+          haveI : IsEmpty ((augmentedDay.obj (⊥_ SSet.{u})).functor.obj
+              (op (WithInitial.of m))) :=
+            inferInstanceAs (IsEmpty ((⊥_ SSet.{u}).obj (op m)))
+          exact isIso_of_isEmpty_target _
+    exact NatIso.isIso_of_isIso_app _
+  haveI : IsIso ((DayFunctor.equiv AC (Type u)).functor.map
+      (augmentedDayUnitTo (⊥_ SSet.{u}))) := by
+    change IsIso ((augmentedDayUnitTo (⊥_ SSet.{u})).natTrans)
+    exact hnt
+  exact isIso_of_reflects_iso _ (DayFunctor.equiv AC (Type u)).functor
 
 theorem augmentedDayUnitTo_naturality {X X' : SSet.{u}} (f : X ⟶ X') :
     augmentedDayUnitTo X ≫ augmentedDay.map f = augmentedDayUnitTo X' := by

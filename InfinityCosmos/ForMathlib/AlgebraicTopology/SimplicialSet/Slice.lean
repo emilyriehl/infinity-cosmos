@@ -1,7 +1,11 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Join
 import Mathlib.CategoryTheory.Comma.Over.Basic
 import Mathlib.CategoryTheory.Limits.Constructions.Over.Connected
+import Mathlib.CategoryTheory.Limits.Constructions.LimitsOfProductsAndEqualizers
+import Mathlib.CategoryTheory.Limits.Presheaf
+import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Over
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Terminal
+import Mathlib.CategoryTheory.Limits.Shapes.Equalizers
 import Mathlib.CategoryTheory.Limits.Types.Coproducts
 
 /-!
@@ -17,7 +21,7 @@ open CategoryTheory Simplicial Opposite Limits
 open CategoryTheory.MonoidalCategory
 open scoped Simplicial
 
-universe u
+universe u w w'
 
 namespace SSet
 
@@ -67,7 +71,7 @@ theorem joinUnder_forget (K : SSet.{u}) :
   rfl
 
 theorem joinUnder_preservesConnectedColimits_of_joinFunctor_flip
-    (J : Type u) [Category.{u} J] [IsConnected J] (K : SSet.{u})
+    (J : Type w) [Category.{w'} J] [IsConnected J] (K : SSet.{u})
     [PreservesColimitsOfShape J (joinFunctor.flip.obj K)] :
     PreservesColimitsOfShape J (joinUnder K) := by
   haveI : PreservesColimitsOfShape J (joinUnder K ⋙ Under.forget K) := by
@@ -76,12 +80,126 @@ theorem joinUnder_preservesConnectedColimits_of_joinFunctor_flip
   exact Limits.preservesColimitsOfShape_of_reflects_of_preserves (joinUnder K) (Under.forget K)
 
 theorem joinUnder_preservesConnectedColimits_of_tensorRight
-    (J : Type u) [Category.{u} J] [IsConnected J] (K : SSet.{u})
+    (J : Type w) [Category.{w'} J] [IsConnected J] [HasColimitsOfShape J (Type u)]
+    (K : SSet.{u})
     [PreservesColimitsOfShape J (tensorRight (augmentedDay.obj K))] :
     PreservesColimitsOfShape J (joinUnder K) := by
   haveI : PreservesColimitsOfShape J (joinFunctor.flip.obj K) :=
     joinFunctor_flip_preservesConnectedColimits_of_tensorRight J K
   exact joinUnder_preservesConnectedColimits_of_joinFunctor_flip J K
+
+instance joinInr_initial_isIso (K : SSet.{u}) : IsIso (joinInr (⊥_ SSet.{u}) K) := by
+  unfold joinInr
+  apply Functor.map_isIso
+
+def joinBotIso (K : SSet.{u}) : (⊥_ SSet.{u}) ⋆ K ≅ K :=
+  (asIso (joinInr (⊥_ SSet.{u}) K)).symm
+
+def joinUnderBotIsoInitial (K : SSet.{u}) : (joinUnder K).obj (⊥_ SSet.{u}) ≅ Under.mk (𝟙 K) :=
+  Under.isoMk (asIso (joinInr (⊥_ SSet.{u}) K)).symm (by
+    show joinInr (⊥_ SSet.{u}) K ≫ inv (joinInr (⊥_ SSet.{u}) K) = 𝟙 K
+    simp)
+
+def joinUnderBotIsInitial (K : SSet.{u}) : IsInitial ((joinUnder K).obj (⊥_ SSet.{u})) :=
+  IsInitial.ofIso Under.mkIdInitial (joinUnderBotIsoInitial K).symm
+
+instance joinUnder_preservesInitial (K : SSet.{u}) :
+    PreservesColimitsOfShape (Discrete PEmpty.{1}) (joinUnder K) := by
+  haveI : HasInitial (Under K) := (Under.mkIdInitial (X := K)).hasInitial
+  haveI : PreservesColimit (Functor.empty.{0} SSet.{u}) (joinUnder K) :=
+    preservesInitial_of_iso (joinUnder K)
+      ((initialIsInitial (C := Under K)).uniqueUpToIso (joinUnderBotIsInitial K))
+  exact preservesColimitsOfShape_pempty_of_preservesInitial _
+
+instance joinUnder_preservesCoequalizers (K : SSet.{u}) :
+    PreservesColimitsOfShape WalkingParallelPair (joinUnder K) := by
+  exact joinUnder_preservesConnectedColimits_of_tensorRight WalkingParallelPair K
+
+theorem joinUnder_preservesColimitsOfSize_of_preservesCoproducts (K : SSet.{u})
+    [∀ (J : Type u), PreservesColimitsOfShape (Discrete J) (joinUnder K)] :
+    PreservesColimitsOfSize.{u, u} (joinUnder K) :=
+  preservesColimits_of_preservesCoequalizers_and_coproducts (joinUnder K)
+
+theorem joinUnder_preservesColimitsOfShape_of_preservesCoproducts (K : SSet.{u})
+    [∀ (I : Type u), PreservesColimitsOfShape (Discrete I) (joinUnder K)]
+    (J : Type u) [Category.{u} J] :
+    PreservesColimitsOfShape J (joinUnder K) := by
+  haveI : PreservesColimitsOfSize.{u, u} (joinUnder K) :=
+    joinUnder_preservesColimitsOfSize_of_preservesCoproducts K
+  infer_instance
+
+/-- The equivalence inverse sending a simplicial set to the unique arrow out of the initial
+simplicial set. -/
+abbrev underInitial : SSet.{u} ⥤ Under (⊥_ SSet.{u}) :=
+  (Under.equivalenceOfIsInitial (X := (⊥_ SSet.{u})) initialIsInitial).inverse
+
+/-- A factorization of `joinUnder K` through `Under ⊥` and postcomposition by `(- ⋆ K)`. -/
+def joinUnderFactor (K : SSet.{u}) : SSet.{u} ⥤ Under K :=
+  underInitial ⋙ Under.post (X := (⊥_ SSet.{u})) (joinFunctor.flip.obj K) ⋙
+    Under.map (joinBotIso K).inv
+
+/-- The factorization through `Under ⊥` agrees with the direct definition of `joinUnder`. -/
+def joinUnderFactorIso (K : SSet.{u}) : joinUnderFactor K ≅ joinUnder K :=
+  NatIso.ofComponents
+    (fun Y => Under.isoMk (Iso.refl _) (by
+      change (joinBotIso K).inv ≫ (joinFunctor.map (initial.to Y)).app K = joinInr Y K
+      rw [show (joinBotIso K).inv = joinInr (⊥_ SSet.{u}) K from rfl]
+      rw [joinInr_naturality_left]))
+    (by
+      intro Y Y' f
+      ext n x
+      rfl)
+
+theorem joinUnder_preservesColimitsOfShape (K : SSet.{u})
+    (J : Type w) [Category.{w'} J] [HasColimitsOfShape (WithInitial J) (Type u)] :
+    PreservesColimitsOfShape J (joinUnder K) := by
+  haveI : PreservesColimitsOfShape J (underInitial : SSet.{u} ⥤ Under (⊥_ SSet.{u})) :=
+    by
+      let h := (Under.equivalenceOfIsInitial (X := (⊥_ SSet.{u})) initialIsInitial).symm.toAdjunction.leftAdjoint_preservesColimits
+      exact h.preservesColimitsOfShape
+  haveI : PreservesColimitsOfShape (WithInitial J) (joinFunctor.flip.obj K) := by
+    haveI : HasInitial (WithInitial J) := WithInitial.starInitial.hasInitial
+    haveI : IsConnected (WithInitial J) := isConnected_of_hasInitial (WithInitial J)
+    haveI : HasColimitsOfShape (WithInitial J) (Type u) := inferInstance
+    exact joinFunctor_flip_preservesConnectedColimits_of_tensorRight (WithInitial J) K
+  haveI : PreservesColimitsOfShape J
+      (Under.post (X := (⊥_ SSet.{u})) (joinFunctor.flip.obj K)) :=
+    inferInstance
+  haveI : PreservesColimitsOfShape J (Under.map (joinBotIso K).inv) :=
+    by
+      let h := (Under.mapIso (joinBotIso K).symm).toAdjunction.leftAdjoint_preservesColimits
+      exact h.preservesColimitsOfShape
+  haveI : PreservesColimitsOfShape J (joinUnderFactor K) := by
+    change PreservesColimitsOfShape J
+      (underInitial ⋙ Under.post (X := (⊥_ SSet.{u})) (joinFunctor.flip.obj K) ⋙
+        Under.map (joinBotIso K).inv)
+    infer_instance
+  exact preservesColimitsOfShape_of_natIso (joinUnderFactorIso K)
+
+abbrev joinUnderOnSimplex (K : SSet.{u}) : SimplexCategory ⥤ Under K :=
+  uliftYoneda.{u} ⋙ joinUnder K
+
+abbrev sliceFunctorRestricted (K : SSet.{u}) : Under K ⥤ SSet.{u} :=
+  Presheaf.restrictedULiftYoneda.{0} (joinUnderOnSimplex K)
+
+instance joinUnder_preservesColimitsOfSize_zero (K : SSet.{u}) :
+    PreservesColimitsOfSize.{0, u} (joinUnder K) where
+  preservesColimitsOfShape {J} [Category.{0} J] := by
+    haveI : HasColimitsOfShape (WithInitial J) (Type u) := inferInstance
+    exact joinUnder_preservesColimitsOfShape K J
+
+def joinUnderExtensionUnit (K : SSet.{u}) :
+    joinUnderOnSimplex K ⟶ uliftYoneda.{u} ⋙ joinUnder K :=
+  𝟙 _
+
+instance joinUnder_isLeftKanExtension (K : SSet.{u}) :
+    (joinUnder K).IsLeftKanExtension (joinUnderExtensionUnit K) :=
+  Presheaf.isLeftKanExtension_of_preservesColimits.{0} (A := joinUnderOnSimplex K)
+    (L := joinUnder K) (Iso.refl _)
+
+def adj₂ (K : SSet.{u}) : joinUnder K ⊣ sliceFunctorRestricted K :=
+  Presheaf.uliftYonedaAdjunction.{0} (A := joinUnderOnSimplex K) (L := joinUnder K)
+    (joinUnderExtensionUnit K)
 
 /-- Maps out of `joinUnder K` are exactly maps `Y ⋆ K ⟶ C` restricting to `p` on `K`. -/
 def overPtEquivUnderHom {K C : SSet.{u}} (p : K ⟶ C) (Y : SSet.{u}) :
@@ -127,6 +245,24 @@ def sliceOver {K C : SSet.{u}} (p : K ⟶ C) : SSet.{u} where
 def sliceHomEquivStdSimplex {K C : SSet.{u}} (p : K ⟶ C) (m : SimplexCategory) :
     (stdSimplex.obj m ⟶ sliceOver p) ≃ OverPt p (stdSimplex.obj m) :=
   yonedaEquiv
+
+def restrictedSliceIso {K C : SSet.{u}} (p : K ⟶ C) :
+    (sliceFunctorRestricted K).obj (Under.mk p) ≅ sliceOver p :=
+  NatIso.ofComponents
+    (fun n => Equiv.toIso
+      (Equiv.ulift.trans ((overPtEquivUnderHom p (stdSimplex.obj n.unop)).symm)))
+    (by
+      intro n m f
+      ext g
+      cases g
+      rfl)
+
+/-- The relative join-slice universal property:
+maps `Y ⋆ K ⟶ C` restricting to `p` on `K` are the same as maps `Y ⟶ C_{/p}`. -/
+def sliceHomEquiv {K C : SSet.{u}} (p : K ⟶ C) (Y : SSet.{u}) :
+    OverPt p Y ≃ (Y ⟶ sliceOver p) :=
+  (overPtEquivUnderHom p Y).trans (((adj₂ K).homEquiv Y (Under.mk p)).trans
+    (restrictedSliceIso p).homToEquiv)
 
 end
 
