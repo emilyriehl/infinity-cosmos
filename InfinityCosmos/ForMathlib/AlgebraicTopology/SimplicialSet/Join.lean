@@ -1,8 +1,11 @@
 import Mathlib.AlgebraicTopology.SimplexCategory.Augmented.Monoidal
 import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+import Mathlib.CategoryTheory.Adjunction.Evaluation
+import Mathlib.CategoryTheory.Adjunction.Limits
 import Mathlib.CategoryTheory.Monoidal.Closed.Braided
 import Mathlib.CategoryTheory.Monoidal.Closed.Types
 import Mathlib.CategoryTheory.Monoidal.DayConvolution.DayFunctor
+import Mathlib.CategoryTheory.Limits.Preserves.FunctorCategory
 import Mathlib.CategoryTheory.Whiskering
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 
@@ -86,6 +89,18 @@ def restrictAugmentedPresheaf :
 def restrictAugmentedDay : AugDay.{u} ⥤ SSet.{u} :=
   (DayFunctor.equiv AugmentedSimplexCategoryᵒᵖ (Type u)).functor ⋙
     restrictAugmentedPresheaf
+
+instance restrictAugmentedPresheaf_preservesColimitsOfShape (J : Type u) [Category.{u} J] :
+    PreservesColimitsOfShape J restrictAugmentedPresheaf.{u} := by
+  change PreservesColimitsOfShape J
+    (((Functor.whiskeringLeft SimplexCategoryᵒᵖ AugmentedSimplexCategoryᵒᵖ (Type u)).obj
+      AugmentedSimplexCategory.inclusion.op))
+  infer_instance
+
+instance restrictAugmentedDay_preservesColimitsOfShape (J : Type u) [Category.{u} J] :
+    PreservesColimitsOfShape J restrictAugmentedDay.{u} := by
+  dsimp [restrictAugmentedDay]
+  infer_instance
 
 /-- The simplicial join as Day convolution on terminally augmented simplicial
 sets, restricted back to ordinary simplices. -/
