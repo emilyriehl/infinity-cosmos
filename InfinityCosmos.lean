@@ -16,6 +16,7 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.InnerFiller
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.IsoCore
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Join
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.JoyalSpecialOuterHorn
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeftFibration
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
