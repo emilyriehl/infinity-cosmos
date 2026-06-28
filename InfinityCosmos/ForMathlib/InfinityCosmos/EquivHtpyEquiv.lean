@@ -20,16 +20,18 @@ together with cotensor-valued homotopies `α : A ⟶ coherentIso ⋔ₛ A` and `
 whose evaluations at the two endpoints `ev₀`, `ev₁` of `⟨iso⟩` give
 `ev₀ ∘ α = 1_A`, `ev₁ ∘ α = g ∘ f`, `ev₀ ∘ β = f ∘ g`, `ev₁ ∘ β = 1_B`.
 
-The main result here is the converse ("easy") direction of `lem:equiv-htpy-equiv`,
-`HomotopyEquiv.equivalence`: such data makes `f` an equivalence. The argument is the Yoneda-style
-observation that the simplicial cotensor commutes with each functor space `Fun(X, -)`, so applying
-`representableMap X` to a homotopy equivalence produces a homotopy equivalence of quasi-categories
-in the sense of `SSet.Equiv (I := coherentIso)`, i.e. a `QCat.Equiv`.
+This file proves both directions of `lem:equiv-htpy-equiv` and the resulting iff
+`equivalence_iff_nonempty_homotopyEquiv`.
 
-The forward direction ("equivalence implies homotopy-equivalence data") is the harder half of the
-iff; it routes through the homotopy-category characterization of equivalences of quasi-categories
-(`lem:qcat-htpy-cat-equiv`) and `SSet.coherentIso.lift` (`prop:coherent-iso`), and is not built
-here.
+The converse ("easy") direction, `HomotopyEquiv.equivalence`: such data makes `f` an equivalence,
+by the Yoneda-style observation that the simplicial cotensor commutes with each functor space
+`Fun(X, -)`, so applying `representableMap X` to a homotopy equivalence produces a homotopy
+equivalence of quasi-categories (a `QCat.Equiv`).
+
+The forward direction, `Equivalence.homotopyEquiv`, extracts the data from an equivalence via
+`SSet.Equiv.reflectsHomotopy` (a quasi-category equivalence reflects coherent-iso homotopies of
+0-arrows, the form of `lem:qcat-htpy-cat-equiv` the argument needs) together with the
+endpoint-evaluation glue through `cotensor.iso.underlying`.
 -/
 
 namespace SSet
