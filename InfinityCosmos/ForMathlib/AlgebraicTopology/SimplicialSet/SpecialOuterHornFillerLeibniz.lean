@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Johns Hopkins Category Theory Seminar. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Robert Sneiderman
+-/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CosliceProjLeftFibration
 
 section

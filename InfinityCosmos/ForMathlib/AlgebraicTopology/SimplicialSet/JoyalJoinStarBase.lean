@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Johns Hopkins Category Theory Seminar. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Robert Sneiderman
+-/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeibnizJoinTelescopeLeft
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.RelativeCellSingleCell
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.JoyalSpecialOuterHorn
@@ -117,10 +122,12 @@ theorem starr (a b : ℕ) :
             (((augmentedDayStdIso.{u} a).hom ⊗ₘ (augmentedDayStdIso.{u} b).hom).natTrans.app
               (op (WithInitial.of m))))
             ((ConcreteCategory.hom
-              ((augmentedDayUnitTo (Δ[a] : SSet.{u}) ▷ augmentedDay.obj (Δ[b] : SSet.{u})).natTrans.app
+              ((augmentedDayUnitTo (Δ[a] : SSet.{u})
+                ▷ augmentedDay.obj (Δ[b] : SSet.{u})).natTrans.app
                 (op (WithInitial.of m))))
               ((ConcreteCategory.hom
-                ((λ_ (augmentedDay.obj (Δ[b] : SSet.{u}))).inv.natTrans.app (op (WithInitial.of m))))
+                ((λ_ (augmentedDay.obj (Δ[b] : SSet.{u}))).inv.natTrans.app
+                  (op (WithInitial.of m))))
                 y)))
         =
         (ConcreteCategory.hom ((ucoyMapOf.{u} (inr' ⦋a⦌ ⦋b⦌)).natTrans.app (op (WithInitial.of m))))
@@ -128,7 +135,8 @@ theorem starr (a b : ℕ) :
       rw [leftUnitor_inv_pt]
       have hWR := ConcreteCategory.congr_hom
           (convolutionExtensionUnit_comp_ι_map_whiskerRight_app (C := AC) (V := Type u) (D := AugDay.{u})
-            (augmentedDayUnitTo (Δ[a]:SSet.{u})) (augmentedDay.obj (Δ[b]:SSet.{u})) (𝟙_ AC) (op (WithInitial.of m)))
+            (augmentedDayUnitTo (Δ[a]:SSet.{u})) (augmentedDay.obj (Δ[b]:SSet.{u})) (𝟙_ AC)
+            (op (WithInitial.of m)))
           (show ((ι AC (Type u) AugDay.{u}).obj (𝟙_ AugDay.{u}) ⊠ (ι AC (Type u) AugDay.{u}).obj (augmentedDay.obj (Δ[b]:SSet.{u}))).obj (𝟙_ AC, op (WithInitial.of m))
             from (DayFunctor.ν AC (Type u) PUnit.unit, y))
       simp only [ConcreteCategory.comp_apply] at hWR
@@ -169,7 +177,8 @@ theorem starr (a b : ℕ) :
                   (ConcreteCategory.hom ((augmentedDayUnitTo (Δ[a]:SSet.{u})).natTrans.app (𝟙_ AC))
                     (ConcreteCategory.hom (DayFunctor.ν AC (Type u)) PUnit.unit))).down
                 ⊗ₘ (ConcreteCategory.hom ((augmentedDayStdIso.{u} b).hom.natTrans.app (op (WithInitial.of m))) y).down) :=
-        ucoyTensorIso_hom_η_apply.{u} (op (inclusion.obj ⦋a⦌)) (op (inclusion.obj ⦋b⦌)) (𝟙_ AC) (op (WithInitial.of m))
+        ucoyTensorIso_hom_η_apply.{u} (op (inclusion.obj ⦋a⦌)) (op (inclusion.obj ⦋b⦌)) (𝟙_ AC)
+          (op (WithInitial.of m))
           (ConcreteCategory.hom ((augmentedDayStdIso.{u} a).hom.natTrans.app (𝟙_ AC))
             (ConcreteCategory.hom ((augmentedDayUnitTo (Δ[a]:SSet.{u})).natTrans.app (𝟙_ AC))
               (ConcreteCategory.hom (DayFunctor.ν AC (Type u)) PUnit.unit)),

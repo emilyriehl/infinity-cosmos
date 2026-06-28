@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Johns Hopkins Category Theory Seminar. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Robert Sneiderman
+-/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.JoyalSpecialOuterHorn
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeftFibration
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.PullbackObjObj
@@ -378,7 +383,8 @@ theorem Gincrement_isPushout (n : J) :
     · have key' : pushout.inr (iCorner K F incl n) (leibnizJoin (aTel F n) K) ≫ t.inr
           = joinMap (F.map (homOfLE (Order.le_succ n))) (𝟙 D) ≫ t.inl := by
         rw [← GjStep_inr_assoc, ← t.condition, leibnizJoin_inr_assoc]
-      rw [iCorner_inr_assoc (n := Order.succ n), leibnizJoin_inr_assoc, ← iCorner_inr_assoc (n := n),
+      rw [iCorner_inr_assoc (n := Order.succ n), leibnizJoin_inr_assoc,
+        ← iCorner_inr_assoc (n := n),
         pushout.condition_assoc, leibnizJoin_inr_assoc, key', ← Category.assoc,
         ← joinMap_comp_left, aTel_comp]
   · intro t; rw [pushout.inr_desc]

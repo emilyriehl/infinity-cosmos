@@ -43,6 +43,17 @@ of issue #115, already in the tree.
   exists, it does not by itself close the `InfinityCosmos.TrivialFibration` class. Upgrading it to
   genuine closure needs the converse bridge `SSet.TrivialFibration.of_isofibration_of_equiv` stated
   in the module docstring of `InfinityCosmos.ForMathlib.InfinityCosmos.TrivialFibrationLimits`.
+
+## Fully-qualified names (namespace note)
+
+This file opens `namespace InfinityCosmos` at the root, so its declarations live under the root
+`InfinityCosmos` namespace. The unambiguous blueprint `\lean{}` targets are therefore
+`InfinityCosmos.representableTrivialFibration_leibnizCotensorMap` and
+`InfinityCosmos.trivialFibration_leibnizCotensorMap`. The sibling #114 results in
+`TrivialFibrationLimits` instead live under `CategoryTheory.InfinityCosmos` (e.g.
+`CategoryTheory.InfinityCosmos.representableTrivialFibration_piMap`); the `open ... InfinityCosmos`
+on the line below resolves both namespaces, so the cross-module references in this file are
+unaffected by the difference.
 -/
 
 namespace InfinityCosmos

@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Johns Hopkins Category Theory Seminar. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Robert Sneiderman
+-/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.SpecialOuterHornFillerLeibniz
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.OuterHornLastDecomposition
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CosliceProjLeftFibration
@@ -88,7 +93,8 @@ lemma outerHornLast_inv_right (M : ℕ) :
 
 lemma cornerBridge_inv_right (M : ℕ) : (cornerBridgeM.{u} M).inv.right = 𝟙 _ := by
   unfold cornerBridgeM
-  simp only [Functor.PushoutObjObj.ι_iso_of_iso_right_inv, Functor.PushoutObjObj.mapArrowRight_right,
+  simp only [Functor.PushoutObjObj.ι_iso_of_iso_right_inv,
+    Functor.PushoutObjObj.mapArrowRight_right,
     bridgeM, Arrow.isoMk_inv_right, Iso.refl_inv]
   exact CategoryTheory.Functor.map_id _ _
 
@@ -150,7 +156,8 @@ noncomputable def cancelComp_left {f : Edge x₀ x₁} {g : Edge x₁ x₂} {k :
         = HomotopyCategory₂.homMk hf.inv.toTruncated ≫ HomotopyCategory₂.homMk k.toTruncated := by
       have h1 : HomotopyCategory₂.homMk hf.inv.toTruncated ≫
           (HomotopyCategory₂.homMk f.toTruncated ≫ HomotopyCategory₂.homMk g.toTruncated)
-            = HomotopyCategory₂.homMk hf.inv.toTruncated ≫ HomotopyCategory₂.homMk k.toTruncated := by
+            = HomotopyCategory₂.homMk hf.inv.toTruncated
+              ≫ HomotopyCategory₂.homMk k.toTruncated := by
         rw [cfac]
       rwa [← Category.assoc, hfif, Category.id_comp] at h1
     calc HomotopyCategory₂.homMk g.toTruncated ≫
@@ -170,7 +177,8 @@ noncomputable def cancelComp_left {f : Edge x₀ x₁} {g : Edge x₁ x₂} {k :
             rw [Category.id_comp]
       _ = 𝟙 (({ pt := x₁ } : HomotopyCategory₂ ((truncation 2).obj X))) := hfif
       _ = HomotopyCategory₂.homMk (Edge.id x₁).toTruncated :=
-            (HomotopyCategory₂.homMk_id (({ pt := x₁ } : HomotopyCategory₂ ((truncation 2).obj X)))).symm
+            (HomotopyCategory₂.homMk_id
+              (({ pt := x₁ } : HomotopyCategory₂ ((truncation 2).obj X)))).symm
   invHomId := by
     apply Edge.CompStruct.ofTruncated
     apply SSet.Truncated.Edge.CompStruct.ofHomotopyCategory₂Fac
@@ -191,7 +199,8 @@ noncomputable def cancelComp_left {f : Edge x₀ x₁} {g : Edge x₁ x₂} {k :
             rw [cfac]
       _ = 𝟙 (({ pt := x₂ } : HomotopyCategory₂ ((truncation 2).obj X))) := hkik
       _ = HomotopyCategory₂.homMk (Edge.id x₂).toTruncated :=
-            (HomotopyCategory₂.homMk_id (({ pt := x₂ } : HomotopyCategory₂ ((truncation 2).obj X)))).symm
+            (HomotopyCategory₂.homMk_id
+              (({ pt := x₂ } : HomotopyCategory₂ ((truncation 2).obj X)))).symm
 
 /-- 2-out-of-3 (left factor): if `k` is a composite of `f` and `g`, and `g` and `k`
 are isomorphism edges, then `f` is an isomorphism edge. -/
@@ -218,7 +227,8 @@ noncomputable def cancelComp_right {f : Edge x₀ x₁} {g : Edge x₁ x₂} {k 
             rw [cfac]
       _ = 𝟙 (({ pt := x₀ } : HomotopyCategory₂ ((truncation 2).obj X))) := hkki
       _ = HomotopyCategory₂.homMk (Edge.id x₀).toTruncated :=
-            (HomotopyCategory₂.homMk_id (({ pt := x₀ } : HomotopyCategory₂ ((truncation 2).obj X)))).symm
+            (HomotopyCategory₂.homMk_id
+              (({ pt := x₀ } : HomotopyCategory₂ ((truncation 2).obj X)))).symm
   invHomId := by
     apply Edge.CompStruct.ofTruncated
     apply SSet.Truncated.Edge.CompStruct.ofHomotopyCategory₂Fac
@@ -252,7 +262,8 @@ noncomputable def cancelComp_right {f : Edge x₀ x₁} {g : Edge x₁ x₂} {k 
             rw [Category.id_comp]
       _ = 𝟙 (({ pt := x₁ } : HomotopyCategory₂ ((truncation 2).obj X))) := hggi
       _ = HomotopyCategory₂.homMk (Edge.id x₁).toTruncated :=
-            (HomotopyCategory₂.homMk_id (({ pt := x₁ } : HomotopyCategory₂ ((truncation 2).obj X)))).symm
+            (HomotopyCategory₂.homMk_id
+              (({ pt := x₁ } : HomotopyCategory₂ ((truncation 2).obj X)))).symm
 
 end IsIso
 
@@ -481,7 +492,8 @@ theorem isoCore_outerHornFiller_of_producer {A : SSet.{u}} [Quasicategory A]
           Subsingleton.elim (SimplexCategory.δ 0 ≫ SimplexCategory.const ⦋1⦌ ⦋0⦌ 0) (𝟙 ⦋0⦌),
           CategoryTheory.Functor.map_id]
       rw [hcollapse, Category.id_comp]
-  · -- B1 + B2: dimension `k + 2 ≥ 2`; apply the producer, then close via `filler_mem_isoCore_outer`.
+  · -- B1 + B2: dimension `k + 2 ≥ 2`; apply the producer, then close via
+    -- `filler_mem_isoCore_outer`.
     intro i hi τ
     rcases hi with rfl | rfl
     · -- outer horn at `0`
@@ -558,7 +570,8 @@ lemma hedge_lemma (M : ℕ) :
           : (Λ[M + 1 + 2, Fin.last (M + 1 + 2)] : SSet.{u}) _⦋1⦌) := by
     apply (cancel_mono (Λ[M + 1 + 2, Fin.last (M + 1 + 2)].ι)).mp
     have hw : (transLast.{u} M).inv.left ≫ Λ[M + 1 + 2, Fin.last (M + 1 + 2)].ι
-        = (sqLeibCo (jbM.{u} M) (gdM.{u})).ι ≫ (transLast.{u} M).inv.right := (transLast.{u} M).inv.w
+        = (sqLeibCo (jbM.{u} M) (gdM.{u})).ι
+          ≫ (transLast.{u} M).inv.right := (transLast.{u} M).inv.w
     have hRHS : yonedaEquiv.symm (finalEdge (n := M + 1)
           : (Λ[M + 1 + 2, Fin.last (M + 1 + 2)] : SSet.{u}) _⦋1⦌)
           ≫ Λ[M + 1 + 2, Fin.last (M + 1 + 2)].ι = stdSimplex.map (inr' ⦋M + 1⦌ ⦋1⦌) := by
@@ -655,7 +668,8 @@ theorem fillBase {A : SSet.{u}} [Quasicategory A]
       = (edge02 : (Λ[2, Fin.last 2] : SSet.{u}) _⦋1⦌) := by
     apply Subtype.ext; apply (stdSimplex.objEquiv).injective; decide
   let e12 : Edge (A.δ 1 (σ₀.app (op ⦋1⦌) (finalEdge (n := 0))))
-      (A.δ 0 (σ₀.app (op ⦋1⦌) (finalEdge (n := 0)))) := Edge.mk' (σ₀.app (op ⦋1⦌) (finalEdge (n := 0)))
+      (A.δ 0 (σ₀.app (op ⦋1⦌) (finalEdge (n := 0)))) :=
+        Edge.mk' (σ₀.app (op ⦋1⦌) (finalEdge (n := 0)))
   let e02 : Edge (A.δ 1 (σ₀.app (op ⦋1⦌) edge02)) (A.δ 0 (σ₀.app (op ⦋1⦌) edge02)) :=
     Edge.mk' (σ₀.app (op ⦋1⦌) edge02)
   have hshare : A.δ 0 (σ₀.app (op ⦋1⦌) (finalEdge (n := 0))) = A.δ 0 (σ₀.app (op ⦋1⦌) edge02) := by

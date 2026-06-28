@@ -1777,6 +1777,7 @@ theorem brownFactorization_equivalence_iff_right_trivialFibration {A B : K} (f :
     exact hf
   · intro hright
     rw [← brownFactorization_fac f]
-    exact InfinityCosmos.Equivalence.comp (brownFactorizationSection_equivalence f) hright.equivalence
+    exact InfinityCosmos.Equivalence.comp (brownFactorizationSection_equivalence f)
+      hright.equivalence
 
 end InfinityCosmos

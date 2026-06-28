@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2025 Johns Hopkins Category Theory Seminar. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Robert Sneiderman
+-/
 import Mathlib.AlgebraicTopology.SimplexCategory.Augmented.Monoidal
 import Mathlib.AlgebraicTopology.SimplicialSet.Boundary
 import Mathlib.AlgebraicTopology.SimplicialSet.FiniteColimits
@@ -283,7 +288,8 @@ theorem isIso_of_isEmpty_target {S T : Type u} (f : S ⟶ T) [IsEmpty T] : IsIso
 theorem isIso_of_subsingleton {S T : Type u} (f : S ⟶ T)
     [Subsingleton S] [Nonempty S] [Subsingleton T] : IsIso f := by
   rw [isIso_iff_bijective]
-  exact ⟨fun a b _ => Subsingleton.elim a b, fun _ => ⟨Classical.arbitrary S, Subsingleton.elim _ _⟩⟩
+  exact ⟨fun a b _ => Subsingleton.elim a b,
+    fun _ => ⟨Classical.arbitrary S, Subsingleton.elim _ _⟩⟩
 
 instance nu_isIso : IsIso (DayFunctor.ν AC (Type u)) := by
   haveI hsub : Subsingleton ((𝟙_ AC : AC) ⟶ 𝟙_ AC) :=
@@ -1822,13 +1828,15 @@ def tSplit (p q : ℕ) :
 theorem cls_tLeft (n : ℕ) (x : X _⦋n⦌) (y : PUnit.{u+1}) :
     cls (X := X) (Y := Y) n (tLeft n) x y = Sum.inl x := by
   show Sum.inl (X.map (WithInitial.down (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))).unop).op x) = Sum.inl x
-  rw [show WithInitial.down (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))).unop = 𝟙 ⦋n⦌ from rfl]
+  rw [show WithInitial.down (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))).unop
+      = 𝟙 ⦋n⦌ from rfl]
   simp
 
 theorem cls_tRight (n : ℕ) (x : PUnit.{u+1}) (y : Y _⦋n⦌) :
     cls (X := X) (Y := Y) n (tRight n) x y = Sum.inr (Sum.inl y) := by
   show Sum.inr (Sum.inl (Y.map (WithInitial.down (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))).unop).op y)) = _
-  rw [show WithInitial.down (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))).unop = 𝟙 ⦋n⦌ from rfl]
+  rw [show WithInitial.down (𝟙 (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌))).unop
+      = 𝟙 ⦋n⦌ from rfl]
   simp
 
 
@@ -1975,13 +1983,15 @@ open CategoryTheory.MonoidalCategory.DayFunctor
 open AugmentedSimplexCategory
 open scoped CategoryTheory.MonoidalCategory.ExternalProduct
 
-/-- The comma-category diagram whose colimit gives the pointwise Day-convolution formula for `(X ⋆ Y)_n`. -/
+/-- The comma-category diagram whose colimit gives the pointwise Day-convolution formula for
+`(X ⋆ Y)_n`. -/
 abbrev joinDiagram (X Y : SSet.{u}) (n : ℕ) :
     CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) ⥤ Type u :=
   CostructuredArrow.proj (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) ⋙
     ((augmentedDay.obj X).functor ⊠ (augmentedDay.obj Y).functor)
 
-/-- Compatibility alias for the scratch proof port. This is definitionally equal to `joinDiagram`. -/
+/-- Compatibility alias for the scratch proof port. This is definitionally equal to
+`joinDiagram`. -/
 abbrev joinDiagram' (X Y : SSet.{u}) (n : ℕ) :
     CostructuredArrow (tensor AC) (op (AugmentedSimplexCategory.inclusion.obj ⦋n⦌)) ⥤ Type u :=
   joinDiagram X Y n
@@ -2027,7 +2037,8 @@ noncomputable def joinCoconeTypes (X Y : SSet.{u}) (n : ℕ) :
               WithInitial.starInitial.hom_ext _ _
             have hkey : WithInitial.down ((tensor AC).map f.left).unop
                 = WithInitial.down f.left.1.unop ≫ inl' ⦋A0.len⦌ ⦋B0.len⦌ := by
-              have hstar := JoinDecomp.tensorHom_star_left A0.len B0.len A0'.len (WithInitial.down f.left.1.unop)
+              have hstar :=
+                JoinDecomp.tensorHom_star_left A0.len B0.len A0'.len (WithInitial.down f.left.1.unop)
               have hlhs : ((tensor AC).map f.left).unop
                   = MonoidalCategoryStruct.tensorHom
                       (AugmentedSimplexCategory.inclusion.map (WithInitial.down f.left.1.unop))
@@ -2563,7 +2574,8 @@ theorem joinObjMap_pb_inj (n : ℕ) (z₁ z₂ : joinObj A C n)
     (h₂ : joinObjMap (𝟙 A) g n z₁ = joinObjMap (𝟙 A) g n z₂) :
     z₁ = z₂ := by
   rcases z₁ with a₁ | c₁ | ⟨p₁, x₁, y₁⟩ <;> rcases z₂ with a₂ | c₂ | ⟨p₂, x₂, y₂⟩ <;>
-    simp_all [joinObjMap, Sum.map, Sigma.map, Prod.map, NatTrans.id_app, CategoryTheory.id_apply] <;>
+    simp_all [joinObjMap, Sum.map, Sigma.map, Prod.map, NatTrans.id_app,
+      CategoryTheory.id_apply] <;>
     grind
 
 theorem joinObjMap_pb_lift (n : ℕ) (x₂ : joinObj B C n) (x₃ : joinObj A D n)
@@ -2581,7 +2593,8 @@ theorem joinObjMap_pb_lift (n : ℕ) (x₂ : joinObj B C n) (x₃ : joinObj A D 
   · injection h
   · injection h with h1; injection h1 with hd
     refine ⟨Sum.inr (Sum.inl c), by
-      simp only [joinObjMap, Sum.map_inr, Sum.map_inl, NatTrans.id_app, CategoryTheory.id_apply], ?_⟩
+      simp only [joinObjMap, Sum.map_inr, Sum.map_inl, NatTrans.id_app,
+        CategoryTheory.id_apply], ?_⟩
     simp only [joinObjMap, Sum.map_inr, Sum.map_inl, NatTrans.id_app]; rw [hd]
   · injection h with h1; injection h1
   · injection h

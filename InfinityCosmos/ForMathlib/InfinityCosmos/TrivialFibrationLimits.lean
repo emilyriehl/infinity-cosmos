@@ -80,6 +80,22 @@ inverse-limit analogue of closure under composition: the projection from the lim
 *of trivial fibrations* is a trivial fibration. The naive levelwise statement for a *map* of towers
 (every component a trivial fibration) is false, by a Mittag-Leffler-type obstruction; see the note
 in `InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.TrivialFibration`.
+
+## Fully-qualified names (namespace note)
+
+This file opens `namespace CategoryTheory` and then `namespace InfinityCosmos`, so every
+declaration below lives under `CategoryTheory.InfinityCosmos`. For unambiguous blueprint `\lean{}`
+targets the full names are `CategoryTheory.InfinityCosmos.RepresentableTrivialFibration`,
+`CategoryTheory.InfinityCosmos.representableTrivialFibration_piMap`,
+`CategoryTheory.InfinityCosmos.representableTrivialFibration_of_isPullback`,
+`CategoryTheory.InfinityCosmos.representableTrivialFibration_tower`,
+`CategoryTheory.InfinityCosmos.trivialFibration_piMap`,
+`CategoryTheory.InfinityCosmos.trivialFibration_snd_of_isPullback`, and
+`CategoryTheory.InfinityCosmos.trivialFibration_tower`. The sibling #115 results in
+`LeibnizCotensorTrivialFibration` instead use the root namespace `InfinityCosmos` (e.g.
+`InfinityCosmos.trivialFibration_leibnizCotensorMap`). Both conventions already coexist in this
+tree (`Basic` uses `CategoryTheory.InfinityCosmos`, `EquivHtpyEquiv` uses root `InfinityCosmos`),
+and are kept as-is here so that no declaration referenced across modules is renamed.
 -/
 
 universe w v u
