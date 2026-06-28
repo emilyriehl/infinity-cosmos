@@ -106,35 +106,4 @@ lemma leftAnodyneExtensions_le :
     le_llp_iff_le_rlp, rlp_llp_rlp]
   exact antitone_rlp leftHornInclusions_le_J
 
-/-- Kerodon 019D input, deferred to the join/slice Joyal chunk: a left fibration
-over a terminal object lifts against the single right-most horn. -/
-theorem leftFibration_rlp_rightHorn_of_isTerminal {X Y : SSet.{u}} (p : X ⟶ Y)
-    (hY : IsTerminal Y) [LeftFibration p] {n : ℕ} :
-    HasLiftingProperty (Λ[n + 1, Fin.last (n + 1)].ι) p := by
-  sorry
-
-/-- A left fibration whose target is terminal has a Kan-complex source. -/
-theorem kanComplex_of_leftFibration_isTerminal {X Y : SSet.{u}} (p : X ⟶ Y)
-    (hY : IsTerminal Y) [LeftFibration p] : KanComplex X := by
-  show IsFibrant X
-  rw [isFibrant_iff_of_isTerminal p hY, modelCategoryQuillen.fibration_iff]
-  intro A B g hg
-  simp only [modelCategoryQuillen.J, iSup_iff] at hg
-  obtain ⟨n, ⟨i⟩⟩ := hg
-  rcases lt_or_eq_of_le (Fin.le_last i) with hlt | heq
-  · exact mem_leftFibrations p _ ⟨i, hlt⟩
-  · subst heq
-    exact leftFibration_rlp_rightHorn_of_isTerminal p hY
-
-/-- The fiber of a left fibration over a vertex is a Kan complex. -/
-theorem kanComplex_fiber_of_leftFibration {X S : SSet.{u}} (p : X ⟶ S)
-    [LeftFibration p] (s : Δ[0] ⟶ S) :
-    KanComplex (Limits.pullback p s) := by
-  have hsnd : leftFibrations (Limits.pullback.snd p s) :=
-    MorphismProperty.of_isPullback (IsPullback.of_hasPullback p s)
-      (mem_leftFibrations p)
-  have : LeftFibration (Limits.pullback.snd p s) := ⟨hsnd⟩
-  exact kanComplex_of_leftFibration_isTerminal (Limits.pullback.snd p s)
-    stdSimplex.isTerminalObj₀
-
 end SSet
