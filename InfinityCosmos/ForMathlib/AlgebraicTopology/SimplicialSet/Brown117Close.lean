@@ -8,18 +8,25 @@ open CategoryTheory HomotopicalAlgebra Simplicial Opposite Limits MorphismProper
 open scoped SSet.modelCategoryQuillen
 
 /-!
-# Brown #117 close: the relocated tracked theorems
+# Special-outer-horn close: the relocated tracked theorems
 
-Assembles the special-outer-horn cascade into the results that close the last open goal of the
-repository's Brown-factorization Lemma 1.5.12 (issue #117):
+Assembles the special-outer-horn cascade (Joyal's special outer horn filler) into the
+foundational quasicategory results it underwrites:
 
 * `SpecialOuterHorn.fill_zero` — the `i = 0` outer-horn filler, obtained from `fill_last` for
   `A.op` by op-duality (Route B, `SpecialOuterHornOpDuality`);
 * `coherentIso.lift` — every invertible edge of a quasicategory extends to a map out of
-  `coherentIso` (relocated from `CoherentIso.lean`); Riehl–Verity *Elements*, Lemma 1.5.12;
+  `coherentIso` (relocated from `CoherentIso.lean`). This is the forward direction of the
+  homotopy-coherent-isomorphism characterization (blueprint `prop:coherent-iso`), the result
+  whose proof requires special-outer-horn filling;
 * `leftFibration_rlp_rightHorn_of_isTerminal` and its consumers
   `kanComplex_of_leftFibration_isTerminal` / `kanComplex_fiber_of_leftFibration` (relocated from
   `LeftFibration.lean`).
+
+These are foundational infrastructure. The Brown factorization lemma (Lemma 1.5.12, blueprint
+`lem:brown-fact`, issue #117) is a separate ∞-cosmos-level construction in `Isofibrations.lean`;
+`coherentIso.lift` underwrites the 2-of-3 equivalence calculus used by its corollary, but is not
+on the dependency path of the core factorization itself.
 -/
 
 namespace SSet
