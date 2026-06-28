@@ -9,11 +9,15 @@ import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Square
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Products
 
 /-!
-# Stability of trivial fibrations under conical limits in an ∞-cosmos
+# Stability of the representable trivial-fibration class under conical limits in an ∞-cosmos
 
-This file builds the ∞-cosmos half of the "stability of trivial fibrations under conical
-cosmological limits" statement (infinity-cosmos issue #114). The argument follows the issue's
-decomposition into two halves:
+This file builds the ∞-cosmos half of infinity-cosmos issue #114. The genuine closure statement
+proved here is for the class `RepresentableTrivialFibration`: a map `f` in a pre-∞-cosmos for which
+every covariant representable `Fun(X, -) = eCoyoneda SSet X` sends it to a trivial fibration of
+simplicial sets. This class is closed under each limit shape of the ∞-cosmos completeness axiom,
+with the same hypothesis and conclusion, so the results compose with one another.
+
+The argument follows the issue's decomposition into two halves:
 
 * **Representables preserve conical limits.** The covariant representable `Fun(X, -)` of a
   pre-∞-cosmos is, on hom-spaces, the enriched coyoneda functor `eCoyoneda SSet X`, which preserves
@@ -23,27 +27,56 @@ decomposition into two halves:
   half, recorded in `InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.TrivialFibration`
   (`SSet.TrivialFibration.piMap` and `SSet.TrivialFibration.of_isPullback`).
 
-The bridge between the two is `RepresentableTrivialFibration`: a map `f` in a pre-∞-cosmos for which
-every representable `representableMap X f` is a trivial fibration of simplicial sets. A
-representably-trivial fibration is an `InfinityCosmos.Equivalence` (its representables are trivial
-fibrations between quasi-categories, hence equivalences of quasi-categories), so combined with the
-isofibration axioms it is an `InfinityCosmos.TrivialFibration`.
+## Main results (representable-class closure)
 
-## Main results
+* `RepresentableTrivialFibration.equivalence`: a representably-trivial fibration is an equivalence.
+* `representableTrivialFibration_piMap`, `representableTrivialFibration_of_isPullback`,
+  `representableTrivialFibration_tower`: the class `RepresentableTrivialFibration` is closed under
+  products, under pullback, and under limits of countable towers. Hypothesis and conclusion are
+  both `RepresentableTrivialFibration`, so these are genuine closure statements: an output may be
+  re-fed as an input, and they compose.
 
-* `RepresentableTrivialFibration.equivalence` — a representably-trivial fibration is an equivalence.
-* `representableTrivialFibration_piMap` / `representableTrivialFibration_of_isPullback` — the class
-  `RepresentableTrivialFibration` is stable under products and under pullback.
-* `trivialFibration_piMap` / `trivialFibration_snd_of_isPullback` — an isofibration that is
-  representably trivial assembles, through products and pullbacks, into an
-  `InfinityCosmos.TrivialFibration`.
+## Corollaries in the `InfinityCosmos.TrivialFibration` class
+
+* `trivialFibration_piMap`, `trivialFibration_snd_of_isPullback`, `trivialFibration_tower`: an
+  isofibration whose connecting maps are representably trivial assembles, through products,
+  pullbacks, and towers, into an `InfinityCosmos.TrivialFibration` (`IsIsofibration ∧ Equivalence`).
+  Each consumes a `RepresentableTrivialFibration` hypothesis and emits the weaker def-form class via
+  the forward bridge `RepresentableTrivialFibration.equivalence`. Only that forward bridge is
+  available, so these corollaries are *not* closure statements for `InfinityCosmos.TrivialFibration`
+  itself: their `IsIsofibration ∧ Equivalence` output cannot be re-fed as the representable
+  hypothesis. The genuine closure lives one level up, in the `representableTrivialFibration_*`
+  family above.
+
+## Converse bridge (the next step)
+
+Upgrading the corollaries to genuine closure of `InfinityCosmos.TrivialFibration` requires the
+converse of `SSet.TrivialFibration.toIsofibration` together with
+`SSet.TrivialFibration.toQCatEquiv_exists`, namely the acyclic-fibration characterization in the
+Joyal model structure: an isofibration of quasi-categories that is an equivalence is a trivial
+fibration of simplicial sets. That model structure is present neither in mathlib nor in this tree,
+so the bridge is recorded here as the open next lemma rather than proved:
+
+```
+theorem SSet.TrivialFibration.of_isofibration_of_equiv {A B : QCat} {p : A ⟶ B}
+    (hfib : SSet.Isofibration p)
+    (he : ∃ e : @QCat.Equiv A.obj B.obj A.property B.property, e.toFun = p.hom) :
+    SSet.TrivialFibration p.hom
+```
+
+Granting it, the ∞-cosmos converse
+`InfinityCosmos.TrivialFibration f → RepresentableTrivialFibration f` follows
+representable-by-representable: the isofibration axiom `local_isoFibration` makes each
+`toFunMap X f` a quasi-category isofibration and `Equivalence f` supplies the equivalence. That
+yields
+`RepresentableTrivialFibration f ↔ InfinityCosmos.TrivialFibration f` and turns the four corollaries
+into def-in/def-out closure statements.
 
 ## Scope
 
-All three limit shapes from the ∞-cosmos completeness axiom are closed: products
-(`trivialFibration_piMap`), pullbacks of isofibrations (`trivialFibration_snd_of_isPullback`), and
-countable towers of isofibrations (`trivialFibration_tower`). For the tower shape the statement is
-the inverse-limit analogue of closure under composition: the projection from the limit of a tower
+All three limit shapes from the ∞-cosmos completeness axiom are covered: products, pullbacks of
+isofibrations, and countable towers of isofibrations. For the tower shape the statement is the
+inverse-limit analogue of closure under composition: the projection from the limit of a tower
 *of trivial fibrations* is a trivial fibration. The naive levelwise statement for a *map* of towers
 (every component a trivial fibration) is false, by a Mittag-Leffler-type obstruction; see the note
 in `InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.TrivialFibration`.
@@ -142,20 +175,26 @@ theorem representableTrivialFibration_of_isPullback {E B A P : K} {p : E ⟶ B} 
   rw [← representableMap_eq_eCoyoneda_map]
   exact hp X
 
-/-- **Trivial fibrations in an ∞-cosmos are stable under products (issue #114).** A product of
+/-- **Products of representably-trivial isofibrations (issue #114, corollary form).** A product of
 isofibrations that are representably trivial is an `InfinityCosmos.TrivialFibration`: the product
 map is an isofibration by the product axiom, and an equivalence since it is representably trivial.
--/
+This is a corollary of the class-level closure `representableTrivialFibration_piMap` via the forward
+bridge `RepresentableTrivialFibration.equivalence`; because only that forward bridge exists, it does
+not by itself close the `InfinityCosmos.TrivialFibration` class (its `IsIsofibration ∧ Equivalence`
+output cannot be re-fed as the representable hypothesis). See the module docstring. -/
 theorem trivialFibration_piMap {γ : Type w} {A B : γ → K} (f : ∀ i, A i ↠ B i)
     (hf : ∀ i, RepresentableTrivialFibration (f i).1) :
     TrivialFibration (Limits.Pi.map (fun i => (f i).1)) :=
   ⟨prod_map_fibrant f,
     (representableTrivialFibration_piMap (fun i => (f i).1) hf).equivalence⟩
 
-/-- **Trivial fibrations in an ∞-cosmos are stable under pullback (issue #114).** The pullback of an
-isofibration that is representably trivial along an arbitrary map is an
+/-- **Pullback of a representably-trivial isofibration (issue #114, corollary form).** The pullback
+of an isofibration that is representably trivial along an arbitrary map is an
 `InfinityCosmos.TrivialFibration`: the pulled-back leg is an isofibration by the pullback axiom and
-an equivalence because it is representably trivial. -/
+an equivalence because it is representably trivial. This is a corollary of the class-level closure
+`representableTrivialFibration_of_isPullback` via the forward bridge
+`RepresentableTrivialFibration.equivalence`; it does not by itself close the
+`InfinityCosmos.TrivialFibration` class. See the module docstring. -/
 theorem trivialFibration_snd_of_isPullback {E B A P : K} (p : E ↠ B) (f : A ⟶ B)
     (fst : P ⟶ E) (snd : P ⟶ A) (h : IsPullback fst snd p.1 f)
     (hp : RepresentableTrivialFibration p.1) : TrivialFibration snd :=
@@ -186,11 +225,13 @@ theorem representableTrivialFibration_tower (F : ℕᵒᵖ ⥤ K)
     exact h
   exact SSet.TrivialFibration.of_isLimit_tower _ hc hf
 
-/-- **Trivial fibrations in an ∞-cosmos are stable under limits of countable towers (issue
-#114).** Given a tower `F : ℕᵒᵖ ⥤ K` of isofibrations that are representably trivial, the
-projection `limit.π F (.op 0)` from its conical limit is an `InfinityCosmos.TrivialFibration`: it
-is an isofibration by the tower-limit axiom, and an equivalence because it is representably
-trivial.
+/-- **Limit of a tower of representably-trivial isofibrations (issue #114, corollary form).** Given
+a tower `F : ℕᵒᵖ ⥤ K` of isofibrations that are representably trivial, the projection
+`limit.π F (.op 0)` from its conical limit is an `InfinityCosmos.TrivialFibration`: it is an
+isofibration by the tower-limit axiom, and an equivalence because it is representably trivial. This
+is a corollary of the class-level closure `representableTrivialFibration_tower` via the forward
+bridge `RepresentableTrivialFibration.equivalence`; it does not by itself close the
+`InfinityCosmos.TrivialFibration` class. See the module docstring.
 
 This is the inverse-limit analogue of closure under composition. Note that the levelwise statement
 for a *map* of towers is false; see the note in

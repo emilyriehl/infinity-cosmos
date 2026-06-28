@@ -7,17 +7,20 @@ import InfinityCosmos.ForMathlib.InfinityCosmos.Isofibrations
 import InfinityCosmos.ForMathlib.InfinityCosmos.TrivialFibrationLimits
 
 /-!
-# Stability of trivial fibrations under Leibniz cotensor with monomorphisms in an ∞-cosmos
+# Stability of the representable trivial-fibration class under Leibniz cotensor with monomorphisms
 
 This file proves the ∞-cosmos half of infinity-cosmos issue #115 (blueprint 1.5.7 / axiom SM7,
-"easy" direction): if `i : U ⟶ V` is a monomorphism of simplicial sets and `f : A ↠ B` is an
-isofibration that is a trivial fibration, then the Leibniz cotensor `leibnizCotensorMap i f` is a
-trivial fibration in the ∞-cosmos.
+"easy" direction). The genuine closure statement is for the class `RepresentableTrivialFibration`:
+if `i : U ⟶ V` is a monomorphism of simplicial sets and `f : A ↠ B` is an isofibration that is
+representably trivial, then the Leibniz cotensor `leibnizCotensorMap i f` is again representably
+trivial (`representableTrivialFibration_leibnizCotensorMap`). The def-form statement
+`trivialFibration_leibnizCotensorMap` is a corollary that repackages this as an
+`InfinityCosmos.TrivialFibration`.
 
 The argument is the representable bridge used throughout the #114 stability results. The Leibniz
 cotensor is already known to be an isofibration (the ∞-cosmos axiom
 `leibniz_cotensor_isIsofibration`, packaged as `leibnizCotensorIsofibration`); what remains is that
-it is an equivalence. We obtain this from the simplicial-set result: applying the covariant
+it is representably trivial. We obtain this from the simplicial-set result: applying the covariant
 representable `Fun(X, -)` to the Leibniz cotensor pullback square produces, after the cotensor
 isomorphisms `sHom X (U ⋔ A) ≅ (ihom U).obj (sHom X A)`, the internal-hom pullback square of `i`
 against `representableMap X f.1`. The representable of `leibnizCotensorMap i f` is then identified
@@ -30,10 +33,16 @@ of issue #115, already in the tree.
 * `representableLeibnizPullbackObjObj`: the internal-hom `PullbackObjObj` structure on `SSet`
   obtained by transporting the representable Leibniz cotensor pullback square along the cotensor
   isomorphisms.
-* `representableTrivialFibration_leibnizCotensorMap`: the Leibniz cotensor of a monomorphism with a
-  representably-trivial isofibration is representably trivial.
-* `trivialFibration_leibnizCotensorMap` (**issue #115**): the Leibniz cotensor of a monomorphism
-  with an isofibration that is representably trivial is an `InfinityCosmos.TrivialFibration`.
+* `representableTrivialFibration_leibnizCotensorMap` (**issue #115, class closure**): the Leibniz
+  cotensor of a monomorphism with a representably-trivial isofibration is representably trivial.
+  Hypothesis and conclusion are both `RepresentableTrivialFibration`.
+* `trivialFibration_leibnizCotensorMap` (**issue #115, corollary form**): the Leibniz cotensor of a
+  monomorphism with an isofibration that is representably trivial is an
+  `InfinityCosmos.TrivialFibration`. It consumes a `RepresentableTrivialFibration` hypothesis via
+  the forward bridge `RepresentableTrivialFibration.equivalence`; because only that forward bridge
+  exists, it does not by itself close the `InfinityCosmos.TrivialFibration` class. Upgrading it to
+  genuine closure needs the converse bridge `SSet.TrivialFibration.of_isofibration_of_equiv` stated
+  in the module docstring of `InfinityCosmos.ForMathlib.InfinityCosmos.TrivialFibrationLimits`.
 -/
 
 namespace InfinityCosmos
@@ -115,11 +124,14 @@ theorem representableTrivialFibration_leibnizCotensorMap {U V : SSet.{v}} (i : U
   exact (SSet.TrivialFibration.arrow_iso_iff aiso).2
     ((hf X).pullbackObjObjπ (representableLeibnizPullbackObjObj i f X))
 
-/-- **Issue #115 (∞-cosmos).** Trivial fibrations are stable under Leibniz cotensor with
-monomorphisms: if `i : U ⟶ V` is a monomorphism of simplicial sets and `f : A ↠ B` is an
-isofibration that is representably trivial, then the Leibniz cotensor `leibnizCotensorMap i f` is an
+/-- **Leibniz cotensor of a representably-trivial isofibration (issue #115, corollary form).** If
+`i : U ⟶ V` is a monomorphism of simplicial sets and `f : A ↠ B` is an isofibration that is
+representably trivial, then the Leibniz cotensor `leibnizCotensorMap i f` is an
 `InfinityCosmos.TrivialFibration`. It is an isofibration by the ∞-cosmos Leibniz cotensor axiom, and
-an equivalence because it is representably trivial. -/
+an equivalence because it is representably trivial. This is a corollary of the class-level closure
+`representableTrivialFibration_leibnizCotensorMap` via the forward bridge
+`RepresentableTrivialFibration.equivalence`; it does not by itself close the
+`InfinityCosmos.TrivialFibration` class. See the module docstring. -/
 theorem trivialFibration_leibnizCotensorMap {U V : SSet.{v}} (i : U ⟶ V) [Mono i]
     {A B : K} (f : A ↠ B) (hf : RepresentableTrivialFibration f.1) :
     TrivialFibration (leibnizCotensorMap i f) :=
