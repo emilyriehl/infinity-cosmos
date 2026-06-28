@@ -1,19 +1,21 @@
-/-
-The `i = last` special-outer-horn filler, assembled.
-
-Builds on the outer-horn / Leibniz-join arrow-iso (M11) and the coslice Leibniz
-filler (M10) to produce, for a quasicategory `A`:
-  * `cancelComp_left/right` (edge-iso cancellation), `isIsoSimplex_δ₀/δ₂_of_outer`;
-  * `SpecialOuterHorn.initialEdge` / `finalEdge`;
-  * `filler_mem_isoCore_outer`, `isoCore_outerHornFiller_of_producer` (the producer);
-  * `fillerLast`, `fillBase`, and `SpecialOuterHorn.fill_last` (Kerodon 019F, i = last).
--/
-
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.SpecialOuterHornFillerLeibniz
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.OuterHornLastDecomposition
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CosliceProjLeftFibration
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.IsoCoreKan
 import Mathlib.AlgebraicTopology.SimplicialSet.Horn
+
+/-!
+# The `i = last` special-outer-horn filler `SpecialOuterHorn.fill_last`
+
+Assembles the special-outer-horn filler for the last vertex (Kerodon 019F, Theorem 4.4.2.6,
+Joyal): for a quasicategory `A`, a horn `Λ[n+2, last] ⟶ A` whose distinguished final edge is
+invertible extends over `Δ[n+2]` (`fill_last`). The `n ≥ 1` case transports the coslice Leibniz
+filler (`SpecialOuterHornFillerLeibniz`) across the horn-as-Leibniz-join isomorphism
+(`OuterHornLastDecomposition`) through `transLast`; the `n = 0` case is a direct 2-out-of-3 fill
+(`fillBase`). Also provides the iso-edge 2-out-of-3 (`cancelComp_left`/`cancelComp_right`,
+`isIsoSimplex_δ₀/δ₂_of_outer`, Kerodon §4.4.2 / 019C) and the producer
+`isoCore_outerHornFiller_of_producer` consumed by `coherentIso.lift`.
+-/
 
 open CategoryTheory Simplicial Opposite Finset SSet.Truncated SimplexCategory.Truncated Limits MorphismProperty AugmentedSimplexCategory
 
@@ -97,12 +99,12 @@ lemma einv_right (M : ℕ) :
     cornerIso_inv_right]
   cat_disch
 
+-- `transLast` is sealed `irreducible` so that downstream `simp`/defeq does not unfold the
+-- three-iso transport into the underlying pushout maps; `einv_right` above is the single fact
+-- about it that is proved before sealing.
 attribute [irreducible] transLast
 
-/-! ## Replay of the 2-out-of-3 duals brick (isoduals_1.lean)
-
-These are proven in `/Users/robsneiderman/Desktop/n5-bricks/isoduals_1.lean`; replayed here
-verbatim since the brick is scratch (not yet in the tracked tree). -/
+/-! ## Iso-edge 2-out-of-3 in a quasicategory (Kerodon §4.4.2 / 019C) -/
 
 namespace Edge
 
@@ -279,7 +281,7 @@ theorem isIsoSimplex_δ₂_of_outer {A : SSet} [Quasicategory A] (σ : A _⦋2�
   obtain ⟨hk⟩ := Edge.isIso_of_isIsoSimplex e₀₂ h₁
   exact isIsoSimplex_of_edge (Edge.IsIso.cancelComp_right c hg hk)
 
-/-! ## Replay of the special-outer-horn distinguished edges (sj_joyal_assemble.lean) -/
+/-! ## The special-outer-horn distinguished edges (`initialEdge` / `finalEdge`) -/
 
 namespace SpecialOuterHorn
 
@@ -420,8 +422,8 @@ theorem filler_mem_isoCore_outer {A : SSet} [Quasicategory A] {d : ℕ} {i : Fin
 /-! ## LAYER-1 wrapper: producer ⟹ `IsoCoreOuterHornFiller A` -/
 
 /-- From the special-outer-horn producers (`fill_zero`/`fill_last`, taken as hypotheses), the
-outer-horn filler interface for `isoCore A` follows.  Once the producers land in the tree this
-discharges by `isoCore_outerHornFiller_of_producer fill_zero fill_last`. -/
+outer-horn filler interface `IsoCoreOuterHornFiller A` for `isoCore A` follows. This is the
+producer consumed by `coherentIso.lift`. -/
 theorem isoCore_outerHornFiller_of_producer {A : SSet.{u}} [Quasicategory A]
     (hfill_zero : ∀ {n : ℕ} (σ₀ : (Λ[n + 2, (0 : Fin (n + 3))] : SSet.{u}) ⟶ A),
         IsIsoSimplex (σ₀.app (op ⦋1⦌) SpecialOuterHorn.initialEdge) →
@@ -698,6 +700,9 @@ theorem fillBase {A : SSet.{u}} [Quasicategory A]
 
 namespace SpecialOuterHorn
 
+/-- **`SpecialOuterHorn.fill_last`** (Kerodon 019F, Theorem 4.4.2.6, Joyal): in a quasicategory
+`A`, a last outer horn `Λ[n+2, last] ⟶ A` whose distinguished final edge is invertible extends to
+a map out of `Δ[n+2]`. -/
 theorem fill_last {A : SSet.{u}} [Quasicategory A] {n : ℕ}
     (σ₀ : (Λ[n + 2, (Fin.last (n + 2))] : SSet) ⟶ A)
     (h_final : IsIsoSimplex (σ₀.app (op ⦋1⦌) finalEdge)) :

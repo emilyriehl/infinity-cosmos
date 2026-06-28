@@ -1,9 +1,3 @@
-/- sati_tc.lean — SECOND-SLOT port of twoc_final.lean: (leibImgR j).IsStableUnderTransfiniteComposition.
-   Fixed mono j : S ⟶ T (was K : C ⟶ D), vary the RIGHT join argument (was left).
-   Functor: joinFunctor.obj E (tensorLeft) in place of joinFunctor.flip.obj E (tensorRight).
-   join orientation E ⋆ X (was X ⋆ E); joinMap (𝟙 E) (vary) (was joinMap (vary) (𝟙 E));
-   fixed leg joinMap j (𝟙 _) (was joinMap (𝟙 _) K); joinMap_id_left / joinMap_comp_right;
-   leibnizJoin legs swap roles (inl = fixed-j leg, inr = vary leg). -/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.JoyalSpecialOuterHorn
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeftFibration
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.PullbackObjObj
@@ -11,6 +5,19 @@ import Mathlib.CategoryTheory.Limits.Shapes.Preorder.TransfiniteCompositionOfSha
 import Mathlib.CategoryTheory.MorphismProperty.TransfiniteComposition
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Preorder
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeibnizJoinCore
+
+/-!
+# Leibniz-join telescope: stability under transfinite composition (right slot)
+
+The right-slot mirror of `LeibnizJoinTelescopeLeft`: for a fixed monomorphism `j`, the image
+`leibImgR j` (the maps `i` with `leibnizJoin j i` inner-anodyne) is stable under transfinite
+composition (`TwoC.leibImgR_isStableUnderTransfiniteComposition`,
+`TwoC.leibImgR_transfiniteOfShape`). The same transfinite-tower construction as the left slot,
+with the join taken in the right variable (`joinFunctor.obj` in place of `joinFunctor.flip.obj`).
+Supplies the transfinite-composition instance for the Joyal pushout-product, Kerodon 018J
+(Proposition 4.3.6.4, Joyal).
+-/
+
 open CategoryTheory Simplicial Limits MorphismProperty HomotopicalAlgebra
 namespace SSet
 universe u
@@ -727,6 +734,8 @@ section Conclusion
 variable {S T : SSet.{u}} (j : S ⟶ T)
 
 set_option maxHeartbeats 4000000 in
+/-- For a fixed monomorphism `j`, the image `leibImgR j` is stable under transfinite composition
+of any well-ordered shape `J`. -/
 theorem leibImgR_transfiniteOfShape (J : Type u) [LinearOrder J] [SuccOrder J] [OrderBot J]
     [WellFoundedLT J] : (leibImgR j).IsStableUnderTransfiniteCompositionOfShape J := by
   rw [isStableUnderTransfiniteCompositionOfShape_iff]
@@ -758,6 +767,7 @@ theorem leibImgR_transfiniteOfShape (J : Type u) [LinearOrder J] [SuccOrder J] [
   exact (MorphismProperty.cancel_left_of_respectsIso innerAnodyneExtensions
     (cornerMap j h.isoBot.inv (𝟙 Y) w1) (leibnizJoin j (gTel h.F h.incl))).mpr hg
 
+/-- `leibImgR j` is stable under transfinite composition. -/
 instance leibImgR_isStableUnderTransfiniteComposition :
     (leibImgR j).IsStableUnderTransfiniteComposition.{u} where
   isStableUnderTransfiniteCompositionOfShape J _ _ _ _ := leibImgR_transfiniteOfShape j J

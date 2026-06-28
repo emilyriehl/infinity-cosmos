@@ -1,19 +1,3 @@
-/-
-Coslice of simplicial sets via the join, and the coslice relative projection
-(LEFT-fixed mirror of `Slice.lean` / the slice relative projection).
-
-Combines two layers:
-  * the elementary coslice presheaf `cosliceUnder p` (`C_{p/}`), the fixed-left join
-    functor `joinCoUnder`, its colimit preservation, the Kan extension + adjunction
-    `coAdj₂`, and the coslice universal property `cosliceHomEquiv`;
-  * the coslice relative projection `cosliceProj` as a `PullbackObjObj.π`, with its
-    left-lifting / left-fibration facts `hasLiftingProperty_cosliceProj` and
-    `leftFibrations_cosliceProj`.
-
-This is the coslice `C_{f/}` needed for the `i = last` special-outer-horn filler
-(Kerodon 01H0).
--/
-
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Slice
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.PullbackObjObj
 import Mathlib.AlgebraicTopology.SimplicialSet.AnodyneExtensions.Inner.Basic
@@ -23,10 +7,15 @@ section
 /-!
 # Coslice of simplicial sets via the join (LEFT-fixed mirror of `Slice.lean`)
 
-Mirrors `joinUnder`/`adj₂`/`restrictedSliceIso`/`sliceHomEquiv` in the left-fixed
-direction: fixes the cone point `K` on the LEFT factor via `joinInl'` and varies the
-right factor via `joinFunctor.obj K = K ⋆ -`.  This is the coslice `C_{f/}` needed for the
-i = last special-outer-horn filler (Kerodon 01H0).
+The coslice `C_{f/}` and its relative projection, the left-fixed mirror of the slice package in
+`Slice.lean`. The elementary coslice presheaf `cosliceUnder p` (`C_{p/}`) is built from the
+fixed-left join functor `joinCoUnder K = K ⋆ -`, with its colimit preservation, Kan extension and
+adjunction `coAdj₂`, and the coslice universal property `cosliceHomEquiv` (mirroring
+`joinUnder`/`adj₂`/`sliceHomEquiv`). The coslice relative projection `cosliceProj` is presented as
+a `PullbackObjObj.π` and shown to satisfy the left-lifting and left-fibration facts
+`hasLiftingProperty_cosliceProj` and `leftFibrations_cosliceProj` (Kerodon 018F, Proposition
+4.3.6.1, absolute; 01BZ, Proposition 4.3.6.8, relative). This coslice is what the `i = last`
+special-outer-horn filler (Kerodon 01H0) runs through.
 -/
 
 open CategoryTheory Simplicial Opposite Limits
@@ -206,6 +195,8 @@ instance joinCoUnder_isLeftKanExtension (K : SSet.{u}) :
   Presheaf.isLeftKanExtension_of_preservesColimits.{0} (A := joinCoUnderOnSimplex K)
     (L := joinCoUnder K) (Iso.refl _)
 
+/-- The coslice adjunction `joinCoUnder K ⊣ coSliceFunctorRestricted K` (`K ⋆ -` is left adjoint
+to the restricted coslice functor), from the left Kan extension. -/
 def coAdj₂ (K : SSet.{u}) : joinCoUnder K ⊣ coSliceFunctorRestricted K :=
   Presheaf.uliftYonedaAdjunction.{0} (A := joinCoUnderOnSimplex K) (L := joinCoUnder K)
     (joinCoUnderExtensionUnit K)
@@ -224,6 +215,7 @@ def coOverPtEquivUnderHom {K C : SSet.{u}} (p : K ⟶ C) (Y : SSet.{u}) :
     ext
     rfl
 
+/-- The restricted slice functor evaluated at `p` is the coslice presheaf `C_{p/}`. -/
 def restrictedCoSliceIso {K C : SSet.{u}} (p : K ⟶ C) :
     (coSliceFunctorRestricted K).obj (Under.mk p) ≅ cosliceUnder p :=
   NatIso.ofComponents
@@ -249,10 +241,10 @@ end
 
 section
 /-!
-# Coslice relative slice projection (LEFT-fixed mirror of `adj2_21.lean`)
+# Coslice relative slice projection (LEFT-fixed mirror of the slice projection)
 
 Mirrors the proven `sliceProj`/`hasLiftingProperty_sliceProj`/`leftFibrations_sliceProj`
-transpose for the coslice (free factor = the edge on the RIGHT).
+(`Slice.lean`) transposed for the coslice (free factor = the edge on the RIGHT).
 -/
 
 universe u
@@ -450,6 +442,8 @@ abbrev sqLeibCo {S T A B : SSet.{u}} (jST : S ⟶ T) (g : A ⟶ B) :
 
 /-! ## The L4 transpose for the coslice -/
 
+/-- The coslice projection `cosliceProj jST σ p` has the right lifting property against `g`
+whenever `p` lifts against the Leibniz join `(sqLeibCo jST g).ι` (the adjoint transpose). -/
 theorem hasLiftingProperty_cosliceProj
     {S T X Y A B : SSet.{u}} (jST : S ⟶ T) (σ : T ⟶ X) (p : X ⟶ Y) (g : A ⟶ B)
     (hlift : HasLiftingProperty (sqLeibCo jST g).ι p) :
@@ -533,6 +527,9 @@ theorem hasLiftingProperty_cosliceProj
 
 /-! ## The coslice relative projection is a LEFT fibration -/
 
+/-- The coslice relative projection `cosliceProj jST σ p` is a left fibration, given the Joyal
+pushout-product hypothesis `joyal` (Kerodon 018F, Proposition 4.3.6.1, absolute; 01BZ,
+Proposition 4.3.6.8, relative). -/
 theorem leftFibrations_cosliceProj
     {S T X Y : SSet.{u}} (jST : S ⟶ T) (σ : T ⟶ X) (p : X ⟶ Y) [hp : InnerFibration p]
     (joyal : ∀ ⦃A B : SSet.{u}⦄ (g : A ⟶ B), leftAnodyneExtensions g →

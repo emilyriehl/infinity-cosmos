@@ -1,18 +1,3 @@
-/-
-Brown #117 close: the relocated `sorry`-free theorems.
-
-Assembles the special-outer-horn cascade into the three tracked results that close the
-last `sorry` of the repo's Brown-factorization Lemma 1.5.12 (issue #117):
-
-  * `SSet.SpecialOuterHorn.fill_zero` — the `i = 0` outer-horn filler, from `fill_last`
-    for `A.op` via op-duality (Route B);
-  * `SSet.coherentIso.lift` — every invertible edge of a quasicategory extends to a map
-    out of `coherentIso` (relocated here from `CoherentIso.lean`, now `sorry`-free);
-  * `SSet.leftFibration_rlp_rightHorn_of_isTerminal` and its two consumers
-    `kanComplex_of_leftFibration_isTerminal` / `kanComplex_fiber_of_leftFibration`
-    (relocated here from `LeftFibration.lean`, now `sorry`-free).
--/
-
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.SpecialOuterHornOpDuality
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.SpecialOuterHornFillLast
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeftFibrationTerminalReduction
@@ -21,6 +6,21 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeftFibration
 
 open CategoryTheory HomotopicalAlgebra Simplicial Opposite Limits MorphismProperty
 open scoped SSet.modelCategoryQuillen
+
+/-!
+# Brown #117 close: the relocated tracked theorems
+
+Assembles the special-outer-horn cascade into the results that close the last open goal of the
+repository's Brown-factorization Lemma 1.5.12 (issue #117):
+
+* `SpecialOuterHorn.fill_zero` — the `i = 0` outer-horn filler, obtained from `fill_last` for
+  `A.op` by op-duality (Route B, `SpecialOuterHornOpDuality`);
+* `coherentIso.lift` — every invertible edge of a quasicategory extends to a map out of
+  `coherentIso` (relocated from `CoherentIso.lean`); Riehl–Verity *Elements*, Lemma 1.5.12;
+* `leftFibration_rlp_rightHorn_of_isTerminal` and its consumers
+  `kanComplex_of_leftFibration_isTerminal` / `kanComplex_fiber_of_leftFibration` (relocated from
+  `LeftFibration.lean`).
+-/
 
 namespace SSet
 universe u
@@ -60,7 +60,7 @@ lemma key {m : ℕ} :
 
 end Close117
 
-/-! ## `SSet.SpecialOuterHorn.fill_zero` (statement byte-for-byte `wrap_1.lean:438`) -/
+/-! ## `SSet.SpecialOuterHorn.fill_zero` (the `i = 0` outer-horn filler, via op-duality) -/
 
 namespace SpecialOuterHorn
 
@@ -86,7 +86,7 @@ theorem fill_zero {A : SSet.{u}} [Quasicategory A] {n : ℕ}
 
 end SpecialOuterHorn
 
-/-! ## `SSet.coherentIso.lift` (relocated from `CoherentIso.lean`, now `sorry`-free) -/
+/-! ## `SSet.coherentIso.lift` (relocated from `CoherentIso.lean`) -/
 
 namespace coherentIso
 
@@ -105,9 +105,9 @@ end coherentIso
 
 /-! ## `SSet.leftFibration_rlp_rightHorn_of_isTerminal` (relocated from `LeftFibration.lean`) -/
 
-/-- Kerodon 019D: a left fibration over a terminal object lifts against the single
-right-most (last) outer horn.  Discharged from
-`leftFibration_rlp_rightHorn_of_isTerminal_of_fillLast` + the proven `fill_last`. -/
+/-- A left fibration over a terminal object lifts against the single right-most (last) outer horn.
+Discharged from `leftFibration_rlp_rightHorn_of_isTerminal_of_fillLast` and the proven
+`SpecialOuterHorn.fill_last` (Kerodon 019F). -/
 theorem leftFibration_rlp_rightHorn_of_isTerminal {X Y : SSet.{u}} (p : X ⟶ Y)
     (hY : IsTerminal Y) [LeftFibration p] {n : ℕ} :
     HasLiftingProperty (Λ[n + 1, Fin.last (n + 1)].ι) p := by

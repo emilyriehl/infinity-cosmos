@@ -1,10 +1,21 @@
-/- tgj_1.lean — Stage A: general-J leibImgL transfinite assembly (steps 1+2). -/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.JoyalSpecialOuterHorn
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeftFibration
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.PullbackObjObj
 import Mathlib.CategoryTheory.Limits.Shapes.Preorder.TransfiniteCompositionOfShape
 import Mathlib.CategoryTheory.MorphismProperty.TransfiniteComposition
 import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Preorder
+
+/-!
+# Leibniz-join telescope: stability under transfinite composition (left slot)
+
+The left-slot Leibniz image `leibImgL i` collects the maps `j` whose Leibniz join
+`leibnizJoin j i` is inner-anodyne. This file proves it is stable under transfinite composition
+(`leibImgL_isStableUnderTransfiniteComposition`, `leibImgL_transfiniteOfShape`) and cobase change
+(`leibImgL_cobase`), by building the transfinite tower of join pushouts (`Gfun` and its colimit
+`GwocIsColimit`) and transporting a colimit cocone across the join functor. One of the two
+telescope slots feeding the Joyal pushout-product, Kerodon 018J (Proposition 4.3.6.4, Joyal).
+-/
+
 open CategoryTheory Simplicial Limits MorphismProperty HomotopicalAlgebra
 namespace SSet
 universe u
@@ -773,6 +784,8 @@ section Conclusion
 variable {C D : SSet.{u}} (K : C ⟶ D)
 
 set_option maxHeartbeats 4000000 in
+/-- The left-slot Leibniz image `leibImgL K` is stable under transfinite composition of any
+well-ordered shape `J`. -/
 theorem leibImgL_transfiniteOfShape (J : Type u) [LinearOrder J] [SuccOrder J] [OrderBot J]
     [WellFoundedLT J] : (leibImgL K).IsStableUnderTransfiniteCompositionOfShape J := by
   rw [isStableUnderTransfiniteCompositionOfShape_iff]
@@ -804,13 +817,14 @@ theorem leibImgL_transfiniteOfShape (J : Type u) [LinearOrder J] [SuccOrder J] [
   exact (MorphismProperty.cancel_left_of_respectsIso innerAnodyneExtensions
     (cornerMap K h.isoBot.inv (𝟙 Y) w1) (leibnizJoin (gTel h.F h.incl) K)).mpr hg
 
+/-- `leibImgL K` is stable under transfinite composition. -/
 instance leibImgL_isStableUnderTransfiniteComposition :
     (leibImgL K).IsStableUnderTransfiniteComposition.{u} where
   isStableUnderTransfiniteCompositionOfShape J _ _ _ _ := leibImgL_transfiniteOfShape K J
 
 end Conclusion
 
-/-! ## Cobase-change closure of `leibImgL K` (spliced from sat_4, axiom-clean). -/
+/-! ## Cobase-change closure of `leibImgL K` -/
 
 instance presSpanC : PreservesColimitsOfShape WalkingSpan (joinFunctor.flip.obj C) :=
   joinFunctor_flip_preservesConnectedColimits_of_tensorRight WalkingSpan C
@@ -818,6 +832,7 @@ instance presSpanD : PreservesColimitsOfShape WalkingSpan (joinFunctor.flip.obj 
   joinFunctor_flip_preservesConnectedColimits_of_tensorRight WalkingSpan D
 
 set_option backward.isDefEq.respectTransparency false in
+/-- `leibImgL K` is stable under cobase change. -/
 theorem leibImgL_cobase : (leibImgL K).IsStableUnderCobaseChange := by
   constructor
   intro A A' B B' f g f' g' sq hf

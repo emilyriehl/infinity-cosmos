@@ -8,6 +8,19 @@ universe u
 open CategoryTheory Simplicial Limits Opposite MorphismProperty HomotopicalAlgebra
 open SSet.relativeCellComplexOfMono
 
+/-!
+# Single-cell presentation of monomorphisms of simplicial sets
+
+Every monomorphism of simplicial sets lies in the weak saturation of the boundary inclusions
+`∂Δ[n] ↪ Δ[n]`: any morphism class `W` stable under isomorphism, cobase change and transfinite
+composition that contains the boundary inclusions contains every monomorphism
+(`monomorphisms_le_of_boundary_singleCell`), with no coproduct-closure hypothesis. The proof
+filters each skeletal step by the within-dimension filtration `psi`, exhibiting it as a
+transfinite composition of single boundary-cell pushouts (`skeletonStep_mem`,
+`mono_mem_of_skeletonStep`). This is the saturation bookkeeping under the Joyal pushout-product.
+Reference: Kerodon 0077 (Proposition 1.5.5.14) and the skeletal filtration of Kerodon §1.5.3–1.5.4.
+-/
+
 namespace SSet.singleCell
 
 
@@ -302,7 +315,7 @@ lemma skeletonStep_mem_aux : W (relativeCellComplexOfMono.r i d) :=
 
 end
 
-/-- RESIDUAL CLOSED: each skeleton step lies in `W`. -/
+/-- Each skeleton step `relativeCellComplexOfMono.r i d` lies in `W`. -/
 theorem skeletonStep_mem {X Y : SSet.{u}} (i : X ⟶ Y) [Mono i]
     (W : MorphismProperty SSet.{u}) [W.RespectsIso] [W.IsStableUnderCobaseChange]
     [IsStableUnderTransfiniteComposition.{u} W]
@@ -320,7 +333,7 @@ theorem skeletonStep_mem {X Y : SSet.{u}} (i : X ⟶ Y) [Mono i]
   obtain ⟨rank⟩ := (Cardinal.le_def _ _).mp hcard
   exact skeletonStep_mem_aux i d rank W hbd
 
-/-- TIER 2 (verified earlier): each skeleton step in `W` ⟹ the mono in `W`. -/
+/-- If every skeleton step of a monomorphism `i` lies in `W`, then so does `i`. -/
 theorem mono_mem_of_skeletonStep {X Y : SSet.{u}} (i : X ⟶ Y) [Mono i]
     (W : MorphismProperty SSet.{u}) [IsStableUnderTransfiniteComposition.{u} W]
     (stepMem : ∀ d, W (relativeCellComplexOfMono.r i d)) : W i := by

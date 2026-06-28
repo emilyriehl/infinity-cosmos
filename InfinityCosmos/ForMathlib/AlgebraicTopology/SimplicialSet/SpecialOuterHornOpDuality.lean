@@ -10,7 +10,8 @@ Route B reduces `fill_zero` for `A` to `fill_last` for `A.op`: the `i = 0` outer
 `Λ[n+2,0] → A` corresponds under vertex-reversal to the `i = last` outer horn
 `Λ[n+2,last] → A.op` (`(0 : Fin (n+3)).rev = Fin.last (n+2)`), avoiding the join entirely.
 
-Pieces built here (all `lake env lean` clean, axioms `[propext, Classical.choice, Quot.sound]`):
+Op-duality of quasicategories is Kerodon §1.4.2 (tag 003L); `quasicategory_op` also fills the
+`Quasicategory A.op` TODO in mathlib's `Op.lean`. Pieces built here:
 
 * `hornOpIso` / `hornOpIso_hom_ι` — the horn-op arrow-iso: `opFunctor` carries the inner/outer
   horn inclusion `Λ[n+2,i].ι` to `Λ[n+2, i.rev].ι` (up to `stdSimplex.opIso`).
@@ -69,7 +70,8 @@ end HornOpIso
 
 /-! ## `Quasicategory A.op` (#1) -/
 
-/-- The opposite of a quasicategory is a quasicategory. -/
+/-- The opposite of a quasicategory is a quasicategory (Kerodon §1.4.2 / 003L; fills the
+`Quasicategory A.op` TODO in mathlib's `Op.lean`). -/
 instance quasicategory_op (A : SSet) [Quasicategory A] : Quasicategory A.op where
   hornFilling' n i σ₀ h0 hn := by
     have h0' : 0 < i.rev := by

@@ -1,35 +1,20 @@
-/-
-sati_final.lean — satI for infinity-cosmos #117 (second-variable saturation), consolidated.
-
-`satI : leftAnodyneExtensions ≤ leibImgR j` for a mono `j`, consumed by
-`joyal_leftAnodyne_join_mono` → LeftFibration.lean:114 → CoherentIso.lean:201.
-
-ROUTE 2 (second-slot saturation).  VERIFIED AXIOM-CLEAN here (lake env lean + #print axioms,
-all `[propext, Classical.choice, Quot.sound]`, no `sorryAx`):
-
-  * Small-object argument for `leftHornInclusions` (IsSmall / IsCardinalForSmallObjectArgument /
-    HasSmallObjectArgument) — gives `leftAnodyne = retracts(transfiniteComps(pushouts(coproducts(
-    left horns))))`.
-  * `cornerIso`                              : repo `leibnizJoin j i` ≅ mathlib generic corner
-    `(joinFunctor.leibnizPushout.obj (Arrow.mk j)).obj (Arrow.mk i)`.
-  * `leibImgR_isStableUnderRetracts`         : INSTANCE (via leibnizPushout functoriality).
-  * `leibImgR_cobase`                        : INSTANCE  IsStableUnderCobaseChange (port of the
-    first-slot `leibImgL_cobase` to tensorLeft).
-  * `leftHorn_mem_leibImgR_of_satJ`          : generators, from satJ.
-  * `satI_of_two_instances`, `satI`          : satI from satJ + the TWO remaining instances.
-  * `joyal_leftAnodyne_join_mono_of_satI`    : cascade consumer.
-
-  REMAINING (the two heavy second-slot instances, scoped, NOT closed here):
-   * `(leibImgR j).IsStableUnderTransfiniteComposition` — mechanical port of twoc_final.lean
-     (first-slot, ~800 lines) to tensorLeft (`joinFunctor_obj_preservesConnectedColimits_of_tensorLeft`),
-     with the slot-1↔slot-2 leg-order swap demonstrated in `leibImgR_cobase`.
-   * `IsStableUnderCoproducts (leibImgR j)` — no first-slot template (satJ eliminated coproducts
-     via a single-cell mono presentation, unavailable for left-anodyne); needs the star-graph /
-     wide-pushout repair + a second-slot unit law `K ⋆ ⊥ ≅ K` (only `⊥ ⋆ K ≅ K` is committed).
--/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeftFibration
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Join
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.PullbackObjObj
+
+/-!
+# Leibniz-join saturation interface (fixed monomorphism, varying left-anodyne slot)
+
+Sets up the second-slot saturation argument behind the Joyal pushout-product. For a
+monomorphism `j`, `leibImgR j` collects the maps `i` whose Leibniz join `leibnizJoin j i` is
+inner-anodyne; `cornerIso` identifies that join with mathlib's generic Leibniz pushout, giving
+stability under retracts (`leibImgR_isStableUnderRetracts`) and cobase change (`leibImgR_cobase`).
+`satI_of_instances` reduces `leftAnodyneExtensions ≤ leibImgR j` to the two remaining stability
+facts (coproducts, transfinite composition) plus the generators from `satJ`, using the
+small-object presentation of the left-anodyne maps. Inner-anodyne maps form the weak saturation
+of the inner horns (Kerodon 01BM, §4.1.3); the pushout-product itself is Kerodon 018J
+(Proposition 4.3.6.4, Joyal).
+-/
 
 open CategoryTheory Simplicial Limits MorphismProperty SmallObject
 

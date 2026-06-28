@@ -1,22 +1,21 @@
-/-
-The coslice relative projection is a left fibration, and the Theta-layer.
-
-Wires the Joyal Leibniz-join closure (`joyal_leftAnodyne_join_mono`, M7) through the
-coslice projection to show:
-  * `leftFibration_isofibration_target` (the target-lift transport, from
-    `FibrationConservative`);
-  * `joyal_discharge` + `leftFibrations_cosliceProj` instantiated, giving
-    `quasicategory_cosliceUnder` (the coslice of a quasicategory is a quasicategory)
-    and the fiber-product object `fiberProductE`;
-  * the absolute coslice projection `cosliceAbsProj` and the relative projection
-    `thetaMap`, with `leftFibration_thetaMap` and `thetaMap_conservative`.
--/
-
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.FibrationConservative
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CosliceUnder
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.JoyalLeftAnodyneJoinMono
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeibnizJoinCore
 import Mathlib.CategoryTheory.Limits.Shapes.Pullback.Iso
+
+/-!
+# The coslice projection is a left fibration, and the conservative θ-layer
+
+Feeds the Joyal pushout-product (`joyal_leftAnodyne_join_mono`) through the coslice projection to
+obtain the structural facts behind the `i = last` special-outer-horn filler. Shows the coslice
+projection is a left fibration (`leftFibration_cosliceProj`) and that the coslice of a
+quasicategory is again a quasicategory (`quasicategory_cosliceUnder`), Kerodon 018F (Proposition
+4.3.6.1); records that a left fibration of quasicategories is an isofibration on its base
+(`leftFibration_isofibration_target`, Kerodon Example 4.4.1.11, tag 01ER); and builds the relative
+projection `thetaMap` with its left-fibration and conservativity facts (`leftFibration_thetaMap`,
+`thetaMap_conservative`). Conservativity rests on the iso-edge 2-out-of-3 of Kerodon §4.4.2 (019C).
+-/
 
 section
 open CategoryTheory Simplicial
@@ -53,8 +52,10 @@ namespace SSet
 universe u
 noncomputable section
 
-/-! ## Discharge the `joyal` hypothesis (satiasm Joyal + corner iso) -/
+/-! ## Discharge the `joyal` hypothesis (Joyal pushout-product + corner iso) -/
 
+/-- The Joyal pushout-product hypothesis required by `leftFibrations_cosliceProj`, supplied for a
+monomorphism `jST` from `joyal_leftAnodyne_join_mono` and the corner isomorphism. -/
 theorem joyal_discharge {S T : SSet.{u}} (jST : S ⟶ T) (hjST : Mono jST) :
     ∀ ⦃A B : SSet.{u}⦄ (g : A ⟶ B), leftAnodyneExtensions g →
         innerAnodyneExtensions (sqLeibCo jST g).ι := by
@@ -64,6 +65,8 @@ theorem joyal_discharge {S T : SSet.{u}} (jST : S ⟶ T) (hjST : Mono jST) :
 
 /-! ## `cosliceProj` is unconditionally a LEFT (hence inner) fibration -/
 
+/-- For a monomorphism `jST` and an inner fibration `p`, the coslice projection
+`cosliceProj jST σ p` is a left fibration (Kerodon 018F, Proposition 4.3.6.1). -/
 instance leftFibration_cosliceProj {S T X Y : SSet.{u}} (jST : S ⟶ T) [hj : Mono jST]
     (σ : T ⟶ X) (p : X ⟶ Y) [InnerFibration p] :
     LeftFibration (cosliceProj jST σ p) :=
@@ -185,6 +188,7 @@ def cosliceUnderBotIso {C : SSet.{u}} (h : (⊥_ SSet.{u}) ⟶ C) : cosliceUnder
 instance innerFibration_of_isIso {X Y : SSet.{u}} (f : X ⟶ Y) [IsIso f] : InnerFibration f :=
   ⟨MorphismProperty.of_isIso innerFibrations f⟩
 
+/-- The coslice of a quasicategory under a simplex is a quasicategory (Kerodon 018F). -/
 instance quasicategory_cosliceUnder {T C : SSet.{u}} (σ : T ⟶ C) [Quasicategory C] :
     Quasicategory (cosliceUnder σ) := by
   set q0 : C ⟶ (Δ[0] : SSet.{u}) := stdSimplex.isTerminalObj₀.from C with hq0def
@@ -265,6 +269,7 @@ def thetaMap {S T C D : SSet.{u}} (jST : S ⟶ T) (σ : T ⟶ C) (q : C ⟶ D) :
     fiberProductE jST σ q ⟶ C :=
   pullback.fst _ _ ≫ cosliceAbsProj (jST ≫ σ)
 
+/-- The relative coslice projection `θ` is a left fibration. -/
 instance leftFibration_thetaMap {S T C D : SSet.{u}} (jST : S ⟶ T) [Mono jST]
     (σ : T ⟶ C) (q : C ⟶ D) [Quasicategory C] [Quasicategory D] [InnerFibration q] :
     LeftFibration (thetaMap jST σ q) := by

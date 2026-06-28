@@ -1,19 +1,18 @@
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.FibrationConservative
 import Mathlib.AlgebraicTopology.SimplicialSet.Horn
 /-!
-# LeftFibration.lean:114 — scope + partial assembly for #117
+# Terminal-base reduction for the last outer-horn lifting
 
-`leftFibration_rlp_rightHorn_of_isTerminal`: a left fibration over a terminal object lifts the
-right-most (last) outer horn `Λ[n+1, last].ι` (Kerodon 019D).
-
-This file isolates the EXACT residual obstruction. Everything except the special-outer-horn
-filling (Kerodon 019F, the `fill_last` producer) is discharged here from the proven inputs:
-  * `quasicategory_iff_of_isTerminal` (in-tree),
-  * `leftFibration_conservative` (in-tree, FibrationConservative.lean),
-  * terminal-base subsingleton.
-The sole hypothesis `hfill` is the 019F last-outer-horn filler, which is NOT among the proven
-inputs (it is still `sorry` in `sj_joyal_assemble`/`wrap_1` and is the same gap blocking
-`CoherentIso.lean:201`). Its invertible-final-edge SIDE-CONDITION is shown to be free.
+Reduces the right lifting property of a left fibration over a terminal object against the last
+outer horn `Λ[n+1, last].ι` to the special-outer-horn filler. Everything except the filler itself
+is discharged here from the proven inputs: quasicategoricity of the source
+(`quasicategory_of_leftFibration_isTerminal`, via the in-tree `quasicategory_iff_of_isTerminal`),
+the lifting reduction `rlp_rightHorn_of_isTerminal_of_fill`, the invertible-final-edge
+side-condition (free over a terminal base, by conservativity `leftFibration_conservative`), and
+the dimension-1 base case `fill_lastHorn_dim1`. The packaged
+`leftFibration_rlp_rightHorn_of_isTerminal_of_fillLast` takes the `i = last` filler as the
+hypothesis `hfill`; that filler is `SpecialOuterHorn.fill_last` (Kerodon 019F), supplied in
+`Brown117Close`.
 -/
 open CategoryTheory Simplicial Opposite Finset Limits MorphismProperty
 universe u
@@ -61,7 +60,7 @@ theorem isIsoSimplex_of_leftFibration_isTerminal {X Y : SSet.{u}} (p : X ⟶ Y)
 
 /-! ## The 019F gap and the dim-1 base case. -/
 
-/-- Final edge `[n+1, n+2]` of `Λ[n+2, last]` (verbatim from `sj_joyal_assemble`). -/
+/-- Final edge `[n+1, n+2]` of `Λ[n+2, last]`. -/
 def finalEdge {n : ℕ} : (Λ[n + 2, (Fin.last (n + 2))] : SSet.{u}) _⦋1⦌ :=
   horn.edge (n + 2) (Fin.last (n + 2)) ⟨n + 1, by omega⟩ (Fin.last (n + 2))
     (by simp [Fin.le_def]) (by

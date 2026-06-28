@@ -1,26 +1,3 @@
-/-
-cop2_final.lean — infinity-cosmos #117, second slot.  COMPLETE.
-
-PIECE 1: the RIGHT unit law `K ⋆ ⊥ ≅ K` (dual of the committed `joinBotIso`) — `joinBotIso'`.
-PIECE 2: `IsStableUnderCoproducts (leibImgR j)` — satI's 4th/final instance — fully proven
-  (`leibImgR_coproducts`).  Architecture:
-    * reduction `leibImgR_coproducts_of_cobaseSquare`: instance ⇐ one per-family cobase square;
-    * cornerstone `coproductIsWidePushoutOverInitial`: coproduct = wide pushout over ⊥;
-    * transport `join_coproduct_isWidePushout`: `(T ⋆ -)` preserves it (connected-colimit);
-    * `CubeLemma.widePushout_universal_of_isColimit` / `isPushout_fold_of_universal`: package a
-      wide-pushout colimit as a fold-form `IsPushout`;
-    * the general CUBE LEMMA `CubeLemma.isPushout_cobase_of_widePushout`: a wide pushout of arrows
-      over an ISO-center arrow is the cobase change of the coproduct of the leaves;
-    * codomain corner `joinCoproduct_fold` (`hC`), leg-map `cornerLeg`/`cornerMap` + naturality
-      `cornerLeg_naturality`/`cornerMap_naturality` (`hnat`), and the domain corner's universal
-      property `domCorner_huniv` (assembled from the three sub-corner wide pushouts `T⋆∐A`,
-      `S⋆∐A`, `S⋆∐B` glued through `P`'s binary pushout) → `domCorner_fold` (`hD`);
-    * `leibImgR_coproducts` instantiates the cube lemma and feeds the resulting square to the
-      reduction.
-
-All declarations below: `lake env lean` exit 0 and `#print axioms` =
-`[propext, Classical.choice, Quot.sound]` (no `sorryAx`).
--/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeftFibration
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Join
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Slice
@@ -29,6 +6,19 @@ import Mathlib.CategoryTheory.Limits.Shapes.WidePullbacks
 import Mathlib.CategoryTheory.Limits.Shapes.Products
 import Mathlib.CategoryTheory.Limits.Shapes.Terminal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeibnizJoinCore
+
+/-!
+# Leibniz-join saturation: stability under coproducts (right slot)
+
+Proves `leibImgR_coproducts`, the coproduct-stability instance for a fixed monomorphism `j` and
+the last of the four second-slot saturation facts feeding the Joyal pushout-product. A coproduct
+is a wide pushout over the initial object, the join functor preserves it as a connected colimit,
+and the reusable cube lemma `isPushout_cobase_of_widePushout` repackages a wide pushout of arrows
+over an isomorphism centre as the cobase change of the coproduct of the leaves, reducing the
+instance to a single per-family cobase square (`leibImgR_coproducts_of_cobaseSquare`). Also proves
+the right unit law `joinBotIso' : K ⋆ ⊥ ≅ K`. Part of the Joyal pushout-product, Kerodon 018J
+(Proposition 4.3.6.4, Joyal).
+-/
 
 open CategoryTheory Simplicial Limits MorphismProperty SmallObject
 open CategoryTheory.Limits.WidePushoutShape

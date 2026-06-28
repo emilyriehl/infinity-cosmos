@@ -1,15 +1,20 @@
-/-
-Final.lean — COMPLETE axiom-clean `satJ` for infinity-cosmos #117.
-
-Wires:  starr  ⟹  star  ⟹  joinInr_joinStdSimplex  ⟹  H1z
-        ⟹  baseZero_of_H1  ⟹  satJ (= satJ_of_baseZero … (baseZero_of_H1 … (H1z …))).
--/
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeibnizJoinTelescopeLeft
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.RelativeCellSingleCell
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.JoyalSpecialOuterHorn
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Slice
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.LeftFibration
 import Mathlib.AlgebraicTopology.SimplicialSet.Boundary
+
+/-!
+# The Joyal pushout-product: the generator base case `satJ`
+
+Proves `satJ`, the generator base case of the Joyal pushout-product: for an inner horn
+`Λ[M+1, k]` (`k < last`), every monomorphism `j` has `leibnizJoin j (Λ[M+1,k].ι)` inner-anodyne.
+The argument passes through the Day-convolution unit coherence (`starr`, `star`), identifies the
+relevant join with a boundary-cell inclusion (`H1z`), and reduces to the single-cell presentation
+of monomorphisms (`baseZero_of_H1`, `satJ_of_baseZero`). These generators feed `satI` and hence
+the full pushout-product, Kerodon 018J (Proposition 4.3.6.4, Joyal).
+-/
 
 open CategoryTheory Simplicial Opposite Limits MorphismProperty
 open CategoryTheory.MonoidalCategory
@@ -85,6 +90,8 @@ instance subsingleton_ucoy_at_star (X : AC) :
 
 /-! ### THE coherence `starr` (Day-convolution left-unitor / join-unit coherence). -/
 
+/-- A unit-coherence identity for the augmented-Day-convolution presentation of the join
+`Δ[a] ⋆ Δ[b]` (the `ucoy`-tensor form). -/
 theorem starr (a b : ℕ) :
     ((λ_ (augmentedDay.obj (Δ[b] : SSet.{u}))).inv
         ≫ (augmentedDayUnitTo (Δ[a] : SSet.{u})) ▷ (augmentedDay.obj (Δ[b] : SSet.{u})))
@@ -232,6 +239,7 @@ instance boundaryZero_join_isIso (M : ℕ) :
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
+/-- The same unit coherence in `joinMiddleIso` form, used to compute `joinInr_joinStdSimplex`. -/
 theorem star (a b : ℕ) :
     ((λ_ (augmentedDay.obj (Δ[b] : SSet.{u}))).inv
         ≫ (augmentedDayUnitTo (Δ[a] : SSet.{u})) ▷ (augmentedDay.obj (Δ[b] : SSet.{u})))
@@ -259,6 +267,8 @@ theorem joinInr_joinStdSimplex (a b : ℕ) :
     exact (restrictAugmentedDay.map_comp _ _).symm
   rw [hlhs, star]; rfl
 
+/-- The boundary-cell join `∂Δ[0] ⋆ Δ[M+1]`, transported by `joinStdSimplex`, has image the
+union of the front-vertex faces — the face decomposition feeding `baseZero_of_H1`. -/
 theorem H1z (M : ℕ) :
     (Subcomplex.range (joinMap (∂Δ[0] : (Δ[0] : SSet.{u}).Subcomplex).ι
           (𝟙 (Δ[M + 1] : SSet.{u})))).image (joinStdSimplex.{u} 0 (M + 1)).hom =
@@ -279,6 +289,8 @@ theorem H1z (M : ℕ) :
 
 /-! ### n=0 boundary generator. -/
 
+/-- The dimension-zero base case of `satJ`: given the face decomposition `H1z`, the boundary-cell
+join `leibnizJoin (∂Δ[0] ↪ Δ[0]) (𝟙 Δ[M+1])` is inner-anodyne. -/
 theorem baseZero_of_H1 (M : ℕ) (k : Fin (M + 1 + 1)) (hk : k < Fin.last (M + 1))
     (H1₀ : (Subcomplex.range (joinMap (∂Δ[0] : (Δ[0] : SSet.{u}).Subcomplex).ι
               (𝟙 (Δ[M + 1] : SSet.{u})))).image (joinStdSimplex.{u} 0 (M + 1)).hom =
@@ -316,6 +328,8 @@ theorem baseZero_of_H1 (M : ℕ) (k : Fin (M + 1 + 1)) (hk : k < Fin.last (M + 1
 
 /-! ### satJ wiring (the four weak-saturation hypotheses discharged from Deps/SingleCell). -/
 
+/-- Given the dimension-zero base case, every monomorphism lies in `leibImgL (Λ[M+1,k].ι)`, via
+the single-cell presentation of monomorphisms. -/
 theorem satJ_of_baseZero (M : ℕ) (k : Fin (M + 1 + 1)) (hk : k < Fin.last (M + 1))
     (h0 : leibImgL (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι
             (∂Δ[0] : (Δ[0] : SSet.{u}).Subcomplex).ι) :
@@ -331,8 +345,11 @@ theorem satJ_of_baseZero (M : ℕ) (k : Fin (M + 1 + 1)) (hk : k < Fin.last (M +
   | zero => exact h0
   | succ P => exact genCell_innerAnodyne P M k hk
 
-/-! ### THE COMPLETE `satJ`. -/
+/-! ### The generator base case `satJ`. -/
 
+/-- The generator base case of the Joyal pushout-product (Kerodon 018J, Proposition 4.3.6.4): for
+an inner horn `Λ[M+1, k]` (`k < last`), every monomorphism `j` has `leibnizJoin j (Λ[M+1,k].ι)`
+inner-anodyne. -/
 theorem satJ (M : ℕ) (k : Fin (M + 1 + 1)) (hk : k < Fin.last (M + 1)) :
     monomorphisms SSet.{u} ≤
       leibImgL (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι :=

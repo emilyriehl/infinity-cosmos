@@ -5,7 +5,15 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Join
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.JoyalSpecialOuterHorn
 
 /-!
-# Outer (i = last) special-horn arrow-iso decomposition (mirror of i = 0)
+# Outer (`i = last`) horn as a Leibniz join — the geometric heart of Layer C
+
+Identifies the last outer-horn inclusion with a generating Leibniz join:
+`outerHornLast_iso_leibnizJoin` exhibits `Λ[n+2, last].ι` as the join
+`(∂Δ[n] ↪ Δ[n]) ⋆̂ ({0}ᶜ ↪ Δ[1])`. This arrow-isomorphism is what transports the coslice Leibniz
+filler (Kerodon 01H0) to the special-outer-horn filler `SpecialOuterHorn.fill_last` (Kerodon
+019F). The membership criterion `mem_outerHorn_last_iff` decomposes the horn by its two
+ordinal-sum vertex blocks. A standard join-of-simplices computation (Kerodon §4.3.2, as used in
+the proof of 018J).
 -/
 
 open CategoryTheory Simplicial Opposite Limits MorphismProperty
@@ -183,8 +191,8 @@ lemma joinRightVertex_last (M : ℕ) :
   apply Fin.ext
   simp [joinRightVertex_val, Fin.val_last]
 
-/-- Outer (i = last) horn arrow-iso in the prompt's orientation:
-`Λ[n+2, last].ι ≅ (∂Δ[n] ↪ Δ[n]) ⋆̂ ({last} ↪ Δ[1])`, for `n = M+1`. -/
+/-- The geometric heart of Layer C: the outer (`i = last`) horn inclusion is the generating
+Leibniz join `Λ[n+2, last].ι ≅ (∂Δ[n] ↪ Δ[n]) ⋆̂ ({0}ᶜ ↪ Δ[1])` (here `n = M+1`). -/
 noncomputable def outerHornLast_iso_leibnizJoin (M : ℕ) :
     Arrow.mk (Λ[(M + 1) + 1 + 1, joinRightVertex (M + 1) 1 1].ι) ≅
       Arrow.mk (leibnizJoin
