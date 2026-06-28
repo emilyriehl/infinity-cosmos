@@ -88,12 +88,6 @@ lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : ⦋n⦌ ⟶ ⦋m⦌)
   rw [this, map_yonedaEquiv, yonedaEquiv_comp, Equiv.apply_symm_apply yonedaEquiv _,
     SSet.yonedaEquiv_map]
 
-/-- `yonedaEquiv` is natural. -/
-lemma yonedaEquiv_naturality
-  {X : SSet} {m n : SimplexCategory} (f : m ⟶ n) (g : stdSimplex.obj n ⟶ X)
-  : X.map f.op (yonedaEquiv g) = yonedaEquiv (stdSimplex.map f ≫ g)
-  := uliftYonedaEquiv_naturality _ _
-
 /-- `yonedaEquiv.symm` is natural -/
 lemma yonedaEquiv_symm_naturality
   {X : SSet} {m n : SimplexCategory} (f : m ⟶ n) (g : X.obj (Opposite.op n))
