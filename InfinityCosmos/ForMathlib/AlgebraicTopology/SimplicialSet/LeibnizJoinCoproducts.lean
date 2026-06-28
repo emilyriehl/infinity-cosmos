@@ -54,11 +54,11 @@ theorem widePushout_universal_of_isColimit
     intro j
     cases j with
     | none =>
-      rw [hr]
-      exact (hc.fac (WidePushoutShape.mkCocone w u (fun a => hw a)) Option.none).symm
+      exact hr.trans
+        (hc.fac (WidePushoutShape.mkCocone w u (fun a => hw a)) Option.none).symm
     | some a =>
-      rw [hl a]
-      exact (hc.fac (WidePushoutShape.mkCocone w u (fun a => hw a)) (Option.some a)).symm
+      exact (hl a).trans
+        (hc.fac (WidePushoutShape.mkCocone w u (fun a => hw a)) (Option.some a)).symm
 
 /-- **Fold-form pushout from the wide-pushout universal property** (no `WidePushoutShape`):
 `Sigma.desc ℓ` is the cobase change of `Sigma.desc (𝟙 Xc)` along `Sigma.map dx`. -/

@@ -149,7 +149,7 @@ lemma simplex_notMem_psi (γ : J) (c : Cell i d) (hc : ¬ rank c < γ) :
   rw [psi, Subfunctor.max_obj, Set.mem_union, not_or]
   refine ⟨?_, ?_⟩
   · rw [c.mem_skeletonOfMono_obj_iff]
-    push_neg
+    push Not
     exact ⟨c.notMem, by simp⟩
   · simp only [Subfunctor.iSup_obj, Set.mem_iUnion, not_exists]
     intro c' hlt hmem

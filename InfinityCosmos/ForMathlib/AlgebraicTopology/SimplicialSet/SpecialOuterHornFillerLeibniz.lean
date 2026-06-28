@@ -378,7 +378,7 @@ theorem cosliceHomEquiv_botIso {C : SSet.{u}} (h : (⊥_ SSet.{u}) ⟶ C) {Y : S
   intro z
   show (cosliceUnderBotIso h).hom.app n ((cosliceHomEquiv h Y Z).app n z)
     = (joinInr (⊥_ SSet.{u}) Y ≫ Z.1).app n z
-  simp only [cosliceUnderBotIso, NatIso.ofComponents_hom_app, Equiv.toIso_hom]
+  simp only [cosliceUnderBotIso, NatIso.ofComponents_hom_app, Equiv.toIso_hom_hom_apply]
   show yonedaEquiv (joinInr (⊥_ SSet.{u}) (stdSimplex.obj n.unop)
       ≫ ((cosliceHomEquiv h Y Z).app n z).1) = _
   rw [cosliceHomEquiv_app_coe]

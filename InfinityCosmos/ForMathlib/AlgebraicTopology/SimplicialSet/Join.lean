@@ -1560,7 +1560,7 @@ theorem fact_split {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌)
       rw [hjeq, inr'_tensorHomOf_apply]
       simp only [SimplexCategory.mkHom, SimplexCategory.Hom.toOrderHom_mk, OrderHom.coe_mk]
       have hge : a + 1 ≤ (φ.toOrderHom j : Fin (a+b+2)).val := by
-        by_contra hlt; push_neg at hlt
+        by_contra hlt; push Not at hlt
         exact hjlt ((hcut j).1 hlt)
       have hje : (⟨i + (j.val - i), by have := j.isLt; omega⟩ : Fin (n+1)) = j := by
         apply Fin.ext; simp only; omega
@@ -1686,7 +1686,7 @@ theorem cutOf_left {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌) 
   have hlt : ((φ.toOrderHom j : Fin (a+b+2)) : ℕ) < a + 1 := by
     subst hψ; rw [SimplexCategory.comp_toOrderHom]
     simp only [OrderHom.comp_coe, Function.comp_apply]; rw [inl'_eval]
-    simp only [Fin.cast, Fin.coe_castAdd]; exact (ψ.toOrderHom j).isLt
+    simp only [Fin.cast, Fin.val_castAdd]; exact (ψ.toOrderHom j).isLt
   exact ⟨fun _ => j.isLt, fun _ => hlt⟩
 
 theorem cutOf_right {n a b : ℕ} (φ : ⦋n⦌ ⟶ tensorObjOf ⦋a⦌ ⦋b⦌) (ψ : ⦋n⦌ ⟶ ⦋b⦌)
@@ -1950,20 +1950,20 @@ lemma clsOO_naturality {n a0 b0 a0' b0' : ℕ} (φ' : ⦋n⦌ ⟶ tensorObjOf �
       rw [hψ, Category.assoc, inl'_comp_tensorHomOf, ← Category.assoc]
     rw [clsOO_left φ' ψ hψ (X.map gA.op x) (Y.map gB.op y),
         clsOO_left (φ' ≫ tensorHomOf gA gB) (ψ ≫ gA) hfac x y]
-    simp only [op_comp, FunctorToTypes.map_comp_apply]
+    simp only [op_comp, Functor.map_comp_apply]
   · -- all-right
     have hfac : φ' ≫ tensorHomOf gA gB = (ψ ≫ gB) ≫ inr' ⦋a0⦌ ⦋b0⦌ := by
       rw [hψ, Category.assoc, inr'_comp_tensorHomOf, ← Category.assoc]
     rw [clsOO_right φ' ψ hψ (X.map gA.op x) (Y.map gB.op y),
         clsOO_right (φ' ≫ tensorHomOf gA gB) (ψ ≫ gB) hfac x y]
-    simp only [op_comp, FunctorToTypes.map_comp_apply]
+    simp only [op_comp, Functor.map_comp_apply]
   · -- split
     subst hpq
     have hsimp : φ' = tensorHomOf ψL ψR := by
       rw [hψ]; simp only [eqToHom_refl, Category.id_comp]
     rw [hsimp, clsOO_split ψL ψR (X.map gA.op x) (Y.map gB.op y),
         tensorHomOf_comp ψL gA ψR gB, clsOO_split (ψL ≫ gA) (ψR ≫ gB) x y]
-    simp only [op_comp, FunctorToTypes.map_comp_apply]
+    simp only [op_comp, Functor.map_comp_apply]
 
 end SSet.JoinDecomp
 
@@ -2043,7 +2043,7 @@ noncomputable def joinCoconeTypes (X Y : SSet.{u}) (n : ℕ) :
                 (WithInitial.down φ'.unop ≫ WithInitial.down f.left.1.unop) h3 a b]
             congr 1
             rw [op_comp]
-            exact (FunctorToTypes.map_comp_apply X
+            exact (Functor.map_comp_apply X
               (WithInitial.down f.left.1.unop).op (WithInitial.down φ'.unop).op a).symm
         | star => cases Bu' with
           | of B0' =>
@@ -2073,7 +2073,7 @@ noncomputable def joinCoconeTypes (X Y : SSet.{u}) (n : ℕ) :
                 (WithInitial.down φ'.unop ≫ WithInitial.down f.left.2.unop) h3 a b]
             congr 2
             rw [op_comp]
-            exact (FunctorToTypes.map_comp_apply Y
+            exact (Functor.map_comp_apply Y
               (WithInitial.down f.left.2.unop).op (WithInitial.down φ'.unop).op b).symm
           | star => exact (WithInitial.false_of_to_star φ'.unop).elim
       | star => cases Au' with
@@ -2087,7 +2087,7 @@ noncomputable def joinCoconeTypes (X Y : SSet.{u}) (n : ℕ) :
             have h3 : WithInitial.down φ.unop
                 = WithInitial.down φ'.unop ≫ WithInitial.down f.left.1.unop := by
               rw [← congrArg (fun m => WithInitial.down (Quiver.Hom.unop m)) hw]; rfl
-            rw [h3]; simp only [op_comp, FunctorToTypes.map_comp_apply]
+            rw [h3]; simp only [op_comp, Functor.map_comp_apply]
         | star => cases Bu' with
           | of B0' => exact (WithInitial.false_of_to_star f.left.2.unop).elim
           | star => exact (WithInitial.false_of_to_star φ'.unop).elim
@@ -2103,7 +2103,7 @@ noncomputable def joinCoconeTypes (X Y : SSet.{u}) (n : ℕ) :
             have h3 : WithInitial.down φ.unop
                 = WithInitial.down φ'.unop ≫ WithInitial.down f.left.2.unop := by
               rw [← congrArg (fun m => WithInitial.down (Quiver.Hom.unop m)) hw]; rfl
-            rw [h3]; simp only [op_comp, FunctorToTypes.map_comp_apply]
+            rw [h3]; simp only [op_comp, Functor.map_comp_apply]
           | star => exact (WithInitial.false_of_to_star φ'.unop).elim
       | star => exact (WithInitial.false_of_to_star φ.unop).elim
 
