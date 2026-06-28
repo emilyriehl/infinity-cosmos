@@ -10,6 +10,7 @@ import Mathlib.AlgebraicTopology.SimplicialSet.AnodyneExtensions.PushoutProduct
 import Mathlib.AlgebraicTopology.SimplicialSet.CategoryWithFibrations
 import Mathlib.CategoryTheory.MorphismProperty.LiftingProperty
 import Mathlib.CategoryTheory.Limits.Shapes.Products
+import Mathlib.CategoryTheory.Functor.OfSequence
 
 /-!
 # Trivial fibrations of simplicial sets
@@ -19,6 +20,19 @@ boundary inclusions. This file records that this class agrees with mathlib's gen
 cofibrations, is stable under pullback and Leibniz cotensor with monomorphisms, admits a
 section, and that a trivial fibration between quasi-categories is an equivalence of
 quasi-categories.
+
+It also records the stability of trivial fibrations under inverse limits of countable towers,
+in the form `TrivialFibration.of_isLimit_tower`: the projection from the limit of a tower of
+trivial fibrations is a trivial fibration. This is the inverse-limit analogue of closure under
+(countable) composition, and is the simplicial half of the tower case of stability of trivial
+fibrations under conical limits in an ∞-cosmos.
+
+Note that the levelwise form is *false*: a natural transformation `α : F ⟶ G` of towers all of
+whose components are trivial fibrations need not have `lim α` a trivial fibration, since inverse
+limits of towers do not preserve the right lifting property against monomorphisms (a
+Mittag-Leffler-type obstruction; concretely, an inverse limit of trivially-fibrant simplicial
+sets along arbitrary connecting maps can be empty). The hypothesis that the connecting maps
+themselves be trivial fibrations is what makes the tower projection a trivial fibration.
 -/
 
 universe u
@@ -410,6 +424,74 @@ lemma TrivialFibration.toQCatEquiv_exists {A B : QCat} {p : A ⟶ B}
     (hp : TrivialFibration p.hom) :
     ∃ e : @QCat.Equiv A.obj B.obj A.property B.property, e.toFun = p.hom :=
   ⟨hp.toQCatEquiv, rfl⟩
+
+section tower
+
+variable {C : Type*} [Category C]
+
+/-- One step of the inductive lift against the projection from a tower limit: given a cone `c`
+over a tower `F : ℕᵒᵖ ⥤ C`, a map `i` with the left lifting property against the `n`-th
+connecting map, and a partial lift `prev` of `i` to `F.obj (.op n)` over `c.π.app (.op n)`, this
+produces a lift to `F.obj (.op (n + 1))` over `c.π.app (.op (n + 1))`. -/
+private noncomputable def towerStep {F : ℕᵒᵖ ⥤ C} (c : Cone F) {A B : C} {i : A ⟶ B}
+    {u : A ⟶ c.pt} (n : ℕ)
+    (hlp : HasLiftingProperty i (F.map (homOfLE (Nat.le_succ n)).op))
+    (prev : { f : B ⟶ F.obj (.op n) // i ≫ f = u ≫ c.π.app (.op n) }) :
+    { f : B ⟶ F.obj (.op (n + 1)) // i ≫ f = u ≫ c.π.app (.op (n + 1)) } :=
+  haveI := hlp
+  let sq : CommSq (u ≫ c.π.app (.op (n + 1))) i (F.map (homOfLE (Nat.le_succ n)).op) prev.1 :=
+    ⟨by rw [Category.assoc, c.w (homOfLE (Nat.le_succ n)).op]; exact prev.2.symm⟩
+  ⟨sq.lift, sq.fac_left⟩
+
+/-- The step lift is compatible with the previous one through the connecting map of the tower. -/
+private lemma towerStep_comp {F : ℕᵒᵖ ⥤ C} (c : Cone F) {A B : C} {i : A ⟶ B}
+    {u : A ⟶ c.pt} (n : ℕ)
+    (hlp : HasLiftingProperty i (F.map (homOfLE (Nat.le_succ n)).op))
+    (prev : { f : B ⟶ F.obj (.op n) // i ≫ f = u ≫ c.π.app (.op n) }) :
+    (towerStep c n hlp prev).1 ≫ F.map (homOfLE (Nat.le_succ n)).op = prev.1 := by
+  haveI := hlp
+  exact CommSq.fac_right _
+
+/-- The inductively constructed family of partial lifts of `i` along the legs of the cone `c`.
+It is defined by `Nat.rec` so that the successor stage reduces definitionally to `towerStep`. -/
+private noncomputable def towerLift {F : ℕᵒᵖ ⥤ C} (c : Cone F) {A B : C} {i : A ⟶ B}
+    {u : A ⟶ c.pt} {w : B ⟶ F.obj (.op 0)} (h0 : i ≫ w = u ≫ c.π.app (.op 0))
+    (hlp : ∀ n : ℕ, HasLiftingProperty i (F.map (homOfLE (Nat.le_succ n)).op)) (n : ℕ) :
+    { f : B ⟶ F.obj (.op n) // i ≫ f = u ≫ c.π.app (.op n) } :=
+  n.rec ⟨w, h0⟩ (fun m prev => towerStep c m (hlp m) prev)
+
+/-- **Trivial fibrations of simplicial sets are stable under limits of countable towers.** If
+`F : ℕᵒᵖ ⥤ SSet` is a tower all of whose connecting maps
+`F.map (homOfLE (Nat.le_succ n)).op` are trivial fibrations, then the projection `c.π.app (.op 0)`
+from any limit cone `c` of `F` is a trivial fibration.
+
+The lift against a boundary inclusion `i` is built one stage at a time: the bottom of the square
+gives a lift to `F.obj (.op 0)`, and each connecting map (a trivial fibration) lets us lift it
+one step further up the tower; the resulting compatible family assembles, by the universal
+property of the limit, into a lift through `c.pt`. -/
+lemma TrivialFibration.of_isLimit_tower {F : ℕᵒᵖ ⥤ SSet.{u}} (c : Cone F) (hc : IsLimit c)
+    (hf : ∀ n : ℕ, TrivialFibration (F.map (homOfLE (Nat.le_succ n)).op)) :
+    TrivialFibration (c.π.app (.op 0)) := by
+  intro A B i hi
+  have hlp : ∀ n : ℕ, HasLiftingProperty i (F.map (homOfLE (Nat.le_succ n)).op) :=
+    fun n => hf n i hi
+  refine ⟨fun {u w} sq => ?_⟩
+  let aux := towerLift c sq.w.symm hlp
+  let d : Cone F :=
+    { pt := B
+      π := NatTrans.ofOpSequence (fun n => (aux n).1) (fun n => by
+        simp only [Functor.const_obj_map]
+        exact (towerStep_comp c n (hlp n) (aux n)).symm) }
+  obtain ⟨ℓ, hℓ⟩ :
+      ∃ ℓ : B ⟶ c.pt, ∀ n : ℕ, ℓ ≫ c.π.app (.op n) = (aux n).1 :=
+    ⟨hc.lift d, fun n => hc.fac d (.op n)⟩
+  refine CommSq.HasLift.mk' ⟨?_, ?_, ?_⟩
+  · exact ℓ
+  · exact hc.hom_ext fun ⟨n⟩ => (Category.assoc i ℓ (c.π.app (.op n))).trans
+      ((congrArg (fun t => i ≫ t) (hℓ n)).trans (aux n).2)
+  · exact hℓ 0
+
+end tower
 
 end trivialFibration
 

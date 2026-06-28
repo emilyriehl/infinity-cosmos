@@ -40,10 +40,13 @@ isofibration axioms it is an `InfinityCosmos.TrivialFibration`.
 
 ## Scope
 
-The product and pullback shapes are closed here. The countable-tower (inverse sequential limit)
-shape is *not* closed: the simplicial half is missing, as
-`InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.TrivialFibration` has no inverse-limit
-stability lemma for `SSet.TrivialFibration`. See the module's note for the precise missing lemma.
+All three limit shapes from the ∞-cosmos completeness axiom are closed: products
+(`trivialFibration_piMap`), pullbacks of isofibrations (`trivialFibration_snd_of_isPullback`), and
+countable towers of isofibrations (`trivialFibration_tower`). For the tower shape the statement is
+the inverse-limit analogue of closure under composition: the projection from the limit of a tower
+*of trivial fibrations* is a trivial fibration. The naive levelwise statement for a *map* of towers
+(every component a trivial fibration) is false, by a Mittag-Leffler-type obstruction; see the note
+in `InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.TrivialFibration`.
 -/
 
 universe w v u
@@ -51,6 +54,7 @@ universe w v u
 namespace CategoryTheory
 
 open Category Limits MonoidalCategory SimplicialCategory EnrichedOrdinaryCategory Enriched SSet
+open PreInfinityCosmos
 
 namespace InfinityCosmos
 
@@ -157,6 +161,48 @@ theorem trivialFibration_snd_of_isPullback {E B A P : K} (p : E ↠ B) (f : A �
     (hp : RepresentableTrivialFibration p.1) : TrivialFibration snd :=
   ⟨pullback_isIsofibration p f fst snd h,
     (representableTrivialFibration_of_isPullback h hp).equivalence⟩
+
+/-- **Representables preserve tower limits (issue #114, half (i)) at the level of trivial
+fibrations.** Let `F : ℕᵒᵖ ⥤ K` be a tower of isofibrations whose connecting maps are all
+representably trivial. The conical limit of `F` exists by the tower-limit axiom, and each
+representable `eCoyoneda SSet X` preserves it. The image tower `F ⋙ eCoyoneda SSet X` is therefore
+a tower of trivial fibrations of simplicial sets, so its limit projection — the representable of
+`limit.π F (.op 0)` — is a trivial fibration by `SSet.TrivialFibration.of_isLimit_tower`. -/
+theorem representableTrivialFibration_tower (F : ℕᵒᵖ ⥤ K)
+    (hfib : ∀ n : ℕ, IsIsofibration (F.map (homOfLE (Nat.le_succ n)).op))
+    (htriv : ∀ n : ℕ, RepresentableTrivialFibration (F.map (homOfLE (Nat.le_succ n)).op)) :
+    haveI := has_limits_of_towers F hfib
+    RepresentableTrivialFibration (limit.π F (.op 0)) := by
+  haveI := has_limits_of_towers F hfib
+  intro X
+  rw [representableMap_eq_eCoyoneda_map]
+  have hc : IsLimit ((eCoyoneda SSet X).mapCone (limit.cone F)) :=
+    isLimitOfPreserves (eCoyoneda SSet X) (limit.isLimit F)
+  have hf : ∀ n : ℕ,
+      SSet.TrivialFibration ((F ⋙ eCoyoneda SSet X).map (homOfLE (Nat.le_succ n)).op) := by
+    intro n
+    have h := htriv n X
+    rw [representableMap_eq_eCoyoneda_map] at h
+    exact h
+  exact SSet.TrivialFibration.of_isLimit_tower _ hc hf
+
+/-- **Trivial fibrations in an ∞-cosmos are stable under limits of countable towers (issue
+#114).** Given a tower `F : ℕᵒᵖ ⥤ K` of isofibrations that are representably trivial, the
+projection `limit.π F (.op 0)` from its conical limit is an `InfinityCosmos.TrivialFibration`: it
+is an isofibration by the tower-limit axiom, and an equivalence because it is representably
+trivial.
+
+This is the inverse-limit analogue of closure under composition. Note that the levelwise statement
+for a *map* of towers is false; see the note in
+`InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.TrivialFibration`. -/
+theorem trivialFibration_tower (F : ℕᵒᵖ ⥤ K)
+    (hfib : ∀ n : ℕ, IsIsofibration (F.map (homOfLE (Nat.le_succ n)).op))
+    (htriv : ∀ n : ℕ, RepresentableTrivialFibration (F.map (homOfLE (Nat.le_succ n)).op)) :
+    haveI := has_limits_of_towers F hfib
+    TrivialFibration (limit.π F (.op 0)) :=
+  haveI := has_limits_of_towers F hfib
+  ⟨has_limits_of_towers_isIsofibration F hfib,
+    (representableTrivialFibration_tower F hfib htriv).equivalence⟩
 
 end InfinityCosmos
 
