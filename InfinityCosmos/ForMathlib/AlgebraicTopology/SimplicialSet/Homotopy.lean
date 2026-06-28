@@ -5,7 +5,7 @@ Authors: Johns Hopkins Category Theory Seminar
 -/
 
 import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Brown117Close
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIsoLiftClose
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Monoidal.Closed.Cartesian
 import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal

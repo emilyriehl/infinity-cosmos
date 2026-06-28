@@ -7,17 +7,18 @@ import Mathlib.AlgebraicTopology.SimplicialSet.Horn
 /-!
 # The `i = last` special-outer-horn filler `SpecialOuterHorn.fill_last`
 
-Assembles the special-outer-horn filler for the last vertex (Kerodon 019F, Theorem 4.4.2.6,
-Joyal): for a quasicategory `A`, a horn `Λ[n+2, last] ⟶ A` whose distinguished final edge is
+Assembles the special-outer-horn filler for the last vertex (Joyal): for a quasicategory `A`,
+a horn `Λ[n+2, last] ⟶ A` whose distinguished final edge is
 invertible extends over `Δ[n+2]` (`fill_last`). The `n ≥ 1` case transports the coslice Leibniz
 filler (`SpecialOuterHornFillerLeibniz`) across the horn-as-Leibniz-join isomorphism
 (`OuterHornLastDecomposition`) through `transLast`; the `n = 0` case is a direct 2-out-of-3 fill
 (`fillBase`). Also provides the iso-edge 2-out-of-3 (`cancelComp_left`/`cancelComp_right`,
-`isIsoSimplex_δ₀/δ₂_of_outer`, Kerodon §4.4.2 / 019C) and the producer
-`isoCore_outerHornFiller_of_producer` consumed by `coherentIso.lift`.
+`isIsoSimplex_δ₀/δ₂_of_outer`) and the producer `isoCore_outerHornFiller_of_producer`
+consumed by `coherentIso.lift`.
 -/
 
-open CategoryTheory Simplicial Opposite Finset SSet.Truncated SimplexCategory.Truncated Limits MorphismProperty AugmentedSimplexCategory
+open CategoryTheory Simplicial Opposite Finset SSet.Truncated SimplexCategory.Truncated
+open Limits MorphismProperty AugmentedSimplexCategory
 
 universe u
 
@@ -25,8 +26,11 @@ namespace SSet
 
 /-! ## Horn-form transport scaffolding for the `n ≥ 1` case (steps 2). -/
 
+/-- The boundary inclusion `∂Δ[M+1] ↪ Δ[M+1]`. -/
 abbrev jbM (M : ℕ) := (∂Δ[M + 1] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι
+/-- The face inclusion `{0}ᶜ ↪ Δ[1]` (the face opposite the `0`-vertex). -/
 abbrev gfM := (stdSimplex.face {(0 : Fin 2)}ᶜ : (Δ[1] : SSet.{u}).Subcomplex).ι
+/-- The coface `δ₀ : Δ[0] ⟶ Δ[1]`. -/
 abbrev gdM : (Δ[0] : SSet.{u}) ⟶ (Δ[1] : SSet.{u}) := stdSimplex.δ (0 : Fin 2)
 
 /-- The face-form `{0}ᶜ ↪ Δ[1]` to `δ0`-form arrow-iso. -/
@@ -56,7 +60,8 @@ noncomputable def transM (M : ℕ) :
     (cornerIso (jbM.{u} M) (gfM.{u})) ≪≫
     (cornerBridgeM.{u} M)
 
-/-- `transM` retyped with the missing vertex as `Fin.last` (defeq to `joinRightVertex (M+1) 1 1`). -/
+/-- `transM` retyped with the missing vertex as `Fin.last`
+(defeq to `joinRightVertex (M+1) 1 1`). -/
 noncomputable def transLast (M : ℕ) :
     Arrow.mk (Λ[M + 1 + 2, Fin.last (M + 1 + 2)].ι) ≅
       Arrow.mk (sqLeibCo (jbM.{u} M) (gdM.{u})).ι :=
@@ -104,7 +109,7 @@ lemma einv_right (M : ℕ) :
 -- about it that is proved before sealing.
 attribute [irreducible] transLast
 
-/-! ## Iso-edge 2-out-of-3 in a quasicategory (Kerodon §4.4.2 / 019C) -/
+/-! ## Iso-edge 2-out-of-3 in a quasicategory -/
 
 namespace Edge
 
@@ -700,7 +705,7 @@ theorem fillBase {A : SSet.{u}} [Quasicategory A]
 
 namespace SpecialOuterHorn
 
-/-- **`SpecialOuterHorn.fill_last`** (Kerodon 019F, Theorem 4.4.2.6, Joyal): in a quasicategory
+/-- **`SpecialOuterHorn.fill_last`** (Joyal): in a quasicategory
 `A`, a last outer horn `Λ[n+2, last] ⟶ A` whose distinguished final edge is invertible extends to
 a map out of `Δ[n+2]`. -/
 theorem fill_last {A : SSet.{u}} [Quasicategory A] {n : ℕ}

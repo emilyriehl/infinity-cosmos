@@ -10,11 +10,11 @@ import Mathlib.CategoryTheory.Limits.Shapes.Pullback.Iso
 Feeds the Joyal pushout-product (`joyal_leftAnodyne_join_mono`) through the coslice projection to
 obtain the structural facts behind the `i = last` special-outer-horn filler. Shows the coslice
 projection is a left fibration (`leftFibration_cosliceProj`) and that the coslice of a
-quasicategory is again a quasicategory (`quasicategory_cosliceUnder`), Kerodon 018F (Proposition
-4.3.6.1); records that a left fibration of quasicategories is an isofibration on its base
-(`leftFibration_isofibration_target`, Kerodon Example 4.4.1.11, tag 01ER); and builds the relative
-projection `thetaMap` with its left-fibration and conservativity facts (`leftFibration_thetaMap`,
-`thetaMap_conservative`). Conservativity rests on the iso-edge 2-out-of-3 of Kerodon §4.4.2 (019C).
+quasicategory is again a quasicategory (`quasicategory_cosliceUnder`); records that a left
+fibration of quasicategories is an isofibration on its base (`leftFibration_isofibration_target`);
+and builds the relative projection `thetaMap` with its left-fibration and conservativity facts
+(`leftFibration_thetaMap`, `thetaMap_conservative`). Conservativity rests on the iso-edge
+2-out-of-3 for quasicategories.
 -/
 
 section
@@ -66,14 +66,11 @@ theorem joyal_discharge {S T : SSet.{u}} (jST : S ⟶ T) (hjST : Mono jST) :
 /-! ## `cosliceProj` is unconditionally a LEFT (hence inner) fibration -/
 
 /-- For a monomorphism `jST` and an inner fibration `p`, the coslice projection
-`cosliceProj jST σ p` is a left fibration (Kerodon 018F, Proposition 4.3.6.1). -/
+`cosliceProj jST σ p` is a left fibration. -/
 instance leftFibration_cosliceProj {S T X Y : SSet.{u}} (jST : S ⟶ T) [hj : Mono jST]
     (σ : T ⟶ X) (p : X ⟶ Y) [InnerFibration p] :
     LeftFibration (cosliceProj jST σ p) :=
   ⟨leftFibrations_cosliceProj jST σ p (joyal_discharge jST hj)⟩
-
-example {S T X Y : SSet.{u}} (jST : S ⟶ T) [Mono jST] (σ : T ⟶ X) (p : X ⟶ Y)
-    [InnerFibration p] : InnerFibration (cosliceProj jST σ p) := inferInstance
 
 /-! ## The fiber product `E` -/
 
@@ -88,7 +85,7 @@ end
 
 section
 /-!
-# Gateway: coslice quasicategory wrappers (Kerodon 018F)
+# Gateway: coslice quasicategory wrappers
 
 `cosliceUnder` over a terminal target is terminal; `cosliceUnder (⊥→C) ≅ C`; and the
 domain of `cosliceProj` over a quasicategory is a quasicategory.
@@ -101,6 +98,7 @@ noncomputable section
 
 /-! ## `cosliceUnder` over a terminal target is terminal -/
 
+/-- The canonical map `Y ⟶ cosliceUnder g` into the coslice over a point. -/
 def coTerminalHom {K : SSet.{u}} (g : K ⟶ (Δ[0] : SSet.{u})) (Y : SSet.{u}) :
     Y ⟶ cosliceUnder g where
   app n := ↾fun _ =>
@@ -112,6 +110,7 @@ def coTerminalHom {K : SSet.{u}} (g : K ⟶ (Δ[0] : SSet.{u})) (Y : SSet.{u}) :
     apply Subtype.ext
     exact stdSimplex.isTerminalObj₀.hom_ext _ _
 
+/-- The coslice `cosliceUnder g` over a point is a terminal simplicial set. -/
 def cosliceUnder_isTerminal {K : SSet.{u}} (g : K ⟶ (Δ[0] : SSet.{u})) :
     IsTerminal (cosliceUnder g) :=
   IsTerminal.ofUniqueHom (coTerminalHom g) (by
@@ -183,12 +182,12 @@ def cosliceUnderBotIso {C : SSet.{u}} (h : (⊥_ SSet.{u}) ⟶ C) : cosliceUnder
     rw [← Category.assoc, joinInr_naturality_right]
     exact Category.assoc _ _ _)
 
-/-! ## `Quasicategory (cosliceUnder σ)` (Kerodon 018F) -/
+/-! ## `Quasicategory (cosliceUnder σ)` -/
 
 instance innerFibration_of_isIso {X Y : SSet.{u}} (f : X ⟶ Y) [IsIso f] : InnerFibration f :=
   ⟨MorphismProperty.of_isIso innerFibrations f⟩
 
-/-- The coslice of a quasicategory under a simplex is a quasicategory (Kerodon 018F). -/
+/-- The coslice of a quasicategory under a simplex is a quasicategory. -/
 instance quasicategory_cosliceUnder {T C : SSet.{u}} (σ : T ⟶ C) [Quasicategory C] :
     Quasicategory (cosliceUnder σ) := by
   set q0 : C ⟶ (Δ[0] : SSet.{u}) := stdSimplex.isTerminalObj₀.from C with hq0def
@@ -249,7 +248,7 @@ theorem leftFibration_cosliceMapBase {S T C : SSet.{u}} (jST : S ⟶ T) [Mono jS
   rw [← cosliceProj_fst jST pT q0]
   exact leftFibrations.comp_mem _ _ (mem_leftFibrations _) (MorphismProperty.of_isIso _ _)
 
-/-- The absolute coslice projection `C_{p/} → C` (Kerodon 018F):
+/-- The absolute coslice projection `C_{p/} → C`:
 `cosliceMapBase (⊥→K) ≫ (cosliceUnder(⊥→C) ≅ C)`. -/
 def cosliceAbsProj {K C : SSet.{u}} (p : K ⟶ C) : cosliceUnder p ⟶ C :=
   cosliceMapBase (initial.to K) (rfl : initial.to K ≫ p = initial.to K ≫ p) ≫

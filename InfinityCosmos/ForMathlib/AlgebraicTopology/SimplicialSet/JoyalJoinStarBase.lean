@@ -13,7 +13,7 @@ Proves `satJ`, the generator base case of the Joyal pushout-product: for an inne
 The argument passes through the Day-convolution unit coherence (`starr`, `star`), identifies the
 relevant join with a boundary-cell inclusion (`H1z`), and reduces to the single-cell presentation
 of monomorphisms (`baseZero_of_H1`, `satJ_of_baseZero`). These generators feed `satI` and hence
-the full pushout-product, Kerodon 018J (Proposition 4.3.6.4, Joyal).
+the full Joyal pushout-product.
 -/
 
 open CategoryTheory Simplicial Opposite Limits MorphismProperty
@@ -347,9 +347,8 @@ theorem satJ_of_baseZero (M : ℕ) (k : Fin (M + 1 + 1)) (hk : k < Fin.last (M +
 
 /-! ### The generator base case `satJ`. -/
 
-/-- The generator base case of the Joyal pushout-product (Kerodon 018J, Proposition 4.3.6.4): for
-an inner horn `Λ[M+1, k]` (`k < last`), every monomorphism `j` has `leibnizJoin j (Λ[M+1,k].ι)`
-inner-anodyne. -/
+/-- The generator base case of the Joyal pushout-product: for an inner horn `Λ[M+1, k]`
+(`k < last`), every monomorphism `j` has `leibnizJoin j (Λ[M+1,k].ι)` inner-anodyne. -/
 theorem satJ (M : ℕ) (k : Fin (M + 1 + 1)) (hk : k < Fin.last (M + 1)) :
     monomorphisms SSet.{u} ≤
       leibImgL (Λ[M + 1, k] : (Δ[M + 1] : SSet.{u}).Subcomplex).ι :=

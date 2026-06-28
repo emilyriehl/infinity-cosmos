@@ -114,7 +114,7 @@ end coherentIso
 
 /-- A left fibration over a terminal object lifts against the single right-most (last) outer horn.
 Discharged from `leftFibration_rlp_rightHorn_of_isTerminal_of_fillLast` and the proven
-`SpecialOuterHorn.fill_last` (Kerodon 019F). -/
+`SpecialOuterHorn.fill_last`. -/
 theorem leftFibration_rlp_rightHorn_of_isTerminal {X Y : SSet.{u}} (p : X ⟶ Y)
     (hY : IsTerminal Y) [LeftFibration p] {n : ℕ} :
     HasLiftingProperty (Λ[n + 1, Fin.last (n + 1)].ι) p := by

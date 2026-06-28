@@ -13,7 +13,7 @@ The left-slot Leibniz image `leibImgL i` collects the maps `j` whose Leibniz joi
 (`leibImgL_isStableUnderTransfiniteComposition`, `leibImgL_transfiniteOfShape`) and cobase change
 (`leibImgL_cobase`), by building the transfinite tower of join pushouts (`Gfun` and its colimit
 `GwocIsColimit`) and transporting a colimit cocone across the join functor. One of the two
-telescope slots feeding the Joyal pushout-product, Kerodon 018J (Proposition 4.3.6.4, Joyal).
+telescope slots feeding the Joyal pushout-product.
 -/
 
 open CategoryTheory Simplicial Limits MorphismProperty HomotopicalAlgebra
@@ -34,6 +34,7 @@ section corner
 variable {A A' B B' : SSet.{u}} {f : A ⟶ A'} {f' : B ⟶ B'} (u : A ⟶ B) (v : A' ⟶ B')
   (w : f ≫ v = u ≫ f')
 
+/-- The map of corner pushouts induced by the square `f ≫ v = u ≫ f'`, via `pushout.map`. -/
 def cornerMap : pushout (joinMap f (𝟙 C)) (joinMap (𝟙 A) K) ⟶
     pushout (joinMap f' (𝟙 C)) (joinMap (𝟙 B) K) :=
   pushout.map (joinMap f (𝟙 C)) (joinMap (𝟙 A) K) (joinMap f' (𝟙 C)) (joinMap (𝟙 B) K)
@@ -96,6 +97,7 @@ instance presJoinFlipGen {Js : Type u} [SmallCategory Js] [IsConnected Js]
 section JoinKeystones
 variable {Js : Type u} [SmallCategory Js] (F : Js ⥤ SSet.{u})
 
+/-- The diagram `n ↦ F n ⋆ E` joining each value of `F` with `E` on the right. -/
 @[simps]
 def joinDiag (E : SSet.{u}) : Js ⥤ SSet.{u} where
   obj n := F.obj n ⋆ E
@@ -103,6 +105,7 @@ def joinDiag (E : SSet.{u}) : Js ⥤ SSet.{u} where
   map_id n := by rw [F.map_id, joinMap_id]
   map_comp {n m p} φ ψ := by rw [F.map_comp, joinMap_comp_left]
 
+/-- The isomorphism `joinDiag F E ≅ F ⋙ joinFunctor.flip.obj E`. -/
 def joinDiagIso (E : SSet.{u}) : joinDiag F E ≅ F ⋙ joinFunctor.flip.obj E :=
   NatIso.ofComponents (fun n => Iso.refl _) (by
     intro n m φ
@@ -114,6 +117,7 @@ variable {Y : SSet.{u}} (incl : F ⟶ (Functor.const Js).obj Y)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
+/-- The cocone on `joinDiag F E` with point `Y ⋆ E` and legs `joinMap (incl n) (𝟙 E)`. -/
 @[simps]
 def joinCocone (E : SSet.{u}) : Cocone (joinDiag F E) where
   pt := Y ⋆ E
@@ -128,6 +132,7 @@ def joinCocone (E : SSet.{u}) : Cocone (joinDiag F E) where
         simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.comp_id] at this
         rw [this] }
 
+/-- `Y ⋆ E` is the colimit of `joinDiag F E`: the join functor preserves the colimit of `F`. -/
 def joinColimit (E : SSet.{u}) [PreservesColimitsOfShape Js (joinFunctor.flip.obj E)] :
     IsColimit (joinCocone F incl E) := by
   have hpres : IsColimit ((joinFunctor.flip.obj E).mapCocone (Cocone.mk Y incl)) :=
@@ -148,11 +153,13 @@ section Assembly
 variable {J : Type u} [LinearOrder J] [SuccOrder J] [OrderBot J] [WellFoundedLT J]
   (F : J ⥤ SSet.{u})
 
+/-- The telescope arrow `F⊥ ⟶ Fₙ` from the bottom object, `F.map (homOfLE bot_le)`. -/
 abbrev aTel (n : J) : F.obj ⊥ ⟶ F.obj n := F.map (homOfLE bot_le)
 
 lemma aTel_comp {n m : J} (φ : n ⟶ m) : aTel F n ≫ F.map φ = aTel F m := by
   rw [← F.map_comp, Subsingleton.elim (homOfLE bot_le ≫ φ) (homOfLE (bot_le : (⊥ : J) ≤ m))]
 
+/-- The diagram `n ↦ P(aₙ)` of corner pushouts of the telescope arrows, with `cornerMap` steps. -/
 @[simps]
 def domDiag : J ⥤ SSet.{u} where
   obj n := pushout (joinMap (aTel F n) (𝟙 C)) (joinMap (𝟙 (F.obj ⊥)) K)
@@ -344,7 +351,8 @@ lemma GincMap_eq (n : J) :
 @[reassoc] lemma GincMap_inr (n : J) :
     pushout.inr (iCorner K F incl n) (leibnizJoin (aTel F n) K) ≫ GincMap K F incl n
       = joinMap (F.map (homOfLE (Order.le_succ n))) (𝟙 D)
-        ≫ pushout.inr (iCorner K F incl (Order.succ n)) (leibnizJoin (aTel F (Order.succ n)) K) := by
+        ≫ pushout.inr (iCorner K F incl (Order.succ n))
+          (leibnizJoin (aTel F (Order.succ n)) K) := by
   show pushout.inr _ _ ≫ pushout.desc _ _ _ = _
   rw [pushout.inr_desc]
 
@@ -768,6 +776,7 @@ instance Gfun_isWellOrderContinuous : (Gfun K F incl).IsWellOrderContinuous wher
     exact ⟨GwocIsColimit K F incl m hm⟩
 
 set_option maxHeartbeats 4000000 in
+/-- The shape-`J` transfinite composition presenting `leibnizJoin (gTel F incl) K` via `Gfun`. -/
 def Gtcs (hmem : ∀ (j : J), ¬ IsMax j →
       innerAnodyneExtensions (leibnizJoin (F.map (homOfLE (Order.le_succ j))) K)) :
     (innerAnodyneExtensions.{u}).TransfiniteCompositionOfShape J (leibnizJoin (gTel F incl) K) where

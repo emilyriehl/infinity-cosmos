@@ -16,8 +16,7 @@ is a wide pushout over the initial object, the join functor preserves it as a co
 and the reusable cube lemma `isPushout_cobase_of_widePushout` repackages a wide pushout of arrows
 over an isomorphism centre as the cobase change of the coproduct of the leaves, reducing the
 instance to a single per-family cobase square (`leibImgR_coproducts_of_cobaseSquare`). Also proves
-the right unit law `joinBotIso' : K ⋆ ⊥ ≅ K`. Part of the Joyal pushout-product, Kerodon 018J
-(Proposition 4.3.6.4, Joyal).
+the right unit law `joinBotIso' : K ⋆ ⊥ ≅ K`. Part of the Joyal pushout-product.
 -/
 
 open CategoryTheory Simplicial Limits MorphismProperty SmallObject
@@ -154,6 +153,7 @@ lemma Lj_obj_arrow {S T A B : SSet.{u}} (j : S ⟶ T) (i : A ⟶ B) :
 
 /-! ## PIECE 2(a) — RespectsIso for `leibImgR j`. -/
 
+/-- Transports an arrow-iso `i ≅ i'` to an arrow-iso of Leibniz joins `j ⋆̂ i ≅ j ⋆̂ i'`. -/
 def leibImgR_arrowIso {S T A B A' B' : SSet.{u}} (j : S ⟶ T) (i : A ⟶ B) (i' : A' ⟶ B')
     (e : Arrow.mk i ≅ Arrow.mk i') :
     Arrow.mk (leibnizJoin j i) ≅ Arrow.mk (leibnizJoin j i') :=
@@ -275,7 +275,8 @@ theorem joinCoproduct_fold (T : SSet.{u}) {I : Type u} (B : I → SSet.{u}) :
       CubeLemma.widePushout_universal_of_isColimit (join_coproduct_isWidePushout T B) u w hw)
 
 /-! ## PIECE 2(g) — the cube lemma's leg-map `dx` and naturality `hnat`, on the join.
-`cornerLeg j i` is the leibniz-corner functoriality `dom(leibnizJoin j (𝟙 ⊥)) ⟶ dom(leibnizJoin j i)`;
+`cornerLeg j i` is the leibniz-corner functoriality
+`dom(leibnizJoin j (𝟙 ⊥)) ⟶ dom(leibnizJoin j i)`;
 `cornerLeg_naturality` is exactly the cube lemma's `hnat` (with `dy = joinMap (𝟙 T) (init Y)`,
 which equals `joinCoproduct_fold`'s leg map by `joinMap_id_left`). -/
 

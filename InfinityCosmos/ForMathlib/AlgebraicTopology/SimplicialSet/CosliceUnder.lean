@@ -13,9 +13,8 @@ fixed-left join functor `joinCoUnder K = K ⋆ -`, with its colimit preservation
 adjunction `coAdj₂`, and the coslice universal property `cosliceHomEquiv` (mirroring
 `joinUnder`/`adj₂`/`sliceHomEquiv`). The coslice relative projection `cosliceProj` is presented as
 a `PullbackObjObj.π` and shown to satisfy the left-lifting and left-fibration facts
-`hasLiftingProperty_cosliceProj` and `leftFibrations_cosliceProj` (Kerodon 018F, Proposition
-4.3.6.1, absolute; 01BZ, Proposition 4.3.6.8, relative). This coslice is what the `i = last`
-special-outer-horn filler (Kerodon 01H0) runs through.
+`hasLiftingProperty_cosliceProj` and `leftFibrations_cosliceProj`. This coslice is what the
+`i = last` special-outer-horn filler runs through.
 -/
 
 open CategoryTheory Simplicial Opposite Limits
@@ -107,12 +106,14 @@ instance joinInl'_initial_isIso (K : SSet.{u}) : IsIso (joinInl' K (⊥_ SSet.{u
 def joinCoBotIso (K : SSet.{u}) : K ⋆ (⊥_ SSet.{u}) ≅ K :=
   (asIso (joinInl' K (⊥_ SSet.{u}))).symm
 
+/-- `(K ⋆ -)` sends the initial object to `Under.mk (𝟙 K)`, the initial coslice object. -/
 def joinCoUnderBotIsoInitial (K : SSet.{u}) :
     (joinCoUnder K).obj (⊥_ SSet.{u}) ≅ Under.mk (𝟙 K) :=
   Under.isoMk (asIso (joinInl' K (⊥_ SSet.{u}))).symm (by
     show joinInl' K (⊥_ SSet.{u}) ≫ inv (joinInl' K (⊥_ SSet.{u})) = 𝟙 K
     simp)
 
+/-- `(joinCoUnder K).obj ⊥` is initial in `Under K`. -/
 def joinCoUnderBotIsInitial (K : SSet.{u}) : IsInitial ((joinCoUnder K).obj (⊥_ SSet.{u})) :=
   IsInitial.ofIso Under.mkIdInitial (joinCoUnderBotIsoInitial K).symm
 
@@ -135,6 +136,7 @@ def joinCoUnderFactor (K : SSet.{u}) : SSet.{u} ⥤ Under K :=
   underInitial ⋙ Under.post (X := (⊥_ SSet.{u})) (joinFunctor.obj K) ⋙
     Under.map (joinCoBotIso K).inv
 
+/-- The factorization `joinCoUnderFactor K` agrees with `joinCoUnder K`. -/
 def joinCoUnderFactorIso (K : SSet.{u}) : joinCoUnderFactor K ≅ joinCoUnder K :=
   NatIso.ofComponents
     (fun Y => Under.isoMk (Iso.refl _) (by
@@ -174,9 +176,11 @@ theorem joinCoUnder_preservesColimitsOfShape (K : SSet.{u})
 
 /-! ## The Kan extension + adjunction -/
 
+/-- The restriction of `joinCoUnder K` to representables, `SimplexCategory ⥤ Under K`. -/
 abbrev joinCoUnderOnSimplex (K : SSet.{u}) : SimplexCategory ⥤ Under K :=
   uliftYoneda.{u} ⋙ joinCoUnder K
 
+/-- The restricted-yoneda coslice functor `Under K ⥤ SSet`, right adjoint to `K ⋆ -`. -/
 abbrev coSliceFunctorRestricted (K : SSet.{u}) : Under K ⥤ SSet.{u} :=
   Presheaf.restrictedULiftYoneda.{0} (joinCoUnderOnSimplex K)
 
@@ -186,6 +190,7 @@ instance joinCoUnder_preservesColimitsOfSize_zero (K : SSet.{u}) :
     haveI : HasColimitsOfShape (WithInitial J) (Type u) := inferInstance
     exact joinCoUnder_preservesColimitsOfShape K J
 
+/-- The (identity) unit exhibiting `joinCoUnder K` as a left Kan extension of its restriction. -/
 def joinCoUnderExtensionUnit (K : SSet.{u}) :
     joinCoUnderOnSimplex K ⟶ uliftYoneda.{u} ⋙ joinCoUnder K :=
   𝟙 _
@@ -318,6 +323,7 @@ def cosliceMapTarget {K C C' : SSet.{u}} {p : K ⟶ C} (f : C ⟶ C') :
 
 /-! ## `CoOverPt` transposition-domain maps -/
 
+/-- Reindexes a coslice point along `jST`: `CoOverPt pT Y → CoOverPt (jST ≫ pT) Y`. -/
 def coOverPtMapBase {S T C : SSet.{u}} (jST : S ⟶ T) {pT : T ⟶ C} (Y : SSet.{u})
     (q : CoOverPt pT Y) : CoOverPt (jST ≫ pT) Y :=
   ⟨(joinFunctor.map jST).app Y ≫ q.1, by
@@ -327,6 +333,7 @@ def coOverPtMapBase {S T C : SSet.{u}} (jST : S ⟶ T) {pT : T ⟶ C} (Y : SSet.
       _ = jST ≫ (joinInl' T Y ≫ q.1) := Category.assoc _ _ _
       _ = jST ≫ pT := congrArg (jST ≫ ·) q.2⟩
 
+/-- Postcomposes a coslice point by `f`: `CoOverPt p Y → CoOverPt (p ≫ f) Y`. -/
 def coOverPtPost {K C C' : SSet.{u}} {p : K ⟶ C} (f : C ⟶ C') {Y : SSet.{u}}
     (q : CoOverPt p Y) : CoOverPt (p ≫ f) Y :=
   ⟨q.1 ≫ f, by
@@ -334,6 +341,7 @@ def coOverPtPost {K C C' : SSet.{u}} {p : K ⟶ C} (f : C ⟶ C') {Y : SSet.{u}}
         = (joinInl' K Y ≫ q.1) ≫ f := (Category.assoc _ _ _).symm
       _ = p ≫ f := congrArg (· ≫ f) q.2⟩
 
+/-- Restricts a coslice point along `φ : Z ⟶ Y`: `CoOverPt p Y → CoOverPt p Z`. -/
 def coOverPtRestrict {K C : SSet.{u}} {p : K ⟶ C} {Z Y : SSet.{u}} (φ : Z ⟶ Y)
     (q : CoOverPt p Y) : CoOverPt p Z :=
   ⟨(joinFunctor.obj K).map φ ≫ q.1, by
@@ -436,6 +444,7 @@ theorem cosliceHomEquiv_naturality_target {K C C' : SSet.{u}} {p : K ⟶ C} (f :
 
 /-! ## The Leibniz join (non-flip: cone point on the LEFT, free factor on the RIGHT) -/
 
+/-- The coslice Leibniz-join pushout-product square `jST ⋆̂ g` (cone point on the left). -/
 abbrev sqLeibCo {S T A B : SSet.{u}} (jST : S ⟶ T) (g : A ⟶ B) :
     joinFunctor.PushoutObjObj jST g :=
   Functor.PushoutObjObj.ofHasPushout joinFunctor jST g
@@ -528,8 +537,7 @@ theorem hasLiftingProperty_cosliceProj
 /-! ## The coslice relative projection is a LEFT fibration -/
 
 /-- The coslice relative projection `cosliceProj jST σ p` is a left fibration, given the Joyal
-pushout-product hypothesis `joyal` (Kerodon 018F, Proposition 4.3.6.1, absolute; 01BZ,
-Proposition 4.3.6.8, relative). -/
+pushout-product hypothesis `joyal`. -/
 theorem leftFibrations_cosliceProj
     {S T X Y : SSet.{u}} (jST : S ⟶ T) (σ : T ⟶ X) (p : X ⟶ Y) [hp : InnerFibration p]
     (joyal : ∀ ⦃A B : SSet.{u}⦄ (g : A ⟶ B), leftAnodyneExtensions g →

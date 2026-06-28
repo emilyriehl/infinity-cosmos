@@ -10,10 +10,9 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.JoyalSpecialOut
 Identifies the last outer-horn inclusion with a generating Leibniz join:
 `outerHornLast_iso_leibnizJoin` exhibits `Λ[n+2, last].ι` as the join
 `(∂Δ[n] ↪ Δ[n]) ⋆̂ ({0}ᶜ ↪ Δ[1])`. This arrow-isomorphism is what transports the coslice Leibniz
-filler (Kerodon 01H0) to the special-outer-horn filler `SpecialOuterHorn.fill_last` (Kerodon
-019F). The membership criterion `mem_outerHorn_last_iff` decomposes the horn by its two
-ordinal-sum vertex blocks. A standard join-of-simplices computation (Kerodon §4.3.2, as used in
-the proof of 018J).
+filler to the special-outer-horn filler `SpecialOuterHorn.fill_last`. The membership criterion
+`mem_outerHorn_last_iff` decomposes the horn by its two ordinal-sum vertex blocks. A standard
+join-of-simplices computation, as used in the proof of the Joyal pushout-product.
 -/
 
 open CategoryTheory Simplicial Opposite Limits MorphismProperty

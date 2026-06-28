@@ -18,7 +18,7 @@ composition that contains the boundary inclusions contains every monomorphism
 filters each skeletal step by the within-dimension filtration `psi`, exhibiting it as a
 transfinite composition of single boundary-cell pushouts (`skeletonStep_mem`,
 `mono_mem_of_skeletonStep`). This is the saturation bookkeeping under the Joyal pushout-product.
-Reference: Kerodon 0077 (Proposition 1.5.5.14) and the skeletal filtration of Kerodon §1.5.3–1.5.4.
+Reference: the skeletal filtration of the standard simplex.
 -/
 
 namespace SSet.singleCell
@@ -35,13 +35,17 @@ lemma range_bd_comp_le : Subcomplex.range ((∂Δ[d]).ι ≫ yonedaEquiv.symm y)
 lemma range_cmap_le : Subcomplex.range (yonedaEquiv.symm y) ≤ A ⊔ Subcomplex.ofSimplex y := by
   rw [Subcomplex.range_eq_ofSimplex, Equiv.apply_symm_apply]; exact le_sup_right
 
+/-- The attaching map `∂Δ[d] ⟶ A`: the boundary of the new cell factored through `A`. -/
 noncomputable def tmap : (∂Δ[d] : SSet.{u}) ⟶ (A : SSet.{u}) :=
   Subcomplex.lift ((∂Δ[d]).ι ≫ yonedaEquiv.symm y) (range_bd_comp_le y A hA)
 
+/-- The characteristic map `Δ[d] ⟶ A ⊔ ofSimplex y` of the new cell. -/
 noncomputable def bmap : Δ[d] ⟶ ((A ⊔ Subcomplex.ofSimplex y : Y.Subcomplex) : SSet.{u}) :=
   Subcomplex.lift (yonedaEquiv.symm y) (range_cmap_le y A)
 
-noncomputable def rmap : (A : SSet.{u}) ⟶ ((A ⊔ Subcomplex.ofSimplex y : Y.Subcomplex) : SSet.{u}) :=
+/-- The inclusion `A ⟶ A ⊔ ofSimplex y` of the old subcomplex into the cell extension. -/
+noncomputable def rmap :
+    (A : SSet.{u}) ⟶ ((A ⊔ Subcomplex.ofSimplex y : Y.Subcomplex) : SSet.{u}) :=
   Subcomplex.homOfLE le_sup_left
 
 include hA in

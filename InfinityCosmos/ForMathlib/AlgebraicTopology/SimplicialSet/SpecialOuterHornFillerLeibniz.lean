@@ -5,14 +5,13 @@ section
 # The `i = last` special-outer-horn filler via the coslice / Leibniz-join route
 
 Builds `specialOuterHornFiller_last_leibniz`, the Leibniz-join form of the special-outer-horn
-filler for the missing last edge (Kerodon 01H0, Proposition 4.4.2.13). A special outer horn is
+filler for the missing last edge. A special outer horn is
 encoded as coslice data, transported along the left fibration `thetaMap` (conservative, from
 `CosliceProjLeftFibration`), the missing edge is lifted, and the filler is decoded back. The horn
 lifting problem is moved via `outerHornLast_iso_leibnizJoin` to the Leibniz join and decomposed
 through the pushout `sqLeibCo`, the face algebra handled by `inl_ι`/`inr_ι`, `isPushout.w` and the
 `joinInl'` naturalities. The encode/decode lemmas are proved for general `A, B` and specialized to
-`A = Δ[0]`, `B = Δ[1]` downstream. Feeds the `i = last` filler `SpecialOuterHorn.fill_last`
-(Kerodon 019F).
+`A = Δ[0]`, `B = Δ[1]` downstream. Feeds the `i = last` filler `SpecialOuterHorn.fill_last`.
 -/
 
 open CategoryTheory MonoidalCategory Simplicial Opposite Limits MorphismProperty
@@ -100,7 +99,7 @@ end
 
 section
 /-!
-# Edge-in-E construction for the 01H0 filler
+# Edge-in-E construction for the special-outer-horn filler
 -/
 
 open CategoryTheory MonoidalCategory Simplicial Opposite Limits MorphismProperty
@@ -240,7 +239,8 @@ def encEdge :
 with `ρ(ẽ) = v̄` strictly and target `x̄`. -/
 theorem encLift [Mono jST] [Quasicategory C] [Quasicategory D] [InnerFibration q]
     (hinv : Nonempty
-      ((encEdge jST top q bot hsq).map (thetaMap jST (encF jST (stdSimplex.δ (0 : Fin 2)) top) q)).IsIso) :
+      ((encEdge jST top q bot hsq).map
+        (thetaMap jST (encF jST (stdSimplex.δ (0 : Fin 2)) top) q)).IsIso) :
     ∃ (x₀ : (cosliceUnder (encF jST (stdSimplex.δ (0 : Fin 2)) top)) _⦋0⦌)
       (ee : Edge x₀ (encXbar0 jST top)),
       (ee.map (cosliceProj jST (encF jST (stdSimplex.δ (0 : Fin 2)) top) q)).edge
@@ -290,9 +290,8 @@ variable {S T C D : SSet.{u}} (jST : S ⟶ T)
   (bot : (joinFunctor.obj T).obj (Δ[1] : SSet.{u}) ⟶ D)
   (hsq : (sqLeibCo jST (stdSimplex.δ (0 : Fin 2))).ι ≫ bot = top ≫ q)
 
-/-- **`specialOuterHornFiller_last_leibniz`** (Kerodon 01H0, Proposition 4.4.2.13, leibnizJoin
-form): the lifting problem `(sqLeibCo jST δ0).ι` over `q`, with the encoded edge `θ(v̄)`
-invertible, has a filler. -/
+/-- **`specialOuterHornFiller_last_leibniz`** (leibnizJoin form): the lifting problem
+`(sqLeibCo jST δ0).ι` over `q`, with the encoded edge `θ(v̄)` invertible, has a filler. -/
 theorem specialOuterHornFiller_last_leibniz [Mono jST] [Quasicategory C] [Quasicategory D]
     [InnerFibration q]
     (hinv : Nonempty ((encEdge jST top q bot hsq).map

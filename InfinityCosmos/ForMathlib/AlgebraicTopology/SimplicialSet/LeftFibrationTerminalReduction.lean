@@ -11,8 +11,8 @@ the lifting reduction `rlp_rightHorn_of_isTerminal_of_fill`, the invertible-fina
 side-condition (free over a terminal base, by conservativity `leftFibration_conservative`), and
 the dimension-1 base case `fill_lastHorn_dim1`. The packaged
 `leftFibration_rlp_rightHorn_of_isTerminal_of_fillLast` takes the `i = last` filler as the
-hypothesis `hfill`; that filler is `SpecialOuterHorn.fill_last` (Kerodon 019F), supplied in
-`Brown117Close`.
+hypothesis `hfill`; that filler is `SpecialOuterHorn.fill_last`, supplied in
+`CoherentIsoLiftClose`.
 -/
 open CategoryTheory Simplicial Opposite Finset Limits MorphismProperty
 universe u
@@ -52,13 +52,13 @@ theorem edge_isIso_of_leftFibration_isTerminal {X Y : SSet.{u}} (p : X ⟶ Y)
   leftFibration_conservative g
     (Edge.isIso_of_isIsoSimplex _ (map_edge_isIsoSimplex_of_isTerminal p hY g))
 
-/-- Every 1-simplex of `X` is an iso simplex; the 019F invertibility side-condition is free. -/
+/-- Every 1-simplex of `X` is an iso simplex; the invertibility side-condition is free. -/
 theorem isIsoSimplex_of_leftFibration_isTerminal {X Y : SSet.{u}} (p : X ⟶ Y)
     (hY : IsTerminal Y) [LeftFibration p] (s : X _⦋1⦌) : IsIsoSimplex s := by
   obtain ⟨he⟩ := edge_isIso_of_leftFibration_isTerminal p hY (Edge.mk s rfl rfl)
   exact isIsoSimplex_of_edge he
 
-/-! ## The 019F gap and the dim-1 base case. -/
+/-! ## The special-outer-horn gap and the dim-1 base case. -/
 
 /-- Final edge `[n+1, n+2]` of `Λ[n+2, last]`. -/
 def finalEdge {n : ℕ} : (Λ[n + 2, (Fin.last (n + 2))] : SSet.{u}) _⦋1⦌ :=
@@ -91,10 +91,10 @@ theorem fill_lastHorn_dim1 {X : SSet.{u}} (τ : (Λ[1, Fin.last 1] : SSet.{u}) �
       CategoryTheory.Functor.map_id]
   rw [hcollapse, Category.id_comp]
 
-/-! ## The target, modulo the 019F filler (the sole residual gap). -/
+/-! ## The target, modulo the special-outer-horn filler (the sole residual gap). -/
 
-/-- `leftFibration_rlp_rightHorn_of_isTerminal`, reduced to the 019F special-outer-horn filler
-`hfill` (Kerodon 019F = `SpecialOuterHorn.fill_last`). Everything else — quasicategoricity of `X`,
+/-- `leftFibration_rlp_rightHorn_of_isTerminal`, reduced to the special-outer-horn filler
+`hfill` (`SpecialOuterHorn.fill_last`). Everything else — quasicategoricity of `X`,
 the reduction, the invertibility side-condition (discharged via conservativity), and the dim-1
 base case — is proved from the listed proven inputs. The hypothesis `hfill` is the genuine gap. -/
 theorem leftFibration_rlp_rightHorn_of_isTerminal_of_fillLast

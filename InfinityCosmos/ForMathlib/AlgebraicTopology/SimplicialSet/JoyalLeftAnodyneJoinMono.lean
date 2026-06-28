@@ -11,7 +11,7 @@ Leibniz join of a monomorphism `j` with a left-anodyne extension `i` is inner-an
 reduction `satI_of_instances` (LeibnizJoinCore) against the four second-slot stability facts of
 `leibImgR j` — cobase change and retracts (LeibnizJoinCore), coproducts (LeibnizJoinCoproducts),
 transfinite composition (LeibnizJoinTelescopeRight) — together with the generators `satJ`
-(JoyalJoinStarBase). Kerodon 018J (Proposition 4.3.6.4, Joyal; HTT §2.1).
+(JoyalJoinStarBase).
 -/
 
 open CategoryTheory Simplicial Limits MorphismProperty SmallObject
@@ -29,7 +29,7 @@ theorem satI {S T : SSet.{u}} (j : S ⟶ T) (hj : Mono j) :
     (TwoC.leibImgR_isStableUnderTransfiniteComposition j)
     satJ
 
-/-- **joyal_leftAnodyne_join_mono** (Kerodon 018J, Proposition 4.3.6.4, Joyal): the Leibniz join
+/-- **joyal_leftAnodyne_join_mono** (the Joyal pushout-product): the Leibniz join
 of a monomorphism `j` with a left-anodyne extension `i` is inner-anodyne. -/
 theorem joyal_leftAnodyne_join_mono {S T A B : SSet.{u}} (j : S ⟶ T) (hj : Mono j)
     (i : A ⟶ B) (hi : leftAnodyneExtensions.{u} i) :

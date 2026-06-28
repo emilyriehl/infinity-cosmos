@@ -14,8 +14,7 @@ The right-slot mirror of `LeibnizJoinTelescopeLeft`: for a fixed monomorphism `j
 composition (`TwoC.leibImgR_isStableUnderTransfiniteComposition`,
 `TwoC.leibImgR_transfiniteOfShape`). The same transfinite-tower construction as the left slot,
 with the join taken in the right variable (`joinFunctor.obj` in place of `joinFunctor.flip.obj`).
-Supplies the transfinite-composition instance for the Joyal pushout-product, Kerodon 018J
-(Proposition 4.3.6.4, Joyal).
+Supplies the transfinite-composition instance for the Joyal pushout-product.
 -/
 
 open CategoryTheory Simplicial Limits MorphismProperty HomotopicalAlgebra
@@ -36,6 +35,7 @@ section corner
 variable {A A' B B' : SSet.{u}} {f : A ⟶ A'} {f' : B ⟶ B'} (u : A ⟶ B) (v : A' ⟶ B')
   (w : f ≫ v = u ≫ f')
 
+/-- The map between Leibniz-corner pushouts of `f` and `f'` for fixed `j`, from a square `w`. -/
 def cornerMap : pushout (joinMap j (𝟙 A)) (joinMap (𝟙 S) f) ⟶
     pushout (joinMap j (𝟙 B)) (joinMap (𝟙 S) f') :=
   pushout.map (joinMap j (𝟙 A)) (joinMap (𝟙 S) f) (joinMap j (𝟙 B)) (joinMap (𝟙 S) f')
@@ -96,6 +96,7 @@ instance presJoinObjGen {Js : Type u} [SmallCategory Js] [IsConnected Js]
 section JoinKeystones
 variable {Js : Type u} [SmallCategory Js] (F : Js ⥤ SSet.{u})
 
+/-- The diagram `n ↦ E ⋆ F.obj n` with maps `joinMap (𝟙 E) (F.map φ)`. -/
 @[simps]
 def joinDiag (E : SSet.{u}) : Js ⥤ SSet.{u} where
   obj n := E ⋆ F.obj n
@@ -103,6 +104,7 @@ def joinDiag (E : SSet.{u}) : Js ⥤ SSet.{u} where
   map_id n := by rw [F.map_id, joinMap_id]
   map_comp {n m p} φ ψ := by rw [F.map_comp, joinMap_comp_right]
 
+/-- The natural iso `joinDiag F E ≅ F ⋙ joinFunctor.obj E`. -/
 def joinDiagIso (E : SSet.{u}) : joinDiag F E ≅ F ⋙ joinFunctor.obj E :=
   NatIso.ofComponents (fun n => Iso.refl _) (by
     intro n m φ
@@ -114,6 +116,7 @@ variable {Y : SSet.{u}} (incl : F ⟶ (Functor.const Js).obj Y)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
+/-- The cocone on `joinDiag F E` with point `E ⋆ Y` and legs `joinMap (𝟙 E) (incl.app n)`. -/
 @[simps]
 def joinCocone (E : SSet.{u}) : Cocone (joinDiag F E) where
   pt := E ⋆ Y
@@ -128,6 +131,7 @@ def joinCocone (E : SSet.{u}) : Cocone (joinDiag F E) where
         simp only [Functor.const_obj_obj, Functor.const_obj_map, Category.comp_id] at this
         rw [this] }
 
+/-- `E ⋆ Y` is the colimit of `joinDiag F E` when `joinFunctor.obj E` preserves it. -/
 def joinColimit (E : SSet.{u}) [PreservesColimitsOfShape Js (joinFunctor.obj E)] :
     IsColimit (joinCocone F incl E) := by
   have hpres : IsColimit ((joinFunctor.obj E).mapCocone (Cocone.mk Y incl)) :=
@@ -148,11 +152,13 @@ section Assembly
 variable {J : Type u} [LinearOrder J] [SuccOrder J] [OrderBot J] [WellFoundedLT J]
   (F : J ⥤ SSet.{u})
 
+/-- The telescope map `F⊥ ⟶ F.obj n`, `F.map (homOfLE bot_le)`. -/
 abbrev aTel (n : J) : F.obj ⊥ ⟶ F.obj n := F.map (homOfLE bot_le)
 
 lemma aTel_comp {n m : J} (φ : n ⟶ m) : aTel F n ≫ F.map φ = aTel F m := by
   rw [← F.map_comp, Subsingleton.elim (homOfLE bot_le ≫ φ) (homOfLE (bot_le : (⊥ : J) ≤ m))]
 
+/-- The corner-pushout diagram `n ↦ pushout (joinMap j (𝟙 F⊥)) (joinMap (𝟙 S) (aTel F n))`. -/
 @[simps]
 def domDiag : J ⥤ SSet.{u} where
   obj n := pushout (joinMap j (𝟙 (F.obj ⊥))) (joinMap (𝟙 S) (aTel F n))
@@ -170,12 +176,15 @@ def domDiag : J ⥤ SSet.{u} where
 variable {Y : SSet.{u}} (incl : F ⟶ (Functor.const J).obj Y)
   (hcolim : IsColimit (Cocone.mk Y incl))
 
+/-- `g := incl ⊥ : F⊥ ⟶ Y`. -/
 abbrev gTel : F.obj ⊥ ⟶ Y := incl.app ⊥
 
+/-- `P(h)`, the Leibniz-corner pushout of the fixed `j` with `h`. -/
 abbrev Pof (h : F.obj ⊥ ⟶ Y) : SSet.{u} := pushout (joinMap j (𝟙 (F.obj ⊥))) (joinMap (𝟙 S) h)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
+/-- The corner cocone on `domDiag` with point `P(g)`, legs `ιₙ = cornerMap (incl n)`. -/
 @[simps]
 def domCocone : Cocone (domDiag j F) where
   pt := Pof j F (gTel F incl)
@@ -202,6 +211,7 @@ def domCocone : Cocone (domDiag j F) where
 lemma aTel_bot : aTel F ⊥ = 𝟙 (F.obj ⊥) := by
   rw [aTel, Subsingleton.elim (homOfLE (bot_le : (⊥ : J) ≤ ⊥)) (𝟙 (⊥ : J)), F.map_id]
 
+/-- The `inl` pushout leg `T ⋆ F⊥ ⟶ domDiag.obj n`, typed for composition with cocone legs. -/
 abbrev dinr (n : J) : T ⋆ F.obj ⊥ ⟶ (domDiag j F).obj n :=
   pushout.inl (joinMap j (𝟙 (F.obj ⊥))) (joinMap (𝟙 S) (aTel F n))
 
@@ -221,10 +231,12 @@ set_option backward.isDefEq.respectTransparency false in
 
 /-! ## Target filtration functor `G`. -/
 
+/-- `ιₙ : P(aₙ) ⟶ P(g)`, the corner-telescope cocone leg, retyped with explicit pushout domain. -/
 def iCorner (n : J) :
     pushout (joinMap j (𝟙 (F.obj ⊥))) (joinMap (𝟙 S) (aTel F n)) ⟶ Pof j F (gTel F incl) :=
   (domCocone j F incl).ι.app n
 
+/-- The cocone leg `incl.app n` retyped with target `Y` (no `const`-functor index). -/
 abbrev gY (n : J) : F.obj n ⟶ Y := incl.app n
 
 @[reassoc] lemma iCorner_inr (n : J) :
@@ -243,6 +255,7 @@ abbrev gY (n : J) : F.obj n ⟶ Y := incl.app n
         ≫ iCorner j F incl m = iCorner j F incl n :=
   (domCocone j F incl).w φ
 
+/-- `G : J ⥤ SSet`, `G n = pushout (ιₙ) (leibnizJoin j aₙ)`. -/
 def Gfun : J ⥤ SSet.{u} where
   obj n := pushout (iCorner j F incl n) (leibnizJoin j (aTel F n))
   map {n m} φ := pushout.desc
@@ -281,6 +294,7 @@ lemma inclStep (n : J) :
   have := incl.naturality (homOfLE (Order.le_succ n))
   simpa using this
 
+/-- The structure map `jₙ : P(stepₙ) ⟶ Gₙ` (analogue of the cube's `jStep`). -/
 def GjStep (n : J) :
     pushout (joinMap j (𝟙 (F.obj n))) (joinMap (𝟙 S) (F.map (homOfLE (Order.le_succ n))))
       ⟶ pushout (iCorner j F incl n) (leibnizJoin j (aTel F n)) :=
@@ -309,6 +323,7 @@ def GjStep (n : J) :
   show pushout.inr _ _ ≫ pushout.desc _ _ _ = _
   rw [pushout.inr_desc]
 
+/-- The raw filtration step `Gₙ ⟶ G(succ n)` (definitionally `Gfun.map (homOfLE _)`). -/
 def GincMap (n : J) :
     pushout (iCorner j F incl n) (leibnizJoin j (aTel F n))
       ⟶ pushout (iCorner j F incl (Order.succ n)) (leibnizJoin j (aTel F (Order.succ n))) :=
@@ -332,7 +347,8 @@ lemma GincMap_eq (n : J) :
 @[reassoc] lemma GincMap_inr (n : J) :
     pushout.inr (iCorner j F incl n) (leibnizJoin j (aTel F n)) ≫ GincMap j F incl n
       = joinMap (𝟙 T) (F.map (homOfLE (Order.le_succ n)))
-        ≫ pushout.inr (iCorner j F incl (Order.succ n)) (leibnizJoin j (aTel F (Order.succ n))) := by
+        ≫ pushout.inr (iCorner j F incl (Order.succ n))
+          (leibnizJoin j (aTel F (Order.succ n))) := by
   show pushout.inr _ _ ≫ pushout.desc _ _ _ = _
   rw [pushout.inr_desc]
 
@@ -384,9 +400,11 @@ set_option backward.isDefEq.respectTransparency false in
 lemma gY_naturality {n m : J} (φ : n ⟶ m) : F.map φ ≫ gY F incl m = gY F incl n := by
   have := incl.naturality φ; simpa using this
 
+/-- Outer pushout `inl`, typed into `Gfun.obj n`. -/
 abbrev Ginl (n : J) : Pof j F (gTel F incl) ⟶ (Gfun j F incl).obj n :=
   pushout.inl (iCorner j F incl n) (leibnizJoin j (aTel F n))
 
+/-- Outer pushout `inr`, typed into `Gfun.obj n`. -/
 abbrev Ginr (n : J) : T ⋆ F.obj n ⟶ (Gfun j F incl).obj n :=
   pushout.inr (iCorner j F incl n) (leibnizJoin j (aTel F n))
 
@@ -412,6 +430,7 @@ set_option backward.isDefEq.respectTransparency false in
       = joinMap (𝟙 T) (F.map φ) ≫ Ginr j F incl m := by
   show pushout.inr _ _ ≫ pushout.desc _ _ _ = _; rw [pushout.inr_desc]
 
+/-- The cocone leg `Gₙ ⟶ T ⋆ Y`. -/
 def GcoconeLeg (n : J) : (Gfun j F incl).obj n ⟶ T ⋆ Y :=
   pushout.desc (leibnizJoin j (gTel F incl)) (joinMap (𝟙 T) (gY F incl n))
     (cornerMap_naturality j (𝟙 (F.obj ⊥)) (gY F incl n)
@@ -431,6 +450,7 @@ set_option backward.isDefEq.respectTransparency false in
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
+/-- The cocone on `G` with point `T ⋆ Y`. -/
 def Gcocone : Cocone (Gfun j F incl) where
   pt := T ⋆ Y
   ι :=
@@ -446,6 +466,7 @@ def Gcocone : Cocone (Gfun j F incl) where
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
+/-- The descent cocone on `joinDiag F T` induced by a cocone `t` on `G` via the `inr` legs. -/
 def GdescCocone (t : Cocone (Gfun j F incl)) : Cocone (joinDiag F T) where
   pt := t.pt
   ι :=
@@ -485,6 +506,7 @@ lemma Gfac_inl (t : Cocone (Gfun j F incl)) (n : J) :
       Gcond_assoc, leibnizJoin_inr_assoc]
 
 set_option backward.isDefEq.respectTransparency false in
+/-- `T ⋆ Y` is the colimit of `G`. -/
 def GisColimit : IsColimit (Gcocone j F incl) where
   desc t := (joinColimit F incl hcolim T).desc (GdescCocone j F incl t)
   fac t n := by
@@ -520,6 +542,7 @@ instance Gbot_inl_isIso :
 
 /-! ## Step 3: well-order-continuity of `Gfun`. -/
 
+/-- `Set.Iio m` has a bottom element when `m` is a successor-limit. -/
 def iioOrderBot (m : J) (hm : Order.IsSuccLimit m) : OrderBot (Set.Iio m) where
   bot := ⟨⊥, hm.bot_lt⟩
   bot_le := fun _ => bot_le
@@ -532,6 +555,7 @@ theorem iioConnected (m : J) (hm : Order.IsSuccLimit m) : IsConnected (Set.Iio m
     (Relation.ReflTransGen.single (Or.inr ⟨homOfLE bot_le⟩))
     (Relation.ReflTransGen.single (Or.inl ⟨homOfLE bot_le⟩))
 
+/-- The bottom element of `Set.Iio m`, as a concrete subtype value (so `.1` reduces to `⊥`). -/
 abbrev iioBot (m : J) (hm : Order.IsSuccLimit m) : Set.Iio m := ⟨⊥, hm.bot_lt⟩
 
 lemma iioBot_le (m : J) (hm : Order.IsSuccLimit m) (k : Set.Iio m) :
@@ -541,6 +565,7 @@ lemma iioBot_le (m : J) (hm : Order.IsSuccLimit m) (k : Set.Iio m) :
 
 variable [F.IsWellOrderContinuous]
 
+/-- `F⊥ ⟶ Fₘ` is the colimit of `F` restricted to `Set.Iio m` (well-order continuity). -/
 def iioColim (m : J) (hm : Order.IsSuccLimit m) :
     IsColimit (Cocone.mk (F.obj m) (((Set.principalSegIio m).cocone F).ι)) :=
   F.isColimitOfIsWellOrderContinuous' (Set.principalSegIio m) (by simpa using hm)
@@ -560,6 +585,7 @@ lemma GinlTopEq (m : J) :
 lemma GinrTopEq (m : J) :
     Ginr j F incl ((Set.principalSegIio m).top) = Ginr j F incl m := rfl
 
+/-- The `Set.Iio m`-restricted join colimit: `E ⋆ Fₘ = colim_{k<m} (E ⋆ F_k)`. -/
 def iioJoinColim (m : J) (hm : Order.IsSuccLimit m) (E : SSet.{u})
     [IsConnected (Set.Iio m)] :
     IsColimit (joinCocone ((Set.principalSegIio m).monotone.functor ⋙ F)
@@ -622,6 +648,7 @@ lemma Gwoc_inl_const (m : J) (hm : Order.IsSuccLimit m)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
+/-- The descent cocone on `joinDiag (F|Iio m) T` induced by a cocone `t` on `G|Iio m`. -/
 def GwocDescCocone (m : J)
     (t : Cocone ((Set.principalSegIio m).monotone.functor ⋙ Gfun j F incl)) :
     Cocone (joinDiag ((Set.principalSegIio m).monotone.functor ⋙ F) T) where
@@ -667,6 +694,7 @@ lemma Gwoc_compat (m : J) (hm : Order.IsSuccLimit m) [IsConnected (Set.Iio m)]
     rw [← Gwoc_inl_const j F incl m hm t k, ← iCorner_inr_assoc, Gcond_assoc, leibnizJoin_inr_assoc]
 
 set_option backward.isDefEq.respectTransparency false in
+/-- The descent map `Gₘ ⟶ t.pt` for the well-order-continuity colimit. -/
 def GwocDesc (m : J) (hm : Order.IsSuccLimit m) [IsConnected (Set.Iio m)]
     (t : Cocone ((Set.principalSegIio m).monotone.functor ⋙ Gfun j F incl)) :
     (Gfun j F incl).obj m ⟶ t.pt :=
@@ -690,6 +718,7 @@ set_option backward.isDefEq.respectTransparency false in
   rw [pushout.inr_desc]
 
 set_option maxHeartbeats 4000000 in
+/-- `Gₘ` is the colimit of `G` restricted to `Set.Iio m`: the well-order-continuity colimit. -/
 def GwocIsColimit (m : J) (hm : Order.IsSuccLimit m) [IsConnected (Set.Iio m)] :
     IsColimit ((Set.principalSegIio m).cocone (Gfun j F incl)) where
   desc t := GwocDesc j F incl m hm t
@@ -718,6 +747,8 @@ instance Gfun_isWellOrderContinuous : (Gfun j F incl).IsWellOrderContinuous wher
     exact ⟨GwocIsColimit j F incl m hm⟩
 
 set_option maxHeartbeats 4000000 in
+/-- The transfinite-composition data exhibiting `leibnizJoin j (gTel F incl)` via the
+tower `Gfun`. -/
 def Gtcs (hmem : ∀ (k : J), ¬ IsMax k →
       innerAnodyneExtensions (leibnizJoin j (F.map (homOfLE (Order.le_succ k))))) :
     (innerAnodyneExtensions.{u}).TransfiniteCompositionOfShape J (leibnizJoin j (gTel F incl)) where

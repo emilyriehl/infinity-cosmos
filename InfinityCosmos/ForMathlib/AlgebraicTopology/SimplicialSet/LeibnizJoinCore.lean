@@ -12,8 +12,7 @@ stability under retracts (`leibImgR_isStableUnderRetracts`) and cobase change (`
 `satI_of_instances` reduces `leftAnodyneExtensions ≤ leibImgR j` to the two remaining stability
 facts (coproducts, transfinite composition) plus the generators from `satJ`, using the
 small-object presentation of the left-anodyne maps. Inner-anodyne maps form the weak saturation
-of the inner horns (Kerodon 01BM, §4.1.3); the pushout-product itself is Kerodon 018J
-(Proposition 4.3.6.4, Joyal).
+of the inner horns; the pushout-product itself is the Joyal pushout-product.
 -/
 
 open CategoryTheory Simplicial Limits MorphismProperty SmallObject
@@ -67,6 +66,7 @@ instance : HasSmallObjectArgument.{u} leftHornInclusions.{u} where
 
 /-! ## Corner bridge to mathlib's generic Leibniz-pushout Arrow-bifunctor. -/
 
+/-- The join pushout-product square: a `PushoutObjObj j i` whose apex is the join pushout. -/
 def joinSq {S T A B : SSet.{u}} (j : S ⟶ T) (i : A ⟶ B) : joinFunctor.PushoutObjObj j i where
   pt := pushout (joinMap j (𝟙 A)) (joinMap (𝟙 S) i)
   inl := pushout.inl _ _
@@ -87,6 +87,7 @@ lemma joinSq_ι {S T A B : SSet.{u}} (j : S ⟶ T) (i : A ⟶ B) :
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
+/-- Any two pushout-product presentations of `j ⋆̂ i` have isomorphic corner maps `.ι`. -/
 def pushoutObjObj_ι_arrowIso {S T A B : SSet.{u}} (j : S ⟶ T) (i : A ⟶ B)
     (sq sq' : joinFunctor.PushoutObjObj j i) :
     Arrow.mk sq.ι ≅ Arrow.mk sq'.ι := by
@@ -96,11 +97,14 @@ def pushoutObjObj_ι_arrowIso {S T A B : SSet.{u}} (j : S ⟶ T) (i : A ⟶ B)
   · simp [Functor.PushoutObjObj.inl_ι]
   · simp [Functor.PushoutObjObj.inr_ι]
 
+/-- The Leibniz pushout-product functor `Arrow ⥤ Arrow` for the join with `j` fixed. -/
 def Lj {S T : SSet.{u}} (j : S ⟶ T) : Arrow SSet.{u} ⥤ Arrow SSet.{u} :=
   (joinFunctor.{u}).leibnizPushout.obj (Arrow.mk j)
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
+/-- Identifies the join Leibniz product `leibnizJoin j i` with mathlib's generic
+Leibniz pushout corner map. -/
 def cornerIso {S T A B : SSet.{u}} (j : S ⟶ T) (i : A ⟶ B) :
     Arrow.mk (leibnizJoin j i) ≅
       Arrow.mk ((Functor.PushoutObjObj.ofHasPushout joinFunctor j i).ι) :=
