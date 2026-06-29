@@ -167,6 +167,29 @@ example : HasProducts K := inferInstance
 /-- An ∞-cosmos has pullbacks. -/
 example {E B A : K} (p : E ↠ B) (f : A ⟶ B) : HasPullback p.1 f := inferInstance
 
+/-! ### The underlying category of an ∞-cosmos
+
+The underlying category `K₀` of an ∞-cosmos `K` (blueprint `defn:underlying-cat-of-cosmos`) has the
+∞-categories of `K` as objects and the `0`-arrows as morphisms, where a `0`-arrow `A ⟶ B` is a
+vertex of the functor space `Fun A B`. Since a simplicial category is formalized as an enriched
+ordinary category, `K` already carries this `1`-category structure: the ambient `Category K`
+instance is, by definition, the underlying category. The equivalence `homEquivFunVertex` records the
+characterization requested in the blueprint, identifying the morphisms of this category with the
+vertices of the functor spaces. -/
+
+/-- The underlying category of an ∞-cosmos `K` is the ambient `1`-category structure on `K`. -/
+example : Category K := inferInstance
+
+/-- A morphism `A ⟶ B` in the underlying category of an ∞-cosmos is the same data as a `0`-arrow:
+a vertex of the functor space `Fun A B`, i.e. a map from the monoidal unit `𝟙_ SSet` into it. -/
+def homEquivFunVertex {A B : K} : (A ⟶ B) ≃ (𝟙_ SSet ⟶ (Fun A B).obj) :=
+  eHomEquiv SSet
+
+/-- Under the identification of morphisms with `0`-arrows, the identity morphism corresponds to the
+enriched identity vertex. -/
+lemma homEquivFunVertex_id (A : K) : homEquivFunVertex (𝟙 A) = eId SSet A :=
+  eHomEquiv_id SSet A
+
 end InfinityCosmos
 
 end CategoryTheory
