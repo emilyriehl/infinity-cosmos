@@ -3,7 +3,10 @@ Copyright (c) 2025 Emily Riehl. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: JHU Category Theory Seminar
 -/
-import InfinityCosmos.ForMathlib.InfinityCosmos.Isofibrations
+import InfinityCosmos.ForMathlib.InfinityCosmos.CotensorPointIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.CotensorIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
 
 open scoped Simplicial
 

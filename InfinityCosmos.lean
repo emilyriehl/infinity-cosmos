@@ -2,6 +2,7 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.TwoTruncated
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.CotensorIso
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
@@ -52,9 +53,11 @@ import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTermina
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Tensors
 import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+import InfinityCosmos.ForMathlib.InfinityCosmos.CotensorPointIso
 import InfinityCosmos.ForMathlib.InfinityCosmos.EquivHtpyEquiv
 import InfinityCosmos.ForMathlib.InfinityCosmos.Goals
 import InfinityCosmos.ForMathlib.InfinityCosmos.Isofibrations
+import InfinityCosmos.ForMathlib.InfinityCosmos.LeibnizCotensorRepresentable
 import InfinityCosmos.ForMathlib.InfinityCosmos.LeibnizCotensorTrivialFibration
 import InfinityCosmos.ForMathlib.InfinityCosmos.TrivialFibrationLimits
 import InfinityCosmos.Init
