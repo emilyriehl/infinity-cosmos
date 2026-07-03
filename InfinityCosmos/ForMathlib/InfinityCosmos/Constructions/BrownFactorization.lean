@@ -90,28 +90,49 @@ lemma coherentIsoPathMap_tgt {A B : K} (f : A ⟶ B) :
     SSet.isTerminalDeltaZero.hom_ext _ _
   rw [← Category.assoc, htgt, Category.id_comp]
 
-/-- The pullback used to define the Brown factorization object exists. -/
+/-- The source-endpoint evaluation of the coherent-isomorphism path object, valued directly in `B`
+through the point-cotensor identification `Δ[0] ⋔ B ≅ B`. It is an isofibration: the contravariant
+cotensor isofibration `cotensorContraIsofibration coherentIso.src B` composed with the isomorphism
+`cotensorPointIso B`. -/
+noncomputable def brownFactorizationSrc (B : K) : (SSet.coherentIso ⋔ B) ↠ B :=
+  compIsofibration (cotensorContraIsofibration SSet.coherentIso.src B)
+    ⟨(cotensorPointIso B).hom, iso_isIsofibration _⟩
+
+@[simp]
+lemma brownFactorizationSrc_map (B : K) :
+    (brownFactorizationSrc B).1 =
+      cotensorContraMap SSet.coherentIso.src B ≫ (cotensorPointIso B).hom := rfl
+
+/-- The pullback used to define the Brown factorization object exists. The Brown factorization is
+the pullback of the source-endpoint evaluation `brownFactorizationSrc` and `f`. -/
 noncomputable instance brownFactorization_hasPullback {A B : K} (f : A ⟶ B) :
-    HasPullback (cotensorContraMap SSet.coherentIso.src B) (cotensorPointMap f) := by
+    HasPullback (cotensorContraMap SSet.coherentIso.src B ≫ (cotensorPointIso B).hom) f := by
   have : HasConicalPullback SSet
-      (cotensorContraMap SSet.coherentIso.src B) (cotensorPointMap f) := by
-    exact has_isofibration_pullbacks (cotensorContraIsofibration SSet.coherentIso.src B)
-      (cotensorPointMap f)
+      (cotensorContraMap SSet.coherentIso.src B ≫ (cotensorPointIso B).hom) f :=
+    has_isofibration_pullbacks (brownFactorizationSrc B) f
   infer_instance
 
-/-- The Brown factorization pullback object, before identifying `Δ[0] ⋔ B` with `B`. -/
+/-- The Brown factorization pullback object: the pullback of the source-endpoint evaluation (valued
+in `B` through `Δ[0] ⋔ B ≅ B`) and `f`. -/
 noncomputable def brownFactorizationObj {A B : K} (f : A ⟶ B) : K :=
-  pullback (cotensorContraMap SSet.coherentIso.src B) (cotensorPointMap f)
+  pullback (cotensorContraMap SSet.coherentIso.src B ≫ (cotensorPointIso B).hom) f
 
 /-- The projection from the Brown factorization object to the coherent-isomorphism path object. -/
 noncomputable def brownFactorizationPath {A B : K} (f : A ⟶ B) :
     brownFactorizationObj f ⟶ SSet.coherentIso ⋔ B :=
-  pullback.fst (cotensorContraMap SSet.coherentIso.src B) (cotensorPointMap f)
+  pullback.fst (cotensorContraMap SSet.coherentIso.src B ≫ (cotensorPointIso B).hom) f
 
 /-- The left projection from the Brown factorization object. -/
 noncomputable def brownFactorizationLeft {A B : K} (f : A ⟶ B) :
     brownFactorizationObj f ⟶ A :=
-  pullback.snd (cotensorContraMap SSet.coherentIso.src B) (cotensorPointMap f)
+  pullback.snd (cotensorContraMap SSet.coherentIso.src B ≫ (cotensorPointIso B).hom) f
+
+/-- The Brown factorization square is a pullback of the source-endpoint evaluation and `f`. This
+falls out of the definition of `brownFactorizationObj` as that pullback. -/
+lemma brownFactorization_isPullback {A B : K} (f : A ⟶ B) :
+    IsPullback (brownFactorizationPath f) (brownFactorizationLeft f)
+      (cotensorContraMap SSet.coherentIso.src B ≫ (cotensorPointIso B).hom) f :=
+  IsPullback.of_hasPullback _ _
 
 /-- The right endpoint map from the Brown factorization object, valued in the point cotensor. -/
 noncomputable def brownFactorizationRightPoint {A B : K} (f : A ⟶ B) :
@@ -122,7 +143,8 @@ noncomputable def brownFactorizationRightPoint {A B : K} (f : A ⟶ B) :
 noncomputable def brownFactorizationSection {A B : K} (f : A ⟶ B) :
     A ⟶ brownFactorizationObj f :=
   pullback.lift (coherentIsoPathMap f) (𝟙 A) (by
-    rw [Category.id_comp, coherentIsoPathMap_src])
+    rw [Category.id_comp, ← Category.assoc, coherentIsoPathMap_src]
+    exact cotensorPointMap_comp_cotensorPointIsoHom f)
 
 /-- The path projection of the Brown section is the constant coherent-isomorphism path. -/
 lemma brownFactorizationSection_path {A B : K} (f : A ⟶ B) :
