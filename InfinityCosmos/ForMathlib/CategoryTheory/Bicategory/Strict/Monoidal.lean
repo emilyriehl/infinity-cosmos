@@ -56,6 +56,15 @@ lemma whiskerLeft_whiskerLeft_strict {W X Y Z : C} (p : W ⟶ X) (q : X ⟶ Y) {
   rw [comp_whiskerLeft, Strict.associator_eqToIso, Strict.associator_eqToIso]
   simp
 
+/-- In a strict bicategory, whiskering on the left with a composite `p ≫ q` is, up to `eqToHom`,
+the nested whiskering `p ◁ (q ◁ ζ)`. -/
+lemma comp_whiskerLeft_strict {W X Y Z : C} (p : W ⟶ X) (q : X ⟶ Y) {u v : Y ⟶ Z}
+    (ζ : u ⟶ v) :
+    (p ≫ q) ◁ ζ =
+      eqToHom (by rw [Strict.assoc]) ≫ p ◁ q ◁ ζ ≫ eqToHom (by rw [Strict.assoc]) := by
+  rw [whiskerLeft_whiskerLeft_strict]
+  simp
+
 /-- In a strict bicategory, whiskering on the right with a composite `p ≫ q` is, up to `eqToHom`,
 the iterated whiskering `(ζ ▷ p) ▷ q`. -/
 lemma whiskerRight_comp_strict {W X Y Z : C} {u v : W ⟶ X} (ζ : u ⟶ v) (p : X ⟶ Y) (q : Y ⟶ Z) :

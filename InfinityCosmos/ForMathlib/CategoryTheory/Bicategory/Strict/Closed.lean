@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Fernando Chu
 -/
 import Mathlib.CategoryTheory.Monoidal.Closed.Basic
+import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
 import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Monoidal
-import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Adjunction
 
 /-!
 # Cartesian closed strict bicategories
@@ -21,8 +21,8 @@ isomorphism of categories `uncurryIso`.
   bicategories.
 * `CategoryTheory.Bicategory.Strict.CartesianClosed.uncurryIso`: the uncurry isomorphism of
   hom-categories `(Y ⟶ (X ⟶[C] Z)) ≅ (X ⊗ Y ⟶ Z)`.
-* `CategoryTheory.Bicategory.Strict.CartesianClosed.ihomPreCore`: the internal hom `ihom J`
-  as the data of a strict pseudofunctor `C ⥤ C`; its action `ihomMap₂` on 2-cells is obtained
+* `CategoryTheory.Bicategory.Strict.CartesianClosed.ihomPseudofunctor`: the internal hom
+  `ihom J` as a strict pseudofunctor `C ⥤ C`; its action `ihomMap₂` on 2-cells is obtained
   by transporting whiskering with the evaluation 1-cell along the uncurry isomorphism.
 * `CategoryTheory.Bicategory.Strict.CartesianClosed.ihomMapAdjunction`: `ihom J` carries
   adjunctions to adjunctions ([RV] Proposition 2.1.7).
@@ -202,11 +202,15 @@ noncomputable def ihomPreCore : StrictPseudofunctorPreCore C C where
   map₂_whisker_left := ihomMap₂_whiskerLeft J
   map₂_whisker_right η w := ihomMap₂_whiskerRight J η w
 
+/-- `ihom J` as a strict pseudofunctor `C ⥤ C`, induced by the data of `ihomPreCore J`. -/
+noncomputable def ihomPseudofunctor : StrictPseudofunctor C C :=
+  .mk'' (ihomPreCore J)
+
 /-- In a cartesian closed strict bicategory, the internal hom `ihom J` carries adjunctions to
 adjunctions: if `f ⊣ u`, then `(ihom J).map f ⊣ (ihom J).map u`. -/
 noncomputable def ihomMapAdjunction {f : A ⟶ B} {u : B ⟶ A} (adj : f ⊣ u) :
     (ihom J).map f ⊣ (ihom J).map u :=
-  (ihomPreCore J).mapAdjunction adj
+  (ihomPseudofunctor J).mapAdjunction adj
 
 end IhomPseudofunctor
 
