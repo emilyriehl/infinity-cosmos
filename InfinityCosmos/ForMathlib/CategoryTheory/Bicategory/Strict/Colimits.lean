@@ -26,9 +26,10 @@ colimits, the dual of [RV] Proposition 2.4.2.
 * `CategoryTheory.Bicategory.Strict.CartesianClosed.preservesColimitOfAdjunction`: a 1-cell
   admitting a right adjoint preserves colimits.
 
-We also record, for a strict bicategory, the transport of (absolute) left Kan lifts along
-equalities of their boundary 1-cells (`LeftLift.ofEq`) and the stability of absolute left Kan
-lifts under whiskering (`LeftLift.IsAbsKan.whisker`).
+We also record, for a strict bicategory, the stability of absolute left Kan lifts under
+whiskering (`LeftLift.IsAbsKan.whisker`). The transport of (absolute) left Kan lifts along
+isomorphisms of their boundary 1-cells (`LeftLift.ofIso`) is in `AbsoluteLifting`, as it needs no
+strictness.
 
 ## References
 * [E. Riehl and D. Verity, *Elements of ∞-Category Theory*][RiehlVerity2022]
@@ -44,43 +45,23 @@ variable {C : Type u} [Bicategory.{w, v} C] [Bicategory.Strict C]
 
 namespace LeftLift
 
-/-- Transport a left lift along equalities of its two boundary 1-cells; in a strict bicategory
-such equalities arise from the strictness of unitors and associators. -/
-def ofEq {a b x : C} {f f' : b ⟶ a} {g g' : x ⟶ a}
-    (hf : f = f') (hg : g = g') (t : LeftLift f g) : LeftLift f' g' :=
-  LeftLift.mk t.lift (eqToHom hg.symm ≫ t.unit ≫ eqToHom (congrArg (t.lift ≫ ·) hf))
-
-/-- A left lift is isomorphic to its transport along reflexivity. -/
-def ofEqIso {a b x : C} {f : b ⟶ a} {g : x ⟶ a} (t : LeftLift f g) : t ≅ t.ofEq rfl rfl :=
-  eqToIso (by simpa [ofEq] using t.eq_mk)
-
-/-- `LeftLift.ofEq` preserves Kan lifts. -/
-def IsKan.ofEq {a b x : C}
-    {f f' : b ⟶ a} {g g' : x ⟶ a} {t : LeftLift f g} (H : t.IsKan) (hf : f = f')
-    (hg : g = g') : (t.ofEq hf hg).IsKan := by
-  subst hf hg; exact H.ofIsoKan (ofEqIso t)
-
-/-- `LeftLift.ofEq` preserves absolute left Kan lifts. -/
-def IsAbsKan.ofEq {a b x : C}
-    {f f' : b ⟶ a} {g g' : x ⟶ a} {t : LeftLift f g} (H : t.IsAbsKan) (hf : f = f')
-    (hg : g = g') : (t.ofEq hf hg).IsAbsKan := by
-  subst hf hg; exact H.ofIsoAbsKan (ofEqIso t)
-
 set_option backward.isDefEq.respectTransparency false in
 /-- Whiskering an absolute left Kan lift yields an absolute left Kan lift. -/
-def IsAbsKan.whisker {a b x y : C}
+noncomputable def IsAbsKan.whisker {a b x y : C}
     {f : b ⟶ a} {g : x ⟶ a} {t : LeftLift f g} (H : t.IsAbsKan) (h : y ⟶ x) :
     (t.whisker h).IsAbsKan := by
   intro z k
   -- whiskering twice agrees, up to strict associativity, with whiskering by the composite
-  have i : (t.whisker (k ≫ h)).ofEq rfl (Strict.assoc k h g) ≅ (t.whisker h).whisker k :=
+  have i : (t.whisker (k ≫ h)).ofIso (Iso.refl _) (eqToIso (Strict.assoc k h g)) ≅
+      (t.whisker h).whisker k :=
     StructuredArrow.isoMk (eqToIso (Strict.assoc k h t.lift)) (by
-      simp only [LeftLift.ofEq, whisker_unit, whisker_lift, StructuredArrow.mk_hom_eq_self,
-        Strict.associator_eqToIso, eqToIso.hom, eqToIso.inv, eqToHom_map, whiskerLeft_comp,
-        whiskerLeft_eqToHom, Category.assoc, eqToHom_trans, eqToHom_refl, Category.comp_id]
+      simp only [LeftLift.ofIso_unit, LeftLift.ofIso_lift, Iso.refl_hom, whiskerLeft_id,
+        whisker_unit, whisker_lift, Strict.associator_eqToIso,
+        eqToIso.hom, eqToIso.inv, eqToHom_map, whiskerLeft_comp, whiskerLeft_eqToHom,
+        Category.assoc, eqToHom_trans, Category.comp_id]
       rw [whiskerLeft_whiskerLeft_strict]
       simp)
-  exact ((H (k ≫ h)).ofEq rfl (Strict.assoc k h g)).ofIsoKan i
+  exact ((H (k ≫ h)).ofIso (Iso.refl _) (eqToIso (Strict.assoc k h g))).ofIsoKan i
 
 end LeftLift
 
@@ -214,27 +195,31 @@ noncomputable def preservesColimitOfAdjunction {B : C} {u : A ⟶ B} {f : B ⟶ 
     -- Restricting the unit of `u ⊣ f` along the colimit 1-cell gives an absolute left
     -- lifting of `c.lift` through `f`.
     let s : LeftLift f c.lift :=
-      ((LeftLift.mk u adj.unit).whisker c.lift).ofEq rfl (Strict.comp_id c.lift)
+      ((LeftLift.mk u adj.unit).whisker c.lift).ofIso (Iso.refl _) (eqToIso (Strict.comp_id c.lift))
     have Hs : s.IsAbsKan :=
-      LeftLift.IsAbsKan.ofEq (LeftLift.IsAbsKan.whisker adj.isAbsoluteLeftKanLift c.lift)
-        rfl (Strict.comp_id c.lift)
+      LeftLift.IsAbsKan.ofIso (LeftLift.IsAbsKan.whisker adj.isAbsoluteLeftKanLift c.lift)
+        (Iso.refl _) (eqToIso (Strict.comp_id c.lift))
     -- Pasting the colimit cocone with it is again absolute ([RV] Lemma 2.4.1, composition);
     -- we transport the pasted diagram along `f ≫ Δ_A = Δ_B ≫ f^J`.
-    have Hp : ((c.paste s).ofEq (const_ihom f) (Strict.comp_id d).symm).IsAbsKan :=
-      LeftLift.IsAbsKan.ofEq (hc.paste Hs) (const_ihom f) (Strict.comp_id d).symm
+    have Hp : ((c.paste s).ofIso (eqToIso (const_ihom f))
+        (eqToIso (Strict.comp_id d).symm)).IsAbsKan :=
+      LeftLift.IsAbsKan.ofIso (hc.paste Hs) (eqToIso (const_ihom f))
+        (eqToIso (Strict.comp_id d).symm)
     -- Key comparison: by 2-functoriality of the cotensor in the exponent variable
     -- (`f^J Δ = Δ f` and `η^J Δ = Δ η`, see `const_whiskerLeft_ihomMapAdjunction_unit`),
     -- the pasted diagram above agrees with the transposed cone, i.e. with the pasting of
     -- the image cocone `mapCocone d u c` onto the restricted lifting `t`.
-    have key : (c.paste s).ofEq (const_ihom f) (Strict.comp_id d).symm ≅
+    have key : (c.paste s).ofIso (eqToIso (const_ihom f)) (eqToIso (Strict.comp_id d).symm) ≅
         t.paste (mapCocone d u c) := by
       refine StructuredArrow.isoMk (Iso.refl _) ?_
       -- comparison of the two pasted units, collapsing the double right-whisker
-      simp only [t, s, adjJ, LeftLift.ofEq, LeftLift.paste, mapCocone, LeftLift.whisker_unit,
-        LeftLift.whisker_lift, StructuredArrow.mk_hom_eq_self, StructuredArrow.mk_right,
-        Iso.refl_hom, Functor.map_id, Category.comp_id, Strict.associator_eqToIso, eqToIso.hom,
-        eqToIso.inv, comp_whiskerRight, eqToHom_whiskerRight, whiskerRight_whiskerRight_strict,
-        Category.assoc, eqToHom_trans, eqToHom_trans_assoc, eqToHom_refl, Category.id_comp]
+      simp only [t, s, adjJ, LeftLift.ofIso_unit, LeftLift.ofIso_lift, LeftLift.paste, mapCocone,
+        LeftLift.whisker_unit, LeftLift.whisker_lift, StructuredArrow.mk_hom_eq_self,
+        StructuredArrow.mk_right, Iso.refl_hom, whiskerLeft_id, Functor.map_id, Category.comp_id,
+        Strict.associator_eqToIso, eqToIso.hom, eqToIso.inv,
+        whiskerLeft_eqToHom, comp_whiskerRight, eqToHom_whiskerRight,
+        whiskerRight_whiskerRight_strict, Category.assoc, eqToHom_trans, eqToHom_trans_assoc,
+        eqToHom_refl, Category.id_comp]
       -- exchange the two whiskered 2-cells
       rw [whisker_exchange_assoc]
       -- regroup the left whiskering and apply 2-naturality of `const`

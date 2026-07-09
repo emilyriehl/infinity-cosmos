@@ -1,12 +1,6 @@
-/-
-Copyright (c) 2026 Fernando Chu. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Fernando Chu
--/
 import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
-import Mathlib.CategoryTheory.Bicategory.EqToHom
 import Mathlib.CategoryTheory.Bicategory.Functor.StrictPseudofunctor
-import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Products
+import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Basic
 import InfinityCosmos.ForMathlib.CategoryTheory.IsoCat
 
 /-!
@@ -19,8 +13,6 @@ functor `(Z ⟶ x ⊗ y) ⥤ (Z ⟶ x) × (Z ⟶ y)` is an isomorphism of catego
 
 ## Main definitions
 
-* `CategoryTheory.Bicategory.homFunctor`: the hom functor `Cᵒᵖ ⥤ C ⥤ Cat` of a strict
-  bicategory.
 * `CategoryTheory.Bicategory.Strict.CartesianMonoidal`: the typeclass of cartesian monoidal
   strict bicategories.
 * `CategoryTheory.Bicategory.Strict.CartesianMonoidal.homTensorIsoProd`: the isomorphism of
@@ -29,9 +21,6 @@ functor `(Z ⟶ x ⊗ y) ⥤ (Z ⟶ x) × (Z ⟶ y)` is an isomorphism of catego
   `a ⊗ ·` as the data of a strict pseudofunctor `C ⥤ C`. Its action on a 2-cell `η : f ⟶ g`
   is `tensorLeftMap₂ a η : a ◁ f ⟶ a ◁ g`, obtained by transporting `η` along
   `homTensorIsoProd`.
-
-We also record `eqToHom` versions of the whiskering coherence laws of a strict bicategory,
-such as `whiskerLeft_whiskerLeft_strict` and `whiskerRight_whiskerRight_strict`.
 -/
 
 universe w v u
@@ -41,88 +30,14 @@ namespace CategoryTheory.Bicategory
 open Opposite MonoidalCategory CartesianMonoidalCategory
 open Functor.LaxMonoidal Functor.OplaxMonoidal Functor.Monoidal
 
-variable {C : Type u} [Bicategory.{w, v} C] [Bicategory.Strict C]
+-- Some needed simp lemmas
+@[simp]
+lemma Cat.fst_toFunctor_obj {X Y : Cat} (p : ↥(X ⊗ Y)) : (fst X Y).toFunctor.obj p = p.1 := rfl
 
-section EqToHom
+@[simp]
+lemma Cat.snd_toFunctor_obj {X Y : Cat} (p : ↥(X ⊗ Y)) : (snd X Y).toFunctor.obj p = p.2 := rfl
 
-/-! ### Whiskering and `eqToHom` in a strict bicategory -/
-
-/-- In a strict bicategory, a nested left whiskering `p ◁ (q ◁ ζ)` is, up to `eqToHom`, the
-whiskering `(p ≫ q) ◁ ζ`. -/
-lemma whiskerLeft_whiskerLeft_strict {W X Y Z : C} (p : W ⟶ X) (q : X ⟶ Y) {u v : Y ⟶ Z}
-    (ζ : u ⟶ v) :
-    p ◁ q ◁ ζ =
-      eqToHom (by rw [Strict.assoc]) ≫ (p ≫ q) ◁ ζ ≫ eqToHom (by rw [Strict.assoc]) := by
-  rw [comp_whiskerLeft, Strict.associator_eqToIso, Strict.associator_eqToIso]
-  simp
-
-/-- In a strict bicategory, whiskering on the left with a composite `p ≫ q` is, up to `eqToHom`,
-the nested whiskering `p ◁ (q ◁ ζ)`. -/
-lemma comp_whiskerLeft_strict {W X Y Z : C} (p : W ⟶ X) (q : X ⟶ Y) {u v : Y ⟶ Z}
-    (ζ : u ⟶ v) :
-    (p ≫ q) ◁ ζ =
-      eqToHom (by rw [Strict.assoc]) ≫ p ◁ q ◁ ζ ≫ eqToHom (by rw [Strict.assoc]) := by
-  rw [whiskerLeft_whiskerLeft_strict]
-  simp
-
-/-- In a strict bicategory, whiskering on the right with a composite `p ≫ q` is, up to `eqToHom`,
-the iterated whiskering `(ζ ▷ p) ▷ q`. -/
-lemma whiskerRight_comp_strict {W X Y Z : C} {u v : W ⟶ X} (ζ : u ⟶ v) (p : X ⟶ Y) (q : Y ⟶ Z) :
-    ζ ▷ (p ≫ q) =
-      eqToHom (by rw [Strict.assoc]) ≫ (ζ ▷ p) ▷ q ≫ eqToHom (by rw [Strict.assoc]) := by
-  rw [whiskerRight_comp, Strict.associator_eqToIso, Strict.associator_eqToIso]
-  simp
-
-/-- In a strict bicategory, an iterated right whiskering `(ζ ▷ p) ▷ q` is, up to `eqToHom`, the
-whiskering by the composite `p ≫ q`. -/
-lemma whiskerRight_whiskerRight_strict {W X Y Z : C} {u v : W ⟶ X} (ζ : u ⟶ v) (p : X ⟶ Y)
-    (q : Y ⟶ Z) :
-    (ζ ▷ p) ▷ q =
-      eqToHom (by rw [Strict.assoc]) ≫ ζ ▷ (p ≫ q) ≫ eqToHom (by rw [Strict.assoc]) := by
-  rw [whiskerRight_comp_strict]
-  simp
-
-/-- In a strict bicategory, the associativity of whiskerings holds up to `eqToHom`. -/
-lemma whisker_assoc_strict {W X Y Z : C} (p : W ⟶ X) {u v : X ⟶ Y} (ζ : u ⟶ v) (q : Y ⟶ Z) :
-    (p ◁ ζ) ▷ q =
-      eqToHom (by rw [Strict.assoc]) ≫ p ◁ (ζ ▷ q) ≫ eqToHom (by rw [Strict.assoc]) := by
-  rw [whisker_assoc, Strict.associator_eqToIso, Strict.associator_eqToIso]
-  simp
-
-end EqToHom
-
-variable (C)
-
-set_option backward.isDefEq.respectTransparency false in
-/-- The hom functor `Cᵒᵖ ⥤ C ⥤ Cat` of a strict bicategory, sending a pair of objects `X`, `Y`
-to the hom category `X ⟶ Y`, acting by postcomposition in the covariant variable and by
-precomposition in the contravariant one. -/
-def homFunctor : Cᵒᵖ ⥤ C ⥤ Cat where
-  obj X :=
-    { obj Y := Cat.of (X.unop ⟶ Y)
-      map φ := (postcomp X.unop φ).toCatHom
-      map_id _ := by
-        apply Cat.ext
-        refine Functor.ext (fun _ ↦ by simp [Functor.toCatHom]) fun _ _ _ ↦ by
-          simp [Functor.toCatHom, Strict.rightUnitor_eqToIso]
-      map_comp _ _ := by
-        apply Cat.ext
-        refine Functor.ext (fun _ ↦ by simp [Functor.toCatHom]) fun _ _ _ ↦ by
-          simp [Functor.toCatHom, Strict.associator_eqToIso] }
-  map φ :=
-    { app Y := (precomp Y φ.unop).toCatHom
-      naturality _ _ _ := by
-        apply Cat.ext
-        refine Functor.ext (fun _ ↦ by simp [Functor.toCatHom]) fun _ _ _ ↦ by
-          simp [Functor.toCatHom, Strict.associator_eqToIso] }
-  map_id _ := by
-    ext
-    refine Functor.ext (fun _ ↦ by simp [Functor.toCatHom]) fun _ _ _ ↦ by
-      simp [Functor.toCatHom, Strict.leftUnitor_eqToIso]
-  map_comp _ _ := by
-    ext
-    refine Functor.ext (fun _ ↦ by simp [Functor.toCatHom]) fun _ _ _ ↦ by
-      simp [Functor.toCatHom, Strict.associator_eqToIso]
+variable (C : Type u) [Bicategory.{w, v} C] [Bicategory.Strict C]
 
 /-- A strict bicategory is *cartesian monoidal* if its underlying category is cartesian monoidal
 and, for every object `Z`, the hom functor `(Z ⟶ ·) : C ⥤ Cat` is monoidal. The latter condition

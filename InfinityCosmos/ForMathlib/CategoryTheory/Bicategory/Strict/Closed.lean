@@ -1,8 +1,3 @@
-/-
-Copyright (c) 2026 Fernando Chu. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Fernando Chu
--/
 import Mathlib.CategoryTheory.Monoidal.Closed.Basic
 import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
 import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Monoidal
