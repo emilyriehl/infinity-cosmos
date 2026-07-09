@@ -37,6 +37,16 @@ lemma Cat.fst_toFunctor_obj {X Y : Cat} (p : ↥(X ⊗ Y)) : (fst X Y).toFunctor
 @[simp]
 lemma Cat.snd_toFunctor_obj {X Y : Cat} (p : ↥(X ⊗ Y)) : (snd X Y).toFunctor.obj p = p.2 := rfl
 
+universe v₁ u₁
+
+/-- An isomorphism `e : X ≅ Y` in `Cat` gives an isomorphism of categories between the
+underlying categories of `X` and `Y`. -/
+def IsoCat.ofIso {X Y : Cat.{v₁, u₁}} (e : X ≅ Y) : IsoCat X Y where
+  functor := e.hom.toFunctor
+  inverse := e.inv.toFunctor
+  unitIso := congr(($(e.hom_inv_id)).toFunctor).symm
+  counitIso := congr(($(e.inv_hom_id)).toFunctor)
+
 variable (C : Type u) [Bicategory.{w, v} C] [Bicategory.Strict C]
 
 /-- A strict bicategory is *cartesian monoidal* if its underlying category is cartesian monoidal
@@ -62,6 +72,23 @@ def homTensorIsoProd (a x y : C) : IsoCat (a ⟶ x ⊗ y) ((a ⟶ x) × (a ⟶ y
     unitIso := congr(($(δ_μ F x y)).toFunctor).symm
     counitIso := congr(($(μ_δ F x y)).toFunctor) }
 
+noncomputable def homTensorIsoProd' (a x y : C) : IsoCat (a ⟶ x ⊗ y) ((a ⟶ x) × (a ⟶ y)) :=
+  IsoCat.ofIso <| asIso (prodComparison ((homFunctor C).obj (op a)) x y)
+
+lemma homTensorIsoProd'_inv (a x y : C) :
+  (homTensorIsoProd' a x y).inverse =
+    (inv (prodComparison ((homFunctor C).obj (op a)) x y)).toFunctor :=
+  rfl
+
+lemma homTensorIsoProd_inverse_obj' (a x y : C) (p : (a ⟶ x) × (a ⟶ y)) :
+    (homTensorIsoProd' a x y).inverse.obj p = lift p.1 p.2 := by
+  set F := (homFunctor C).obj (op a)
+  apply hom_ext
+  · rw [lift_fst]
+    exact congr(($(inv_prodComparison_map_fst F x y)).toFunctor.obj p)
+  · rw [lift_snd]
+    exact congr(($(inv_prodComparison_map_snd F x y)).toFunctor.obj p)
+
 /-- The inverse of `homTensorIsoProd` sends a pair of morphisms to their `lift`. -/
 @[simp]
 lemma homTensorIsoProd_inverse_obj (a x y : C) (p : (a ⟶ x) × (a ⟶ y)) :
@@ -71,14 +98,6 @@ lemma homTensorIsoProd_inverse_obj (a x y : C) (p : (a ⟶ x) × (a ⟶ y)) :
   · exact congr(($(μ_fst F x y)).toFunctor.obj p).trans (lift_fst _ _).symm
   · exact congr(($(μ_snd F x y)).toFunctor.obj p).trans (lift_snd _ _).symm
 
-/-- The inverse of `homTensorIsoProd`, evaluated at `(fst, snd ≫ f)`, recovers the left
-whiskering `a ◁ f`. -/
-@[simp]
-lemma homTensorIsoProd_inverse_obj_whiskerLeft (a : C) {x y : C} (f : x ⟶ y) :
-    (homTensorIsoProd (a ⊗ x) a y).inverse.obj (fst a x, snd a x ≫ f) = a ◁ f := by
-  rw [homTensorIsoProd_inverse_obj]
-  apply hom_ext <;> simp
-
 /-- The functor `(x ⟶ y) ⥤ (a ⊗ x ⟶ a ⊗ y)` underlying the action on 2-cells of `tensorLeft a`.
 On objects it sends `f` to (something equal to) `a ◁ f`; see `tensorLeftMap₂Functor_obj`. -/
 def tensorLeftMap₂Functor (a x y : C) : (x ⟶ y) ⥤ (a ⊗ x ⟶ a ⊗ y) :=
@@ -87,8 +106,9 @@ def tensorLeftMap₂Functor (a x y : C) : (x ⟶ y) ⥤ (a ⊗ x ⟶ a ⊗ y) :=
 
 @[simp]
 lemma tensorLeftMap₂Functor_obj (a : C) {x y : C} (f : x ⟶ y) :
-    (tensorLeftMap₂Functor a x y).obj f = a ◁ f :=
-  homTensorIsoProd_inverse_obj_whiskerLeft a f
+    (tensorLeftMap₂Functor a x y).obj f = a ◁ f := by
+  unfold tensorLeftMap₂Functor
+  apply hom_ext <;> simp
 
 /-- The action on 2-cells of `tensorLeft a`: a 2-cell `η : f ⟶ g` between `f g : x ⟶ y` is
 transported to a 2-cell `a ◁ f ⟶ a ◁ g` using the inverse of `homTensorIsoProd`. -/
@@ -102,6 +122,7 @@ lemma tensorLeftMap₂_id (a : C) {x y : C} (f : x ⟶ y) :
   rw [tensorLeftMap₂, CategoryTheory.Functor.map_id]
   simp only [Category.id_comp, eqToHom_trans, eqToHom_refl]
 
+@[simp]
 lemma tensorLeftMap₂_comp (a : C) {x y : C} {f g h : x ⟶ y} (η : f ⟶ g) (θ : g ⟶ h) :
     tensorLeftMap₂ a (η ≫ θ) = tensorLeftMap₂ a η ≫ tensorLeftMap₂ a θ := by
   rw [tensorLeftMap₂, tensorLeftMap₂, tensorLeftMap₂, CategoryTheory.Functor.map_comp]
@@ -109,47 +130,32 @@ lemma tensorLeftMap₂_comp (a : C) {x y : C} {f g h : x ⟶ y} (η : f ⟶ g) (
 
 section WhiskerLaws
 
-set_option backward.isDefEq.respectTransparency false
+variable {Z x y : C} {r s : Z ⟶ x ⊗ y} {θ θ' : r ⟶ s}
 
+#synth IsIso (prodComparison ((homFunctor C).obj (op Z)) x y)
+
+lemma homFunctor_hom_ext' {Z x y : C} {r s : Z ⟶ x ⊗ y} {θ θ' : r ⟶ s}
+    (hfst : θ ▷ fst x y = θ' ▷ fst x y) (hsnd : θ ▷ snd x y = θ' ▷ snd x y) : θ = θ' := by
+  have : (homTensorIsoProd Z x y).inverse.Faithful :=
+    (homTensorIsoProd Z x y).symm.toEquivalence.faithful_functor
+  have foo := (homTensorIsoProd Z x y).inverse.map_injective
+    (X := (r ≫ fst x y, r ≫ snd x y)) (Y := (s ≫ fst x y, s ≫ snd x y))
+  dsimp at foo
+  sorry
+
+
+set_option backward.isDefEq.respectTransparency false
 /-- Two 2-morphisms with the same source and target into a tensor `x ⊗ y` are equal as soon as
 their whiskerings by `fst` and `snd` agree. This is joint monicity coming from the isomorphism of
 categories `Hom(Z, x ⊗ y) ≅ Hom(Z, x) × Hom(Z, y)`. -/
 lemma homFunctor_hom_ext {Z x y : C} {r s : Z ⟶ x ⊗ y} {θ θ' : r ⟶ s}
     (hfst : θ ▷ fst x y = θ' ▷ fst x y) (hsnd : θ ▷ snd x y = θ' ▷ snd x y) : θ = θ' := by
-  haveI : (prodComparison ((homFunctor C).obj (op Z)) x y).toFunctor.Faithful :=
-    (Cat.equivOfIso
-      (asIso (prodComparison ((homFunctor C).obj (op Z)) x y))).faithful_functor
+  have : (prodComparison ((homFunctor C).obj (op Z)) x y).toFunctor.Faithful :=
+    (Cat.equivOfIso (asIso (prodComparison ((homFunctor C).obj (op Z)) x y))).faithful_functor
   apply (prodComparison ((homFunctor C).obj (op Z)) x y).toFunctor.map_injective
+  -- simp [prodComparison, homFunctor, postcomp, lift, ]
   show ((θ ▷ fst x y, θ ▷ snd x y) : _ × _) = (θ' ▷ fst x y, θ' ▷ snd x y)
   rw [hfst, hsnd]
-
-/-- Whiskering the image of a pair `(α, β)` under the inverse of `homTensorIsoProd` by `fst`
-recovers the first component `α`. -/
-lemma homTensorIsoProd_inverse_map_whiskerRight_fst {Z x y : C} {p p' : Z ⟶ x} {q q' : Z ⟶ y}
-    (α : p ⟶ p') (β : q ⟶ q') :
-    (homTensorIsoProd Z x y).inverse.map (X := (p, q)) (Y := (p', q')) (Prod.mkHom α β)
-        ▷ fst x y =
-      eqToHom (by simp) ≫ α ≫ eqToHom (by simp) := by
-  have e : (μ ((homFunctor C).obj (op Z)) x y).toFunctor ⋙
-      (((homFunctor C).obj (op Z)).map (fst x y)).toFunctor
-      = (fst (((homFunctor C).obj (op Z)).obj x)
-          (((homFunctor C).obj (op Z)).obj y)).toFunctor := by
-    rw [← Cat.Hom.comp_toFunctor, μ_fst]
-  exact Functor.congr_hom e (X := (p, q)) (Y := (p', q')) (Prod.mkHom α β)
-
-/-- Whiskering the image of a pair `(α, β)` under the inverse of `homTensorIsoProd` by `snd`
-recovers the second component `β`. -/
-lemma homTensorIsoProd_inverse_map_whiskerRight_snd {Z x y : C} {p p' : Z ⟶ x} {q q' : Z ⟶ y}
-    (α : p ⟶ p') (β : q ⟶ q') :
-    (homTensorIsoProd Z x y).inverse.map (X := (p, q)) (Y := (p', q')) (Prod.mkHom α β)
-        ▷ snd x y =
-      eqToHom (by simp) ≫ β ≫ eqToHom (by simp) := by
-  have e : (μ ((homFunctor C).obj (op Z)) x y).toFunctor ⋙
-      (((homFunctor C).obj (op Z)).map (snd x y)).toFunctor
-      = (snd (((homFunctor C).obj (op Z)).obj x)
-          (((homFunctor C).obj (op Z)).obj y)).toFunctor := by
-    rw [← Cat.Hom.comp_toFunctor, μ_snd]
-  exact Functor.congr_hom e (X := (p, q)) (Y := (p', q')) (Prod.mkHom α β)
 
 /-- The action of `tensorLeftMap₂Functor` on a 2-morphism, written as the image of an explicit
 pair under the inverse of `homTensorIsoProd`. -/
@@ -165,7 +171,11 @@ lemma tensorLeftMap₂_whiskerRight_fst (a : C) {x y : C} {f g : x ⟶ y} (η : 
     tensorLeftMap₂ a η ▷ fst a y = eqToHom (by simp) := by
   rw [tensorLeftMap₂]
   simp only [comp_whiskerRight, eqToHom_whiskerRight]
-  rw [tensorLeftMap₂Functor_map, homTensorIsoProd_inverse_map_whiskerRight_fst]
+  have h : (homTensorIsoProd (a ⊗ x) a y).inverse.map (Prod.mkHom (𝟙 (fst a x)) (snd a x ◁ η))
+      ▷ fst a y = eqToHom (by simp) ≫ 𝟙 (fst a x) ≫ eqToHom (by simp) :=
+    Functor.congr_hom congr(($(μ_fst ((homFunctor C).obj (op (a ⊗ x))) a y)).toFunctor)
+      (Prod.mkHom (𝟙 (fst a x)) (snd a x ◁ η))
+  rw [tensorLeftMap₂Functor_map, h]
   simp
 
 /-- Whiskering `tensorLeftMap₂ a η` by `snd` recovers `snd a x ◁ η` (up to `eqToHom`). -/
@@ -173,7 +183,11 @@ lemma tensorLeftMap₂_whiskerRight_snd (a : C) {x y : C} {f g : x ⟶ y} (η : 
     tensorLeftMap₂ a η ▷ snd a y = eqToHom (by simp) ≫ snd a x ◁ η ≫ eqToHom (by simp) := by
   rw [tensorLeftMap₂]
   simp only [comp_whiskerRight, eqToHom_whiskerRight]
-  rw [tensorLeftMap₂Functor_map, homTensorIsoProd_inverse_map_whiskerRight_snd]
+  have h : (homTensorIsoProd (a ⊗ x) a y).inverse.map (Prod.mkHom (𝟙 (fst a x)) (snd a x ◁ η))
+      ▷ snd a y = eqToHom (by simp) ≫ snd a x ◁ η ≫ eqToHom (by simp) :=
+    Functor.congr_hom congr(($(μ_snd ((homFunctor C).obj (op (a ⊗ x))) a y)).toFunctor)
+      (Prod.mkHom (𝟙 (fst a x)) (snd a x ◁ η))
+  rw [tensorLeftMap₂Functor_map, h]
   simp
 
 /-- The compatibility of `tensorLeftMap₂` with left whiskering. -/
@@ -219,8 +233,6 @@ def tensorLeft (a : C) : StrictPseudofunctorPreCore C C where
   obj c := a ⊗ c
   map f := a ◁ f
   map₂ η := tensorLeftMap₂ a η
-  map₂_id f := tensorLeftMap₂_id a f
-  map₂_comp η θ := tensorLeftMap₂_comp a η θ
   map_id _ := by simp
   map_comp _ _ := by simp
   map₂_whisker_left := tensorLeftMap₂_whiskerLeft a
