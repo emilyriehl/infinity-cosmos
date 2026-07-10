@@ -1,5 +1,6 @@
 import Mathlib.CategoryTheory.Bicategory.EqToHom
 import Mathlib.CategoryTheory.Category.Cat
+import InfinityCosmos.ForMathlib.CategoryTheory.IsoCat
 
 universe w v u
 
@@ -32,6 +33,26 @@ lemma whisker_assoc_strict (f : a ⟶ b) {g g' : b ⟶ c} (η : g ⟶ g') (h : c
   simp [whisker_assoc, Strict.associator_eqToIso]
 
 end EqToHom
+
+/-- `precomp` is functorial in the precomposed morphism (contravariantly). -/
+lemma precomp_comp {X X' X'' : C} (g : X ⟶ X') (f : X' ⟶ X'') (A : C) :
+    precomp A (g ≫ f) = precomp A f ⋙ precomp A g :=
+  Functor.ext (fun h => by simp) fun h h' φ => by
+    simp only [Functor.comp_map, precomp_map, comp_whiskerLeft, Strict.associator_eqToIso,
+      eqToIso.hom, eqToIso.inv]
+    rfl
+
+/-- Precomposing by an identity is the identity functor on the hom-category. -/
+lemma precomp_id (X A : C) : precomp A (𝟙 X) = 𝟭 (X ⟶ A) :=
+  Functor.ext (fun h => by simp) fun h h' φ => by simp [precomp, Strict.leftUnitor_eqToIso]
+
+/-- Precomposition by an isomorphism `e : X ≅ X'` of objects of `C` induces an isomorphism of
+hom-categories `(X ⟶ A) ≅ (X' ⟶ A)`. -/
+def homPrecomposeIso {X X' : C} (e : X ≅ X') (A : C) : IsoCat (X ⟶ A) (X' ⟶ A) where
+  functor := precomp A e.inv
+  inverse := precomp A e.hom
+  unitIso := by rw [← precomp_comp, e.hom_inv_id, precomp_id]
+  counitIso := by rw [← precomp_comp, e.inv_hom_id, precomp_id]
 
 variable (C)
 
