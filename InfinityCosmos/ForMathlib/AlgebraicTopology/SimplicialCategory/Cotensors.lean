@@ -121,7 +121,6 @@ lemma homEquiv'_comp {X Y Z : K} (f : X ⟶ Y) (g : Y ⟶ Z) :
   simp [homEquiv', sHomWhiskerRight, eHomEquiv_comp, eHomWhiskerRight, SSet.unitHomEquiv]
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Ordinary composition in the right variable, transported to enriched morphisms. -/
 lemma eHomEquiv_comp_eHomWhiskerRight {X Y Z : K} (f : X ⟶ Y) (g : Y ⟶ Z) :
     eHomEquiv SSet g ≫ eHomWhiskerRight SSet f Z = eHomEquiv SSet (f ≫ g) := by
@@ -171,7 +170,6 @@ lemma cotensor_coneNatTrans_naturality_left {U : SSet.{v}} {A X Y : K}
   rw [← whisker_exchange_assoc]
   rw [← eComp_eHomWhiskerRight]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Evaluating a cotensor cone at the identity of its representing object recovers the cone. -/
 lemma cotensor_coneNatTrans_eId {U : SSet.{v}} {A : K} (ux : Cotensor U A) :
     eId SSet ux.obj ≫ ux.coneNatTrans ux.obj = curry' ux.cone := by
