@@ -135,31 +135,54 @@ lemma ev_naturality (J : C) {A B : C} (u : A ⟶ B) :
 
 variable (J : C) {A B : C}
 
-def ihomHomFunctor (A B : C) : (A ⟶ B) ⥤ ((J ⟶[C] A) ⟶ (J ⟶[C] B)) :=
+/-- The action of `ihom J` on hom-categories, defined by currying precomposition with the
+evaluation. However, the action on objects is only propositionally equal to `(ihom J).map`, so we
+later define `ihomHomFunctor`, with the correct computation on objects. -/
+def ihomHomFunctor' (A B : C) : (A ⟶ B) ⥤ ((J ⟶[C] A) ⟶ (J ⟶[C] B)) :=
   precomp B ((ihom.ev J).app A) ⋙ curryFunctor J (J ⟶[C] A) B
 
-lemma ihomHomFunctor_obj (u : A ⟶ B) :
-    (ihomHomFunctor J A B).obj u = curry ((ihom.ev J).app A ≫ u) :=
+@[simp]
+lemma ihomHomFunctor'_obj (u : A ⟶ B) :
+    (ihomHomFunctor' J A B).obj u = curry ((ihom.ev J).app A ≫ u) :=
   rfl
 
+/-- The action of `ihom J` on hom-categories, satisfying
+`(ihomHomFunctor J A B).obj u = (ihom J).map u` definitionally. -/
+def ihomHomFunctor (A B : C) : (A ⟶ B) ⥤ ((J ⟶[C] A) ⟶ (J ⟶[C] B)) :=
+  (ihomHomFunctor' J A B).copyObj (fun u ↦ (ihom J).map u) (fun u ↦ eqToIso (by simp))
+
 @[simp]
-lemma ihomHomFunctor_obj_eq_ihom_map (u : A ⟶ B) :
-    (ihomHomFunctor J A B).obj u = (ihom J).map u := by
-  rw [ihomHomFunctor_obj, curry_ev_app_comp]
+lemma ihomHomFunctor_obj (u : A ⟶ B) :
+    (ihomHomFunctor J A B).obj u = (ihom J).map u :=
+  rfl
+
+lemma ihomHomFunctor_map {u v : A ⟶ B} (η : u ⟶ v) :
+    (ihomHomFunctor J A B).map η =
+      eqToHom (by simp) ≫ (ihomHomFunctor' J A B).map η ≫ eqToHom (by simp) :=
+  rfl
+
+/-- `ihomHomFunctor` agrees with the raw curried functor; they differ only by the `eqToHom`
+decorations that make its object action compute to `(ihom J).map`. -/
+lemma ihomHomFunctor_eq_ihomHomFunctor' (A B : C) :
+    ihomHomFunctor J A B = ihomHomFunctor' J A B :=
+  Functor.ext (fun _ ↦ by simp) (fun _ _ _ ↦ by simp [ihomHomFunctor_map])
 
 /-- Uncurrying `ihomHomFunctor`'s action on a 2-cell recovers whiskering by the evaluation. -/
-lemma uncurryFunctor_map_ihomHomFunctor {u v : A ⟶ B} (η : u ⟶ v) :
+lemma uncurryFunctor_map_ihomHomFunctor_map {u v : A ⟶ B} (η : u ⟶ v) :
     (uncurryFunctor J (J ⟶[C] A) B).map ((ihomHomFunctor J A B).map η) =
-      eqToHom (uncurry_curry _) ≫ (ihom.ev J).app A ◁ η ≫ eqToHom (uncurry_curry _).symm :=
-  Functor.congr_hom (uncurryIso J (J ⟶[C] A) B).counitIso _
+      eqToHom (ev_naturality J u) ≫ (ihom.ev J).app A ◁ η ≫ eqToHom (ev_naturality J v).symm := by
+  have h := Functor.congr_hom (uncurryIso J (J ⟶[C] A) B).counitIso
+    ((precomp B ((ihom.ev J).app A)).map η)
+  simp only [uncurryIso, Functor.comp_map, Functor.id_map, precomp_map] at h
+  simp [ihomHomFunctor_map, ihomHomFunctor', eqToHom_map, h]
 
 /-- `tensorLeftHomFunctor`'s map of `ihomHomFunctor`'s 2-cell action, whiskered with the
 evaluation, recovers whiskering of the original 2-cell. -/
 lemma tensorLeftHomFunctor_map_ihomHomFunctor_whiskerRight_ev {u v : A ⟶ B} (η : u ⟶ v) :
     (tensorLeftHomFunctor J (J ⟶[C] A) (J ⟶[C] B)).map ((ihomHomFunctor J A B).map η) ▷
         (ihom.ev J).app B =
-      eqToHom (uncurry_curry _) ≫ (ihom.ev J).app A ◁ η ≫ eqToHom (uncurry_curry _).symm := by
-  have h := uncurryFunctor_map_ihomHomFunctor J η
+      eqToHom (ev_naturality J u) ≫ (ihom.ev J).app A ◁ η ≫ eqToHom (ev_naturality J v).symm := by
+  have h := uncurryFunctor_map_ihomHomFunctor_map J η
   rw [uncurryFunctor_map] at h
   exact h
 
@@ -170,13 +193,11 @@ lemma ihomHomFunctor_map_whiskerLeft {A' : C} (w : A' ⟶ A) {u v : A ⟶ B} (η
       eqToHom (by simp) ≫ (ihomHomFunctor J A' A).obj w ◁ (ihomHomFunctor J A B).map η ≫
         eqToHom (by simp) := by
   apply (uncurryFunctor J (J ⟶[C] A') B).map_injective
-  rw [uncurryFunctor_map_ihomHomFunctor]
-  have h : J ◁ curry ((ihom.ev J).app A' ≫ w) ≫ (ihom.ev J).app A = (ihom.ev J).app A' ≫ w :=
-    (uncurry_eq _).symm.trans (uncurry_curry _)
-  simp [Functor.map_comp, eqToHom_map, uncurryFunctor_map, ihomHomFunctor_obj,
+  rw [uncurryFunctor_map_ihomHomFunctor_map]
+  simp [Functor.map_comp, eqToHom_map, uncurryFunctor_map,
     tensorLeftHomFunctor_map_whiskerLeft, Strict.associator_eqToIso,
     tensorLeftHomFunctor_map_ihomHomFunctor_whiskerRight_ev,
-    whiskerLeft_whiskerLeft_strict, congr_whiskerLeft h η,
+    whiskerLeft_whiskerLeft_strict, congr_whiskerLeft (ev_naturality J w) η,
     -comp_whiskerLeft, -tensorLeftHomFunctor_map]
 
 /-- Compatibility of `ihomHomFunctor`'s 2-cell action with right whiskering. -/
@@ -185,13 +206,11 @@ lemma ihomHomFunctor_map_whiskerRight {u u' : A ⟶ B} (η : u ⟶ u') {B' : C} 
       eqToHom (by simp) ≫ (ihomHomFunctor J A B).map η ▷ (ihomHomFunctor J B B').obj w ≫
         eqToHom (by simp) := by
   apply (uncurryFunctor J (J ⟶[C] A) B').map_injective
-  rw [uncurryFunctor_map_ihomHomFunctor]
-  have h : J ◁ curry ((ihom.ev J).app B ≫ w) ≫ (ihom.ev J).app B' = (ihom.ev J).app B ≫ w :=
-    (uncurry_eq _).symm.trans (uncurry_curry _)
-  simp [Functor.map_comp, eqToHom_map, uncurryFunctor_map, ihomHomFunctor_obj,
+  rw [uncurryFunctor_map_ihomHomFunctor_map]
+  simp [Functor.map_comp, eqToHom_map, uncurryFunctor_map,
     tensorLeftHomFunctor_map_whiskerRight, comp_whiskerRight, Strict.associator_eqToIso,
     tensorLeftHomFunctor_map_ihomHomFunctor_whiskerRight_ev,
-    whiskerRight_whiskerRight_strict, whiskerRight_congr h,
+    whiskerRight_whiskerRight_strict, whiskerRight_congr (ev_naturality J w),
     -tensorLeftHomFunctor_map]
 
 /-- `ihom J` as a strict pseudofunctor `C ⥤ C`, with hom-functors given by `ihomHomFunctor J`. -/
@@ -205,14 +224,13 @@ def ihomPseudofunctor : StrictPseudofunctor C C := .mk'' {
 
 @[simp]
 lemma ihomPseudofunctor_map {u : A ⟶ B} : (ihomPseudofunctor J).map u = (ihom J).map u :=
-  ihomHomFunctor_obj_eq_ihom_map J u
+  rfl
 
 /-- In a cartesian closed strict bicategory, the internal hom `ihom J` carries adjunctions to
 adjunctions: if `f ⊣ u`, then `(ihom J).map f ⊣ (ihom J).map u`. -/
 def ihomMapAdjunction {f : A ⟶ B} {u : B ⟶ A} (adj : f ⊣ u) :
-    (ihom J).map f ⊣ (ihom J).map u := by
-  rw [← ihomPseudofunctor_map, ← ihomPseudofunctor_map]
-  exact (ihomPseudofunctor J).mapAdjunction adj
+    (ihom J).map f ⊣ (ihom J).map u :=
+  (ihomPseudofunctor J).mapAdjunction adj
 
 end IhomPseudofunctor
 

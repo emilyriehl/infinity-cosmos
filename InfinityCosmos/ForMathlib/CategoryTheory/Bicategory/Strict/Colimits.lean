@@ -93,9 +93,7 @@ set_option backward.isDefEq.respectTransparency false in
 transformation `𝟭 C ⟶ ihom J`. -/
 lemma const_whiskerLeft_ihomHomFunctor {X Y : C} {u v : X ⟶ Y} (η : u ⟶ v) :
     const X J ◁ (ihomHomFunctor J X Y).map η =
-      eqToHom (by rw [ihomHomFunctor_obj_eq_ihom_map]; exact (const_ihom u).symm) ≫
-        η ▷ const Y J ≫
-        eqToHom (by rw [ihomHomFunctor_obj_eq_ihom_map]; exact const_ihom v) := by
+      eqToHom (const_ihom u).symm ≫ η ▷ const Y J ≫ eqToHom (const_ihom v) := by
   apply (uncurryFunctor J X Y).map_injective
   simp [eqToHom_map, uncurryFunctor_map, tensorLeftHomFunctor_map_whiskerLeft,
     tensorLeftHomFunctor_map_whiskerRight, tensorLeftHomFunctor_map_ihomHomFunctor_whiskerRight_ev,
@@ -103,14 +101,6 @@ lemma const_whiskerLeft_ihomHomFunctor {X Y : C} {u v : X ⟶ Y} (η : u ⟶ v) 
     congr_whiskerLeft (whiskerLeft_const_ev X) η, whiskerRight_whiskerRight_strict,
     whiskerRight_congr (whiskerLeft_const_ev Y), tensorLeftHomFunctor_map_whiskerRight_snd,
     -tensorLeftHomFunctor_map, -comp_whiskerLeft]
-
-omit [Strict C] [CartesianClosed C] in
-/-- Transporting the unit of a bicategorical adjunction along an equality of its type
-(induced by equalities of its two 1-cells) post-composes it with the evident `eqToHom`. -/
-private lemma cast_adjunction_unit {a b : C} {X X' : a ⟶ b} {Y Y' : b ⟶ a} (adj : X ⊣ Y)
-    (hX : X = X') (hY : Y = Y') (H : (X ⊣ Y) = (X' ⊣ Y')) :
-    (cast H adj).unit = adj.unit ≫ eqToHom (by rw [hX, hY]) := by
-  subst hX hY; simp
 
 set_option backward.isDefEq.respectTransparency false in
 /-- 2-functoriality of the cotensor in its exponent variable (`η^J Δ = Δ η` in the notation of
@@ -120,15 +110,9 @@ lemma const_whiskerLeft_ihomMapAdjunction_unit {B : C} {u : A ⟶ B} {f : B ⟶ 
     const A J ◁ (ihomMapAdjunction J adj).unit =
       eqToHom (by rw [Strict.comp_id, Strict.id_comp]) ≫ adj.unit ▷ const A J ≫
         eqToHom (const_ihom_comp u f) := by
-  -- `ihomMapAdjunction` is `(ihomPseudofunctor J).mapAdjunction` transported along
-  -- `ihomPseudofunctor_map`; peel that transport off the unit.
-  have h : (ihomMapAdjunction J adj).unit =
-      ((ihomPseudofunctor J).mapAdjunction adj).unit ≫
-        eqToHom (by rw [ihomPseudofunctor_map, ihomPseudofunctor_map]) := by
-    simp only [ihomMapAdjunction, eq_mpr_eq_cast, cast_cast]
-    exact cast_adjunction_unit ((ihomPseudofunctor J).mapAdjunction adj)
-      (ihomPseudofunctor_map J) (ihomPseudofunctor_map J) _
-  rw [h, StrictPseudofunctor.mapAdjunction_unit']
+  rw [show (ihomMapAdjunction J adj).unit = ((ihomPseudofunctor J).mapAdjunction adj).unit
+      from rfl,
+    StrictPseudofunctor.mapAdjunction_unit']
   simp only [whiskerLeft_comp, whiskerLeft_eqToHom]
   rw [show (ihomPseudofunctor J).map₂ adj.unit = (ihomHomFunctor J A A).map adj.unit from rfl,
     const_whiskerLeft_ihomHomFunctor adj.unit]
