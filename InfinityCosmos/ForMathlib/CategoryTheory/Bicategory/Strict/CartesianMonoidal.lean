@@ -179,15 +179,16 @@ lemma tensorLeftHomFunctor_map_whiskerRight_snd {f g : x ⟶ y} (η : f ⟶ g) :
       eqToHom (by simp) ≫ snd a x ◁ η ≫ eqToHom (by simp) := by
   simp [liftFunctor_map_whiskerRight_snd]
 
+set_option backward.isDefEq.respectTransparency false in
 lemma tensorLeftHomFunctor_map_whiskerLeft (f : x ⟶ y) {g g' : y ⟶ z} (η : g ⟶ g') :
     (tensorLeftHomFunctor a x z).map (f ◁ η) =
       eqToHom (by simp) ≫ (a ◁ f) ◁ (tensorLeftHomFunctor a y z).map η ≫ eqToHom (by simp) := by
   ext
-  · simp [tensorLeftHomFunctor_map_whiskerRight_fst, whisker_assoc_strict,
-      -tensorLeftHomFunctor_map, -whisker_assoc]
-  · simp [tensorLeftHomFunctor_map_whiskerRight_snd, whisker_assoc_strict,
+  · simp [tensorLeftHomFunctor_map_whiskerRight_fst, Strict.associator_eqToIso,
+      -tensorLeftHomFunctor_map]
+  · simp [tensorLeftHomFunctor_map_whiskerRight_snd, Strict.associator_eqToIso,
       whiskerLeft_whiskerLeft_strict, congr_whiskerLeft (whiskerLeft_snd a f) η,
-      -tensorLeftHomFunctor_map, -whisker_assoc, -comp_whiskerLeft]
+      -tensorLeftHomFunctor_map, -comp_whiskerLeft]
 
 lemma tensorLeftHomFunctor_map_whiskerRight {f f' : x ⟶ y} (η : f ⟶ f') (g : y ⟶ z) :
     (tensorLeftHomFunctor a x z).map (η ▷ g) =
@@ -197,8 +198,8 @@ lemma tensorLeftHomFunctor_map_whiskerRight {f f' : x ⟶ y} (η : f ⟶ f') (g 
       whiskerRight_congr (whiskerLeft_fst a g),
       -tensorLeftHomFunctor_map, -whisker_assoc]
   · simp [tensorLeftHomFunctor_map_whiskerRight_snd, whiskerRight_whiskerRight_strict,
-      whiskerRight_congr (whiskerLeft_snd a g), whiskerRight_comp_strict, whisker_assoc_strict,
-      -tensorLeftHomFunctor_map, -whisker_assoc, -whiskerRight_comp]
+      whiskerRight_congr (whiskerLeft_snd a g), Strict.associator_eqToIso,
+      -tensorLeftHomFunctor_map]
 
 end WhiskerLaws
 
