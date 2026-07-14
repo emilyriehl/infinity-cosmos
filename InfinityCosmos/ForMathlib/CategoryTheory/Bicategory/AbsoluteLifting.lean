@@ -5,15 +5,6 @@ import Mathlib.Tactic.CategoryTheory.Bicategory.Basic
 
 /-!
 # Absolute left liftings in bicategories
-
-Mathlib defines `LeftLift f g`, its whiskering `LeftLift.whisker`, and the notion of an
-absolute left Kan lift `LeftLift.IsAbsKan`. We add the pasting of left lifts here, together
-with the composition and cancelation lemma for absolute left lifting diagrams
-([RV] Lemma 2.4.1). We also record the transport of a left lift (and of the property of being
-an (absolute) left Kan lift) along isomorphisms of its boundary 1-cells (`LeftLift.ofIso`).
-
-## References
-* [E. Riehl and D. Verity, *Elements of ∞-Category Theory*][RiehlVerity2022], Lemma 2.4.1
 -/
 
 namespace CategoryTheory
@@ -197,6 +188,30 @@ noncomputable def IsAbsKan.ofIso {t : LeftLift f g} (H : t.IsAbsKan) (ef : f ≅
   fun h ↦ ((H h).ofIso ef (whiskerLeftIso h eg)).ofIsoKan (whiskerOfIso ef eg t h)
 
 end OfIso
+
+section Whisker
+
+variable {a b c x : B} {f : b ⟶ a} {g : c ⟶ a}
+
+/-- Whiskering twice agrees, up to the associator, with whiskering by the composite. -/
+def whiskerWhiskerIso (t : LeftLift f g) {y : B} (h : x ⟶ c) (k : y ⟶ x) :
+    (t.whisker (k ≫ h)).ofIso (Iso.refl _) (α_ k h g) ≅ (t.whisker h).whisker k where
+  hom := LeftLift.homMk (α_ k h t.lift).hom <| by
+    dsimp only [ofIso_unit, ofIso_lift, whisker_unit, whisker_lift]
+    bicategory
+  inv := LeftLift.homMk (α_ k h t.lift).inv <| by
+    dsimp only [ofIso_unit, ofIso_lift, whisker_unit, whisker_lift]
+    bicategory
+  hom_inv_id := by ext; simp
+  inv_hom_id := by ext; simp
+
+/-- Whiskering an absolute left Kan lift yields an absolute left Kan lift. -/
+noncomputable def IsAbsKan.whisker {t : LeftLift f g} (H : t.IsAbsKan) (h : x ⟶ c) :
+    (t.whisker h).IsAbsKan := by
+  intro y k
+  exact ((H (k ≫ h)).ofIso (Iso.refl _) (α_ k h g)).ofIsoKan (whiskerWhiskerIso t h k)
+
+end Whisker
 
 end LeftLift
 

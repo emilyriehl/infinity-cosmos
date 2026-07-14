@@ -1,4 +1,5 @@
 import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
+import Mathlib.CategoryTheory.Monoidal.Closed.Basic
 import Mathlib.CategoryTheory.Bicategory.Functor.StrictPseudofunctor
 import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Basic
 import InfinityCosmos.ForMathlib.CategoryTheory.IsoCat
@@ -19,13 +20,16 @@ of categories.
   categories `(a ⟶ x) × (a ⟶ y) ≅ (a ⟶ x ⊗ y)`.
 * `CategoryTheory.Bicategory.Strict.CartesianMonoidal.tensorLeft`: tensoring on the left
   `a ⊗ ·` as the data of a strict pseudofunctor `C ⥤ C`.
+* `CategoryTheory.Bicategory.Strict.CartesianMonoidal.const`: the constant-diagram natural
+  transformation `Δ : 𝟭 C ⟶ ihom J`, currying the projection, together with its strict
+  naturality (`const_ihom`).
 -/
 
 universe w v u
 
 namespace CategoryTheory.Bicategory
 
-open Opposite MonoidalCategory CartesianMonoidalCategory
+open Opposite MonoidalCategory CartesianMonoidalCategory MonoidalClosed
 
 -- Some needed simp lemmas
 @[simp]
@@ -49,12 +53,12 @@ section
 variable {C : Type u} [Category.{v} C] [CartesianMonoidalCategory C]
 
 @[simp]
-lemma lift_eq_whiskerLeft  {a x y : C} (f : x ⟶ y) :
+lemma lift_eq_whiskerLeft {a x y : C} (f : x ⟶ y) :
     lift (fst a x) (snd a x ≫ f) = a ◁ f := by
   ext <;> simp
 
 @[simp]
-lemma lift_eq_whiskerRight  {x y a : C} (f : x ⟶ y) :
+lemma lift_eq_whiskerRight {x y a : C} (f : x ⟶ y) :
     lift (fst x a ≫ f) (snd x a) = f ▷ a := by
   ext <;> simp
 
@@ -72,23 +76,23 @@ attribute [reducible, instance] Strict.CartesianMonoidal.isMonoidal
 namespace Strict.CartesianMonoidal
 
 variable {C} [Strict.CartesianMonoidal C]
-variable (a x y : C)
+variable (A X Y : C)
 
 /-- The induced canonical functor `(a ⟶ x ⊗ y) ⥤ ((a ⟶ x) × (a ⟶ y))` for a cartesian monoidal
 strict bicategory. -/
-def liftFunctorInv : (a ⟶ x ⊗ y) ⥤ ((a ⟶ x) × (a ⟶ y)) :=
-  (prodComparison ((homFunctor C).obj (op a)) x y).toFunctor
+def liftFunctorInv : (A ⟶ X ⊗ Y) ⥤ ((A ⟶ X) × (A ⟶ Y)) :=
+  (prodComparison ((homFunctor C).obj (op A)) X Y).toFunctor
 
 @[simp]
-lemma liftFunctorInv_obj (f : a ⟶ x ⊗ y) :
-    (liftFunctorInv a x y).obj f = (f ≫ fst x y, (f ≫ snd x y)) :=
+lemma liftFunctorInv_obj (f : A ⟶ X ⊗ Y) :
+    (liftFunctorInv A X Y).obj f = (f ≫ fst X Y, (f ≫ snd X Y)) :=
   rfl
 
 /-- The induced canonical functor `((a ⟶ x) × (a ⟶ y)) ⥤ (a ⟶ x ⊗ y)` for a cartesian monoidal
 strict bicategory. However, the action on objects is not definitional to the expected one, so we
 later define `liftFunctor`, with the correct computation on objects.  -/
-noncomputable def liftFunctor' : ((a ⟶ x) × (a ⟶ y)) ⥤ (a ⟶ x ⊗ y) :=
-  (inv (prodComparison ((homFunctor C).obj (op a)) x y)).toFunctor
+noncomputable def liftFunctor' : ((A ⟶ X) × (A ⟶ Y)) ⥤ (A ⟶ X ⊗ Y) :=
+  (inv (prodComparison ((homFunctor C).obj (op A)) X Y)).toFunctor
 
 @[simp]
 lemma liftFunctor'_obj {a x y : C} (p : (a ⟶ x) × (a ⟶ y)) :
@@ -102,35 +106,33 @@ lemma liftFunctor'_obj {a x y : C} (p : (a ⟶ x) × (a ⟶ y)) :
 
 /-- The induced canonical functor `liftFunctor : ((a ⟶ x) × (a ⟶ y)) ⥤ (a ⟶ x ⊗ y)` for a cartesian
 monoidal strict bicategory, satisfying `(liftFunctor a x y).obj p = lift p.1 p.2` definitionally. -/
-noncomputable def liftFunctor : ((a ⟶ x) × (a ⟶ y)) ⥤ (a ⟶ x ⊗ y) :=
-  (liftFunctor' a x y).copyObj  (fun p ↦ lift p.1 p.2) (fun p ↦ eqToIso (by simp))
+noncomputable def liftFunctor : ((A ⟶ X) × (A ⟶ Y)) ⥤ (A ⟶ X ⊗ Y) :=
+  (liftFunctor' A X Y).copyObj  (fun p ↦ lift p.1 p.2) (fun p ↦ eqToIso (by simp))
 
 @[simp]
-lemma liftFunctor_obj (p : (a ⟶ x) × (a ⟶ y)) :
-  (liftFunctor a x y).obj p = lift p.1 p.2 := rfl
+lemma liftFunctor_obj (p : (A ⟶ X) × (A ⟶ Y)) :
+  (liftFunctor A X Y).obj p = lift p.1 p.2 := rfl
 
-lemma liftFunctor_map (p q : (a ⟶ x) × (a ⟶ y)) (η : p ⟶ q) :
-  (liftFunctor a x y).map η =
-    eqToHom (by simp) ≫ (liftFunctor' a x y).map η ≫ eqToHom (by simp) := rfl
+lemma liftFunctor_map (p q : (A ⟶ X) × (A ⟶ Y)) (η : p ⟶ q) :
+  (liftFunctor A X Y).map η =
+    eqToHom (by simp) ≫ (liftFunctor' A X Y).map η ≫ eqToHom (by simp) := rfl
 
-/-- `homTensorIsoProd_inv` agrees with the raw inverse comparison functor; they differ only by the
-`eqToHom` decorations that make its object action compute to `lift`. -/
 lemma liftFunctor_eq_liftFunctor' :
-    liftFunctor a x y = liftFunctor' a x y :=
+    liftFunctor A X Y = liftFunctor' A X Y :=
   Functor.ext (fun p ↦ (liftFunctor'_obj p).symm) (fun _ _ _ ↦ by simp [liftFunctor_map])
 
 /-- The canonical isomorphism of categories `((a ⟶ x) × (a ⟶ y)) ≅ (a ⟶ x ⊗ y)` for a cartesian
 monoidal strict bicategory. -/
 @[simps!]
-noncomputable def liftIso : IsoCat ((a ⟶ x) × (a ⟶ y)) (a ⟶ x ⊗ y) where
-  functor := liftFunctor a x y
-  inverse := liftFunctorInv a x y
+noncomputable def liftIso : IsoCat ((A ⟶ X) × (A ⟶ Y)) (A ⟶ X ⊗ Y) where
+  functor := liftFunctor A X Y
+  inverse := liftFunctorInv A X Y
   unitIso := by
     rw [liftFunctor_eq_liftFunctor', liftFunctorInv]
-    exact congr(($((asIso (prodComparison ((homFunctor C).obj (op a)) x y)).inv_hom_id)).toFunctor).symm
+    exact congr(($((asIso (prodComparison ((homFunctor C).obj (op A)) X Y)).inv_hom_id)).toFunctor).symm
   counitIso := by
     rw [liftFunctor_eq_liftFunctor', liftFunctorInv]
-    exact congr(($((asIso (prodComparison ((homFunctor C).obj (op a)) x y)).hom_inv_id)).toFunctor)
+    exact congr(($((asIso (prodComparison ((homFunctor C).obj (op A)) X Y)).hom_inv_id)).toFunctor)
 
 @[ext]
 lemma hom₂_ext {a x y : C} {r s : a ⟶ x ⊗ y} {θ θ' : r ⟶ s}
@@ -211,6 +213,38 @@ noncomputable def tensorLeft (a : C) : StrictPseudofunctor C C := .mk'' {
     map₂_whisker_left := tensorLeftHomFunctor_map_whiskerLeft a
     map₂_whisker_right := tensorLeftHomFunctor_map_whiskerRight a
   }
+
+-- TODO: When porting upstream, this section should be generalized to semicartesian
+-- monoidal 1-categories
+section Const
+
+variable [MonoidalClosed C]
+
+/-- The "constant" morphism `Δ : 𝟭 C ⟶ ihom J`, whose component at `A` is the currying of the
+projection `A ⊗ J ⟶ A`. -/
+def const (J : C) : 𝟭 C ⟶ ihom J where
+  app A := curry <| snd J A
+  naturality A B η := by simp [← curry_natural_left, ← curry_natural_right]
+
+variable {J A : C}
+
+-- Helpful as the `𝟭 C` functor isn't totally transparent. We make this a simp lemma following
+-- coev_naturality
+@[simp]
+lemma const_naturality {B} (u : A ⟶ B) : u ≫ (const J).app B = (const J).app A ≫ (ihom J).map u :=
+  (const J).naturality u
+
+@[simp]
+lemma uncurry_const (X : C) :
+    uncurry ((const J).app X) = snd J X := by
+  simp [const]
+
+@[simp]
+lemma whiskerLeft_const_ev (X : C) :
+    J ◁ (const J).app X ≫ (ihom.ev J).app X = snd J X := by
+  rw [const, ← uncurry_eq, uncurry_curry]
+
+end Const
 
 end Strict.CartesianMonoidal
 
