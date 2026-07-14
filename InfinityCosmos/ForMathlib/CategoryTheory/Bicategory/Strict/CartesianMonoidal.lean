@@ -6,23 +6,6 @@ import InfinityCosmos.ForMathlib.CategoryTheory.IsoCat
 
 /-!
 # Cartesian monoidal strict bicategories
-
-A strict bicategory `C` whose underlying category is cartesian monoidal is *cartesian monoidal*
-as a bicategory if for every object `A : C` the hom functor `(A ⟶ ·) : C ⥤ Cat` is monoidal;
-equivalently, the canonical comparison functor `(A ⟶ X ⊗ Y) ⥤ (A ⟶ X) × (A ⟶ Y)` is an isomorphism
-of categories.
-
-## Main definitions
-
-* `CategoryTheory.Bicategory.Strict.CartesianMonoidal`: the typeclass of cartesian monoidal
-  strict bicategories.
-* `CategoryTheory.Bicategory.Strict.CartesianMonoidal.liftIso`: the isomorphism of
-  categories `(A ⟶ X) × (A ⟶ Y) ≅ (A ⟶ X ⊗ Y)`.
-* `CategoryTheory.Bicategory.Strict.CartesianMonoidal.tensorLeft`: tensoring on the left
-  `A ⊗ ·` as the data of a strict pseudofunctor `C ⥤ C`.
-* `CategoryTheory.Bicategory.Strict.CartesianMonoidal.const`: the constant-diagram natural
-  transformation `Δ : 𝟭 C ⟶ ihom J`, currying the projection, together with its strict
-  naturality (`const_naturality`).
 -/
 
 universe w v u
