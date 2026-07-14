@@ -2,6 +2,7 @@ import Architect
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
 import Mathlib.CategoryTheory.Monoidal.Closed.Cartesian
 import Mathlib.CategoryTheory.Enriched.Limits.HasConicalPullbacks
@@ -40,8 +41,43 @@ noncomputable def representableMap (X : K) {A B : K} (f : A ⟶ B) :
     (EnrichedCategory.Hom X A : SSet) ⟶ EnrichedCategory.Hom X B :=
   representableMap' (eHomEquiv SSet f)
 
+/-- Representable maps preserve identity morphisms. -/
+lemma representableMap_id (X A : K) :
+    representableMap X (𝟙 A) = 𝟙 (EnrichedCategory.Hom X A : SSet) := by
+  change eHomWhiskerLeft SSet X (𝟙 A) = 𝟙 (EnrichedCategory.Hom X A : SSet)
+  rw [eHomWhiskerLeft_id]
+
+/-- Representable maps preserve composition. -/
+lemma representableMap_comp {A B C : K} (X : K) (f : A ⟶ B) (g : B ⟶ C) :
+    representableMap X (f ≫ g) = representableMap X f ≫ representableMap X g := by
+  change eHomWhiskerLeft SSet X (f ≫ g) =
+    eHomWhiskerLeft SSet X f ≫ eHomWhiskerLeft SSet X g
+  rw [eHomWhiskerLeft_comp]
+
 noncomputable def toFunMap (X : K) {A B : K} (f : A ⟶ B) : Fun X A ⟶ Fun X B :=
   ObjectProperty.homMk <| representableMap X f
+
+/-- A morphism in a pre-∞-cosmos is an equivalence if every covariant representable sends it
+to an equivalence of quasi-categories. -/
+def Equivalence {A B : K} (f : A ⟶ B) : Prop :=
+  ∀ X : K,
+    ∃ e : @QCat.Equiv (Fun X A).obj (Fun X B).obj (Fun X A).property (Fun X B).property,
+      e.toFun = (toFunMap X f).hom
+
+/-- A morphism in a pre-∞-cosmos is a trivial fibration if it is both an isofibration and an
+equivalence. -/
+def TrivialFibration {A B : K} (f : A ⟶ B) : Prop :=
+  IsIsofibration f ∧ Equivalence f
+
+/-- A trivial fibration is an isofibration. -/
+lemma TrivialFibration.isIsofibration {A B : K} {f : A ⟶ B} (hf : TrivialFibration f) :
+    IsIsofibration f :=
+  hf.1
+
+/-- A trivial fibration is an equivalence. -/
+lemma TrivialFibration.equivalence {A B : K} {f : A ⟶ B} (hf : TrivialFibration f) :
+    Equivalence f :=
+  hf.2
 
 /-- The subtype of isofibrations. Arguments of this type have the form `⟨ f hf ⟩`. -/
 def Isofibration (X Y : K) : Type v := {f : X ⟶ Y // IsIsofibration f}
@@ -130,6 +166,29 @@ example : HasProducts K := inferInstance
 
 /-- An ∞-cosmos has pullbacks. -/
 example {E B A : K} (p : E ↠ B) (f : A ⟶ B) : HasPullback p.1 f := inferInstance
+
+/-! ### The underlying category of an ∞-cosmos
+
+The underlying category `K₀` of an ∞-cosmos `K` (blueprint `defn:underlying-cat-of-cosmos`) has the
+∞-categories of `K` as objects and the `0`-arrows as morphisms, where a `0`-arrow `A ⟶ B` is a
+vertex of the functor space `Fun A B`. Since a simplicial category is formalized as an enriched
+ordinary category, `K` already carries this `1`-category structure: the ambient `Category K`
+instance is, by definition, the underlying category. The equivalence `homEquivFunVertex` records the
+characterization requested in the blueprint, identifying the morphisms of this category with the
+vertices of the functor spaces. -/
+
+/-- The underlying category of an ∞-cosmos `K` is the ambient `1`-category structure on `K`. -/
+example : Category K := inferInstance
+
+/-- A morphism `A ⟶ B` in the underlying category of an ∞-cosmos is the same data as a `0`-arrow:
+a vertex of the functor space `Fun A B`, i.e. a map from the monoidal unit `𝟙_ SSet` into it. -/
+def homEquivFunVertex {A B : K} : (A ⟶ B) ≃ (𝟙_ SSet ⟶ (Fun A B).obj) :=
+  eHomEquiv SSet
+
+/-- Under the identification of morphisms with `0`-arrows, the identity morphism corresponds to the
+enriched identity vertex. -/
+lemma homEquivFunVertex_id (A : K) : homEquivFunVertex (𝟙 A) = eId SSet A :=
+  eHomEquiv_id SSet A
 
 end InfinityCosmos
 

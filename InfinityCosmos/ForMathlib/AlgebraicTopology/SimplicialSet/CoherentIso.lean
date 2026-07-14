@@ -7,6 +7,7 @@ Authors: Johns Hopkins Category Theory Seminar
 import Architect
 import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
 import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
+import Mathlib.AlgebraicTopology.Quasicategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CompStruct
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 
@@ -88,6 +89,7 @@ end CategoryTheory
 namespace SSet
 
 open Simplicial Edge
+open CategoryTheory
 
 @[blueprint
   "defn:coherent-isomorphism"
@@ -166,11 +168,92 @@ def isIsoOfEqMapHom
   : f.IsIso
   := (isIsoMapHom g).ofEq hfg.symm
 
+/-- Forward-edge inclusion `Δ[1] ⟶ coherentIso` classifying `coherentIso.hom`. -/
+noncomputable def homInclusion : Δ[1] ⟶ coherentIso := yonedaEquiv.symm coherentIso.hom.edge
+
+/-- The simplex-level target equation is equivalent to a categorical extension square. -/
+theorem edge_map_eq_iff_comp {A : SSet} {a₀ a₁ : A _⦋0⦌} (e : Edge a₀ a₁)
+    (F : coherentIso ⟶ A) :
+    (coherentIso.hom.map F).edge = e.edge ↔
+      homInclusion ≫ F = yonedaEquiv.symm e.edge := by
+  rw [homInclusion, yonedaEquiv_symm_comp, Edge.map_edge,
+    yonedaEquiv.symm.injective.eq_iff]
+
+/-- Lifting an edge to a map out of `coherentIso` is equivalent to extending it along the
+forward-edge inclusion. -/
+theorem lift_iff_extension {A : SSet} {a₀ a₁ : A _⦋0⦌} (e : Edge a₀ a₁) :
+    (∃ F : coherentIso ⟶ A, (coherentIso.hom.map F).edge = e.edge) ↔
+      (∃ F : coherentIso ⟶ A, homInclusion ≫ F = yonedaEquiv.symm e.edge) :=
+  exists_congr (fun F => edge_map_eq_iff_comp e F)
+
+/-- Easy direction: a lift of an edge through `coherentIso` certifies that the edge is an
+isomorphism. -/
+def isIso_of_lift {A : SSet} {a₀ a₁ : A _⦋0⦌} {e : Edge a₀ a₁}
+    (F : coherentIso ⟶ A) (hF : (coherentIso.hom.map F).edge = e.edge) : e.IsIso :=
+  coherentIso.isIsoOfEqMapHom hF.symm
+
 /-- The inclusion of the source vertex of `CoherentIso`. -/
 def src : Δ[0] ⟶ coherentIso := yonedaEquiv.symm (coherentIso.x₀)
 
 /-- The inclusion of the target vertex of `CoherentIso`. -/
 def tgt : Δ[0] ⟶ coherentIso := yonedaEquiv.symm (coherentIso.x₁)
+
+/-- The two endpoint subcomplexes of the coherent isomorphism. -/
+noncomputable def boundary : coherentIso.Subcomplex :=
+  Subcomplex.range coherentIso.src ⊔ Subcomplex.range coherentIso.tgt
+
+/-- A simplex in the source endpoint subcomplex is constantly the source vertex. -/
+lemma mem_range_src_const {n : SimplexCategoryᵒᵖ} {x : coherentIso.obj n}
+    (hx : x ∈ (Subcomplex.range coherentIso.src).obj n) :
+    coherentIso.equivFun x = fun _ => 0 := by
+  rcases hx with ⟨y, rfl⟩
+  ext i
+  cases n using Opposite.rec
+  rfl
+
+/-- A simplex in the target endpoint subcomplex is constantly the target vertex. -/
+lemma mem_range_tgt_const {n : SimplexCategoryᵒᵖ} {x : coherentIso.obj n}
+    (hx : x ∈ (Subcomplex.range coherentIso.tgt).obj n) :
+    coherentIso.equivFun x = fun _ => 1 := by
+  rcases hx with ⟨y, rfl⟩
+  ext i
+  cases n using Opposite.rec
+  rfl
+
+/-- The source and target endpoint subcomplexes of `coherentIso` are disjoint. -/
+lemma not_mem_range_src_of_mem_range_tgt {n : SimplexCategoryᵒᵖ}
+    {x : coherentIso.obj n} (hx : x ∈ (Subcomplex.range coherentIso.tgt).obj n) :
+    x ∉ (Subcomplex.range coherentIso.src).obj n := by
+  intro hsrc
+  have h0 := coherentIso.mem_range_src_const hsrc
+  have h1 := coherentIso.mem_range_tgt_const hx
+  have h01 : (0 : Fin 2) = 1 := by
+    simpa using congrFun (h0.symm.trans h1) 0
+  exact Fin.zero_ne_one h01
+
+/-- Membership in the boundary of `coherentIso` is membership in one of the two endpoint ranges. -/
+lemma mem_boundary_iff {n : SimplexCategoryᵒᵖ} {x : coherentIso.obj n} :
+    x ∈ coherentIso.boundary.obj n ↔
+      x ∈ (Subcomplex.range coherentIso.src).obj n ∨
+      x ∈ (Subcomplex.range coherentIso.tgt).obj n := by
+  rfl
+
+/-- On the boundary of `coherentIso`, being in the source endpoint is preserved and reflected by
+simplicial operators. -/
+lemma map_mem_range_src_iff_of_boundary {n m : SimplexCategoryᵒᵖ} (α : n ⟶ m)
+    {x : coherentIso.obj n} (hx : x ∈ coherentIso.boundary.obj n) :
+    coherentIso.map α x ∈ (Subcomplex.range coherentIso.src).obj m ↔
+      x ∈ (Subcomplex.range coherentIso.src).obj n := by
+  constructor
+  · intro hmap
+    rcases (coherentIso.mem_boundary_iff.mp hx) with hsrc | htgt
+    · exact hsrc
+    · exfalso
+      have htgt_map : coherentIso.map α x ∈ (Subcomplex.range coherentIso.tgt).obj m :=
+        (Subcomplex.range coherentIso.tgt).map α htgt
+      exact coherentIso.not_mem_range_src_of_mem_range_tgt htgt_map hmap
+  · intro hsrc
+    exact (Subcomplex.range coherentIso.src).map α hsrc
 
 end coherentIso
 

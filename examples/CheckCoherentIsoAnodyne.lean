@@ -1,0 +1,11 @@
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIsoAnodyne
+
+#print axioms SSet.coherentIso.equivFun_homInclusion_app
+#print axioms SSet.coherentIso.mem_range_homInclusion_iff
+#print axioms SSet.coherentIso.homInclusionRangePairingCore
+#print axioms SSet.coherentIso.homInclusionRangePairingCore_isProper
+#print axioms SSet.coherentIso.homInclusionRangePairingCoreRankFunction
+#print axioms SSet.coherentIso.homInclusionRangePairingCore_isRegular
+#print axioms SSet.coherentIso.homInclusion_mono
+#print axioms SSet.coherentIso.homInclusionRange_anodyneExtensions
+#print axioms SSet.coherentIso.homInclusion_anodyneExtensions

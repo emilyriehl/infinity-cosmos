@@ -4,7 +4,7 @@ import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
 
 namespace CategoryTheory
 
-open SimplicialCategory MonoidalCategory BraidedCategory
+open SimplicialCategory MonoidalCategory BraidedCategory MonoidalClosed
 
 universe v v₁ v₂ u u₁ u₂
 
@@ -138,7 +138,6 @@ noncomputable def cotensorCovMap (U : SSet) {A B : K} (f : A ⟶ B) : U ⋔ A �
 
 noncomputable def cotensorContraMap {U V : SSet} (i : U ⟶ V) (A : K) : V ⋔ A ⟶ U ⋔ A :=
   cotensorPrecompose _ _ i
-
 
 @[blueprint
   "lem:cotensor-bifunctor"
