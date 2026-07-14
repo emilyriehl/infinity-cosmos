@@ -104,11 +104,6 @@ section IhomPseudofunctor
 
 set_option backward.isDefEq.respectTransparency false
 
-/-- Naturality of the evaluation: `ev` intertwines `J ◁ (ihom J).map f` and `f`. -/
-lemma ev_naturality (J : C) {X Y : C} (f : X ⟶ Y) :
-    J ◁ (ihom J).map f ≫ (ihom.ev J).app Y = (ihom.ev J).app X ≫ f :=
-  (ihom.ev J).naturality f
-
 variable (J : C) {X Y : C}
 
 /-- The action of `ihom J` on hom-categories, defined by currying precomposition with the
@@ -145,7 +140,7 @@ lemma ihomHomFunctor_eq_ihomHomFunctor' (X Y : C) :
 @[simp]
 lemma uncurryFunctor_map_ihomHomFunctor_map {f g : X ⟶ Y} (η : f ⟶ g) :
     (uncurryFunctor J (J ⟶[C] X) Y).map ((ihomHomFunctor J X Y).map η) =
-      eqToHom (ev_naturality J f) ≫ (ihom.ev J).app X ◁ η ≫ eqToHom (ev_naturality J g).symm := by
+      eqToHom (by simp) ≫ (ihom.ev J).app X ◁ η ≫ eqToHom (by simp) := by
   have h := Functor.congr_hom (uncurryIso J (J ⟶[C] X) Y).counitIso
     ((precomp Y ((ihom.ev J).app X)).map η)
   simp only [uncurryIso, Functor.comp_map, precomp_map] at h
@@ -156,7 +151,7 @@ lemma uncurryFunctor_map_ihomHomFunctor_map {f g : X ⟶ Y} (η : f ⟶ g) :
 lemma tensorLeftHomFunctor_map_ihomHomFunctor_whiskerRight_ev {f g : X ⟶ Y} (η : f ⟶ g) :
     (tensorLeftHomFunctor J (J ⟶[C] X) (J ⟶[C] Y)).map ((ihomHomFunctor J X Y).map η) ▷
         (ihom.ev J).app Y =
-      eqToHom (ev_naturality J f) ≫ (ihom.ev J).app X ◁ η ≫ eqToHom (ev_naturality J g).symm :=
+      eqToHom (by simp) ≫ (ihom.ev J).app X ◁ η ≫ eqToHom (by simp) :=
   uncurryFunctor_map_ihomHomFunctor_map J η
 
 set_option backward.isDefEq.respectTransparency false in
@@ -168,7 +163,7 @@ lemma ihomHomFunctor_map_whiskerLeft {X' : C} (f : X' ⟶ X) {g g' : X ⟶ Y} (�
   rw [uncurryFunctor_map_ihomHomFunctor_map]
   simp [eqToHom_map, uncurryFunctor_map, tensorLeftHomFunctor_map_whiskerLeft,
     Strict.associator_eqToIso, whiskerLeft_whiskerLeft_strict,
-    congr_whiskerLeft (ev_naturality J f) η, -comp_whiskerLeft, -tensorLeftHomFunctor_map]
+    congr_whiskerLeft (ihom.ev_naturality J f) η, -comp_whiskerLeft, -tensorLeftHomFunctor_map]
 
 lemma ihomHomFunctor_map_whiskerRight {f f' : X ⟶ Y} (η : f ⟶ f') {Y' : C} (g : Y ⟶ Y') :
     (ihomHomFunctor J X Y').map (η ▷ g) =
@@ -178,7 +173,7 @@ lemma ihomHomFunctor_map_whiskerRight {f f' : X ⟶ Y} (η : f ⟶ f') {Y' : C} 
   rw [uncurryFunctor_map_ihomHomFunctor_map]
   simp [eqToHom_map, uncurryFunctor_map, tensorLeftHomFunctor_map_whiskerRight,
     Strict.associator_eqToIso, whiskerRight_whiskerRight_strict,
-    whiskerRight_congr (ev_naturality J g), -tensorLeftHomFunctor_map]
+    whiskerRight_congr (ihom.ev_naturality J g), -tensorLeftHomFunctor_map]
 
 /-- `ihom J` as a strict pseudofunctor `C ⥤ C`, with hom-functors given by `ihomHomFunctor J`. -/
 def ihomPseudofunctor : StrictPseudofunctor C C := .mk'' {
