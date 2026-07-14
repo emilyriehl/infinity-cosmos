@@ -18,12 +18,12 @@ variable (C : Type u)
 
 variable {C} in
 set_option backward.isDefEq.respectTransparency false in
-/-- Currying the composite of an evaluation `ev` with `u` recovers the internal-hom functor's
-action on `u`. -/
+/-- Currying the composite of an evaluation `ev` with `f` recovers the internal-hom functor's
+action on `f`. -/
 @[simp]
 lemma curry_ev_app_comp [Category.{v} C] [MonoidalCategory C] [MonoidalClosed C]
-    (J : C) {A B : C} (u : A ⟶ B) :
-    curry ((ihom.ev J).app A ≫ u) = (ihom J).map u := by
+    (J : C) {X Y : C} (f : X ⟶ Y) :
+    curry ((ihom.ev J).app X ≫ f) = (ihom J).map f := by
   rw [← uncurry_ihom_map, curry_uncurry]
 
 variable (C : Type u) [Bicategory.{w, v} C] [Bicategory.Strict C]
@@ -43,9 +43,9 @@ variable {C} in
 /-- The uncurry functor acts on 2-cells by `tensorLeftHomFunctor`'s map followed by whiskering
 with the evaluation. -/
 lemma uncurryFunctor_map [Strict.CartesianMonoidal C] [MonoidalClosed C]
-    {J Y Z : C} {d d' : Y ⟶ (J ⟶[C] Z)} (θ : d ⟶ d') :
-    (uncurryFunctor J Y Z).map θ =
-      (tensorLeftHomFunctor J Y (J ⟶[C] Z)).map θ ▷ (ihom.ev J).app Z :=
+    {X Y Z : C} {f g : Y ⟶ (X ⟶[C] Z)} (η : f ⟶ g) :
+    (uncurryFunctor X Y Z).map η =
+      (tensorLeftHomFunctor X Y (X ⟶[C] Z)).map η ▷ (ihom.ev X).app Z :=
   rfl
 
 /-- A cartesian monoidal strict bicategory is *cartesian closed* if its underlying category is
@@ -104,109 +104,109 @@ section IhomPseudofunctor
 
 set_option backward.isDefEq.respectTransparency false
 
-/-- Naturality of the evaluation: `ev` intertwines `J ◁ (ihom J).map u` and `u`. -/
-lemma ev_naturality (J : C) {A B : C} (u : A ⟶ B) :
-    J ◁ (ihom J).map u ≫ (ihom.ev J).app B = (ihom.ev J).app A ≫ u :=
-  (ihom.ev J).naturality u
+/-- Naturality of the evaluation: `ev` intertwines `J ◁ (ihom J).map f` and `f`. -/
+lemma ev_naturality (J : C) {X Y : C} (f : X ⟶ Y) :
+    J ◁ (ihom J).map f ≫ (ihom.ev J).app Y = (ihom.ev J).app X ≫ f :=
+  (ihom.ev J).naturality f
 
-variable (J : C) {A B : C}
+variable (J : C) {X Y : C}
 
 /-- The action of `ihom J` on hom-categories, defined by currying precomposition with the
 evaluation. However, the action on objects is only propositionally equal to `(ihom J).map`, so we
 later define `ihomHomFunctor`, with the correct computation on objects. -/
-def ihomHomFunctor' (A B : C) : (A ⟶ B) ⥤ ((J ⟶[C] A) ⟶ (J ⟶[C] B)) :=
-  precomp B ((ihom.ev J).app A) ⋙ curryFunctor J (J ⟶[C] A) B
+def ihomHomFunctor' (X Y : C) : (X ⟶ Y) ⥤ ((J ⟶[C] X) ⟶ (J ⟶[C] Y)) :=
+  precomp Y ((ihom.ev J).app X) ⋙ curryFunctor J (J ⟶[C] X) Y
 
 @[simp]
-lemma ihomHomFunctor'_obj (u : A ⟶ B) :
-    (ihomHomFunctor' J A B).obj u = curry ((ihom.ev J).app A ≫ u) :=
+lemma ihomHomFunctor'_obj (f : X ⟶ Y) :
+    (ihomHomFunctor' J X Y).obj f = curry ((ihom.ev J).app X ≫ f) :=
   rfl
 
 /-- The action of `ihom J` on hom-categories, satisfying
-`(ihomHomFunctor J A B).obj u = (ihom J).map u` definitionally. -/
-def ihomHomFunctor (A B : C) : (A ⟶ B) ⥤ ((J ⟶[C] A) ⟶ (J ⟶[C] B)) :=
-  (ihomHomFunctor' J A B).copyObj (fun u ↦ (ihom J).map u) (fun u ↦ eqToIso (by simp))
+`(ihomHomFunctor J X Y).obj f = (ihom J).map f` definitionally. -/
+def ihomHomFunctor (X Y : C) : (X ⟶ Y) ⥤ ((J ⟶[C] X) ⟶ (J ⟶[C] Y)) :=
+  (ihomHomFunctor' J X Y).copyObj (fun f ↦ (ihom J).map f) (fun f ↦ eqToIso (by simp))
 
 @[simp]
-lemma ihomHomFunctor_obj (u : A ⟶ B) :
-    (ihomHomFunctor J A B).obj u = (ihom J).map u :=
+lemma ihomHomFunctor_obj (f : X ⟶ Y) :
+    (ihomHomFunctor J X Y).obj f = (ihom J).map f :=
   rfl
 
-lemma ihomHomFunctor_map {u v : A ⟶ B} (η : u ⟶ v) :
-    (ihomHomFunctor J A B).map η =
-      eqToHom (by simp) ≫ (ihomHomFunctor' J A B).map η ≫ eqToHom (by simp) :=
+lemma ihomHomFunctor_map {f g : X ⟶ Y} (η : f ⟶ g) :
+    (ihomHomFunctor J X Y).map η =
+      eqToHom (by simp) ≫ (ihomHomFunctor' J X Y).map η ≫ eqToHom (by simp) :=
   rfl
 
-lemma ihomHomFunctor_eq_ihomHomFunctor' (A B : C) :
-    ihomHomFunctor J A B = ihomHomFunctor' J A B :=
+lemma ihomHomFunctor_eq_ihomHomFunctor' (X Y : C) :
+    ihomHomFunctor J X Y = ihomHomFunctor' J X Y :=
   Functor.ext (fun _ ↦ by simp) (fun _ _ _ ↦ by simp [ihomHomFunctor_map])
 
 -- TODO: Generalize this to the corresponding fact about adjunctions between bicategories.
 @[simp]
-lemma uncurryFunctor_map_ihomHomFunctor_map {u v : A ⟶ B} (η : u ⟶ v) :
-    (uncurryFunctor J (J ⟶[C] A) B).map ((ihomHomFunctor J A B).map η) =
-      eqToHom (ev_naturality J u) ≫ (ihom.ev J).app A ◁ η ≫ eqToHom (ev_naturality J v).symm := by
-  have h := Functor.congr_hom (uncurryIso J (J ⟶[C] A) B).counitIso
-    ((precomp B ((ihom.ev J).app A)).map η)
+lemma uncurryFunctor_map_ihomHomFunctor_map {f g : X ⟶ Y} (η : f ⟶ g) :
+    (uncurryFunctor J (J ⟶[C] X) Y).map ((ihomHomFunctor J X Y).map η) =
+      eqToHom (ev_naturality J f) ≫ (ihom.ev J).app X ◁ η ≫ eqToHom (ev_naturality J g).symm := by
+  have h := Functor.congr_hom (uncurryIso J (J ⟶[C] X) Y).counitIso
+    ((precomp Y ((ihom.ev J).app X)).map η)
   simp only [uncurryIso, Functor.comp_map, precomp_map] at h
   simp [ihomHomFunctor_map, ihomHomFunctor', eqToHom_map, h]
 
 /-- Another version of `uncurryFunctor_map_ihomHomFunctor_map` with `uncurryFunctor` unfolded. -/
 @[simp]
-lemma tensorLeftHomFunctor_map_ihomHomFunctor_whiskerRight_ev {u v : A ⟶ B} (η : u ⟶ v) :
-    (tensorLeftHomFunctor J (J ⟶[C] A) (J ⟶[C] B)).map ((ihomHomFunctor J A B).map η) ▷
-        (ihom.ev J).app B =
-      eqToHom (ev_naturality J u) ≫ (ihom.ev J).app A ◁ η ≫ eqToHom (ev_naturality J v).symm :=
+lemma tensorLeftHomFunctor_map_ihomHomFunctor_whiskerRight_ev {f g : X ⟶ Y} (η : f ⟶ g) :
+    (tensorLeftHomFunctor J (J ⟶[C] X) (J ⟶[C] Y)).map ((ihomHomFunctor J X Y).map η) ▷
+        (ihom.ev J).app Y =
+      eqToHom (ev_naturality J f) ≫ (ihom.ev J).app X ◁ η ≫ eqToHom (ev_naturality J g).symm :=
   uncurryFunctor_map_ihomHomFunctor_map J η
 
 set_option backward.isDefEq.respectTransparency false in
-lemma ihomHomFunctor_map_whiskerLeft {A' : C} (w : A' ⟶ A) {u v : A ⟶ B} (η : u ⟶ v) :
-    (ihomHomFunctor J A' B).map (w ◁ η) =
-      eqToHom (by simp) ≫ (ihomHomFunctor J A' A).obj w ◁ (ihomHomFunctor J A B).map η ≫
+lemma ihomHomFunctor_map_whiskerLeft {X' : C} (f : X' ⟶ X) {g g' : X ⟶ Y} (η : g ⟶ g') :
+    (ihomHomFunctor J X' Y).map (f ◁ η) =
+      eqToHom (by simp) ≫ (ihomHomFunctor J X' X).obj f ◁ (ihomHomFunctor J X Y).map η ≫
         eqToHom (by simp) := by
-  apply (uncurryFunctor J (J ⟶[C] A') B).map_injective
+  apply (uncurryFunctor J (J ⟶[C] X') Y).map_injective
   rw [uncurryFunctor_map_ihomHomFunctor_map]
   simp [eqToHom_map, uncurryFunctor_map, tensorLeftHomFunctor_map_whiskerLeft,
     Strict.associator_eqToIso, whiskerLeft_whiskerLeft_strict,
-    congr_whiskerLeft (ev_naturality J w) η, -comp_whiskerLeft, -tensorLeftHomFunctor_map]
+    congr_whiskerLeft (ev_naturality J f) η, -comp_whiskerLeft, -tensorLeftHomFunctor_map]
 
-lemma ihomHomFunctor_map_whiskerRight {u u' : A ⟶ B} (η : u ⟶ u') {B' : C} (w : B ⟶ B') :
-    (ihomHomFunctor J A B').map (η ▷ w) =
-      eqToHom (by simp) ≫ (ihomHomFunctor J A B).map η ▷ (ihomHomFunctor J B B').obj w ≫
+lemma ihomHomFunctor_map_whiskerRight {f f' : X ⟶ Y} (η : f ⟶ f') {Y' : C} (g : Y ⟶ Y') :
+    (ihomHomFunctor J X Y').map (η ▷ g) =
+      eqToHom (by simp) ≫ (ihomHomFunctor J X Y).map η ▷ (ihomHomFunctor J Y Y').obj g ≫
         eqToHom (by simp) := by
-  apply (uncurryFunctor J (J ⟶[C] A) B').map_injective
+  apply (uncurryFunctor J (J ⟶[C] X) Y').map_injective
   rw [uncurryFunctor_map_ihomHomFunctor_map]
   simp [eqToHom_map, uncurryFunctor_map, tensorLeftHomFunctor_map_whiskerRight,
     Strict.associator_eqToIso, whiskerRight_whiskerRight_strict,
-    whiskerRight_congr (ev_naturality J w), -tensorLeftHomFunctor_map]
+    whiskerRight_congr (ev_naturality J g), -tensorLeftHomFunctor_map]
 
 /-- `ihom J` as a strict pseudofunctor `C ⥤ C`, with hom-functors given by `ihomHomFunctor J`. -/
 def ihomPseudofunctor : StrictPseudofunctor C C := .mk'' {
-    toPrelaxFunctor := PrelaxFunctor.mkOfHomFunctors (fun A => J ⟶[C] A) (ihomHomFunctor J)
+    toPrelaxFunctor := PrelaxFunctor.mkOfHomFunctors (fun X => J ⟶[C] X) (ihomHomFunctor J)
     map_id _ := by simp [PrelaxFunctor.mkOfHomFunctors, PrelaxFunctorStruct.mkOfHomPrefunctors]
     map_comp _ _ := by simp [PrelaxFunctor.mkOfHomFunctors]
     map₂_whisker_left := ihomHomFunctor_map_whiskerLeft J
-    map₂_whisker_right η w := ihomHomFunctor_map_whiskerRight J η w
+    map₂_whisker_right η g := ihomHomFunctor_map_whiskerRight J η g
   }
 
 @[simp]
-lemma ihomPseudofunctor_map {u : A ⟶ B} : (ihomPseudofunctor J).map u = (ihom J).map u :=
+lemma ihomPseudofunctor_map {f : X ⟶ Y} : (ihomPseudofunctor J).map f = (ihom J).map f :=
   rfl
 
-lemma ihomPseudofunctor_map₂ {u v : A ⟶ B} (η : u ⟶ v) :
-    (ihomPseudofunctor J).map₂ η = (ihomHomFunctor J A B).map η :=
+lemma ihomPseudofunctor_map₂ {f g : X ⟶ Y} (η : f ⟶ g) :
+    (ihomPseudofunctor J).map₂ η = (ihomHomFunctor J X Y).map η :=
   rfl
 
 end IhomPseudofunctor
 
-variable {J A : C}
+variable {J : C}
 
 -- TODO: Once we have strict natural transformations, `const` should be made into one, with this
 -- lemma as one of the fields.
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- 2-naturality of the transformation `const J : 𝟭 C ⟶ ihom J`. -/
-lemma const_naturality₂ {X Y : C} {u v : X ⟶ Y} (η : u ⟶ v) :
+lemma const_naturality₂ {X Y : C} {f g : X ⟶ Y} (η : f ⟶ g) :
     (const J).app X ◁ (ihomPseudofunctor J).map₂ η =
       eqToHom (by simp) ≫ η ▷ (const J).app Y ≫ eqToHom (by simp) := by
   rw [ihomPseudofunctor_map₂]
