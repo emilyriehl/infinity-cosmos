@@ -9,7 +9,6 @@ import Mathlib.AlgebraicTopology.Quasicategory.StrictBicategory
 import Mathlib.AlgebraicTopology.SimplicialSet.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.Boundary
 
-
 namespace SSet
 
 open CategoryTheory Simplicial MorphismProperty
