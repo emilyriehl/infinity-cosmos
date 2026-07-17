@@ -206,7 +206,7 @@ noncomputable def leibnizCotensor.snd {U V : SSet} (i : U ⟶ V) [Mono i] {A B :
   exact pullback.snd (cotensorCovMap U f.1) (cotensorContraMap i B)
 
 /-- An explicitly chosen Leibniz pullback square, as a commutative square . -/
-noncomputable def leibnizCotensor.commSq {U V : SSet.{v}} (i : U ⟶ V) [Mono i] {A B : K}
+lemma leibnizCotensor.commSq {U V : SSet.{v}} (i : U ⟶ V) [Mono i] {A B : K}
     (f : A ↠ B) : CommSq (leibnizCotensor.fst i f) (leibnizCotensor.snd i f)
                     (cotensorCovMap U f.1) (cotensorContraMap i B) := by
   constructor
@@ -217,7 +217,7 @@ noncomputable def leibnizCotensor.commSq {U V : SSet.{v}} (i : U ⟶ V) [Mono i]
   exact pullback.condition
 
 /-- An explicitly chosen Leibniz pullback square. -/
-noncomputable def leibnizCotensor.isPullback {U V : SSet.{v}} (i : U ⟶ V) [Mono i] {A B : K}
+lemma leibnizCotensor.isPullback {U V : SSet.{v}} (i : U ⟶ V) [Mono i] {A B : K}
     (f : A ↠ B) : IsPullback (leibnizCotensor.fst i f) (leibnizCotensor.snd i f)
                     (cotensorCovMap U f.1) (cotensorContraMap i B) := by
   refine ⟨leibnizCotensor.commSq i f, ?_⟩

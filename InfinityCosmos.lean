@@ -15,6 +15,7 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Closed
+import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Colimits
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Basic
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalLimits

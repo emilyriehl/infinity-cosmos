@@ -23,7 +23,7 @@ abbrev Ehom (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalCl
     (C : Type v) [EnrichedCategory V C] (x y : C) : V :=
   @EnrichedCategory.Hom V _ _ _ _ x y
 
-def Ihom_Ehom_eq (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalClosed V]
+lemma Ihom_Ehom_eq (V : Type u) [Category.{u₁, u} V] [MonoidalCategory V] [MonoidalClosed V]
     (x y : V) : Ihom V x y = Ehom V V x y :=
   rfl
 
