@@ -18,12 +18,12 @@ namespace SSet
 
 open Simplicial Edge
 
--- @[blueprint
---   "defn:coherent-isomorphism"
---   (statement := /--
---   The \textbf{homotopy coherent isomorphism} $\iso$, is the nerve of the free-living isomorphism. Its n-simplices are sequences of arrows in WalkingIso.
---   -/)]
--- def coherentIso : SSet := nerve WalkingIso
+attribute [blueprint
+  "defn:coherent-isomorphism"
+  (statement := /--
+  The \textbf{homotopy coherent isomorphism} $\iso$, is the nerve of the free-living isomorphism. Its n-simplices are sequences of arrows in WalkingIso.
+  -/)]
+  coherentIso
 
 namespace coherentIso
 
