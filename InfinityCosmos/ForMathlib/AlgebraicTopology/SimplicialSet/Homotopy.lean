@@ -5,8 +5,9 @@ Authors: Johns Hopkins Category Theory Seminar
 -/
 
 import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
+import Mathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
 
@@ -28,8 +29,8 @@ instance arrowInterval : Interval Δ[1] where
 
 /-- The interval relevant to the theory of quasi-categories. -/
 instance isoInterval : Interval coherentIso where
-  src := coherentIso.src
-  tgt := coherentIso.tgt
+  src := yonedaEquiv.symm (coherentIso.x₀)
+  tgt := yonedaEquiv.symm (coherentIso.x₁)
 
 open MonoidalCategory
 noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=

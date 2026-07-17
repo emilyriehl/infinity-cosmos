@@ -4,11 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jack McKoen
 -/
 import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+import Mathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import Mathlib.AlgebraicTopology.Quasicategory.StrictBicategory
 import Mathlib.AlgebraicTopology.SimplicialSet.Basic
 import Mathlib.AlgebraicTopology.SimplicialSet.Boundary
-
 
 namespace SSet
 
