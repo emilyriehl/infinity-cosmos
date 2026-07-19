@@ -5,20 +5,25 @@ defaultTargets = ["InfinityCosmos"]
 pp.unicode.fun = true
 autoImplicit = false
 relaxedAutoImplicit = false
+experimental.module = true
 
 [[require]]
-name = "LeanArchitect"
-scope = "hanwenzhu"
-rev = "v4.31.0-rc1"
+name = "VersoBlueprint"
+git = "https://github.com/leanprover/verso-blueprint.git"
+rev = "v4.32.0"
 
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
 rev = "8f56b705808633e8e50b8d63c3616e985e42bfe2"
 
-[[require]]
-name = "checkdecls"
-git = "https://github.com/PatrickMassot/checkdecls.git"
-
 [[lean_lib]]
 name = "InfinityCosmos"
+
+[[lean_lib]]
+name = "InfinityCosmosBlueprint"
+
+[[lean_exe]]
+name = "blueprint-gen"
+root = "InfinityCosmosBlueprintMain"
+supportInterpreter = true

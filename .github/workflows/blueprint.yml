@@ -6,9 +6,10 @@ on:
       - main
     paths:
       - '**/*.lean'
-      - '**/blueprint.yml'
+      - '.github/workflows/blueprint.yml'
       - 'blueprint/**'
       - 'home_page/**'
+      - 'scripts/ci-pages.sh'
       - 'lean-toolchain'
       - 'lakefile.toml'
       - 'lake-manifest.json'
@@ -17,56 +18,61 @@ on:
       - main
     paths:
       - '**/*.lean'
-      - '**/blueprint.yml'
+      - '.github/workflows/blueprint.yml'
       - 'blueprint/**'
       - 'home_page/**'
+      - 'scripts/ci-pages.sh'
       - 'lean-toolchain'
       - 'lakefile.toml'
       - 'lake-manifest.json'
-  workflow_dispatch: # Allow manual triggering of the workflow from the GitHub Actions interface
+  workflow_dispatch:
 
-# Cancel previous runs if a new commit is pushed to the same PR or branch
 concurrency:
-  group: ${{ github.ref }}  # Group runs by the ref (branch or PR)
-  cancel-in-progress: true  # Cancel any ongoing runs in the same group
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages and modify PR labels
 permissions:
-  contents: read          # Read access to repository contents
-  pages: write            # Write access to GitHub Pages
-  id-token: write         # Write access to ID tokens
-  issues: write           # Write access to issues
-  pull-requests: write    # Write access to pull requests
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build_project:
     runs-on: ubuntu-latest
-    name: Build project
+    name: Build project and documentation
     steps:
-      - name: Cleanup to free disk space
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: false
-          android: true # saves approximately 12 GB
-          dotnet: false
-          haskell: false
-          large-packages: false
-          docker-images: false
-          swap-storage: false
-
       - name: Checkout project
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          fetch-depth: 0 # Fetch all history for all branches and tags
+          fetch-depth: 0
 
       - name: Build the project
         uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
         with:
           use-github-cache: false
-          build-args: :blueprint
 
-      - name: Compile blueprint and documentation
+      - name: Install TeX for the blueprint PDF
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            dvisvgm \
+            texlive-fonts-recommended \
+            texlive-latex-extra \
+            texlive-luatex \
+            texlive-pictures
+
+      - name: Build Verso blueprint
+        run: ./scripts/ci-pages.sh
+
+      - name: Stage blueprint with the project homepage
+        if: github.event_name == 'push'
+        run: |
+          rm -rf home_page/blueprint
+          cp -R _out/site/html-multi home_page/blueprint
+          cp _out/site/pdf/main.pdf home_page/blueprint.pdf
+
+      - name: Compile project documentation and deploy the combined site
         uses: leanprover-community/docgen-action@cc833d262c7b8f179ac444cd20fde412b24b8beb # 2026-01-08
         with:
-          blueprint: true
+          blueprint: false
           homepage: home_page
