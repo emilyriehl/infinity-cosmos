@@ -54,7 +54,12 @@ jobs:
       - name: Install TeX for the blueprint PDF
         run: |
           sudo apt-get update
-          sudo apt-get install -y texlive-luatex texlive-latex-extra texlive-fonts-recommended
+          sudo apt-get install -y \
+            dvisvgm \
+            texlive-fonts-recommended \
+            texlive-latex-extra \
+            texlive-luatex \
+            texlive-pictures
 
       - name: Build Verso blueprint
         run: ./scripts/ci-pages.sh

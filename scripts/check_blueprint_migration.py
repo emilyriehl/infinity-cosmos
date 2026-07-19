@@ -62,6 +62,10 @@ missing = expected_labels - verso_labels
 extra = verso_labels - expected_labels
 missing_witnesses = expected_labels - witness_labels
 missing_declarations = {name for name in formal_declarations if name not in chapter}
+tikz_blocks = re.findall(r"^```tikzcd\n(.*?)\n```$", chapter, flags=re.MULTILINE | re.DOTALL)
+visible_tex_blocks = re.findall(
+    r"^```tex \(display := source\)\n(.*?)\n```$", chapter, flags=re.MULTILINE | re.DOTALL
+)
 proof_directives = re.findall(r'^:::proof "([^"]+)"', chapter, flags=re.MULTILINE)
 proof_witnesses = re.findall(
     r'^```tex "([^"]+)" \(slot := proof\)', chapter, flags=re.MULTILINE
@@ -81,6 +85,10 @@ if missing_witnesses:
     fail(f"missing statement TeX witnesses: {sorted(missing_witnesses)}")
 if missing_declarations:
     fail(f"missing Lean declaration links: {sorted(missing_declarations)}")
+if any(r"\begin{tikzcd}" in block for block in visible_tex_blocks):
+    fail("a visible TikZ-CD diagram is still rendered as TeX source")
+if not tikz_blocks:
+    fail("no native tikzcd blocks found")
 if proof_directives != proof_witnesses:
     fail("proof directives and their TeX witnesses differ or are out of order")
 if len(proof_directives) != expected_proof_count:
@@ -110,6 +118,6 @@ if architect_references:
 print(
     "Blueprint migration coverage OK: "
     f"{len(formal_labels)} formal labels + {len(informal_labels)} active TeX-only labels "
-    f"= {len(expected_labels)} Verso statements; {len(proof_directives)} proofs and "
-    f"{len(citation_keys)} citations registered."
+    f"= {len(expected_labels)} Verso statements; {len(proof_directives)} proofs, "
+    f"{len(citation_keys)} citations, and {len(tikz_blocks)} rendered TikZ-CD blocks registered."
 )
