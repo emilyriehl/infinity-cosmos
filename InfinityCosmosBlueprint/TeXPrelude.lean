@@ -15,7 +15,8 @@ tex_prelude r#"
 \newcommand{\Cat}{\ec{Cat}}
 \newcommand{\Kan}{\ec{Kan}}
 \newcommand{\qCat}{\ec{QCat}}
-\newcommand{\Set}{\ec{Set}}
+\providecommand{\Set}{}
+\renewcommand{\Set}{\ec{Set}}
 \newcommand{\sSet}{\ec{sSet}}
 \newcommand{\twoCat}{2\text{-}\Cat}
 \newcommand{\sCat}{\sSet\text{-}\Cat}
@@ -43,7 +44,8 @@ tex_prelude r#"
 \newcommand{\leib}[1]{\mathbin{\widehat{#1}}}
 \newcommand{\uleib}[1]{\widehat{#1}}
 \newcommand{\pwr}{\mathbin{\div}}
-\newcommand{\coloneq}{:=}
+\providecommand{\coloneq}{}
+\renewcommand{\coloneq}{:=}
 \newcommand{\Del}{\Delta}
 \newcommand{\fib}{\twoheadrightarrow}
 \newcommand{\we}{\rightsquigarrow}
