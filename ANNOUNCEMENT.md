@@ -14,36 +14,36 @@ If you're interesting in hearing more or contributing to the development of this
 
 **Warm-up definitions**:
 
-D1. Define the [homotopy coherent isomorphism](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#defn:coherent-isomorphism). We may later opt to work with different models of this simplicial set.
+D1. Define the [homotopy coherent isomorphism](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/The-homotopy-category-of-a-quasi-category___-isofibrations___-and-equivalences/#--informal-preview-_FLQQ_defn___coherent-isomorphism_FLQQ_--statement). We may later opt to work with different models of this simplicial set.
 
-D2. Define the notion of [isofibration](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#defn:qcat-isofibration) between quasi-categories.
+D2. Define the notion of [isofibration](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/The-homotopy-category-of-a-quasi-category___-isofibrations___-and-equivalences/#--informal-preview-_FLQQ_defn___qcat-isofibration_FLQQ_--statement) between quasi-categories.
 
-D3. Define the notion of [equivalence](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#defn:qcat-equivalence) between quasi-categories.
+D3. Define the notion of [equivalence](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/The-homotopy-category-of-a-quasi-category___-isofibrations___-and-equivalences/#--informal-preview-_FLQQ_defn___qcat-equivalence_FLQQ_--statement) between quasi-categories.
 
-D4. Define the notion of [trivial fibration](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#defn:qcat-trivial-fibration) between quasi-categories.
+D4. Define the notion of [trivial fibration](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/The-homotopy-category-of-a-quasi-category___-isofibrations___-and-equivalences/#--informal-preview-_FLQQ_defn___qcat-trivial-fibration_FLQQ_--statement) between quasi-categories.
 
 **Tasks involving simplicial sets**:
 
-S1. Define the [homotopy relation on 1-simplices](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#defn:1-simplex-htpy) in a simplicial set. Note a draft of this exists written by @**Joseph Tooby-Smith** in a [mathlib PR](https://github.com/leanprover-community/mathlib4/pull/10006/files#diff-d9401595c03bcfddf1ecc22aa64fe6a62f82ae75b237ef92269c4c42f967f04f), though it's not obvious to me which version of this definition will be the most useful.
+S1. Define the [homotopy relation on 1-simplices](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/Simplicial-sets/#--informal-preview-_FLQQ_defn___1-simplex-htpy_FLQQ_--statement) in a simplicial set. Note a draft of this exists written by @**Joseph Tooby-Smith** in a [mathlib PR](https://github.com/leanprover-community/mathlib4/pull/10006/files#diff-d9401595c03bcfddf1ecc22aa64fe6a62f82ae75b237ef92269c4c42f967f04f), though it's not obvious to me which version of this definition will be the most useful.
 
-S2. Prove the [simpler form](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#lem:qcat-1-simplex-htpy) of the homotopy relation, under the hypothesis that the ambient simplicial set is a quasi-category. This is really a sequence of lemmas, some of which are already proven in the PR mentioned above.
+S2. Prove the [simpler form](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/Simplicial-sets/#--informal-preview-_FLQQ_lem___qcat-1-simplex-htpy_FLQQ_--statement) of the homotopy relation, under the hypothesis that the ambient simplicial set is a quasi-category. This is really a sequence of lemmas, some of which are already proven in the PR mentioned above.
 
-S3. Characterize the [homotopy category of a quasi-category](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#lem:htpy-cat-of-qcat). The general homotopy category functor on simplicial sets has a simplified description on quasi-categories.
+S3. Characterize the [homotopy category of a quasi-category](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/The-homotopy-category-of-a-quasi-category___-isofibrations___-and-equivalences/#--informal-preview-_FLQQ_lem___htpy-cat-of-qcat_FLQQ_--statement). The general homotopy category functor on simplicial sets has a simplified description on quasi-categories.
 
-S4. Prove that the [homotopy category functor preserves equivalences](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#lem:qcat-htpy-cat-equiv).
+S4. Prove that the [homotopy category functor preserves equivalences](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/The-homotopy-category-of-a-quasi-category___-isofibrations___-and-equivalences/#--informal-preview-_FLQQ_lem___qcat-htpy-cat-equiv_FLQQ_--statement).
 
-S5. A final particularly hard task: prove that the homotopy category functor [preserves products](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-simplicial-sets.html#lem:ho-preserves-products). There are two lemmas here, both of which we will eventually need. I suspect the easier will be to show that the homotopy category functor, when restricted to the subcategory of quasi-categories preserves all products, though this relies on task 3. The harder result, which could be attempted now, would be to show that this functor preserves finite products (binary products and the terminal object) of arbitrary simplicial sets.
+S5. A final particularly hard task: prove that the homotopy category functor [preserves products](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/The-homotopy-category-of-a-quasi-category___-isofibrations___-and-equivalences/#--informal-preview-_FLQQ_lem___ho-preserves-finite-products_FLQQ_--statement). There are two lemmas here, both of which we will eventually need. I suspect the easier will be to show that the homotopy category functor, when restricted to the subcategory of quasi-categories preserves all products, though this relies on task 3. The harder result, which could be attempted now, would be to show that this functor preserves finite products (binary products and the terminal object) of arbitrary simplicial sets.
 
 **Tasks involving simplicially enriched limits**:
 
-L1. Define [simplicial cotensors](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-enriched-limits.html#defn:simplicial-cotensors). While the current definition of "has cotensors" is mathematically correct, it is likely not in the most useful form, as it does not give us direct access to the simplicially enriched adjunction or include the associativity isomorphisms.
+L1. Define [simplicial cotensors](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/Enriched-limits/#--informal-preview-_FLQQ_defn___simplicial-cotensors_FLQQ_--statement). While the current definition of "has cotensors" is mathematically correct, it is likely not in the most useful form, as it does not give us direct access to the simplicially enriched adjunction or include the associativity isomorphisms.
 
-L2. Prove that simplicial cotensors define a [bifunctor](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-enriched-limits.html#lem:cotensor-bifunctor).
+L2. Prove that simplicial cotensors define a [bifunctor](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/Enriched-limits/#--informal-preview-_FLQQ_lem___cotensor-bifunctor_FLQQ_--statement).
 
-L3. Define [simplicial conical limits](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-enriched-limits.html#defn:simplicial-conical-limit).
+L3. Define [simplicial conical limits](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/Enriched-limits/#--informal-preview-_FLQQ_defn___simplicial-conical-limit_FLQQ_--statement).
 
 **Tasks involving ∞-cosmoi**:
 
-C1. Using all of the above, complete the definition of an [∞-cosmos](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-cosmos.html#defn:cosmos).
+C1. Using all of the above, complete the definition of an [∞-cosmos](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/Infinity-Cosmoi/#--informal-preview-_FLQQ_defn___cosmos_FLQQ_--statement).
 
-C2. Define [cartesian closed ∞-cosmoi](https://emilyriehl.github.io/infinity-cosmos/blueprint/sec-cosmos.html#defn:closed-cosmos).
+C2. Define [cartesian closed ∞-cosmoi](https://emilyriehl.github.io/infinity-cosmos/blueprint/Infinity-Cosmoi/Examples-of-infinity-cosmoi/#--informal-preview-_FLQQ_defn___closed-cosmos_FLQQ_--statement).

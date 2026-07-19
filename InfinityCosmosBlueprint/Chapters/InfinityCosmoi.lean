@@ -1,0 +1,3644 @@
+import Verso
+import VersoManual
+import VersoBlueprint
+import InfinityCosmos
+import InfinityCosmosBlueprint.TeXPrelude
+import InfinityCosmosBlueprint.Bibliography
+
+open Verso.Genre
+open Verso.Genre.Manual
+open Informal
+
+set_option verso.blueprint.math.lint false
+set_option verso.blueprint.externalCode.strictResolve true
+
+#doc (Manual) "Infinity-Cosmoi" =>
+
+# Overview
+
+Following {Informal.citep "RiehlVerity:2022eo"}[], from which this document was excerpted, we aim to develop the basic theory of $`\infty`-categories in a model independent fashion using a common axiomatic framework that is satisfied by a variety of models. In contrast with prior “analytic” treatments of the theory of $`\infty`-categories — in which the central categorical notions are defined in reference to the coordinates of a particular model — our approach is “synthetic,” proceeding from definitions that can be interpreted simultaneously in many models to which our proofs then apply.
+
+To achieve this, our strategy is not to axiomatize what infinite-dimensional categories are, but rather to axiomatize the categorical “universe” in which they live. This motivates the notion of an $`\infty`-cosmos,
+which axiomatizes the universe in which $`\infty`-categories live as objects. (Note: Metaphorical allusions aside, our $`\infty`-cosmoi resemble the fibrational cosmoi of Street {Informal.citep "Street:1974ec"}[].) So that theorem statement about $`\infty`-cosmoi suggest their natural interpretation, we recast $`\infty`-category as a technical term, to mean an object in some (typically fixed) $`\infty`-cosmos. Several common models of $`(\infty,1)`-categories (Note: Quasi-categories, complete Segal spaces, Segal categories, and 1-complicial sets (naturally marked quasi-categories) all define the $`\infty`-categories in an $`\infty`-cosmos.) are $`\infty`-categories in this sense, but our $`\infty`-categories also include certain models of $`(\infty,n)`-categories (Note: $`n`-quasi-categories, $`\Theta_n`-spaces, iterated complete Segal spaces, and $`n`-complicial sets also define the $`\infty`-categories in an $`\infty`-cosmos, as do saturated (née weak) complicial sets, a model for $`(\infty,\infty)`-categories.) as well as fibered versions of all of the above. Thus each of these objects are $`\infty`-categories in our sense and our theorems apply to all of them. (Note: There is a sense, however, in which many of our definitions are optimized for those $`\infty`-cosmoi whose objects are $`(\infty,1)`-categories. A good illustration  is provided by the notion of discrete $`\infty`-category.
+In the $`\infty`-cosmoi of $`(\infty,1)`-categories, the discrete $`\infty`-categories are the $`\infty`-groupoids, but this is not true for the $`\infty`-cosmoi of $`(\infty,n)`-categories.) This usage of the term “$`\infty`-categories” is meant to interpolate between the classical one, which refers to any variety of weak infinite-dimensional categories, and the common one, which is often taken to mean quasi-categories or complete Segal spaces.
+
+Much of the development of the theory of $`\infty`-categories takes place not in the full $`\infty`-cosmos but in a quotient that we call the homotopy 2-category, the name chosen because an $`\infty`-cosmos is something like a category of fibrant objects in an enriched model category and the homotopy 2-category is then a categorification of its homotopy category. The homotopy 2-category is a strict 2-category — like the 2-category of categories, functors, and natural transformations (Note: In fact this is another special case: there is an $`\infty`-cosmos whose objects are ordinary categories and its homotopy 2-category is the usual category of categories, functors, and natural transformations. This 2-category is as old as category theory itself, introduced in Eilenberg and Mac Lane's foundational paper {Informal.citep "EilenbergMaclane:1945gt"}[].) — and in this way the foundational proofs in the theory of $`\infty`-categories closely resemble the classical foundations of ordinary category theory except that the universal properties they characterize, e.g., when a functor between $`\infty`-categories defines a cartesian fibration, are slightly weaker than in the familiar case of strict 1-categories.
+
+There are many alternate choices we could have made in selecting the axioms of an $`\infty`-cosmos. One of our guiding principles, admittedly somewhat contrary to the setting of homotopical higher category theory, was to allow us to work as strictly as possible, with the aim of shortening and simplifying proofs. As a consequence of these choices, the $`\infty`-categories in an $`\infty`-cosmos and the functors and natural transformations between them assemble into a 2-category rather than a bicategory. To help us achieve this counterintuitive strictness, each $`\infty`-cosmos comes with a specified class of maps between $`\infty`-categories called isofibrations. The isofibrations have no homotopy-theoretic meaning, as any functor between $`\infty`-categories is equivalent to an isofibration with the same codomain. However, isofibrations permit us to consider strictly commutative diagrams between $`\infty`-categories and allow us to require that the limits of such diagrams satisfy a universal property up to simplicially enriched isomorphism. Neither feature is essential for the development of $`\infty`-category theory. Similar proofs carry through to a weaker setting, at the cost of more time spent considering coherence of higher cells.
+
+An $`\infty`-cosmos is a particular sort of simplicially enriched category with certain simplicially enriched limits. In § “Simplicial sets”, we first review some prerequisites from the theory of simplicial sets, most of which are either currently in Mathlib or on their way. In § “The homotopy category of a quasi-category, isofibrations, and equivalences”, we give a simplified description of the homotopy category of a quasi-category and introduce the classes of isofibrations and equivalences.
+
+While the notion of simplicially enriched category currently exists in Mathlib, simplicially enriched limits do not, so in § “Enriched limits” we first introduce the prerequisite notions of simplicially enriched limits that will be required to state the definition of an $`\infty`-cosmos in § “Infinity-Cosmoi”. The homotopy 2-category of an $`\infty`-cosmos is then obtained by applying the general theory of change-of-base from enriched category, which is also currently missing from Mathlib. This theory is described in § “Change of base” and then used to define the homotopy 2-category in § “The homotopy 2-category”.
+
+Additional chapters will be added to this blueprint in the future, containing excerpts of the material that can be found in {Informal.citep "RiehlVerity:2022eo"}[Chapters 2-5]. The broader aim of this project is to formalize the core basic theory of $`\infty`-categories, covering those aspects that can be defined in the homotopy 2-category of an $`\infty`-cosmos.
+
+The authors of this blueprint are particularly indebted to:
+
+- Mario Carneiro, who contributed greatly to the original Lean formalization of $`\infty`-cosmoi and prerequisite results about the homotopy category functor;
+- Johan Commelin, who suggested restructuring this as a blueprint project; and
+- Pietro Monticone, who created a template for blueprint-driven formalization projects in Lean, from which this repository was forked.
+
+Special thanks are also due to the Hausdorff Research Institute for Mathematics and the organizers of the Trimester Program “Prospects of Formal Mathematics,” where the genesis of this project took place.
+
+```tex
+Following \cite{RiehlVerity:2022eo}, from which this document was excerpted, we aim to develop the basic theory of $\infty$-categories in a model independent fashion using a common axiomatic framework that is satisfied by a variety of models. In contrast with prior ``analytic'' treatments of the theory of $\infty$-categories --- in which the central categorical notions are defined in reference to the coordinates of a particular model --- our approach is ``synthetic,'' proceeding from definitions that can be interpreted simultaneously in many models to which our proofs then apply.
+
+To achieve this, our strategy is not to axiomatize what infinite-dimensional categories \emph{are}, but rather to axiomatize the categorical ``universe'' in which they \emph{live}. This motivates the notion of an $\infty$-\emph{cosmos},
+which axiomatizes the universe in which $\infty$-categories live as objects.\footnote{Metaphorical allusions aside, our $\infty$-cosmoi resemble the fibrational cosmoi of Street \cite{Street:1974ec}.} So that theorem statement about $\infty$-cosmoi suggest their natural interpretation, we recast $\infty$-\emph{category} as a technical term, to mean an object in some (typically fixed) $\infty$-cosmos. Several common models of $(\infty,1)$-cat\-e\-go\-ries\footnote{Quasi-categories, complete Segal spaces, Segal categories, and 1-complicial sets (naturally marked quasi-categories) all define the \texorpdfstring{$\infty$}{infinity}-categories in an \texorpdfstring{$\infty$}{infinity}-cosmos.} are $\infty$-categories in this sense, but our $\infty$-categories also include certain models of $(\infty,n)$-categories\footnote{$n$-quasi-categories, $\Theta_n$-spaces, iterated complete Segal spaces, and $n$-complicial sets also define the \texorpdfstring{$\infty$}{infinity}-categories in an \texorpdfstring{$\infty$}{infinity}-cosmos, as do saturated (n\'{e}e weak) complicial sets, a model for \texorpdfstring{$(\infty,\infty)$}{(infinity,infinity)}-categories.} as well as fibered versions of all of the above. Thus each of these objects are $\infty$-cat\-e\-go\-ries in our sense and our theorems apply to all of them.\footnote{There is a sense, however, in which many of our definitions are optimized for those \texorpdfstring{$\infty$}{infinity}-cosmoi whose objects are \texorpdfstring{$(\infty,1)$}{(infinity,1)}-categories. A good illustration  is provided by the notion of \emph{discrete \texorpdfstring{$\infty$}{infinity}-category}. % introduced in Definition \ref{defn:discrete}.
+ In the \texorpdfstring{$\infty$}{infinity}-cosmoi of \texorpdfstring{$(\infty,1)$}{(infinity,1)}-categories, the discrete \texorpdfstring{$\infty$}{infinity}-categories are the \texorpdfstring{$\infty$}{infinity}-groupoids, but this is not true for the \texorpdfstring{$\infty$}{infinity}-cosmoi of \texorpdfstring{$(\infty,n)$}{(infinity,n)}-categories.} This usage of the term ``$\infty$-categories'' is meant to interpolate between the classical one, which refers to any variety of weak infinite-dimensional categories, and the common one, which is often taken to mean quasi-categories or complete Segal spaces.
+
+ Much of the development of the theory of $\infty$-categories takes place not in the full $\infty$-cosmos but in a quotient that we call the \emph{homotopy 2-category}, the name chosen because an $\infty$-cosmos is something like a category of fibrant objects in an enriched model category and the homotopy 2-category is then a categorification of its homotopy category. The homotopy 2-category is a strict 2-category --- like the 2-category of categories, functors, and natural transformations\footnote{In fact this is another special case: there is an \texorpdfstring{$\infty$}{infinity}-cosmos whose objects are ordinary categories and its homotopy 2-category is the usual category of categories, functors, and natural transformations. This 2-category is as old as category theory itself, introduced in Eilenberg and Mac Lane's foundational paper \cite{EilenbergMaclane:1945gt}.} --- and in this way the foundational proofs in the theory of $\infty$-categories closely resemble the classical foundations of ordinary category theory except that the universal properties they characterize, e.g., when a functor between $\infty$-categories defines a cartesian fibration, are slightly weaker than in the familiar case of strict 1-categories.
+
+ There are many alternate choices we could have made in selecting the axioms of an $\infty$-cosmos. One of our guiding principles, admittedly somewhat contrary to the setting of homotopical higher category theory, was to allow us to work as strictly as possible, with the aim of shortening and simplifying proofs. As a consequence of these choices, the $\infty$-categories in an $\infty$-cosmos and the functors and natural transformations between them assemble into a 2-category rather than a bicategory. To help us achieve this counterintuitive strictness, each $\infty$-cosmos comes with a specified class of maps between $\infty$-categories called \emph{isofibrations}. The isofibrations have no homotopy-theoretic meaning, as any functor between $\infty$-categories is equivalent to an isofibration with the same codomain. However, isofibrations permit us to consider strictly commutative diagrams between $\infty$-cat\-e\-go\-ries and allow us to require that the limits of such diagrams satisfy a universal property up to simplicially enriched isomorphism. Neither feature is essential for the development of $\infty$-category theory. Similar proofs carry through to a weaker setting, at the cost of more time spent considering coherence of higher cells.
+
+ An $\infty$-cosmos is a particular sort of \emph{simplicially enriched category} with certain \emph{simplicially enriched limits}. In \S\ref{sec:simplicial-sets}, we first review some prerequisites from the theory of simplicial sets, most of which are either currently in Mathlib or on their way. In \S\ref{sec:homotopy-category}, we give a simplified description of the homotopy category of a quasi-category and introduce the classes of isofibrations and equivalences.
+
+ While the notion of simplicially enriched category currently exists in Mathlib, simplicially enriched limits do not, so in \S\ref{sec:enriched-limits} we first introduce the prerequisite notions of simplicially enriched limits that will be required to state the definition of an $\infty$-cosmos in \S\ref{sec:cosmos}. The homotopy 2-category of an $\infty$-cosmos is then obtained by applying the general theory of change-of-base from enriched category, which is also currently missing from Mathlib. This theory is described in \S\ref{sec:change-of-base} and then used to define the homotopy 2-category in \S\ref{sec:htpy-2-cat}.
+
+  Additional chapters will be added to this blueprint in the future, containing excerpts of the material that can be found in \cite[Chapters 2-5]{RiehlVerity:2022eo}. The broader aim of this project is to formalize the core basic theory of $\infty$-categories, covering those aspects that can be defined in the homotopy 2-category of an $\infty$-cosmos.
+
+ The authors of this blueprint are particularly indebted to:
+ \begin{itemize}
+ \item Mario Carneiro, who contributed greatly to the original Lean formalization of $\infty$-cosmoi and prerequisite results about the homotopy category functor;
+ \item Johan Commelin, who suggested restructuring this as a blueprint project; and
+ \item  Pietro Monticone, who created a template for blueprint-driven formalization projects in Lean, from which this repository was forked.
+ \end{itemize}
+ Special thanks are also due to the Hausdorff Research Institute for Mathematics and the organizers of the Trimester Program ``Prospects of Formal Mathematics,'' where the genesis of this project took place.
+```
+
+# Simplicial sets
+
+*Legacy section label:* `sec:simplicial-sets`
+
+Before introducing an axiomatic framework that allows us to develop $`\infty`-category theory in general, we first consider one model in particular:  quasi-categories, which were introduced in 1973 by Boardman and Vogt  {Informal.citep "BoardmanVogt:1973hi"}[] in their study of homotopy coherent diagrams. Ordinary 1-categories give examples of quasi-categories via the construction of Definition {bpref "defn:nerve"}[]. Joyal first undertook the task of extending 1-category theory to quasi-category theory in {Informal.citep "Joyal:2002qk"}[] and {Informal.citep "Joyal:2008tq"}[] and in several unpublished draft book manuscripts. The majority of the results in this section are due to him.
+
+```tex
+Before introducing an axiomatic framework that allows us to develop $\infty$-cat\-e\-gory theory in general, we first consider one model in particular:  \emph{quasi-cat\-e\-go\-ries}, which were introduced in 1973 by Boardman and Vogt  \cite{BoardmanVogt:1973hi} in their study of homotopy coherent diagrams. Ordinary 1-categories give examples of quasi-categories via the construction of Definition \ref{defn:nerve}. Joyal first undertook the task of extending 1-category theory to quasi-category theory in \cite{Joyal:2002qk} and \cite{Joyal:2008tq} and in several unpublished draft book manuscripts. The majority of the results in this section are due to him.
+```
+
+:::definition "defn:simplex-category" (lean := "SimplexCategory.smallCategory")
+*the simplex category.*
+
+Let $`\Del` denote the *simplex category* of finite nonempty ordinals $`[n] = \{0 <1 <\cdots
+< n\}` and order-preserving maps.
+:::
+```tex "defn:simplex-category" (slot := statement)
+Let $\Del$ denote the \textbf{simplex category} of finite nonempty ordinals $[n] = \{0 <1 <\cdots
+  < n\}$ and order-preserving maps.
+```
+
+The maps in the simplex category include in particular:
+
+```tex
+The maps in the simplex category include in particular:
+```
+
+:::definition "defn:face-map" (lean := "SimplexCategory.δ")
+*elementary face maps.*
+
+The *elementary face operators* are the maps
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[row sep=tiny, column sep=small]
+{[n-1]} \arrow[r, tail, "{\face^i}"] & {[n]}  & {0 \leq i \leq n}
+\end{tikzcd}
+\end{center}
+```
+
+whose images omit the element $`i \in [n]`.
+:::
+```tex "defn:face-map" (slot := statement)
+The \textbf{elementary~face~operators} are the maps
+  \begin{center}
+  \begin{tikzcd}[row sep=tiny, column sep=small]
+     {[n-1]} \arrow[r, tail, "{\face^i}"] & {[n]}  & {0 \leq i \leq n}
+  \end{tikzcd}
+  \end{center}
+  whose images omit the element $i \in [n]$.
+```
+
+:::definition "defn:degeneracy-map" (lean := "SimplexCategory.σ")
+*elementary degeneracy maps.*
+
+The *elementary degeneracy operators* are the maps
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[row sep=tiny, column sep=small]
+{[n+1]} \arrow[r, two heads, "{\degen^i}"] & {[n]} & {0 \leq i \leq n }
+\end{tikzcd}
+\end{center}
+```
+
+whose images  double up on the element $`i \in [n]`.
+:::
+```tex "defn:degeneracy-map" (slot := statement)
+The \textbf{elementary~degeneracy~operators} are the maps
+  \begin{center}
+  \begin{tikzcd}[row sep=tiny, column sep=small]
+   {[n+1]} \arrow[r, two heads, "{\degen^i}"] & {[n]} & {0 \leq i \leq n }
+  \end{tikzcd}
+  \end{center}
+  whose images  double up on the element $i \in [n]$.
+```
+
+The following decomposition result is yet to be proven, though there are related results on the image factorization in the simplex category:
+
+```tex
+The following decomposition result is yet to be proven, though there are related results on the image factorization in the simplex category:
+```
+
+:::proposition "prop:simplex-cat-factorization" (lean := "SimplexCategory.instHasStrongEpiImages")
+Every morphism in $`\Del` factors uniquely as an epimorphism followed by a monomorphism; these
+epimorphisms, the *degeneracy operators*, decompose as composites of elementary degeneracy
+operators, while the monomorphisms, the *face operators*, decompose as composites of
+elementary face operators.
+:::
+```tex "prop:simplex-cat-factorization" (slot := statement)
+Every morphism in $\Del$ factors uniquely as an epimorphism followed by a monomorphism; these
+  epimorphisms, the \textbf{degeneracy operators}, decompose as composites of elementary degeneracy
+  operators, while the monomorphisms, the \textbf{face operators}, decompose as composites of
+  elementary face operators.
+```
+:::proof "prop:simplex-cat-factorization"
+The image factorizations have been formalized but the canonical decompositions into elementary
+face and degeneracy operators remain to be done.
+:::
+```tex "prop:simplex-cat-factorization" (slot := proof)
+The image factorizations have been formalized but the canonical decompositions into elementary
+  face and degeneracy operators remain to be done.
+```
+
+:::definition "defn:simplicial-set" (uses := "defn:simplex-category") (lean := "SSet")
+*simplicial set.*
+
+A *simplicial set* is a presheaf on the simplex category.
+:::
+```tex "defn:simplicial-set" (slot := statement)
+\begin{defn}[simplicial set]\label{defn:simplicial-set}
+  \lean{SSet}
+  \leanok
+  \uses{defn:simplex-category}
+  A \textbf{simplicial set} is a presheaf on the simplex category.
+\end{defn}
+```
+
+:::definition "defn:sset-category" (lean := "CategoryTheory.Functor.category")
+*the category of simplicial sets.*
+
+The category of *simplicial sets* is the category $`\sSet \coloneq \Set^{\Del\op}` of
+presheaves on the simplex category.
+:::
+```tex "defn:sset-category" (slot := statement)
+The category of \textbf{simplicial sets} is the category $\sSet \coloneq \Set^{\Del\op}$ of
+  pre\-sheaves on the simplex category.
+```
+
+Standard examples of simplicial sets include:
+
+```tex
+Standard examples of simplicial sets include:
+```
+
+:::definition "defn:standard-simplex" (lean := "SSet.stdSimplex")
+*standard simplex.*
+
+We write $`\Delta[n]` for the *standard $`n`-simplex* the simplicial set represented by $`[n]
+\in \Del`.
+:::
+```tex "defn:standard-simplex" (slot := statement)
+We write $\Delta[n]$ for the \textbf{standard $n$-simplex} the simplicial set represented by $[n]
+  \in \Del$.
+```
+
+:::definition "defn:simplex-boundary" (lean := "SSet.boundary")
+*simplex boundary.*
+
+We write $`\partial\Delta[n] \subset \Delta[n]` for the *boundary sphere* of the
+$`n`-simplex. The sphere $`\partial\Delta[n]` is the simplicial subset generated by the
+codimension-one faces of the $`n`-simplex.
+:::
+```tex "defn:simplex-boundary" (slot := statement)
+We write $\partial\Delta[n] \subset \Delta[n]$ for the \textbf{boundary sphere} of the
+  $n$-simplex. The sphere $\partial\Delta[n]$ is the simplicial subset generated by the
+  codimension-one faces of the $n$-simplex.
+```
+
+:::definition "defn:simplicial-horn" (lean := "SSet.horn")
+*simplicial horn.*
+
+We write $`\Lambda^k[n] \subset \Delta[n]` for the $`k`-*horn* in the $`n`-simplex. The horn
+$`\Lambda^k[n]` is the further simplicial subset of $`\partial\Delta[n]` that omits the face
+opposite the vertex $`k`, but it is defined as a subset of $`\Delta[n]`.
+:::
+```tex "defn:simplicial-horn" (slot := statement)
+We write $\Lambda^k[n] \subset \Delta[n]$ for the $k$-\textbf{horn} in the $n$-simplex. The horn
+  $\Lambda^k[n]$ is the further simplicial subset of $\partial\Delta[n]$ that omits the face
+  opposite the vertex $k$, but it is defined as a subset of $\Delta[n]$.
+```
+
+Given a simplicial set $`X`, it is conventional to write $`X_n` for the set of $`n`-*simplices*, defined by evaluating at $`[n] \in \Del`. This is implemented as a scoped notation `_[n]` accessible with “open Simplicial” or “open scoped Simplicial.”
+
+By the Yoneda lemma:
+
+```tex
+Given a simplicial set $X$, it is conventional to write $X_n$ for the set of $n$-\textbf{sim\-plices}, defined by evaluating at $[n] \in \Del$. This is implemented as a scoped notation ``\_[n]'' accessible with ``open Simplicial'' or ``open scoped Simplicial.''
+
+By the Yoneda lemma:
+```
+
+:::lemma_ "lem:simplex-yoneda" (lean := "SSet.yonedaEquiv")
+Each $`n`-simplex $`x \in X_n` corresponds to a map of simplicial sets $`x \colon \Delta[n] \to X`.
+Accordingly, we write $`x \cdot \face^i` for the $`i`th face of the $`n`-simplex, an
+$`(n-1)`-simplex classified by the composite map
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+\Delta[n-1] \arrow[r, "\face^i"] & \Delta[n] \arrow[r, "x"] & X.
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "lem:simplex-yoneda" (slot := statement)
+Each $n$-simplex $x \in X_n$ corresponds to a map of simplicial sets $x \colon \Delta[n] \to X$.
+    Accordingly, we write $x \cdot \face^i$ for the $i$th face of the $n$-simplex, an
+    $(n-1)$-simplex classified by the composite map
+  \begin{center}
+  \begin{tikzcd}
+  \Delta[n-1] \arrow[r, "\face^i"] & \Delta[n] \arrow[r, "x"] & X.
+  \end{tikzcd}
+  \end{center}
+```
+:::proof "lem:simplex-yoneda"
+This is a special case of the Yoneda lemma.
+:::
+```tex "lem:simplex-yoneda" (slot := proof)
+This is a special case of the Yoneda lemma.
+```
+
+The right action of the face operator defines a map $`X_n \xrightarrow{\cdot\face^i} X_{n-1}`. Geometrically, $`x\cdot \face^i` is the “face opposite the vertex $`i`” in the $`n`-simplex $`x`.
+
+The category of simplicial sets, as a presheaf category, is very well-behaved:
+
+```tex
+The right action of the face operator defines a map $X_n \xrightarrow{\cdot\face^i} X_{n-1}$. Geometrically, $x\cdot \face^i$ is the ``face opposite the vertex $i$'' in the $n$-simplex $x$.
+
+The category of simplicial sets, as a presheaf category, is very well-behaved:
+```
+
+:::corollary "cor:sset-cat-limits" (lean := "CategoryTheory.SimplicialObject.instHasLimits")
+The category of simplicial sets is complete.
+:::
+```tex "cor:sset-cat-limits" (slot := statement)
+The category of simplicial sets is complete.
+```
+:::proof "cor:sset-cat-limits"
+Presheaf categories are complete.
+:::
+```tex "cor:sset-cat-limits" (slot := proof)
+Presheaf categories are complete.
+```
+
+:::corollary "cor:sset-cat-colimits" (lean := "CategoryTheory.SimplicialObject.instHasColimits")
+The category of simplicial sets is cocomplete.
+:::
+```tex "cor:sset-cat-colimits" (slot := statement)
+The category of simplicial sets is cocomplete.
+```
+:::proof "cor:sset-cat-colimits"
+Presheaf categories are cocomplete.
+:::
+```tex "cor:sset-cat-colimits" (slot := proof)
+Presheaf categories are cocomplete.
+```
+
+Instances of these facts currently appear in Mathlib, which likely also knows that the category of simplicial sets is cartesian closed.
+
+The definition of a quasi-category can be found in Mathlib as well.
+
+```tex
+Instances of these facts currently appear in Mathlib, which likely also knows that the category of simplicial sets is cartesian closed.
+
+The definition of a quasi-category can be found in Mathlib as well.
+```
+
+:::definition "defn:quasi-category" (lean := "SSet.Quasicategory")
+A *quasi-category* is a simplicial set $`A` in which any *inner horn* can be
+extended to a simplex, solving the displayed lifting problem:
+
+```tex (display := source)
+\begin{figure}
+\begin{tikzcd}
+\Lambda^k[n] \arrow[r] \arrow[d, hook] & A  \\ \Delta[n] \arrow[ur, dashed]
+\end{tikzcd} \qquad  \text{for}\ \ n \geq 2,\ 0 < k < n.
+\end{figure}
+```
+:::
+```tex "defn:quasi-category" (slot := statement)
+A \textbf{quasi-category} is a simplicial set $A$ in which any \textbf{inner horn} can be
+     extended to a simplex, solving the displayed lifting problem:
+    \begin{figure}\label{eq:qcat-defn}
+    \begin{tikzcd}
+    \Lambda^k[n] \arrow[r] \arrow[d, hook] & A  \\ \Delta[n] \arrow[ur, dashed]
+    \end{tikzcd} \qquad  \text{for}\ \ n \geq 2,\ 0 < k < n.
+  \end{figure}
+```
+
+Quasi-categories were first introduced by Boardman and Vogt {Informal.citep "BoardmanVogt:1973hi"}[] under the name “weak Kan complexes,” as they generalize the following notion:
+
+```tex
+Quasi-categories were first introduced by Boardman and Vogt \cite{BoardmanVogt:1973hi} under the name ``weak Kan complexes,'' as they generalize the following notion:
+```
+
+:::definition "defn:kan-complex" (lean := "SSet.KanComplex")
+A *Kan complex* is a simplicial set admitting extensions as in equation `eq:qcat-defn` along
+all horn inclusions $`n \geq 1, 0 \leq k \leq n`.
+:::
+```tex "defn:kan-complex" (slot := statement)
+A \textbf{Kan complex} is a simplicial set admitting extensions as in \eqref{eq:qcat-defn} along
+  all horn inclusions $n \geq 1, 0 \leq k \leq n$.
+```
+
+Since any topological space can be encoded as a Kan complex, (Note: The total singular complex construction defines a functor from topological spaces to simplicial sets that is an equivalence on their respective homotopy categories — weak homotopy types of spaces correspond to homotopy equivalence classes of Kan complexes {Informal.citep "Quillen:1967ha"}[§ II.2]. The left adjoint
+“geometrically realizes” a simplicial set as a topological space.)
+in this way spaces provide examples of quasi-categories.
+
+Categories also provide examples of quasi-categories via the nerve construction.
+
+```tex
+Since any topological space can be encoded as a Kan complex,\footnote{The total singular complex construction defines a functor from topological spaces to simplicial sets that is an equivalence on their respective homotopy categories --- weak homotopy types of spaces correspond to homotopy equivalence classes of Kan complexes \cite[\S II.2]{Quillen:1967ha}. The left adjoint %constructed by Exercise \ref{exc:nerve-constructions}
+    ``geometrically realizes'' a simplicial set as a topological space.}
+in this way spaces provide examples of quasi-categories.
+
+Categories also provide examples of quasi-categories via the nerve construction.
+```
+
+:::definition "defn:nerve" (lean := "CategoryTheory.nerve")
+*nerve.*
+
+The category $`\Cat` of 1-categories embeds fully faithfully into the category of simplicial sets
+via the *nerve* functor. An $`n`-simplex in the nerve of a 1-category $`C` is a sequence of
+$`n` composable arrows in $`C`, or equally a functor $`\catnone \to C` from the ordinal category
+$`\catnone` with objects $`0,\ldots, n` and a unique arrow $`i \to j` just when $`i \leq j`.
+:::
+```tex "defn:nerve" (slot := statement)
+The category $\Cat$ of 1-categories embeds fully faithfully into the category of simplicial sets
+  via the \textbf{nerve} functor. An $n$-simplex in the nerve of a 1-category $C$ is a sequence of
+  $n$ composable arrows in $C$, or equally a functor $\catnone \to C$ from the ordinal category
+  $\catnone$ with objects $0,\ldots, n$ and a unique arrow $i \to j$ just when $i \leq j$.
+```
+
+:::definition "defn:nerve-functor" (lean := "CategoryTheory.nerveFunctor")
+*nerve functor.*
+
+The map $`[n] \mapsto \catnone` defines a fully faithful embedding $`\Del\inc\Cat`. From this point
+of view, the nerve functor can be described as a “restricted Yoneda embedding” which carries a
+category $`C` to the restriction of the representable functor $`\hom(-,C)` to the image of this
+inclusion.
+:::
+```tex "defn:nerve-functor" (slot := statement)
+The map $[n] \mapsto \catnone$ defines a fully faithful embedding $\Del\inc\Cat$. From this point
+  of view, the nerve functor can be described as a ``restricted Yoneda embedding'' which carries a
+  category $C$ to the restriction of the representable functor $\hom(-,C)$ to the image of this
+  inclusion.
+```
+
+This is an instance of a more general family of “nerve-type constructions.”
+
+```tex
+This is an instance of a more general family of ``nerve-type constructions.'' %are described in Exercise \ref{exc:nerve-constructions}.
+```
+
+:::proposition "prop:nerve-2-coskeletal" (lean := "CategoryTheory.Nerve.cosk₂Iso")
+The nerve of a category $`C` is *2-coskeletal* as a simplicial set, meaning that every
+sphere $`\partial\Delta[n] \to C` with $`n \geq 3` is filled uniquely by an $`n`-simplex in $`C`, or
+equivalently that the nerve is canonically isomorphic to the right Kan extension of its
+restriction to 2-truncated simplicial sets. (Note: The equivalence between these two
+perspectives is non-obvious and makes use of Reedy category theory (see {Informal.citep "RiehlVerity:2022eo"}[§
+C.4-5]), which does not currently exist in Mathlib.)
+:::
+```tex "prop:nerve-2-coskeletal" (slot := statement)
+The nerve of a category $C$ is \textbf{2-coskeletal} as a simplicial set, meaning that every
+  sphere $\partial\Delta[n] \to C$ with $n \geq 3$ is filled uniquely by an $n$-simplex in $C$, or
+  equivalently that the nerve is canonically isomorphic to the right Kan extension of its
+  restriction to 2-truncated simplicial sets.\footnote{The equivalence between these two
+  perspectives is non-obvious and makes use of Reedy category theory (see \cite[\S
+  C.4-5]{RiehlVerity:2022eo}), which does not currently exist in Mathlib.}% (see Definition
+  % \ref{defn:sk-cosk}).
+```
+:::proof "prop:nerve-2-coskeletal"
+Note a sphere $`\partial\Delta[2] \to C` extends to a 2-simplex if and only if that arrow along its
+diagonal edge is the composite of the arrows along the edges in the inner horn $`\Lambda^1[2]
+\subset \partial\Delta[2] \to C`. The simplices in dimension 3 and above witness the associativity
+of the composition of the path of composable arrows found along their  *spine*, the
+1-skeletal simplicial subset formed by the edges connecting adjacent vertices. In fact, as
+suggested by the proof of Proposition {bpref "prop:nerve-qcat"}[], any simplicial set in which inner
+horns admit unique fillers is isomorphic to the nerve of a 1-category. This
+characterization of nerves is not yet in Mathlib, however, we have proven the one-way result,
+namely that nerves of categories satisfy the “strict Segal condition” and this is used in the
+proof of 2-coskeletality.
+:::
+```tex "prop:nerve-2-coskeletal" (slot := proof)
+Note a sphere $\partial\Delta[2] \to C$ extends to a 2-simplex if and only if that arrow along its
+  diagonal edge is the composite of the arrows along the edges in the inner horn $\Lambda^1[2]
+  \subset \partial\Delta[2] \to C$. The simplices in dimension 3 and above witness the associativity
+  of the composition of the path of composable arrows found along their  \textbf{spine}, the
+  1-skeletal simplicial subset formed by the edges connecting adjacent vertices. In fact, as
+  suggested by the proof of Proposition \ref{prop:nerve-qcat}, any simplicial set in which inner
+  horns admit \emph{unique} fillers is isomorphic to the nerve of a 1-category. This
+  characterization of nerves is not yet in Mathlib, however, we have proven the one-way result,
+  namely that nerves of categories satisfy the ``strict Segal condition'' and this is used in the
+  proof of 2-coskeletality.
+```
+
+In the book that is the primary source this text {Informal.citep "RiehlVerity:2022eo"}[], as in much of the $`\infty`-categories literature, we decline to introduce explicit notation for the nerve functor, preferring instead to identify 1-categories with their nerves. As we shall discover the theory of 1-categories extends to $`\infty`-categories modeled as quasi-categories in such a way that the restriction of each $`\infty`-categorical concept along the nerve embedding recovers the corresponding 1-categorical concept. For instance, the standard simplex $`\Delta[n]` is isomorphic to the nerve of the ordinal category $`\catnone`, and we frequently adopt the latter notation — writing $`\catone \coloneq \Delta[0]`, $`\cattwo \coloneq \Delta[1]`, $`\catthree \coloneq \Delta[2]`, and so on — to suggest the correct categorical intuition. However, Mathlib notates nerves explicitly, so at some point this document should be adapted to follow that convention.
+
+To begin down this path, we must first verify the implicit assertion that has just been made.
+
+```tex
+% (see Exercise \ref{exc:nerve-characterization}).
+
+ In the book that is the primary source this text \cite{RiehlVerity:2022eo}, as in much of the $\infty$-categories literature, we decline to introduce explicit notation for the nerve functor, preferring instead to identify 1-categories with their nerves. As we shall discover the theory of 1-categories extends to $\infty$-categories modeled as quasi-categories in such a way that the restriction of each $\infty$-categorical concept along the nerve embedding recovers the corresponding 1-categorical concept. For instance, the standard simplex $\Delta[n]$ is isomorphic to the nerve of the ordinal category $\catnone$, and we frequently adopt the latter notation --- writing $\catone \coloneq \Delta[0]$, $\cattwo \coloneq \Delta[1]$, $\catthree \coloneq \Delta[2]$, and so on --- to suggest the correct categorical intuition. However, Mathlib notates nerves explicitly, so at some point this document should be adapted to follow that convention.
+
+ To begin down this path, we must first verify the implicit assertion that has just been made.
+```
+
+:::proposition "prop:nerve-qcat" (lean := "CategoryTheory.Nerve.quasicategory")
+*nerves are quasi-categories.*
+
+Nerves of categories are quasi-categories.
+:::
+```tex "prop:nerve-qcat" (slot := statement)
+Nerves of categories are quasi-categories.
+```
+:::proof "prop:nerve-qcat"
+Via the isomorphism $`C \cong \cosk_2C` from Proposition {bpref "prop:nerve-2-coskeletal"}[] and the
+associated adjunction $`\sk_2 \dashv \cosk_2` of,
+the required lifting problem displayed below-left transposes to the one displayed below-right:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+\Lambda^k[n] \arrow[d, hook] \arrow[r] & C \cong \cosk_2C & \arrow[d, phantom,
+"\leftrightsquigarrow"] & \sk_2\Lambda^k[n] \arrow[r] \arrow[d, hook] & C \\ \Delta[n] \arrow[ur,
+dashed] & & ~ & \sk_2\Delta[n] \arrow[ur, dashed]
+\end{tikzcd}
+\end{center}
+```
+
+The functor $`\sk_2` replaces a simplicial set by its *2-skeleton*, the simplicial subset
+generated by the simplices of dimension at most two. For $`n \geq 4`, the inclusion
+$`\sk_2\Lambda^k[n]\inc\sk_2\Delta[n]` is an isomorphism, in which case the lifting problems on
+the right admit (unique) solutions. So it remains only to solve the lifting problems on the left
+in the cases $`n=2` and $`n=3`.
+
+To that end consider
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+\Lambda^1[2] \arrow[r] \arrow[d, hook] & C & \Lambda^1[3] \arrow[d, hook] \arrow[r]  & C &
+\Lambda^2[3] \arrow[r] \arrow[d, hook] & C \\ \Delta[2] \arrow[ur, dashed] & & \Delta[3]
+\arrow[ur, dashed] & & \Delta[3] \arrow[ur, dashed]
+\end{tikzcd}
+\end{center}
+```
+
+An inner horn $`\Lambda^1[2] \to C` defines a composable pair of arrows in $`C`; an extension to a
+2-simplex exists precisely because any composable pair of arrows admits a (unique) composite.
+
+An inner horn $`\Lambda^1[3] \to C` specifies the data of three composable arrows in $`C`, as
+displayed in the following diagram, together with the composites $`gf`, $`hg`, and $`(hg)f`.
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+& c_1\arrow[dr, "hg"] \\ c_0 \arrow[ur, "f"] \arrow[dr, "gf"'] \arrow[rr, "(hg)f" near end] & &
+c_3 \\ & c_2 \arrow[ur, "h"']  \arrow[from=uu, crossing over, "g"' near end]
+\end{tikzcd}
+\end{center}
+```
+
+Because composition is associative, the arrow $`(hg)f` is also the composite of $`gf` followed by
+$`h`, which proves that the 2-simplex opposite the vertex $`c_1` is present in $`C`; by
+2-coskeletality, the 3-simplex filling this boundary sphere is also present in $`C`. The filler
+for a horn $`\Lambda^2[3] \to C` is constructed similarly.
+:::
+```tex "prop:nerve-qcat" (slot := proof)
+Via the isomorphism $C \cong \cosk_2C$ from Proposition \ref{prop:nerve-2-coskeletal} and the
+   associated adjunction $\sk_2 \dashv \cosk_2$ of,   %\ref{defn:sk-cosk},
+    the required lifting problem displayed below-left transposes to the one displayed below-right:
+   \begin{center}
+   \begin{tikzcd}
+   \Lambda^k[n] \arrow[d, hook] \arrow[r] & C \cong \cosk_2C & \arrow[d, phantom,
+   "\leftrightsquigarrow"] & \sk_2\Lambda^k[n] \arrow[r] \arrow[d, hook] & C \\ \Delta[n] \arrow[ur,
+   dashed] & & ~ & \sk_2\Delta[n] \arrow[ur, dashed]
+   \end{tikzcd}
+   \end{center}
+   The functor $\sk_2$ replaces a simplicial set by its \textbf{2-skeleton}, the simplicial subset
+   generated by the simplices of dimension at most two. For $n \geq 4$, the inclusion
+   $\sk_2\Lambda^k[n]\inc\sk_2\Delta[n]$ is an isomorphism, in which case the lifting problems on
+   the right admit (unique) solutions. So it remains only to solve the lifting problems on the left
+   in the cases $n=2$ and $n=3$.
+
+  To that end consider
+   \begin{center}
+   \begin{tikzcd}
+   \Lambda^1[2] \arrow[r] \arrow[d, hook] & C & \Lambda^1[3] \arrow[d, hook] \arrow[r]  & C &
+   \Lambda^2[3] \arrow[r] \arrow[d, hook] & C \\ \Delta[2] \arrow[ur, dashed] & & \Delta[3]
+   \arrow[ur, dashed] & & \Delta[3] \arrow[ur, dashed]
+   \end{tikzcd}
+   \end{center}
+   An inner horn $\Lambda^1[2] \to C$ defines a composable pair of arrows in $C$; an extension to a
+   2-simplex exists precisely because any composable pair of arrows admits a (unique) composite.
+
+   An inner horn $\Lambda^1[3] \to C$ specifies the data of three composable arrows in $C$, as
+   displayed in the following diagram, together with the composites $gf$, $hg$, and $(hg)f$.
+   \begin{center}
+   \begin{tikzcd}
+   & c_1\arrow[dr, "hg"] \\ c_0 \arrow[ur, "f"] \arrow[dr, "gf"'] \arrow[rr, "(hg)f" near end] & &
+   c_3 \\ & c_2 \arrow[ur, "h"']  \arrow[from=uu, crossing over, "g"' near end]
+   \end{tikzcd}
+   \end{center}
+   Because composition is associative, the arrow $(hg)f$ is also the composite of $gf$ followed by
+   $h$, which proves that the 2-simplex opposite the vertex $c_1$ is present in $C$; by
+   2-coskeletality, the 3-simplex filling this boundary sphere is also present in $C$. The filler
+   for a horn $\Lambda^2[3] \to C$ is constructed similarly.
+```
+
+This is not the proof that was formalized but we include it for fun:
+
+We now turn to the homotopy category functor. The following definitions and results are not currently in Mathlib.
+
+```tex
+This is not the proof that was formalized but we include it for fun:
+
+
+
+ We now turn to the homotopy category functor. The following definitions and results are not currently in Mathlib.
+```
+
+:::definition "defn:1-simplex-htpy" (lean := "SSet.Truncated.HomotopicL, SSet.Truncated.HomotopicR")
+*homotopy relation on 1-simplices.*
+
+A parallel pair of 1-simplices $`f,g` in a simplicial set $`X` are *homotopic* if there
+exists a 2-simplex whose boundary takes either of the following forms (Note: The symbol “$`=`”
+is used in diagrams to denote a degenerate simplex or an identity arrow.)
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+& y \arrow[dr, equals] & && &  x \arrow[dr, "f"]  \\ x \arrow[ur, "f"] \arrow[rr, "g"'] & & y & &
+x \arrow[ur, equals] \arrow[rr, "g"'] & & y
+\end{tikzcd}
+\end{center}
+```
+
+or if $`f` and $`g` are in the same equivalence class generated by this relation.
+:::
+```tex "defn:1-simplex-htpy" (slot := statement)
+A parallel pair of 1-sim\-plices $f,g$ in a simplicial set $X$ are \textbf{homotopic} if there
+   exists a 2-simplex whose boundary takes either of the following forms\footnote{The symbol ``$=$''
+   is used in diagrams to denote a degenerate simplex or an identity arrow.}
+   %\footnote{The symbol ``$\!\!\!\!\!\begin{tikzcd}[ampersand replacement=\&, sep=small] ~\arrow[r,
+   % equals] \& ~ \end{tikzcd}\!\!\!\!\!$'' is used in diagrams to denote a degenerate simplex or an
+   % identity arrow.}
+   \begin{center}
+   \begin{tikzcd}[row sep=small, column sep=small]
+   & y \arrow[dr, equals] & && &  x \arrow[dr, "f"]  \\ x \arrow[ur, "f"] \arrow[rr, "g"'] & & y & &
+   x \arrow[ur, equals] \arrow[rr, "g"'] & & y
+   \end{tikzcd}
+  \end{center}
+   or if $f$ and $g$ are in the same equivalence class generated by this relation.
+```
+
+In a quasi-category, the relation witnessed by either of the types of 2-simplex on display in Definition {bpref "defn:1-simplex-htpy"}[] is an equivalence relation and these equivalence relations coincide.
+
+```tex
+In a quasi-category, the relation witnessed by either of the types of 2-simplex on display in Definition \ref{defn:1-simplex-htpy} is an equivalence relation and these equivalence relations coincide.
+```
+
+:::lemma_ "lem:qcat-1-simplex-htpy" (uses := "defn:1-simplex-htpy, defn:quasi-category")
+*homotopic 1-simplices in a quasi-category.*
+
+Parallel 1-simplices $`f` and $`g` in a quasi-category are homotopic if and only if there exists a 2-simplex of any or equivalently all of the forms displayed in Definition {bpref "defn:1-simplex-htpy"}[].
+:::
+```tex "lem:qcat-1-simplex-htpy" (slot := statement)
+\begin{lemma}[homotopic 1-simplices in a quasi-category]\label{lem:qcat-1-simplex-htpy}
+    \uses{defn:1-simplex-htpy, defn:quasi-category}
+    Parallel 1-sim\-plices $f$ and $g$ in a quasi-category are homotopic if and only if there exists a 2-simplex of any or equivalently all of the forms displayed in Definition \ref{defn:1-simplex-htpy}.
+   \end{lemma}
+```
+
+:::proof "lem:qcat-1-simplex-htpy" (uses := "defn:quasi-category")
+A lengthy exercise in low-dimensional horn filling.
+:::
+```tex "lem:qcat-1-simplex-htpy" (slot := proof)
+\begin{proof}
+  \uses{defn:quasi-category} A lengthy exercise in low-dimensional horn filling.
+   \end{proof}
+```
+
+:::definition "defn:one-truncation" (lean := "SSet.oneTruncation₂")
+By 1-truncating, any simplicial set $`X` has an underlying *reflexive quiver* or
+*reflexive directed graph* with the 0-simplices of $`X` defining the objects and the
+1-simplices defining the arrows:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+X_1 \arrow[r, shift left=.75em, "\cdot\face^1"] \arrow[r, shift right=.75em, "\cdot\face^0"'] &
+X_0, \arrow[l, "\cdot\degen^0" description]
+\end{tikzcd}
+\end{center}
+```
+
+By convention, the source of an arrow $`f \in X_1` is its 0th face $`f \cdot \face^1` (the face
+opposite 1) while the target is its 1st face $`f \cdot \face^0` (the face opposite 0).
+:::
+```tex "defn:one-truncation" (slot := statement)
+By 1-truncating, any simplicial set $X$ has an underlying \textbf{reflexive quiver} or
+  \textbf{reflexive directed graph} with the 0-simplices of $X$ defining the objects and the
+  1-simplices defining the arrows:
+  \begin{center}
+  \begin{tikzcd}
+  X_1 \arrow[r, shift left=.75em, "\cdot\face^1"] \arrow[r, shift right=.75em, "\cdot\face^0"'] &
+  X_0, \arrow[l, "\cdot\degen^0" description]
+  \end{tikzcd}
+  \end{center}
+  By convention, the source of an arrow $f \in X_1$ is its 0th face $f \cdot \face^1$ (the face
+  opposite 1) while the target is its 1st face $f \cdot \face^0$ (the face opposite 0).
+```
+
+:::proposition "prop:free-refl-quiver" (lean := "CategoryTheory.ReflQuiv.adj")
+The functor that carries a category to its underlying reflexive quiver has a left adjoint,
+defining the free category on a reflexive quiver:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=huge]
+\mathcal{C}at \arrow[r, start anchor=353, end anchor=190, bend right, hook', "U"'] \arrow[r,
+phantom, "\bot"] & r\mathcal{Q}uiv \arrow[l, start anchor=170, end anchor=7, bend right, "F"'
+pos=.48]
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "prop:free-refl-quiver" (slot := statement)
+The functor that carries a category to its underlying reflexive quiver has a left adjoint,
+  defining the free category on a reflexive quiver:
+  \begin{center}
+    \begin{tikzcd}[column sep=huge]
+      \mathcal{C}at \arrow[r, start anchor=353, end anchor=190, bend right, hook', "U"'] \arrow[r,
+      phantom, "\bot"] & r\mathcal{Q}uiv \arrow[l, start anchor=170, end anchor=7, bend right, "F"'
+      pos=.48]
+    \end{tikzcd}
+    \end{center}
+```
+:::proof "prop:free-refl-quiver"
+This has been formalized and is now in Mathlib.
+:::
+```tex "prop:free-refl-quiver" (slot := proof)
+This has been formalized and is now in Mathlib.
+```
+
+:::definition "defn:homotopy-cat" (lean := "SSet.Truncated.HomotopyCategory")
+*the homotopy category {Informal.citep "GabrielZisman:1967cf"}[§2.4].*
+
+The *free category* on this reflexive directed graph has $`X_0` as its object set,
+degenerate 1-simplices serving as identity morphisms, and nonidentity morphisms defined to be
+finite directed paths of nondegenerate 1-simplices. The *homotopy category* $`\ho{X}` of $`X`
+is the quotient of the free category on its underlying reflexive directed graph by the
+congruence (Note: A binary relation $`\sim` on parallel arrows of a 1-category is a
+*congruence* if it is an equivalence relation that is closed under pre- and
+post-composition: if $`f \sim g` then $`hfk \sim hgk`.) generated by imposing a composition relation
+$`h = g \circ f` witnessed by 2-simplices
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+& x_1 \arrow[dr, "g"] \\ x_0 \arrow[ur, "f"] \arrow[rr, "h"'] & & x_2
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "defn:homotopy-cat" (slot := statement)
+The \textbf{free category} on this reflexive directed graph has $X_0$ as its object set,
+  degenerate 1-simplices serving as identity morphisms, and nonidentity morphisms defined to be
+  finite directed paths of nondegenerate 1-simplices. The \textbf{homotopy category} $\ho{X}$ of $X$
+  is the quotient of the free category on its underlying reflexive directed graph by the
+  congruence\footnote{A binary relation $\sim$ on parallel arrows of a 1-category is a
+  \textbf{congruence} if it is an equivalence relation that is closed under pre- and
+  post-composition: if $f \sim g$ then $hfk \sim hgk$.} generated by imposing a composition relation
+  $h = g \circ f$ witnessed by 2-simplices
+    \begin{center}
+    \begin{tikzcd}[row sep=small, column sep=small]
+    & x_1 \arrow[dr, "g"] \\ x_0 \arrow[ur, "f"] \arrow[rr, "h"'] & & x_2
+    \end{tikzcd}
+    \end{center}
+```
+
+By soundness of the quotient construction:
+
+```tex
+By soundness of the quotient construction:
+```
+
+:::lemma_ "lem:1-simplex-htpy-in-homotopy-cat" (uses := "defn:homotopy-cat, defn:1-simplex-htpy")
+Homotopic 1-simplices in a simplicial set represent the same arrow in the homotopy category.
+:::
+```tex "lem:1-simplex-htpy-in-homotopy-cat" (slot := statement)
+\begin{lem}\label{lem:1-simplex-htpy-in-homotopy-cat}
+  \uses{defn:homotopy-cat, defn:1-simplex-htpy}
+  Homotopic 1-simplices in a simplicial set represent the same arrow in the homotopy category.
+\end{lem}
+```
+
+:::proof "lem:1-simplex-htpy-in-homotopy-cat"
+This should be relatively straightforward.
+:::
+```tex "lem:1-simplex-htpy-in-homotopy-cat" (slot := proof)
+\begin{proof}
+This should be relatively straightforward.
+\end{proof}
+```
+
+:::proposition "prop:nerve-reflective" (lean := "CategoryTheory.nerveFunctorCompHoFunctorIso")
+The homotopy category of the nerve of a 1-category is isomorphic to the original category, as the
+2-simplices in the nerve witness all of the composition relations satisfied by the arrows in the
+underlying reflexive directed graph.
+:::
+```tex "prop:nerve-reflective" (slot := statement)
+The homotopy category of the nerve of a 1-category is isomorphic to the original category, as the
+  2-simplices in the nerve witness all of the composition relations satisfied by the arrows in the
+  underlying reflexive directed graph.
+```
+:::proof "prop:nerve-reflective"
+This has been formalized and is now in Mathlib.
+:::
+```tex "prop:nerve-reflective" (slot := proof)
+This has been formalized and is now in Mathlib.
+```
+
+Indeed, the natural isomorphism $`\ho{C} \cong C` forms the counit of an adjunction, embedding $`\Cat` as a reflective subcategory of $`\sSet`.
+
+```tex
+Indeed, the natural isomorphism $\ho{C} \cong C$ forms the counit of an adjunction, embedding $\Cat$ as a reflective subcategory of $\sSet$.
+```
+
+:::proposition "prop:ho-nerve-adjunction" (lean := "CategoryTheory.nerveAdjunction")
+The nerve embedding admits a left adjoint, namely the functor which sends a simplicial set to its
+homotopy category:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=huge]
+\mathcal{C}at \arrow[r, start anchor=353, end anchor=190, bend right, hook'] \arrow[r, phantom,
+"\bot"] & s\mathcal{S}et \arrow[l, start anchor=170, end anchor=7, bend right, "\ho"' pos=.48]
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "prop:ho-nerve-adjunction" (slot := statement)
+The nerve embedding admits a left adjoint, namely the functor which sends a simplicial set to its
+   homotopy category:
+  \begin{center}
+  \begin{tikzcd}[column sep=huge]
+    \mathcal{C}at \arrow[r, start anchor=353, end anchor=190, bend right, hook'] \arrow[r, phantom,
+    "\bot"] & s\mathcal{S}et \arrow[l, start anchor=170, end anchor=7, bend right, "\ho"' pos=.48]
+  \end{tikzcd}
+  \end{center}
+```
+:::proof "prop:ho-nerve-adjunction"
+For any simplicial set $`X`, there is a natural map from $`X` to the nerve of its homotopy category
+$`\ho{X}`; since nerves are 2-coskeletal, it suffices to define the map $`\sk_2X \to \ho{X}`, and
+this is given immediately by the construction of Definition {bpref "defn:homotopy-cat"}[]. Note that the
+quotient map $`X \to \ho{X}` becomes an isomorphism upon applying the homotopy category functor and
+is already an isomorphism whenever $`X` is the nerve of a category. Thus the adjointness follows
+by direct verification of the triangle equalities.
+:::
+```tex "prop:ho-nerve-adjunction" (slot := proof)
+For any simplicial set $X$, there is a natural map from $X$ to the nerve of its homotopy category
+  $\ho{X}$; since nerves are 2-coskeletal, it suffices to define the map $\sk_2X \to \ho{X}$, and
+  this is given immediately by the construction of Definition \ref{defn:homotopy-cat}. Note that the
+  quotient map $X \to \ho{X}$ becomes an isomorphism upon applying the homotopy category functor and
+  is already an isomorphism whenever $X$ is the nerve of a category. Thus the adjointness follows
+  %from Lemma \ref{lem:RARI-construction} or
+  by direct verification of the triangle equalities.
+```
+
+The adjunction of Proposition {bpref "prop:ho-nerve-adjunction"}[] exists for formal reasons, via results which have already been formalized in Mathlib,
+once the category $`\Cat` is known to be cocomplete. A proof of this fact did not exist in Mathlib, however, and in fact the adjunction between the homotopy category and the nerve can be used to construct colimits of categories, as it embeds $`\Cat` as a reflective subcategory of a cocomplete category (see {Informal.citep "Riehl:2016cc"}[4.5.16]). Thus, we instead formalized a direct proof.
+
+By inspection:
+
+```tex
+The adjunction of Proposition \ref{prop:ho-nerve-adjunction} exists for formal reasons, via results which have already been formalized in Mathlib, %(see Exercise \ref{exc:nerve-constructions}),
+   once the category $\Cat$ is known to be cocomplete. A proof of this fact did not exist in Mathlib, however, and in fact the adjunction between the homotopy category and the nerve can be used to construct colimits of categories, as it embeds $\Cat$ as a reflective subcategory of a cocomplete category (see \cite[4.5.16]{Riehl:2016cc}). Thus, we instead formalized a direct proof.
+
+
+
+   By inspection:
+```
+
+:::proposition "prop:nerve-fully-faithful" (lean := "CategoryTheory.nerveFunctor.fullyfaithful")
+The nerve functor is fully faithful.
+:::
+```tex "prop:nerve-fully-faithful" (slot := statement)
+The nerve functor is fully faithful.
+```
+:::proof "prop:nerve-fully-faithful"
+This has been formalized and is now in Mathlib.
+:::
+```tex "prop:nerve-fully-faithful" (slot := proof)
+This has been formalized and is now in Mathlib.
+```
+
+As a corollary, it follows that $`\Cat` has colimits.
+
+```tex
+As a corollary, it follows that $\Cat$ has colimits.
+```
+
+# The homotopy category of a quasi-category, isofibrations, and equivalences
+
+*Legacy section label:* `sec:homotopy-category`
+
+The homotopy category of a quasi-category admits a simplified description, which we build up to over a series of definitions. As the homotopy category functor is formalized in terms of 2-truncated simplicial sets, we introduce an auxiliary definition to isolate the structure of interest in a 2-truncated quasi-category.
+
+```tex
+The homotopy category of a quasi-category admits a simplified description, which we build up to over a series of definitions. As the homotopy category functor is formalized in terms of 2-truncated simplicial sets, we introduce an auxiliary definition to isolate the structure of interest in a 2-truncated quasi-category.
+```
+
+:::definition "defn:2-truncated-qcat" (lean := "SSet.Truncated.Quasicategory₂")
+A 2-truncated simplicial set $`A` is a *2-truncated quasi-category* if it admits the
+following three operations:
+
+- (2,1)-filling: any path $`f_\bullet` of length 2 in $`A` may be filled to a $`2`-simplex whose
+spine equals the given path.
+- (3,1)-filling: given any path $`f_\bullet` of length 3 in $`A`, 2-simplices $`\sigma_3` and
+$`\sigma_0` filling the restricted paths $`f_{012}` and $`f_{123}` respectively, and 2-simplex
+$`\sigma_2` filling the path formed by $`f_{01}` and the diagonal of $`\sigma_0`, there is a
+2-simplex $`\sigma_1` filling the path formed by the diagonal of $`\sigma_3` and $`f_{23}` and whose
+diagonal is the diagonal of $`\sigma_2`.
+- (3,2)-filling: given any path $`f_\bullet` of length 3 in $`A`, 2-simplices $`\sigma_3` and
+$`\sigma_0` filling the restricted paths $`f_{012}` and $`f_{123}` respectively, and 2-simplex
+$`\sigma_1` filling the path formed by the diagonal of $`\sigma_3` and $`f_{23}`, there is a
+2-simplex $`\sigma_2` filling the path formed by $`f_{01}` and the diagonal of $`\sigma_0` and whose
+diagonal is the diagonal of $`\sigma_1`.
+:::
+```tex "defn:2-truncated-qcat" (slot := statement)
+A 2-truncated simplicial set $A$ is a \textbf{2-truncated quasi-category} if it admits the
+  following three operations:
+  \begin{itemize}
+  \item (2,1)-filling: any path $f_\bullet$ of length 2 in $A$ may be filled to a $2$-simplex whose
+  spine equals the given path.
+  \item (3,1)-filling: given any path $f_\bullet$ of length 3 in $A$, 2-simplices $\sigma_3$ and
+  $\sigma_0$ filling the restricted paths $f_{012}$ and $f_{123}$ respectively, and 2-simplex
+  $\sigma_2$ filling the path formed by $f_{01}$ and the diagonal of $\sigma_0$, there is a
+  2-simplex $\sigma_1$ filling the path formed by the diagonal of $\sigma_3$ and $f_{23}$ and whose
+  diagonal is the diagonal of $\sigma_2$.
+  \item (3,2)-filling: given any path $f_\bullet$ of length 3 in $A$, 2-simplices $\sigma_3$ and
+  $\sigma_0$ filling the restricted paths $f_{012}$ and $f_{123}$ respectively, and 2-simplex
+  $\sigma_1$ filling the path formed by the diagonal of $\sigma_3$ and $f_{23}$, there is a
+  2-simplex $\sigma_2$ filling the path formed by $f_{01}$ and the diagonal of $\sigma_0$ and whose
+  diagonal is the diagonal of $\sigma_1$.
+  \end{itemize}
+```
+
+:::lemma_ "lem:2-truncated-qcat" (lean := "SSet.Truncated.two_truncatation_of_qc_is_2_trunc_qc")
+The 2-truncation of a quasi-category is a 2-truncated quasi-category.
+:::
+```tex "lem:2-truncated-qcat" (slot := statement)
+The 2-truncation of a quasi-category is a 2-truncated quasi-category.
+```
+:::proof "lem:2-truncated-qcat"
+Immediate from the definition by filling horns in dimensions 2 and 3.
+:::
+```tex "lem:2-truncated-qcat" (slot := proof)
+Immediate from the definition by filling horns in dimensions 2 and 3.
+```
+
+We revisit Definition {bpref "defn:1-simplex-htpy"}[] in this setting.
+
+Recall that a parallel pair of 1-simplices $`f,g` in a 2-truncated simplicial set $`X` are *left homotopic* if there exists a 2-simplex whose boundary takes the form below-left and *right homotopic* if there exists a 2-simplex whose boundary takes the form below-right:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+& y \arrow[dr, equals] & && &  x \arrow[dr, "f"]  \\ x \arrow[ur, "f"] \arrow[rr, "g"'] & & y & & x \arrow[ur, equals] \arrow[rr, "g"'] & & y
+\end{tikzcd}
+\end{center}
+```
+
+```tex
+We revisit Definition \ref{defn:1-simplex-htpy} in this setting.
+
+   Recall that a parallel pair of 1-sim\-plices $f,g$ in a 2-truncated simplicial set $X$ are \textbf{left homotopic} if there exists a 2-simplex whose boundary takes the form below-left and \textbf{right homotopic} if there exists a 2-simplex whose boundary takes the form below-right:
+   \begin{center}
+    \begin{tikzcd}[row sep=small, column sep=small]
+    & y \arrow[dr, equals] & && &  x \arrow[dr, "f"]  \\ x \arrow[ur, "f"] \arrow[rr, "g"'] & & y & & x \arrow[ur, equals] \arrow[rr, "g"'] & & y
+    \end{tikzcd}
+   \end{center}
+```
+
+:::lemma_ "lem:2-truncated-qcat-htpy" (lean := "SSet.Quasicategory₂.HomotopicL.refl, SSet.Quasicategory₂.HomotopicL.symm, SSet.Quasicategory₂.HomotopicL.trans, SSet.Quasicategory₂.HomotopicL_iff_HomotopicR, SSet.Quasicategory₂.HomotopicR.refl, SSet.Quasicategory₂.HomotopicR.symm, SSet.Quasicategory₂.HomotopicR.trans")
+If $`A` is a 2-truncated quasi-category then:
+
+- The left and right homotopy relations are reflexive.
+- The left and right homotopy relations are symmetric.
+- The left and right homotopy relations are transitive.
+- The left homotopy relation coincides with the right homotopy relation.
+:::
+```tex "lem:2-truncated-qcat-htpy" (slot := statement)
+If $A$ is a 2-truncated quasi-category then:
+  \begin{enumerate}
+    \item The left and right homotopy relations are reflexive.
+    \item The left and right homotopy relations are symmetric.
+    \item The left and right homotopy relations are transitive.
+    \item The left homotopy relation coincides with the right homotopy relation.
+  \end{enumerate}
+```
+:::proof "lem:2-truncated-qcat-htpy"
+Each statement follows from a single 3-dimensional horn filling, typically involving degenerate
+simplices.
+:::
+```tex "lem:2-truncated-qcat-htpy" (slot := proof)
+Each statement follows from a single 3-dimensional horn filling, typically involving degenerate
+  simplices.
+```
+
+As the left and right homotopy relations coincide in a 2-truncated quasi-category, in that setting we take right homotopy to be the default and refer to it simply as “homotopy” and denote it by “$`\sim`” going forward.
+
+```tex
+As the left and right homotopy relations coincide in a 2-truncated quasi-category, in that setting we take right homotopy to be the default and refer to it simply as ``homotopy'' and denote it by ``$\sim$'' going forward.
+```
+
+:::lemma_ "lem:2-truncated-qcat-htpy-comp" (lean := "SSet.Quasicategory₂.transport_edge₀, SSet.Quasicategory₂.transport_edge₁, SSet.Quasicategory₂.transport_edge₂")
+$`\quad`
+
+- If $`\sigma` and $`\tau` are 2-simplices in a 2-truncated quasi-category filling the same
+path, their diagonal edges are homotopic.
+- If $`h` is the diagonal edge of a 2-simplex filling the path formed by $`f` and $`g` and $`g`
+is homotopic to $`g'`, then $`h` is the diagonal edge of a 2-simplex filling the path formed by
+$`f` and $`g'`.
+- If $`h` is the diagonal edge of a 2-simplex filling the path formed by $`f` and $`g` and $`f`
+is homotopic to $`f'`, then $`h` is the diagonal edge of a 2-simplex filling the path formed by
+$`f'` and $`g`.
+:::
+```tex "lem:2-truncated-qcat-htpy-comp" (slot := statement)
+$\quad$
+  \begin{enumerate}
+    \item If $\sigma$ and $\tau$ are 2-simplices in a 2-truncated quasi-category filling the same
+    path, their diagonal edges are homotopic.
+    \item If $h$ is the diagonal edge of a 2-simplex filling the path formed by $f$ and $g$ and $g$
+    is homotopic to $g'$, then $h$ is the diagonal edge of a 2-simplex filling the path formed by
+    $f$ and $g'$.
+    \item If $h$ is the diagonal edge of a 2-simplex filling the path formed by $f$ and $g$ and $f$
+    is homotopic to $f'$, then $h$ is the diagonal edge of a 2-simplex filling the path formed by
+    $f'$ and $g$.
+  \end{enumerate}
+```
+:::proof "lem:2-truncated-qcat-htpy-comp"
+For (i), fill the (3,2)-horn filling the path formed by a degenerate edge, followed by the given
+path edges, and using the given simplices as the 0th and 1st faces. The proofs of (ii) and (iii)
+are similar.
+:::
+```tex "lem:2-truncated-qcat-htpy-comp" (slot := proof)
+For (i), fill the (3,2)-horn filling the path formed by a degenerate edge, followed by the given
+  path edges, and using the given simplices as the 0th and 1st faces. The proofs of (ii) and (iii)
+  are similar.
+```
+
+:::corollary "cor:2-truncated-qcat-htpy-comp" (lean := "SSet.Quasicategory₂.transport_all_edges")
+Suppose there is a 2-simplex in a 2-truncated quasi-category with spine formed by the paths $`f`
+and $`g` and diagonal $`h`. Then if $`f \sim f'`, $`g \sim g'`, and $`h \sim h'`, there is a 2-simplex
+with spine formed by $`f'` and $`g'` and diagonal $`h'`.
+:::
+```tex "cor:2-truncated-qcat-htpy-comp" (slot := statement)
+Suppose there is a 2-simplex in a 2-truncated quasi-category with spine formed by the paths $f$
+  and $g$ and diagonal $h$. Then if $f \sim f'$, $g \sim g'$, and $h \sim h'$, there is a 2-simplex
+  with spine formed by $f'$ and $g'$ and diagonal $h'$.
+```
+:::proof "cor:2-truncated-qcat-htpy-comp"
+Apply the three conclusions of Lemma {bpref "lem:2-truncated-qcat-htpy-comp"}[] one at a time to
+transform the given 2-simplex.
+:::
+```tex "cor:2-truncated-qcat-htpy-comp" (slot := proof)
+Apply the three conclusions of Lemma \ref{lem:2-truncated-qcat-htpy-comp} one at a time to
+  transform the given 2-simplex.
+```
+
+These results now combine to justify the following definition:
+
+```tex
+These results now combine to justify the following definition:
+```
+
+:::definition "defn:2-truncated-qcat-htpy-cat" (lean := "SSet.Truncated.instCategoryHomotopyCategory₂")
+*the homotopy category of a 2-truncated quasi-category.*
+
+If $`A` is a 2-truncated quasi-category then its *homotopy category* $`\ho{A}` has
+
+- the set of 0-simplices $`A_0` as its objects
+- the set of homotopy classes of 1-simplices $`A_1` as its arrows
+- the identity arrow at $`a \in A_0` represented by the degenerate 1-simplex $`a \cdot \degen^0
+\in A_1`
+- a composition relation $`h = g \circ f` in $`\ho{A}` between the homotopy classes of arrows
+represented by any given 1-simplices $`f,g,h \in A_1` if and only if there exists a 2-simplex with
+boundary
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+& a_1 \arrow[dr, "g"] \\ a_0 \arrow[ur, "f"] \arrow[rr, "h"'] & & a_2
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "defn:2-truncated-qcat-htpy-cat" (slot := statement)
+If $A$ is a 2-truncated quasi-category then its \textbf{homotopy category} $\ho{A}$ has
+  \begin{itemize}
+  \item the set of 0-simplices $A_0$ as its objects
+  \item the set of homotopy classes of 1-simplices $A_1$ as its arrows
+  \item the identity arrow at $a \in A_0$ represented by the degenerate 1-simplex $a \cdot \degen^0
+  \in A_1$
+  \item a composition relation $h = g \circ f$ in $\ho{A}$ between the homotopy classes of arrows
+  represented by any given 1-simplices $f,g,h \in A_1$ if and only if there exists a 2-simplex with
+  boundary
+  \begin{center}
+  \begin{tikzcd}[row sep=small, column sep=small]
+  & a_1 \arrow[dr, "g"] \\ a_0 \arrow[ur, "f"] \arrow[rr, "h"'] & & a_2
+  \end{tikzcd}
+  \end{center}
+  \end{itemize}
+```
+
+In other words, the hom-types are quotients of the hom-types of the underlying reflexive quiver of Definition {bpref "defn:one-truncation"}[] of a 2-truncated simplicial set, where the additional quotienting is by the homotopy relation, which is an equivalence relation by Lemma {bpref "lem:2-truncated-qcat-htpy"}[]. Composition is defined by (2,1)-horn filling and is well-defined by Lemma {bpref "lem:2-truncated-qcat-htpy-comp"}[].
+
+```tex
+In other words, the hom-types are quotients of the hom-types of the underlying reflexive quiver of Definition \ref{defn:one-truncation} of a 2-truncated simplicial set, where the additional quotienting is by the homotopy relation, which is an equivalence relation by Lemma \ref{lem:2-truncated-qcat-htpy}. Composition is defined by (2,1)-horn filling and is well-defined by Lemma \ref{lem:2-truncated-qcat-htpy-comp}.
+```
+
+:::lemma_ "lem:htpy-cat-of-qcat" (lean := "SSet.Quasicategory₂.isoHomotopyCategories")
+*the homotopy category of a quasi-category.*
+
+If $`A` is a quasi-category then its *homotopy category* $`\ho{A}` is isomorphic to the
+homotopy category of its underlying 2-truncated quasi-category, as just described.
+:::
+```tex "lem:htpy-cat-of-qcat" (slot := statement)
+If $A$ is a quasi-category then its \textbf{homotopy category} $\ho{A}$ is isomorphic to the
+  homotopy category of its underlying 2-truncated quasi-category, as just described.
+```
+:::proof "lem:htpy-cat-of-qcat"
+Given a 2-truncated quasi-category $`A`, we can construct a natural isomorphism between its
+2-truncated homotopy category $`\ho_2A` in the sense of Definition {bpref "defn:homotopy-cat"}[] and its
+2-truncated homotopy category $`\ho{A}` in the sense of Definition
+{bpref "defn:2-truncated-qcat-htpy-cat"}[] by showing the latter satisfies the same universal property
+of the former, as a quotient of the free category $`FA` on the underlying reflexive quiver.
+
+By adjunction, to define a functor $`q \colon FA \to \ho{A}`, it suffices to define a refl
+prefunctor $`q \colon A \to \ho{A}` from the one-truncation of $`A` to the underlying refl quiver of
+$`\ho{A}`. The objects of these quivers coincide while the homs in the latter and quotients of the
+homs in the former, defining a canonical quotient map. By construction, the corresponding functor
+$`q \colon FA \to \ho{A}` respects the hom-relation that defines the homotopy category $`\ho_2{A}`,
+so the universal property of the latter quotient induces a comparison functor $`\ho_2{A} \to
+\ho{A}` which factors $`q` through the analogously defined functor $`q \colon FA \to \ho_2{A}`.
+
+To see this is an isomorphism, we show that $`q \colon FA \to \ho{A}` satisfies the same universal
+property. To that end, consider another functor $`g \colon FA \to C` respecting the hom-relation.
+In particular, $`g` respects the homotopy relation of Definition {bpref "defn:1-simplex-htpy"}[], since
+this is a special case of the hom-relation. Thus, on underlying refl prefunctors, $`g` factors
+uniquely through $`q` along a map $`h \colon \ho{A} \to C`. By Corollary
+{bpref "cor:2-truncated-qcat-htpy-comp"}[], $`h` respects composition and thus lifts to define a functor.
+This gives the required factorization. Uniqueness follows because the the functor $`U \colon \Cat
+\to \rQuiv` is faithful.
+:::
+```tex "lem:htpy-cat-of-qcat" (slot := proof)
+Given a 2-truncated quasi-category $A$, we can construct a natural isomorphism between its
+  2-truncated homotopy category $\ho_2A$ in the sense of Definition \ref{defn:homotopy-cat} and its
+  2-truncated homotopy category $\ho{A}$ in the sense of Definition
+  \ref{defn:2-truncated-qcat-htpy-cat} by showing the latter satisfies the same universal property
+  of the former, as a quotient of the free category $FA$ on the underlying reflexive quiver.
+
+  By adjunction, to define a functor $q \colon FA \to \ho{A}$, it suffices to define a refl
+  prefunctor $q \colon A \to \ho{A}$ from the one-truncation of $A$ to the underlying refl quiver of
+  $\ho{A}$. The objects of these quivers coincide while the homs in the latter and quotients of the
+  homs in the former, defining a canonical quotient map. By construction, the corresponding functor
+  $q \colon FA \to \ho{A}$ respects the hom-relation that defines the homotopy category $\ho_2{A}$,
+  so the universal property of the latter quotient induces a comparison functor $\ho_2{A} \to
+  \ho{A}$ which factors $q$ through the analogously defined functor $q \colon FA \to \ho_2{A}$.
+
+  To see this is an isomorphism, we show that $q \colon FA \to \ho{A}$ satisfies the same universal
+  property. To that end, consider another functor $g \colon FA \to C$ respecting the hom-relation.
+  In particular, $g$ respects the homotopy relation of Definition \ref{defn:1-simplex-htpy}, since
+  this is a special case of the hom-relation. Thus, on underlying refl prefunctors, $g$ factors
+  uniquely through $q$ along a map $h \colon \ho{A} \to C$. By Corollary
+  \ref{cor:2-truncated-qcat-htpy-comp}, $h$ respects composition and thus lifts to define a functor.
+  This gives the required factorization. Uniqueness follows because the the functor $U \colon \Cat
+  \to \rQuiv$ is faithful.
+```
+
+Later we will require either of the following results:
+
+```tex
+Later we will require either of the following results:
+```
+
+:::lemma_ "lem:ho-preserves-finite-products" (lean := "CategoryTheory.hoFunctor.preservesFiniteProducts")
+The functor $`\ho \colon \sSet \to \Cat` preserves finite products.
+:::
+```tex "lem:ho-preserves-finite-products" (slot := statement)
+The functor $\ho \colon \sSet \to \Cat$ preserves finite products.
+```
+:::proof "lem:ho-preserves-finite-products"
+Preservation of the terminal object is by direct calculation. By Proposition
+{bpref "prop:nerve-reflective"}[], preservation of binary products is equivalent to the statement that
+the canonical map $`N(\cD^\cC) \to N(\cD)^{N\cC}` involving nerves of categories is an isomorphism.
+On $`n`-simplices, this is defined by uncurrying, which is bijection since $`\Cat` is cartesian
+closed.
+:::
+```tex "lem:ho-preserves-finite-products" (slot := proof)
+Preservation of the terminal object is by direct calculation. By Proposition
+  \ref{prop:nerve-reflective}, preservation of binary products is equivalent to the statement that
+  the canonical map $N(\cD^\cC) \to N(\cD)^{N\cC}$ involving nerves of categories is an isomorphism.
+  On $n$-simplices, this is defined by uncurrying, which is bijection since $\Cat$ is cartesian
+  closed.
+```
+
+:::lemma_ "lem:ho-preserves-small-products" (uses := "defn:homotopy-cat")
+The functor $`\ho \colon \sSet \to \Cat` preserves finite products.
+:::
+```tex "lem:ho-preserves-small-products" (slot := statement)
+\begin{lemma}\label{lem:ho-preserves-small-products}
+  \uses{defn:homotopy-cat}
+   The functor $\ho \colon \sSet \to \Cat$ preserves finite products.
+ \end{lemma}
+```
+
+:::proof "lem:ho-preserves-small-products" (uses := "lem:htpy-cat-of-qcat, prop:nerve-reflective, defn:2-truncated-qcat-htpy-cat")
+We have a canonical comparison functor from the homotopy category of the products to the product of the homotopy categories. It follows from Definition {bpref "defn:2-truncated-qcat-htpy-cat"}[] and Lemma {bpref "lem:htpy-cat-of-qcat"}[] that this is an isomorphism on underlying quivers, which suffices.
+:::
+```tex "lem:ho-preserves-small-products" (slot := proof)
+\begin{proof}
+  \uses{lem:htpy-cat-of-qcat, prop:nerve-reflective, defn:2-truncated-qcat-htpy-cat}
+  We have a canonical comparison functor from the homotopy category of the products to the product of the homotopy categories. It follows from Definition \ref{defn:2-truncated-qcat-htpy-cat} and Lemma \ref{lem:htpy-cat-of-qcat} that this is an isomorphism on underlying quivers, which suffices.
+\end{proof}
+```
+
+:::definition "defn:isomorphism" (uses := "defn:simplicial-set")
+*isomorphism in a quasi-category.*
+
+A 1-simplex in a quasi-category is an *isomorphism* (Note: Joyal refers to these maps as “isomorphisms” while Lurie refers to them as “equivalences.” We prefer, wherever possible, to use the same term for $`\infty`-categorical concepts as for the analogous 1-categorical ones.) just when it represents an isomorphism in the homotopy category. By Lemma {bpref "lem:htpy-cat-of-qcat"}[] this means that $`f \colon a \to b` is an isomorphism if and only if there exists a 1-simplex $`f^{-1} \colon b \to a` together with a pair of 2-simplices
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+& b \arrow[dr, "f^{-1}", dashed] & & & & a \arrow[dr, "f"] \\ a \arrow[ur, "f"] \arrow[rr, equals] & & a & & b \arrow[ur, "f^{-1}", dashed] \arrow[rr, equals] & & b
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "defn:isomorphism" (slot := statement)
+\begin{definition}[isomorphism in a quasi-category]\label{defn:isomorphism}
+    \uses{defn:simplicial-set} A 1-simplex in a quasi-category is an \textbf{isomorphism}\footnote{Joyal refers to these maps as ``isomorphisms'' while Lurie refers to them as ``equivalences.'' We prefer, wherever possible, to use the same term for $\infty$-categorical concepts as for the analogous 1-categorical ones.} just when it represents an isomorphism in the homotopy category. By Lemma \ref{lem:htpy-cat-of-qcat} this means that $f \colon a \to b$ is an isomorphism if and only if there exists a 1-simplex $f^{-1} \colon b \to a$ together with a pair of 2-simplices
+   \begin{center}
+   \begin{tikzcd}[row sep=small, column sep=small]
+   & b \arrow[dr, "f^{-1}", dashed] & & & & a \arrow[dr, "f"] \\ a \arrow[ur, "f"] \arrow[rr, equals] & & a & & b \arrow[ur, "f^{-1}", dashed] \arrow[rr, equals] & & b
+   \end{tikzcd}
+   \end{center}
+   \end{definition}
+```
+
+The properties of the isomorphisms in a quasi-category are somewhat technical to prove and will likely be a pain to formalize (see {Informal.citep "RiehlVerity:2022eo"}[§ D]). Here we focus on a few essential results, which are more easily obtainable.
+
+```tex
+The properties of the isomorphisms in a quasi-category are somewhat technical to prove and will likely be a pain to formalize (see \cite[\S D]{RiehlVerity:2022eo}). Here we focus on a few essential results, which are more easily obtainable.
+
+   %most easily proved by arguing in a closely related category where simplicial sets have the additional structure of a ``marking'' on a specified subset of the 1-simplices; maps of these so-called \emph{marked simplicial sets} must then preserve the markings (see Definition \ref{defn:marked-sset}). For instance, each quasi-category has a \emph{natural marking}, where the marked 1-simplices are exactly the isomorphisms (see Definition \ref{defn:natural-marking}). Since the property of being an isomorphism in a quasi-category is witnessed by the presence of 2-simplices with a particular boundary, every map between quasi-categories preserves isomorphisms, inducing a map of the corresponding naturally marked quasi-categories. Because marked simplicial sets  seldom appear outside of the proofs of certain combinatorial lemmas about the isomorphisms in quasi-categories, we save the details for Appendix \ref{app:sset}.
+
+%   Let us now motivate the first of several results proven using marked techniques. A quasi-category $A$ is defined to have extensions along all \emph{inner horns}. But when  the initial or final edges, respectively, of an outer horn
+%   $\Lambda^0[2] \to A$ or $\Lambda^2[2] \to A$ map to isomorphisms in $A$, then a filler
+ %  \begin{center}
+%   \begin{tikzcd}[row sep=small, column sep=small]
+%   & a_1 \arrow[dr, dashed, "hf^{-1}"] & & & & a_1 \arrow[dr, "g", "\simeq"'] \\ a_0 \arrow[ur, "f", "\simeq"'] \arrow[rr, "h"'] & & a_2 & & a_0 \arrow[ur, dashed, "g^{-1}h"] \arrow[rr, "h"'] & & a_2
+ %  \end{tikzcd}
+ %  \end{center}
+ %  should intuitively exist. The higher-dimensional ``special outer horns'' behave similarly:
+
+
+%   \begin{proposition}[special outer horn filling]\label{prop:special-outer-horn}
+%   Any quasi-category $A$ admits fillers for those outer horns
+%   \begin{center}
+%   \begin{tikzcd}
+%   \Lambda^0[n] \arrow[d, hook] \arrow[r, "g"] & A & & \Lambda^n[n] \arrow[d, hook] \arrow[r, "h"] & A   \\ \Delta[n] \arrow[ur, dashed] & & & \Delta[n] \arrow[ur, dashed]
+%   \end{tikzcd} \qquad \text{for}\ \ n \geq 1
+%   \end{center}
+%   in which the edges $g\vert_{\fbv{0,1}}$ and $h\vert_{\fbv{n-1,n}}$ are isomorphisms.\footnote{In the case $n=1$, no condition is needed on the horns; degenerate 1-simplices define the required lifts.}
+%   \end{proposition}
+
+ %  The proof of Proposition \ref{prop:special-outer-horn} requires clever combinatorics, due to Joyal, and is deferred to Proposition \ref{prop:special-outer-horn-filling}. Here, we enjoy its myriad consequences. Immediately:
+
+ %  \begin{corollary}\label{cor:qcat-is-kan} A quasi-category is a Kan complex if and only if its homotopy category is a groupoid.
+ %  \end{corollary}
+ %  \begin{proof}
+ %  If the homotopy category of a quasi-category is a groupoid, then all of its 1-simplices are isomorphisms, and Proposition \ref{prop:special-outer-horn} then implies that all inner and outer horns have fillers. Thus, the quasi-category is a Kan complex. Conversely, in a Kan complex, all outer horns can be filled and in particular fillers for the horns displayed in Definition \ref{defn:isomorphism}  can be used to construct left and right inverses for any 1-simplex, which can be rectified to a single two-sided inverse by Lemma \ref{lem:htpy-cat-of-qcat}.
+ %  \end{proof}
+
+  % A quasi-category contains $A$ a canonical \textbf{maximal sub Kan complex}$\coreop{A}$, the simplicial subset spanned by those 1-simplices that are isomorphisms.
+```
+
+:::definition "defn:coherent-isomorphism" (lean := "SSet.coherentIso")
+The *homotopy coherent isomorphism* $`\iso`, is the nerve of the free-living isomorphism. Its n-simplices are sequences of arrows in WalkingIso.
+:::
+```tex "defn:coherent-isomorphism" (slot := statement)
+The \textbf{homotopy coherent isomorphism} $\iso$, is the nerve of the free-living isomorphism. Its n-simplices are sequences of arrows in WalkingIso.
+```
+
+Just as the arrows in a quasi-category $`A` are represented by simplicial maps $` \cattwo \to A` whose domain is the nerve of the free-living arrow, the isomorphisms in a quasi-category can be represented by diagrams $`\iso \to A` whose domain is the homotopy coherent isomorphism:
+
+```tex
+Just as the arrows in a quasi-category $A$ are represented by simplicial maps $ \cattwo \to A$ whose domain is the nerve of the free-living arrow, the isomorphisms in a quasi-category can be represented by diagrams $\iso \to A$ whose domain is the homotopy coherent isomorphism:
+```
+
+:::proposition "prop:coherent-iso" (uses := "defn:isomorphism, defn:quasi-category, defn:coherent-isomorphism")
+An arrow $`f` in a quasi-category $`A` is an isomorphism if and only if it extends to a homotopy coherent isomorphism
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} \cattwo \arrow[r, "f"] \arrow[d, hook] & A \\ \iso \arrow[ur, dashed]
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "prop:coherent-iso" (slot := statement)
+\begin{proposition}\label{prop:coherent-iso}
+    \uses{defn:isomorphism, defn:quasi-category, defn:coherent-isomorphism}
+    An arrow $f$ in a quasi-category $A$ is an isomorphism if and only if it extends to a homotopy coherent isomorphism
+   \begin{center}
+   \begin{tikzcd} \cattwo \arrow[r, "f"] \arrow[d, hook] & A \\ \iso \arrow[ur, dashed]
+   \end{tikzcd}
+   \end{center}
+   \end{proposition}
+```
+
+*Remark.* If this result proves too annoying to formalize without the general theory of “special-outer horn filling,” we might instead substitute a finite model of the homotopy coherent isomorphism for $`\iso`.
+
+```tex
+\begin{rmk}
+If this result proves too annoying to formalize without the general theory of ``special-outer horn filling,'' we might instead substitute a finite model of the homotopy coherent isomorphism for $\iso$.
+\end{rmk}
+```
+
+Quasi-categories define the fibrant objects in a model structure due to Joyal. We use the term isofibration to refer to the fibrations between fibrant objects in this model structure, which admit the following concrete description.
+
+```tex
+Quasi-categories define the fibrant objects in a model structure due to Joyal. We use the term \emph{isofibration} to refer to the fibrations between fibrant objects in this model structure, which admit the following concrete description.
+```
+
+:::definition "defn:qcat-isofibration" (lean := "SSet.Isofibration")
+A simplicial map $`f \colon A \to B` between quasi-categories is an *isofibration* if it
+lifts against the inner horn inclusions, as displayed below-left, and also against the inclusion
+of either vertex into the free-living isomorphism $`\iso`.
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+\Lambda^k[n] \arrow[d, hook] \arrow[r] &  A \arrow[d, two heads, "f"] & &  \catone \arrow[d, hook]
+\arrow[r] & A \arrow[d, two heads, "f"] \\ \Delta[n] \arrow[ur, dashed] \arrow[r] & B & &  \iso
+\arrow[ur, dashed] \arrow[r] & B
+\end{tikzcd}
+\end{center}
+```
+
+To notationally distinguish the isofibrations, we depict them as arrows “$`\fib`” with two heads.
+:::
+```tex "defn:qcat-isofibration" (slot := statement)
+A simplicial map $f \colon A \to B$ between quasi-categories is an \textbf{isofibration} if it
+  lifts against the inner horn inclusions, as displayed below-left, and also against the inclusion
+  of either vertex into the free-living isomorphism $\iso$.
+  \begin{center}
+  \begin{tikzcd}
+  \Lambda^k[n] \arrow[d, hook] \arrow[r] &  A \arrow[d, two heads, "f"] & &  \catone \arrow[d, hook]
+  \arrow[r] & A \arrow[d, two heads, "f"] \\ \Delta[n] \arrow[ur, dashed] \arrow[r] & B & &  \iso
+  \arrow[ur, dashed] \arrow[r] & B
+  \end{tikzcd}
+  \end{center}
+  To notationally distinguish the isofibrations, we depict them as arrows ``$\fib$'' with two heads.
+```
+
+We now introduce the weak equivalences and trivial fibrations between fibrant objects in the Joyal model structure.
+
+```tex
+We now introduce the weak equivalences and trivial fibrations between fibrant objects in the Joyal model structure.
+```
+
+:::definition "defn:qcat-equivalence" (lean := "QCat.Equiv")
+*equivalences of quasi-categories.*
+
+w=
+
+A map $`f \colon A \to B` between quasi-categories is an *equivalence* if it extends to
+the data of a “homotopy equivalence” with the free-living isomorphism $`\iso` serving as the
+interval: that is, if there exist maps $`g \colon B \to A`,
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] &
+A^\iso  \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] & \text{and} &  B \arrow[dr, equals] \arrow[r,
+"\beta"] \arrow[ur, "fg"] & B^\iso \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] \\ & A & &  & B
+\end{tikzcd}
+\end{center}
+```
+
+We write “$`\we`” to decorate equivalences and $`A \simeq B` to indicate the presence of an
+equivalence $`A \we B`.
+:::
+```tex "defn:qcat-equivalence" (slot := statement)
+w=
+
+    A map $f \colon A \to B$ between quasi-categories is an \textbf{equivalence} if it extends to
+    the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the
+    interval: that is, if there exist maps $g \colon B \to A$,
+    \begin{center}
+    \begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] &
+    A^\iso  \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] & \text{and} &  B \arrow[dr, equals] \arrow[r,
+    "\beta"] \arrow[ur, "fg"] & B^\iso \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] \\ & A & &  & B
+    \end{tikzcd}
+    \end{center}
+    We write ``$\we$'' to decorate equivalences and $A \simeq B$ to indicate the presence of an
+    equivalence $A \we B$.
+```
+
+:::lemma_ "lem:qcat-htpy-cat-equiv" (uses := "defn:qcat-equivalence, defn:homotopy-cat")
+If $`f \colon A \to B` is an equivalence of quasi-categories, then the functor $`\ho{f} \colon \ho{A} \to \ho{B}` is an equivalence of categories, where the data displayed above defines an equivalence inverse $`\ho{g} \colon \ho{B} \to \ho{A}` and natural isomorphisms encoded by the composite (Note: Note that $`\ho(A^\iso) \ncong (\ho{A})^\iso` in general. Objects in the latter are homotopy classes of isomorphisms in $`A`, while objects in the former are homotopy coherent isomorphisms, given by a specified 1-simplex in $`A`, a specified inverse 1-simplex, together with an infinite tower of coherence data indexed by the nondegenerate simplices in $`\iso`.) functors
+
+```tex (display := source)
+\begin{center} \begin{tikzcd} \ho{A} \arrow[r, "\ho{\alpha}"] & \ho(A^\iso) \arrow[r] & (\ho{A})^\iso & \ho{B} \arrow[r, "\ho{\beta}"] & \ho(B^\iso) \arrow[r] & (\ho{B})^\iso \end{tikzcd}
+\end{center}
+```
+:::
+```tex "lem:qcat-htpy-cat-equiv" (slot := statement)
+\begin{lemma}\label{lem:qcat-htpy-cat-equiv}
+    \uses{defn:qcat-equivalence, defn:homotopy-cat}
+    If $f \colon A \to B$ is an equivalence of quasi-categories, then the functor $\ho{f} \colon \ho{A} \to \ho{B}$ is an equivalence of categories, where the data displayed above defines an equivalence inverse $\ho{g} \colon \ho{B} \to \ho{A}$ and natural isomorphisms encoded by the composite\footnote{Note that $\ho(A^\iso) \ncong (\ho{A})^\iso$ in general. Objects in the latter are homotopy classes of isomorphisms in $A$, while objects in the former are homotopy coherent isomorphisms, given by a specified 1-simplex in $A$, a specified inverse 1-simplex, together with an infinite tower of coherence data indexed by the nondegenerate simplices in $\iso$.} functors
+  \begin{center} \begin{tikzcd} \ho{A} \arrow[r, "\ho{\alpha}"] & \ho(A^\iso) \arrow[r] & (\ho{A})^\iso & \ho{B} \arrow[r, "\ho{\beta}"] & \ho(B^\iso) \arrow[r] & (\ho{B})^\iso \end{tikzcd}
+  \end{center}
+  \end{lemma}
+```
+
+:::definition "defn:qcat-trivial-fibration" (lean := "SSet.TrivialFibration")
+A map $`f \colon X \to Y` between simplicial sets is a *trivial fibration* if it admits
+lifts against the boundary inclusions for all simplices
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}\partial\Delta[n] \arrow[r] \arrow[d, hook] & X \arrow[d, two heads, "\sim"', "f"]
+\\ \Delta[n] \arrow[r] \arrow[ur, dashed] & Y
+\end{tikzcd} \qquad \text{for}\ \ n \geq 0
+\end{center}
+```
+
+We write “$`\trvfib`” to decorate trivial fibrations. (Note: Please help us find an html
+friendly version of this symbol.)
+:::
+```tex "defn:qcat-trivial-fibration" (slot := statement)
+A map $f \colon X \to Y$ between simplicial sets is a \textbf{trivial fibration} if it admits
+       lifts against the boundary inclusions for all simplices
+    \begin{center}
+    \begin{tikzcd}\partial\Delta[n] \arrow[r] \arrow[d, hook] & X \arrow[d, two heads, "\sim"', "f"]
+     \\ \Delta[n] \arrow[r] \arrow[ur, dashed] & Y
+    \end{tikzcd} \qquad \text{for}\ \ n \geq 0
+  \end{center}
+    We write ``$\trvfib$'' to decorate trivial fibrations.\footnote{Please help us find an html
+    friendly version of this symbol.}
+```
+
+The notation “$`\trvfib`” is suggestive: the trivial fibrations between quasi-categories are exactly those maps that are both isofibrations and equivalences. This can be proven by a relatively standard although rather technical argument in simplicial homotopy theory {Informal.citep "RiehlVerity:2022eo"}[D.5.6].
+
+```tex
+%  \begin{rmk}\label{rmk:mono-trivi-fib-lifting} The simplex boundary inclusions $\partial\Delta[n]\inc\Delta[n]$ ``cellularly generate'' the monomorphisms of simplicial sets (see Definition \ref{defn:cellular-generation} and Lem\-ma \ref{lem:mono}). Hence the dual of Lemma \ref{lem:fib-closure} implies that trivial fibrations lift against any monomorphism between simplicial sets. In particular, it follows that any trivial fibration $X \trvfib Y$ is a split epimorphism.
+%  \end{rmk}
+
+  The notation ``$\trvfib$'' is suggestive: the trivial fibrations between quasi-cat\-e\-go\-ries are exactly those maps that are both isofibrations and equivalences. This can be proven by a relatively standard although rather technical argument in simplicial homotopy theory \cite[D.5.6]{RiehlVerity:2022eo}.
+```
+
+# Enriched limits
+
+*Legacy section label:* `sec:enriched-limits`
+
+A simplicially enriched category—commonly called a “simplicial category” for short—is a category that is enriched over the cartesian monoidal category of simplicial sets. We recall the definition, which already exists in Mathlib.
+
+```tex
+A simplicially enriched category---commonly called a ``simplicial category'' for short---is a category that is enriched over the cartesian monoidal category of simplicial sets. We recall the definition, which already exists in Mathlib.
+```
+
+:::definition "defn:simplicial-category" (lean := "CategoryTheory.SimplicialCategory")
+*simplicial categories as enriched categories.*
+
+The data of a *simplicial category* is a *simplicially enriched category* with a set
+of objects and a simplicial set $`\cA(x,y)` of morphisms between each ordered pair of objects. Each
+endo-hom space contains a distinguished 0-simplex $`\id_x \in \cA(x,y)_0`, and composition is
+required to define a simplicial map
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+\cA(y,z) \times \cA(x,y) \arrow[r, "\circ"] & \cA(x,z)
+\end{tikzcd}
+\end{center}
+```
+
+The composition is required to be associative and unital, in a sense expressed by
+the commutative diagrams of simplicial sets
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=small]
+\cA(y,z) \times \cA(x,y) \times \cA(w,x) \arrow[d, "\id \times \circ"'] \arrow[r, "\circ \times
+\id"] & \cA(x,z) \times \cA(w,x) \arrow[d, "\circ"]  \\ \cA(y,z) \times \cA(w,y) \arrow[r,
+"\circ"'] & \cA(w,z)
+\end{tikzcd}
+\begin{tikzcd} \cA(x,y) \arrow[r, "\id_y \times \id"] \arrow[dr, "\id"] \arrow[d, "\id \times
+\id_x"']  & \cA(y,y) \times \cA(x,y) \arrow[d, "\circ"] \\ \cA(x,y) \times \cA(x,x) \arrow[r,
+"\circ"'] & \cA(x,y)
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "defn:simplicial-category" (slot := statement)
+The data of a \textbf{simplicial category} is a \textbf{simplicially enriched category} with a set
+  of objects and a simplicial set $\cA(x,y)$ of morphisms between each ordered pair of objects. Each
+  endo-hom space contains a distinguished 0-simplex $\id_x \in \cA(x,y)_0$, and composition is
+  required to define a simplicial map
+    \begin{center}
+    \begin{tikzcd}
+    \cA(y,z) \times \cA(x,y) \arrow[r, "\circ"] & \cA(x,z)
+    \end{tikzcd}
+    \end{center} The composition is required to be associative and unital, in a sense expressed by
+    the commutative diagrams of simplicial sets
+    \begin{center}
+    \begin{tikzcd}[column sep=small]
+    \cA(y,z) \times \cA(x,y) \times \cA(w,x) \arrow[d, "\id \times \circ"'] \arrow[r, "\circ \times
+    \id"] & \cA(x,z) \times \cA(w,x) \arrow[d, "\circ"]  \\ \cA(y,z) \times \cA(w,y) \arrow[r,
+    "\circ"'] & \cA(w,z)
+    \end{tikzcd}
+    \begin{tikzcd} \cA(x,y) \arrow[r, "\id_y \times \id"] \arrow[dr, "\id"] \arrow[d, "\id \times
+    \id_x"']  & \cA(y,y) \times \cA(x,y) \arrow[d, "\circ"] \\ \cA(x,y) \times \cA(x,x) \arrow[r,
+    "\circ"'] & \cA(x,y)
+    \end{tikzcd}
+    \end{center}
+```
+
+:::definition "defn:n-arrow" (uses := "defn:simplicial-category, defn:simplicial-set")
+For each $`n \geq 0`, an $`n`-simplex in $`\cA(x,y)` is referred to as an $`n`-*arrow* from $`x` to $`y`.
+:::
+```tex "defn:n-arrow" (slot := statement)
+\begin{definition}\label{defn:n-arrow}
+  \uses{defn:simplicial-category, defn:simplicial-set}
+For each $n \geq 0$, an $n$-simplex in $\cA(x,y)$ is referred to as an $n$-\textbf{arrow} from $x$ to $y$.
+\end{definition}
+```
+
+:::lemma_ "lem:cat-of-n-arrows"
+For any simplicial category $`\cA` and $`n \geq 0`,
+the $`n`-arrows assemble into the arrows of an ordinary category $`\cA_n` with the same set of objects as $`\cA`.
+:::
+```tex "lem:cat-of-n-arrows" (slot := statement)
+\begin{lemma}\label{lem:cat-of-n-arrows} For any simplicial category $\cA$ and $n \geq 0$,
+the $n$-arrows assemble into the arrows of an ordinary category $\cA_n$ with the same set of objects as $\cA$.
+\end{lemma}
+```
+
+:::proof "lem:cat-of-n-arrows" (uses := "defn:n-arrow")
+The category of $`n`-arrows is easy to construct directly. Alternatively, this result can be proven by applying the theory of change-of-base of § “Change of base” to the functor $`ev_n \colon \sSet \to \Set`.
+:::
+```tex "lem:cat-of-n-arrows" (slot := proof)
+\begin{proof}
+  \uses{defn:n-arrow}
+The category of $n$-arrows is easy to construct directly. Alternatively, this result can be proven by applying the theory of change-of-base of \S\ref{sec:change-of-base} to the functor $\textup{ev}_n \colon \sSet \to \Set$.
+\end{proof}
+```
+
+In particular, the underlying category of a simplicial category can be identified with the category of $`0`-arrows. Below we link the general Mathlib construction of the underlying category of an enriched category, though it might be useful to formalize a lemma characterizing it in the way stated here.
+
+```tex
+In particular, the underlying category of a simplicial category can be identified with the category of $0$-arrows. Below we link the general Mathlib construction of the underlying category of an enriched category, though it might be useful to formalize a lemma characterizing it in the way stated here.
+```
+
+:::definition "defn:underlying-cat" (lean := "CategoryTheory.categoryForgetEnrichment")
+The category $`\cA_0` of 0-arrows is the *underlying category* of the simplicial category
+$`\cA`, which forgets the higher dimensional simplicial structure.
+:::
+```tex "defn:underlying-cat" (slot := statement)
+The category $\cA_0$ of 0-arrows is the \textbf{underlying category} of the simplicial category
+  $\cA$, which forgets the higher dimensional simplicial structure.
+```
+
+There is alternate presentation of the data of a simplicial category as a simplicial object in the category of categories and identity-on-objects functors. (Note: The phrase “simplicial object in $`\Cat`” is reserved for the more general yet less common notion of a diagram $`\Del\op\to\Cat` that is not necessarily comprised of identity-on-objects functors.)
+
+```tex
+There is alternate presentation of the data of a simplicial category as a simplicial object in the category of categories and identity-on-objects functors.\footnote{The phrase ``simplicial object in $\Cat$'' is reserved for the more general yet less common notion of a diagram $\Del\op\to\Cat$ that is not necessarily comprised of identity-on-objects functors.}
+```
+
+:::proposition "dig:simplicial-cat"
+*simplicial categories as simplicial objects.*
+
+A *simplicial category* $`\cA` is equivalently given by categories $`\cA_n`, with a common set of objects and whose arrows are called $`n`-*arrows*, that assemble into a diagram $`\Del\op \to \Cat` of identity-on-objects functors
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\cdots \cA_3 \arrow[r, shift right=2.25em, "\cdot\face^0" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^2" description, pos=.35] \arrow[r, shift left=2.25em, "\cdot\face^3" description, pos=.35]& \cA_2  \arrow[l, "\cdot\degen^1" description, pos=.35] \arrow[l, shift left=1.5em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=1.5em, "\cdot\degen^2" description, pos=.35] \arrow[r, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=1.5em, "\cdot\face^2" description, pos=.35] \arrow[r, shift right=1.5em, "\cdot\face^0" description, pos=.35]  & \cA_1 \arrow[l, shift left=.75em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=.75em, "\cdot\degen^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^0" description, pos=.35] & \cA_0 \arrow[l, "\cdot\degen^0" description, pos=.35]
+\end{tikzcd}$\eqcolon\cA$
+\end{center}
+```
+:::
+```tex "dig:simplicial-cat" (slot := statement)
+\begin{dig}[simplicial categories as simplicial objects]\label{dig:simplicial-cat}
+  A \textbf{simplicial category} $\cA$ is equivalently given by categories $\cA_n$, with a common set of objects and whose arrows are called $n$-\textbf{arrows}, that assemble into a diagram $\Del\op \to \Cat$ of identity-on-objects functors
+\begin{center}
+  \begin{tikzcd}[column sep=large]
+  \cdots \cA_3 \arrow[r, shift right=2.25em, "\cdot\face^0" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^2" description, pos=.35] \arrow[r, shift left=2.25em, "\cdot\face^3" description, pos=.35]& \cA_2  \arrow[l, "\cdot\degen^1" description, pos=.35] \arrow[l, shift left=1.5em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=1.5em, "\cdot\degen^2" description, pos=.35] \arrow[r, "\cdot\face^1" description, pos=.35] \arrow[r, shift left=1.5em, "\cdot\face^2" description, pos=.35] \arrow[r, shift right=1.5em, "\cdot\face^0" description, pos=.35]  & \cA_1 \arrow[l, shift left=.75em, "\cdot\degen^0" description, pos=.35] \arrow[l, shift right=.75em, "\cdot\degen^1" description, pos=.35] \arrow[r, shift left=.75em, "\cdot\face^1" description, pos=.35] \arrow[r, shift right=.75em, "\cdot\face^0" description, pos=.35] & \cA_0 \arrow[l, "\cdot\degen^0" description, pos=.35]
+  \end{tikzcd}$\eqcolon\cA$
+\end{center}
+\end{dig}
+```
+
+By contrast, the notion of simplicially enriched limit remains to be formalized. Fortunately, we do not (immediately) require the general notion of weighted limits, as the notion of an $`\infty`-cosmos only requires two special cases: cotensors and conical limits.
+
+```tex
+By contrast, the notion of simplicially enriched limit remains to be formalized. Fortunately, we do not (immediately) require the general notion of \emph{weighted limits}, as the notion of an $\infty$-cosmos only requires two special cases: \emph{cotensors} and \emph{conical limits}.
+```
+
+:::definition "defn:simplicial-cotensor" (lean := "CategoryTheory.SimplicialCategory.HasCotensor")
+*simplicial cotensors.*
+
+Let $`\cA` be a simplicial category. The *cotensor* of an object $`A \in \cA` by a simplicial
+set $`U` is given by the data of an object $`A^U \in \cA` together with a cone $`U \to \cA(A^U,A)` so
+that the induced map
+defines an isomorphism of simplicial sets:
+
+```tex (display := source)
+\begin{equation}
+\cA(X,A^U) \cong \cA(X,A)^U
+\end{equation}
+```
+:::
+```tex "defn:simplicial-cotensor" (slot := statement)
+Let $\cA$ be a simplicial category. The \textbf{cotensor} of an object $A \in \cA$ by a simplicial
+  set $U$ is given by the data of an object $A^U \in \cA$ together with a cone $U \to \cA(A^U,A)$ so
+  that the induced map
+  defines an isomorphism of simplicial sets:
+  \begin{equation}\label{eq:cotensor-defn}
+  \cA(X,A^U) \cong \cA(X,A)^U
+  \end{equation}
+```
+
+Note by construction the isomorphism equation `eq:cotensor-defn` is automatically simplicially natural in $`X`. This simplicial naturality is an important aspect of the enriched universal property.
+
+```tex
+Note by construction the isomorphism \eqref{eq:cotensor-defn} is automatically simplicially natural in $X$. This simplicial naturality is an important aspect of the enriched universal property.
+```
+
+:::definition "defn:simplicial-cotensors" (lean := "CategoryTheory.SimplicialCategory.HasCotensors")
+*simplicial cotensors.*
+
+A simplicial category $`\cA` *has cotensors* when all cotensors exist.
+:::
+```tex "defn:simplicial-cotensors" (slot := statement)
+A simplicial category $\cA$ \textbf{has cotensors} when all cotensors exist.
+```
+
+:::lemma_ "lem:cotensor-associativity" (uses := "defn:simplicial-cotensors")
+When a simplicial category has cotensors, cotensors are associative: given $`A \in \cA` and simplicial sets $`U` and $`V` there are canonical isomorphisms $$`(A^U)^V \cong A^{U \times V} \cong (A^V)^U.`
+:::
+```tex "lem:cotensor-associativity" (slot := statement)
+\begin{lemma}\label{lem:cotensor-associativity}
+  \uses{defn:simplicial-cotensors} When a simplicial category has cotensors, cotensors are associative: given $A \in \cA$ and simplicial sets $U$ and $V$ there are canonical isomorphisms \[ (A^U)^V \cong A^{U \times V} \cong (A^V)^U.\]
+\end{lemma}
+```
+
+:::proof "lem:cotensor-associativity"
+By the enriched Yoneda lemma, these objects represent the same simplicial functors $`\cA\op \to \sSet`.
+:::
+```tex "lem:cotensor-associativity" (slot := proof)
+\begin{proof}
+By the enriched Yoneda lemma, these objects represent the same simplicial functors $\cA\op \to \sSet$.
+\end{proof}
+```
+
+:::lemma_ "lem:cotensor-bifunctor" (lean := "CategoryTheory.SimplicialCategory.cotensor_bifunctoriality")
+Assuming such objects exist, the simplicial cotensor defines a bifunctor
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[row sep=tiny] s\mathcal{S}et\op \times \cA \arrow[r] & \cA \\
+(U,A) \arrow[r, maps to] & A^U
+\end{tikzcd}\end{center}
+```
+
+in a unique way making the isomorphism equation `eq:cotensor-defn` natural
+in $`U` and $`A` as well.
+:::
+```tex "lem:cotensor-bifunctor" (slot := statement)
+Assuming such objects exist, the simplicial cotensor defines a bifunctor
+  \begin{center}
+  \begin{tikzcd}[row sep=tiny] s\mathcal{S}et\op \times \cA \arrow[r] & \cA \\
+  (U,A) \arrow[r, maps to] & A^U
+  \end{tikzcd}\end{center} in a unique way making the isomorphism \eqref{eq:cotensor-defn} natural
+  in $U$ and $A$ as well.
+```
+:::proof "lem:cotensor-bifunctor"
+Functoriality in each variable follows from the universal property.
+:::
+```tex "lem:cotensor-bifunctor" (slot := proof)
+Functoriality in each variable follows from the universal property.
+```
+
+The other simplicial limit notions postulated by axiom {bpref "defn:cosmos"}[]item `itm:cosmos-limits` are *conical*, which is the term used for ordinary 1-categorical limit shapes that satisfy an enriched analog of the usual universal property.   Such limits also define limits in the underlying category, but the usual universal property is strengthened.
+
+```tex
+The other simplicial limit notions postulated by axiom \ref{defn:cosmos}\ref{itm:cosmos-limits} are \textbf{conical}, which is the term used for ordinary 1-categorical limit shapes that satisfy an enriched analog of the usual universal property.   Such limits also define limits in the underlying category, but the usual universal property is strengthened.
+```
+
+:::definition "defn:simplicial-conical-limit" (lean := "CategoryTheory.Enriched.IsConicalLimit")
+*simplicial conical limits.*
+
+Consider a limit cone $`(\lim_{j \in J}A_j \to A_j)_{j \in J}` in the underlying category $`\cA_0`
+of a simplicially-enriched category $`\cA`.  By applying the covariant representable functor
+$`\cA(X,-) \colon \cA_0 \to \sSet` to a limit cone $`(\lim_{j \in J}A_j \to A_j)_{j \in J}` in
+$`\cA_0`, we obtain a natural comparison map
+
+```tex (display := source)
+\begin{equation} \cA(X,\lim_{j \in J}A_j) \to \lim_{j \in
+J}\cA(X,A_j).
+\end{equation}
+```
+
+We say that $`\lim_{j\in J}A_j` defines a *simplicially enriched limit* if and only if
+equation `eq:simplicial-limit-map` is an isomorphism of simplicial sets for all $`X \in \cA`.
+:::
+```tex "defn:simplicial-conical-limit" (slot := statement)
+Consider a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in the underlying category $\cA_0$
+  of a simplicially-enriched category $\cA$.  By applying the covariant rep\-re\-sentable functor
+  $\cA(X,-) \colon \cA_0 \to \sSet$ to a limit cone $(\lim_{j \in J}A_j \to A_j)_{j \in J}$ in
+  $\cA_0$, we obtain a natural comparison map
+  \begin{equation}\label{eq:simplicial-limit-map} \cA(X,\lim_{j \in J}A_j) \to \lim_{j \in
+  J}\cA(X,A_j).
+  \end{equation}
+  We say that $\lim_{j\in J}A_j$ defines a \textbf{simplicially enriched limit} if and only if
+  \eqref{eq:simplicial-limit-map} is an isomorphism of simplicial sets for all $X \in \cA$.
+```
+
+*Remark.* For Mathlib, these conical limits have been defined more generally for
+enriched ordinary categories over arbitrary monoidal categories.
+
+```tex
+\begin{rmk}
+  For Mathlib, these conical limits have been defined more generally for
+  enriched ordinary categories over arbitrary monoidal categories.
+\end{rmk}
+```
+
+# Infinity-Cosmoi
+
+*Legacy section label:* `sec:cosmos`
+
+There are a variety of models of infinite-dimensional categories for which the category of “$`\infty`-categories,” as we call them, and “$`\infty`-functors” between them is enriched over quasi-categories and admits classes of isofibrations, equivalences, and trivial fibrations satisfying certain
+properties that are familiar from abstract homotopy theory. (Note: More specifically, these classes form a category of fibrant objects à la Brown {Informal.citep "Brown:1973ah"}[].) In particular, the use of isofibrations in diagrams guarantees that their strict limits are equivalence invariant, so we can take advantage of up-to-isomorphism universal properties and strict functoriality of these constructions while still working “homotopically.” This motivates the following axiomatization:
+
+```tex
+There are a variety of models of infinite-dimensional categories for which the category of ``$\infty$-categories,'' as we call them, and ``$\infty$-functors'' between them is enriched over quasi-categories and admits classes of isofibrations, equivalences, and trivial fibrations satisfying certain
+properties that are familiar from abstract homotopy theory.\footnote{More specifically, these classes form a \emph{category of fibrant objects} \`{a} la Brown \cite{Brown:1973ah}.} In particular, the use of isofibrations in diagrams guarantees that their strict limits are equivalence invariant, so we can take advantage of up-to-isomorphism universal properties and strict functoriality of these constructions while still working ``homotopically.'' This motivates the following axiomatization:
+```
+
+:::definition "defn:cosmos" (lean := "CategoryTheory.InfinityCosmos")
+*$`\infty`-cosmos.*
+
+An $`\infty`-*cosmos* $`\cK` is a category that is enriched over
+quasi-categories, (Note: This is to say $`\cK` is a simplicially enriched category (see
+Definition {bpref "defn:simplicial-category"}[]) whose hom spaces are all quasi-categories.) meaning in
+particular that
+- its morphisms $`f \colon A \to B` define the vertices of a quasi-category denoted $`\Fun(A,B)`
+and referred to as a *functor space*,
+
+that is also equipped with a specified collection of maps that we call *isofibrations* and
+denote by “$`\fib`” satisfying the following two axioms:
+
+-  `{#itm:cosmos-limits}` (completeness) The quasi-categorically enriched category $`\cK`
+possesses a terminal object, small products, pullbacks of isofibrations, limits of countable
+towers of isofibrations, and cotensors with simplicial sets, each of these limit notions
+satisfying a universal property that is enriched over simplicial sets. (Note: This is to say,
+these are simplicially enriched limit notions, in the sense described in Definitions
+{bpref "defn:simplicial-cotensor"}[] and {bpref "defn:simplicial-conical-limit"}[].)
+-  `{#itm:cosmos-isofib}` (isofibrations) The isofibrations contain all isomorphisms and any
+map whose codomain is the terminal object; are closed under composition, product, pullback,
+forming inverse limits of towers, and Leibniz cotensors with monomorphisms of simplicial sets; and
+have the property that if $`f \colon A \fib B` is an isofibration and $`X` is any object then
+$`\Fun(X,A) \fib \Fun(X,B)` is an isofibration of quasi-categories.
+:::
+```tex "defn:cosmos" (slot := statement)
+An $\infty$-\textbf{cosmos} $\cK$ is a category that is enriched over
+  quasi-categories,\footnote{This is to say $\cK$ is a simplicially enriched category (see
+  Definition \ref{defn:simplicial-category}) whose hom spaces are all quasi-categories.} meaning in
+  particular that\begin{itemize}
+  \item its morphisms $f \colon A \to B$ define the vertices of a quasi-category denoted $\Fun(A,B)$
+  and referred to as a \textbf{functor space},
+  \end{itemize}
+  that is also equipped with a specified collection of maps that we call \textbf{isofibrations} and
+  denote by ``$\fib$'' satisfying the following two axioms:
+  \begin{enumerate}
+  \item\label{itm:cosmos-limits} (completeness) The quasi-categorically enriched category $\cK$
+  pos\-sess\-es a terminal object, small products, pullbacks of isofibrations, limits of countable
+  towers of isofibrations, and cotensors with simplicial sets, each of these limit notions
+  satisfying a universal property that is enriched over simplicial sets.\footnote{This is to say,
+  these are simplicially enriched limit notions, in the sense described in Definitions
+  \ref{defn:simplicial-cotensor} and \ref{defn:simplicial-conical-limit}.}
+  \item\label{itm:cosmos-isofib} (isofibrations) The isofibrations contain all isomorphisms and any
+  map whose codomain is the terminal object; are closed under composition, product, pullback,
+  forming inverse limits of towers, and Leibniz cotensors with monomorphisms of simplicial sets; and
+  have the property that if $f \colon A \fib B$ is an isofibration and $X$ is any object then
+  $\Fun(X,A) \fib \Fun(X,B)$ is an isofibration of quasi-categories.
+  \end{enumerate}
+```
+
+For ease of reference, we refer to the simplicially enriched limits of diagrams of isofibrations enumerated in item `itm:cosmos-limits` as the *cosmological limit notions*.
+
+```tex
+For ease of reference, we refer to the simplicially enriched limits of diagrams of isofibrations enumerated in \ref{itm:cosmos-limits} as the \textbf{cosmological limit notions}.
+```
+
+:::definition "defn:equivalence" (uses := "defn:cosmos, defn:qcat-equivalence")
+In an $`\infty`-cosmos $`\cK`, a morphism $`f\colon A \to B` is an *equivalence* just when the induced map $`f_* \colon\Fun(X,A) \we \Fun(X,B)` on functor spaces  is an equivalence of quasi-categories for all $`X \in \cK`.
+:::
+```tex "defn:equivalence" (slot := statement)
+\begin{definition}\label{defn:equivalence}
+  \uses{defn:cosmos, defn:qcat-equivalence}
+  In an $\infty$-cosmos $\cK$, a morphism $f\colon A \to B$ is an \textbf{equivalence} just when the induced map $f_* \colon\Fun(X,A) \we \Fun(X,B)$ on functor spaces  is an equivalence of quasi-categories for all $X \in \cK$.
+\end{definition}
+```
+
+:::definition "defn:trivial-fibration" (uses := "defn:cosmos, defn:equivalence")
+In an $`\infty`-cosmos $`\cK`, a morphism $`f\colon A \to B` is a *trivial fibration* just when $`f` is both an isofibration and an equivalence.
+:::
+```tex "defn:trivial-fibration" (slot := statement)
+\begin{definition}\label{defn:trivial-fibration}
+  \uses{defn:cosmos, defn:equivalence}
+  In an $\infty$-cosmos $\cK$, a morphism $f\colon A \to B$ is a \textbf{trivial fibration} just when $f$ is both an isofibration and an equivalence.
+\end{definition}
+```
+
+These classes are denoted by “$`\we`”  and “$`\trvfib`”, respectively. (Note: Please help us find an html friendly version of the trivial fibration symbol.)
+
+Put more concisely, one might say that an $`\infty`-cosmos is a “quasi-categorically enriched category of fibrant objects.”
+
+```tex
+These classes are denoted by ``$\we$''  and ``$\trvfib$'', respectively.\footnote{Please help us find an html friendly version of the trivial fibration symbol.}
+
+Put more concisely, one might say that an $\infty$-cosmos is a ``quasi-cat\-e\-go\-ri\-cal\-ly enriched category of fibrant objects.'' %(see Definition \ref{defn:cat-of-fib-obj} and Example \ref{ex:cosmos-as-cat-of-fib-obj}).
+```
+
+*Convention.* *$`\infty`-category, as a technical term.*
+
+Henceforth, we recast $`\infty`-*category* as a technical term to refer to an object in an arbitrary ambient $`\infty`-cosmos. Similarly, we use the term $`\infty`-*functor* — or more commonly the elision “*functor*” — to refer to a morphism $`f \colon A \to B` in an $`\infty`-cosmos. This explains why we refer to the quasi-category $`\Fun(A,B)` between two $`\infty`-categories in an $`\infty`-cosmos as a “functor space”: its vertices are the ($`\infty`-)functors from $`A` to $`B`.
+
+```tex
+\begin{con}[$\infty$-category, as a technical term]
+  Henceforth, we recast $\infty$-\textbf{category} as a technical term to refer to an object in an arbitrary ambient $\infty$-cosmos. Similarly, we use the term $\infty$-\textbf{functor} --- or more commonly the elision ``\textbf{functor}'' --- to refer to a morphism $f \colon A \to B$ in an $\infty$-cosmos. This explains why we refer to the quasi-category $\Fun(A,B)$ between two $\infty$-categories in an $\infty$-cosmos as a ``functor space'': its vertices are the ($\infty$-)functors from $A$ to $B$.
+\end{con}
+```
+
+:::definition "defn:underlying-cat-of-cosmos" (uses := "defn:cosmos")
+The underlying category $`\cK_0` of an $`\infty`-cosmos $`\cK` is the category whose objects are the $`\infty`-categories in $`\cK` and whose morphisms are the $`0`-arrows, i.e., the vertices in the functor spaces.
+:::
+```tex "defn:underlying-cat-of-cosmos" (slot := statement)
+\begin{definition}\label{defn:underlying-cat-of-cosmos}
+  \uses{defn:cosmos} The underlying category $\cK_0$ of an $\infty$-cosmos $\cK$ is the category whose objects are the $\infty$-categories in $\cK$ and whose morphisms are the $0$-arrows, i.e., the vertices in the functor spaces.
+\end{definition}
+```
+
+In all of the examples to appear in § “Examples of infinity-cosmoi”, this recovers the expected category of $`\infty`-categories in a particular model and functors between them. This is compatible with the Lean formalization of simplicial categories as “enriched ordinary categories,” which have a prior 1-category structure which is explicitly identified with the underlying 1-category of the simplicially enriched category.
+
+The following results are consequences of the axioms of Definition {bpref "defn:cosmos"}[]. To begin, observe that the trivial fibrations enjoy the same stability properties satisfied by the isofibrations.
+
+```tex
+In all of the examples to appear in \S\ref{sec:examples}, this recovers the expected category of $\infty$-categories in a particular model and functors between them. This is compatible with the Lean formalization of simplicial categories as ``enriched ordinary categories,'' which have a prior 1-category structure which is explicitly identified with the underlying 1-category of the simplicially enriched category.
+
+The following results are consequences of the axioms of Definition \ref{defn:cosmos}. To begin, observe that the trivial fibrations enjoy the same stability properties satisfied by the isofibrations.
+```
+
+:::lemma_ "lem:trivial-fib-conical" (uses := "defn:cosmos, defn:trivial-fibration")
+*trivial fibrations and conical limits.*
+
+The trivial fibrations in an $`\infty`-cosmos define a subcategory containing the isomorphisms and are stable under product, pullback, and forming inverse limits of towers.
+:::
+```tex "lem:trivial-fib-conical" (slot := statement)
+\begin{lemma}[trivial fibrations and conical limits]\label{lem:trivial-fib-conical}
+  \uses{defn:cosmos, defn:trivial-fibration}
+  The trivial fibrations in an $\infty$-cosmos define a subcategory containing the isomorphisms and are stable under product, pullback, and forming inverse limits of towers.
+\end{lemma}
+```
+
+:::proof "lem:trivial-fib-conical"
+We know in each case that the maps in question are isofibrations in the $`\infty`-cosmos; it remains to show only that the maps are also equivalences. The equivalences in an $`\infty`-cosmos are defined to be the maps that $`\Fun(X,-)` carries to equivalences of quasi-categories, so it suffices to verify that trivial fibrations of quasi-categories satisfy the corresponding stability properties. These stability properties hold of any class defined by a right lifting property.
+:::
+```tex "lem:trivial-fib-conical" (slot := proof)
+\begin{proof}
+  We know in each case that the maps in question are isofibrations in the $\infty$-cosmos; it remains to show only that the maps are also equivalences. The equivalences in an $\infty$-cosmos are defined to be the maps that $\Fun(X,-)$ carries to equivalences of quasi-categories, so it suffices to verify that trivial fibrations of quasi-categories satisfy the corresponding stability properties. These stability properties hold of any class defined by a right lifting property.
+\end{proof}
+```
+
+:::lemma_ "lem:trivial-fib-leibniz" (uses := "defn:cosmos, defn:trivial-fibration")
+*trivial fibrations and cotensors.*
+
+In an $`\infty`-cosmos, the Leibniz cotensors of any trivial fibration with a monomorphism of simplicial sets is a trivial fibration as is the Leibniz cotensor of an isofibration with a map in the class cellularly generated by the inner horn inclusions and the map $`\catone\inc\iso`.
+:::
+```tex "lem:trivial-fib-leibniz" (slot := statement)
+\begin{lemma}[trivial fibrations and cotensors]\label{lem:trivial-fib-leibniz}
+  \uses{defn:cosmos, defn:trivial-fibration}
+  In an $\infty$-cosmos, the Leibniz cotensors of any trivial fibration with a monomorphism of simplicial sets is a trivial fibration as is the Leibniz cotensor of an isofibration with a map in the class cellularly generated by the inner horn inclusions and the map $\catone\inc\iso$.
+\end{lemma}
+```
+
+:::proof "lem:trivial-fib-leibniz"
+We know in each case that the maps in question are isofibrations in the $`\infty`-cosmos; it remains to show only that the maps are also equivalences. The equivalences in an $`\infty`-cosmos are defined to be the maps that $`\Fun(X,-)` carries to equivalences of quasi-categories, so it suffices to verify that trivial fibrations of quasi-categories satisfy the corresponding stability properties. This follows from the cartesian closure of the Joyal model structure.
+:::
+```tex "lem:trivial-fib-leibniz" (slot := proof)
+\begin{proof}
+We know in each case that the maps in question are isofibrations in the $\infty$-cosmos; it remains to show only that the maps are also equivalences. The equivalences in an $\infty$-cosmos are defined to be the maps that $\Fun(X,-)$ carries to equivalences of quasi-categories, so it suffices to verify that trivial fibrations of quasi-categories satisfy the corresponding stability properties. This follows from the cartesian closure of the Joyal model structure.
+\end{proof}
+```
+
+:::lemma_ "lem:trivial-fib-representability" (uses := "defn:qcat-trivial-fibration, defn:trivial-fibration")
+*representable trivial fibrations.*
+
+If $`E \trvfib B` is a trivial fibration in an $`\infty`-cosmos, then is $`\Fun(X,E)\trvfib\Fun(X,B)` is a trivial fibration of quasi-categories.
+:::
+```tex "lem:trivial-fib-representability" (slot := statement)
+\begin{lemma}[representable trivial fibrations]\label{lem:trivial-fib-representability}
+  \uses{defn:qcat-trivial-fibration, defn:trivial-fibration}
+If $E \trvfib B$ is a trivial fibration in an $\infty$-cosmos, then is $\Fun(X,E)\trvfib\Fun(X,B)$ is a trivial fibration of quasi-categories.
+\end{lemma}
+```
+
+:::proof "lem:trivial-fib-representability"
+By axiom {bpref "defn:cosmos"}[]item `itm:cosmos-isofib` and the definition of the trivial fibrations in an $`\infty`-cosmos, we know that if $`E \trvfib B` is a trivial fibration then  $`\Fun(X,E)\trvfib\Fun(X,B)` is both an isofibration and an equivalence, and hence is a trivial fibration by the compatibility of these classes in the Joyal model structure.
+:::
+```tex "lem:trivial-fib-representability" (slot := proof)
+\begin{proof}
+By axiom \ref{defn:cosmos}\ref{itm:cosmos-isofib} and the definition of the trivial fibrations in an $\infty$-cosmos, we know that if $E \trvfib B$ is a trivial fibration then  $\Fun(X,E)\trvfib\Fun(X,B)$ is both an isofibration and an equivalence, and hence is a trivial fibration by the compatibility of these classes in the Joyal model structure.
+\end{proof}
+```
+
+By a Yoneda-style argument, the “homotopy equivalence” characterization of the equivalences in the $`\infty`-cosmos of quasi-categories of Definition {bpref "defn:qcat-equivalence"}[] extends to an analogous characterization of the equivalences in any $`\infty`-cosmos:
+
+```tex
+By a Yoneda-style argument, the ``homotopy equivalence'' characterization of the equivalences in the $\infty$-cosmos of quasi-categories of Definition \ref{defn:qcat-equivalence} extends to an analogous characterization of the equivalences in any $\infty$-cosmos:
+```
+
+:::lemma_ "lem:equiv-htpy-equiv" (uses := "defn:cosmos, defn:coherent-isomorphism, defn:equivalence")
+*equivalences are homotopy equivalences.*
+
+A map $`f \colon A \to B` between $`\infty`-categories in an $`\infty`-cosmos $`\cK` is an equivalence if and only if it extends to the data of a “homotopy equivalence” with the free-living isomorphism $`\iso` serving as the interval: that is, if there exist maps $`g \colon B \to A`
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso   \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"',  "\ev_1"] & \text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso  \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] \\ & A & &  & B
+\end{tikzcd}
+\end{center}
+```
+
+in the $`\infty`-cosmos.
+:::
+```tex "lem:equiv-htpy-equiv" (slot := statement)
+\begin{lemma}[equivalences are homotopy equivalences]\label{lem:equiv-htpy-equiv}
+  \uses{defn:cosmos, defn:coherent-isomorphism, defn:equivalence}
+A map $f \colon A \to B$ between $\infty$-categories in an $\infty$-cosmos $\cK$ is an equivalence if and only if it extends to the data of a ``homotopy equivalence'' with the free-living isomorphism $\iso$ serving as the interval: that is, if there exist maps $g \colon B \to A$
+\begin{center}
+\begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso   \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"',  "\ev_1"] & \text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso  \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] \\ & A & &  & B
+\end{tikzcd}
+\end{center}
+in the $\infty$-cosmos.
+\end{lemma}
+```
+
+:::proof "lem:equiv-htpy-equiv"
+By hypothesis, if $`f \colon A \to B` defines an equivalence in the $`\infty`-cosmos $`\cK` then the induced map on post-composition $`f_* \colon \Fun(B,A) \we \Fun(B,B)` is an equivalence of quasi-categories in the sense of Definition {bpref "defn:qcat-equivalence"}[]. Evaluating the inverse equivalence $`\tilde{g} \colon \Fun(B,B) \we \Fun(B,A)` and homotopy $`\tilde{\beta} \colon \Fun(B,B) \to \Fun(B,B)^\iso` at the 0-arrow $`\id_B \in \Fun(B,B)`, we obtain a 0-arrow $`g \colon B \to A` together with an isomorphism $`\beta \colon \iso\to\Fun(B,B)` from the composite $`fg` to $`\id_B`. By the defining universal property of the cotensor equation `eq:cotensor-defn`, this isomorphism internalizes to define the map $`\beta \colon B \to B^\iso` in $`\cK` displayed on the right of the displayed equation in the statement.
+
+Now the hypothesis that $`f` is an equivalence also provides an equivalence of quasi-categories $`f_* \colon \Fun(A,A) \we \Fun(A,B)`, and the map $`\beta f \colon A \to B^\iso` represents an isomorphism in $`\Fun(A,B)` from $`fgf` to $`f`. Since $`f_*` is an equivalence, we conclude from Lemma {bpref "lem:qcat-htpy-cat-equiv"}[] that $`\id_A` and $`gf` are isomorphic in the quasi-category $`\Fun(A,A)`: explicitly, such an isomorphism may be defined by applying the inverse equivalence $`\tilde{h} \colon \Fun(A,B) \to \Fun(A,A)` and composing with the components at $`\id_A, gf \in \Fun(A,A)` of the isomorphism $`\tilde{\alpha} \colon \Fun(A,A) \to \Fun(A,A)^\iso` from $`\id_{\Fun(A,A)}` to $`\tilde{h}f_*`. Now by Proposition {bpref "prop:coherent-iso"}[] this isomorphism is represented by a map $`\iso \to \Fun(A,A)` from $`\id_A` to $`gf`, which internalizes to a map $`\alpha \colon A \to A^\iso` in $`\cK` displayed on the left of the displayed equation in the statement.
+
+The converse is easy: the simplicial cotensor construction commutes with $`\Fun(X,-)`, so a homotopy equivalence induces a  homotopy equivalence of quasi-categories as in Definition {bpref "defn:qcat-equivalence"}[].
+:::
+```tex "lem:equiv-htpy-equiv" (slot := proof)
+\begin{proof}
+By hypothesis, if $f \colon A \to B$ defines an equivalence in the $\infty$-cosmos $\cK$ then the induced map on post-composition $f_* \colon \Fun(B,A) \we \Fun(B,B)$ is an equivalence of quasi-categories in the sense of Definition \ref{defn:qcat-equivalence}. Evaluating the inverse equivalence $\tilde{g} \colon \Fun(B,B) \we \Fun(B,A)$ and homotopy $\tilde{\beta} \colon \Fun(B,B) \to \Fun(B,B)^\iso$ at the 0-arrow $\id_B \in \Fun(B,B)$, we obtain a 0-arrow $g \colon B \to A$ together with an isomorphism $\beta \colon \iso\to\Fun(B,B)$ from the composite $fg$ to $\id_B$. By the defining universal property of the cotensor \eqref{eq:cotensor-defn}, this isomorphism internalizes to define the map $\beta \colon B \to B^\iso$ in $\cK$ displayed on the right of the displayed equation in the statement.
+
+Now the hypothesis that $f$ is an equivalence also provides an equivalence of quasi-categories $f_* \colon \Fun(A,A) \we \Fun(A,B)$, and the map $\beta f \colon A \to B^\iso$ represents an isomorphism in $\Fun(A,B)$ from $fgf$ to $f$. Since $f_*$ is an equivalence, we conclude from Lemma \ref{lem:qcat-htpy-cat-equiv} that $\id_A$ and $gf$ are isomorphic in the quasi-category $\Fun(A,A)$: explicitly, such an isomorphism may be defined by applying the inverse equivalence $\tilde{h} \colon \Fun(A,B) \to \Fun(A,A)$ and composing with the components at $\id_A, gf \in \Fun(A,A)$ of the isomorphism $\tilde{\alpha} \colon \Fun(A,A) \to \Fun(A,A)^\iso$ from $\id_{\Fun(A,A)}$ to $\tilde{h}f_*$. Now by Proposition \ref{prop:coherent-iso} this isomorphism is represented by a map $\iso \to \Fun(A,A)$ from $\id_A$ to $gf$, which internalizes to a map $\alpha \colon A \to A^\iso$ in $\cK$ displayed on the left of the displayed equation in the statement.
+
+The converse is easy: the simplicial cotensor construction commutes with $\Fun(X,-)$, so a homotopy equivalence induces a  homotopy equivalence of quasi-categories as in Definition \ref{defn:qcat-equivalence}.
+\end{proof}
+```
+
+:::lemma_ "lem:equivalence-2-of-3" (uses := "defn:equivalence")
+The equivalences in an $`\infty`-cosmos are closed under retracts and satisfy the *2-of-3 property*: given a composable pair of functors and their composite, if any two of these are equivalences so is the third.
+:::
+```tex "lem:equivalence-2-of-3" (slot := statement)
+\begin{lemma}\label{lem:equivalence-2-of-3}
+    \uses{defn:equivalence} The equivalences in an $\infty$-cosmos are closed under retracts and satisfy the \textbf{2-of-3 property}: given a composable pair of functors and their composite, if any two of these are equivalences so is the third.
+\end{lemma}
+```
+
+By the representable definition of equivalences and functoriality, Lemma {bpref "lem:equivalence-2-of-3"}[] follows easily from the corresponding results for equivalences between quasi-categories.
+But we can also prove the general cosmological result without relying on this base case.
+
+```tex
+By the representable definition of equivalences and functoriality, Lemma \ref{lem:equivalence-2-of-3} follows easily from the corresponding results for equivalences between quasi-categories.
+  But we can also prove the general cosmological result without relying on this base case.
+```
+
+:::proof "lem:equivalence-2-of-3" (uses := "lem:equiv-htpy-equiv")
+Let $`f \colon A \we B` be an equivalence equipped with the data described in the statement of Lemma {bpref "lem:equiv-htpy-equiv"}[] and consider a retract diagram
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} C \arrow[r, "u"'] \arrow[rr, bend left, equals] \arrow[d, "h"'] & A \arrow[d, "\sim", "f"'] \arrow[r, "v"'] & C \arrow[d, "h"] \\ D \arrow[r, "s"] \arrow[rr, bend right, equals] & B \arrow[r, "t"] & D
+\end{tikzcd}
+\end{center}
+```
+
+By Lemma {bpref "lem:equiv-htpy-equiv"}[], to prove that $`h \colon C \to D` is an equivalence, it suffices to construct the data of an inverse homotopy equivalence. To that end define $`k \colon D \to C` to be the composite $`vgs` and then observe from the commutative diagrams
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+& & & &[-3pt] & & C \arrow[dr, "h"] \\
+& & A \arrow[r, "v"'] &C & &A \arrow[r, "f"'] \arrow[ur, "v"'] & B \arrow[r, "t"] & D \\ C \arrow[r, "u"] \arrow[d, "h"'] \arrow[urrr, bend left=40, equals] & A \arrow[d, "f"'] \arrow[r, "\alpha"] \arrow[ur, equals] & A^\iso \arrow[u,
+"\ev_0"'] \arrow[d, "\ev_1"] \arrow[r, "{v^\iso}"] & C^\iso \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] & D \arrow[r, "s"] \arrow[drrr, equals,  bend right=40] \arrow[uurr, bend left=30, "k"] & B\arrow[u, "g"'] \arrow[r, "\beta"] \arrow[dr, equals] & B^\iso \arrow[r, "t^\iso"] \arrow[d, "\ev_1"]\arrow[u, "\ev_0"'] & D^\iso \arrow[d, "\ev_1"] \arrow[u, "\ev_0"'] \\ D \arrow[r, "s"] \arrow[rrr, bend right=20, "k"'] & B \arrow[r, "g"] & A \arrow[r, "v"]  & C & & & B \arrow[r, "t"] & D
+\end{tikzcd}
+\end{center}
+```
+
+that $`v^\iso \alpha u \colon C \to C^\iso` and $`t^\iso \beta s \colon D \to D^\iso` define the required homotopy coherent isomorphisms.
+
+Via Lemma {bpref "lem:equiv-htpy-equiv"}[], the 2-of-3 property for equivalences follows from the fact that the set of  isomorphisms in a quasi-category is closed under composition. Homotopy coherent isomorphisms in a quasi-category represent isomorphisms in the homotopy category, whose composite in the homotopy category is then an isomorphism, which can be lifted to a representing homotopy coherent isomorphism by Proposition {bpref "prop:coherent-iso"}[]. We now apply this to the homotopy coherent isomorphisms in the functor spaces of an $`\infty`-cosmos that form part of the data of an equivalence of $`\infty`-categories.
+
+To prove that equivalences are closed under composition, consider a composable pair of equivalences with their inverse equivalences
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} A \arrow[r, shift left=.5em, "\sim"', "f"] & B \arrow[r, shift left=.5em, "\sim"', "g"] \arrow[l, shift left=.5em, "k", "\sim"'] & C \arrow[l, shift left=.5em, "\sim"', "h"] \end{tikzcd}
+\end{center}
+```
+
+The equivalence data of Lemma {bpref "lem:equiv-htpy-equiv"}[] defines isomorphisms $`\alpha\colon \id_A \cong kf \in \Fun(A,A)` and $`\gamma \colon \id_B \cong hg \in \Fun(B,B)`, the latter of which whiskers to define $`k\gamma f \colon kf \cong khgf \in \Fun(B,B)`. Composing these, we obtain an isomorphism $`\id_A \cong khgf \in \Fun(A,A)`, witnessing that $`kh` defines a left equivalence inverse of $`gf`. The other isomorphism is constructed similarly.
+
+To prove that the equivalences are closed under right cancelation,  consider a diagram
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} A \arrow[r, "\sim"', "f"] & B \arrow[r, "g"] \arrow[l, shift left=1em, "k", "\sim"'] & C \arrow[ll, bend right=45, "\sim", "\ell"'] \end{tikzcd}
+\end{center}
+```
+
+with $`k` an inverse equivalence to $`f` and $`\ell` and inverse equivalence to $`gf`. We claim that $`f\ell` defines an inverse equivalence to $`g`. One of the required isomorphisms $`\id_C \cong gf\ell` is given already. The other is obtained by composing three isomorphisms in $`\Fun(B,B)`
+
+```tex (display := source)
+\begin{center} \begin{tikzcd} \id_B \arrow[r,  "\cong"',  "\beta^{-1}"] & fk \arrow[r, "f\delta k", "\cong"'] & f\ell gf k \arrow[r, "f\ell g\beta", "\cong"'] &f \ell g.\end{tikzcd}\end{center}
+```
+
+The proof of stability of equivalence under left cancelation is dual.
+:::
+```tex "lem:equivalence-2-of-3" (slot := proof)
+\begin{proof}
+  \uses{lem:equiv-htpy-equiv}
+Let $f \colon A \we B$ be an equivalence equipped with the data described in the statement of Lemma \ref{lem:equiv-htpy-equiv} and consider a retract diagram
+\begin{center}
+\begin{tikzcd} C \arrow[r, "u"'] \arrow[rr, bend left, equals] \arrow[d, "h"'] & A \arrow[d, "\sim", "f"'] \arrow[r, "v"'] & C \arrow[d, "h"] \\ D \arrow[r, "s"] \arrow[rr, bend right, equals] & B \arrow[r, "t"] & D
+\end{tikzcd}
+\end{center}
+By Lemma \ref{lem:equiv-htpy-equiv}, to prove that $h \colon C \to D$ is an equivalence, it suffices to construct the data of an inverse homotopy equivalence. To that end define $k \colon D \to C$ to be the composite $vgs$ and then observe from the commutative diagrams
+\begin{center}
+\begin{tikzcd}
+& & & &[-3pt] & & C \arrow[dr, "h"] \\
+& & A \arrow[r, "v"'] &C & &A \arrow[r, "f"'] \arrow[ur, "v"'] & B \arrow[r, "t"] & D \\ C \arrow[r, "u"] \arrow[d, "h"'] \arrow[urrr, bend left=40, equals] & A \arrow[d, "f"'] \arrow[r, "\alpha"] \arrow[ur, equals] & A^\iso \arrow[u,
+"\ev_0"'] \arrow[d, "\ev_1"] \arrow[r, "{v^\iso}"] & C^\iso \arrow[u, "\ev_0"'] \arrow[d, "\ev_1"] & D \arrow[r, "s"] \arrow[drrr, equals,  bend right=40] \arrow[uurr, bend left=30, "k"] & B\arrow[u, "g"'] \arrow[r, "\beta"] \arrow[dr, equals] & B^\iso \arrow[r, "t^\iso"] \arrow[d, "\ev_1"]\arrow[u, "\ev_0"'] & D^\iso \arrow[d, "\ev_1"] \arrow[u, "\ev_0"'] \\ D \arrow[r, "s"] \arrow[rrr, bend right=20, "k"'] & B \arrow[r, "g"] & A \arrow[r, "v"]  & C & & & B \arrow[r, "t"] & D
+\end{tikzcd}
+\end{center}
+that $v^\iso \alpha u \colon C \to C^\iso$ and $t^\iso \beta s \colon D \to D^\iso$ define the required homotopy coherent isomorphisms.
+
+Via Lemma \ref{lem:equiv-htpy-equiv}, the 2-of-3 property for equivalences follows from the fact that the set of  isomorphisms in a quasi-category is closed under composition. Homotopy coherent isomorphisms in a quasi-category represent isomorphisms in the homotopy category, whose composite in the homotopy category is then an isomorphism, which can be lifted to a representing homotopy coherent isomorphism by Proposition \ref{prop:coherent-iso}. We now apply this to the homotopy coherent isomorphisms in the functor spaces of an $\infty$-cosmos that form part of the data of an equivalence of $\infty$-categories.
+
+ To prove that equivalences are closed under composition, consider a composable pair of equivalences with their inverse equivalences
+\begin{center}
+\begin{tikzcd} A \arrow[r, shift left=.5em, "\sim"', "f"] & B \arrow[r, shift left=.5em, "\sim"', "g"] \arrow[l, shift left=.5em, "k", "\sim"'] & C \arrow[l, shift left=.5em, "\sim"', "h"] \end{tikzcd}
+\end{center}
+The equivalence data of Lemma \ref{lem:equiv-htpy-equiv} defines isomorphisms $\alpha\colon \id_A \cong kf \in \Fun(A,A)$ and $\gamma \colon \id_B \cong hg \in \Fun(B,B)$, the latter of which whiskers to define $k\gamma f \colon kf \cong khgf \in \Fun(B,B)$. Composing these, we obtain an isomorphism $\id_A \cong khgf \in \Fun(A,A)$, witnessing that $kh$ defines a left equivalence inverse of $gf$. The other isomorphism is constructed similarly.
+
+To prove that the equivalences are closed under right cancelation,  consider a diagram
+\begin{center}
+\begin{tikzcd} A \arrow[r, "\sim"', "f"] & B \arrow[r, "g"] \arrow[l, shift left=1em, "k", "\sim"'] & C \arrow[ll, bend right=45, "\sim", "\ell"'] \end{tikzcd}
+\end{center}
+with $k$ an inverse equivalence to $f$ and $\ell$ and inverse equivalence to $gf$. We claim that $f\ell$ defines an inverse equivalence to $g$. One of the required isomorphisms $\id_C \cong gf\ell$ is given already. The other is obtained by composing three isomorphisms in $\Fun(B,B)$
+\begin{center} \begin{tikzcd} \id_B \arrow[r,  "\cong"',  "\beta^{-1}"] & fk \arrow[r, "f\delta k", "\cong"'] & f\ell gf k \arrow[r, "f\ell g\beta", "\cong"'] &f \ell g.\end{tikzcd}\end{center}
+The proof of stability of equivalence under left cancelation is dual.
+\end{proof}
+```
+
+The trivial fibrations admit a similar characterization as split fiber homotopy equivalences.
+
+```tex
+The trivial fibrations admit a similar characterization as split fiber homotopy equivalences.
+```
+
+:::lemma_ "lem:split-triv-fib" (uses := "defn:trivial-fibration, defn:cosmos")
+*trivial fibrations split.*
+
+Every trivial fibration admits a section
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} & E \arrow[d, two heads, "\sim"', "p"] \\ B \arrow[ur, dashed, "s"] \arrow[r, equals] & B
+\end{tikzcd}
+\end{center}
+```
+
+that defines a split fiber homotopy equivalence
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} E \arrow[r, "\alpha"'] \arrow[rr, end anchor = 165, start anchor = 30, bend left=20, "{(\id_E, sp)}"] \arrow[d, two heads, "p"'] & E^\iso \arrow[d, two heads, "p^\iso"'] \arrow[r, two heads, "{(\ev_0,\ev_1)}"'] & E \times E \\ B \arrow[r, "\Delta"'] & B^\iso
+\end{tikzcd}
+\end{center}
+```
+
+and conversely any isofibration that defines a split fiber homotopy equivalence is a trivial fibration.
+:::
+```tex "lem:split-triv-fib" (slot := statement)
+\begin{lem}[trivial fibrations split]\label{lem:split-triv-fib}
+  \uses{defn:trivial-fibration, defn:cosmos}
+  Every trivial fibration admits a section
+\begin{center}
+\begin{tikzcd} & E \arrow[d, two heads, "\sim"', "p"] \\ B \arrow[ur, dashed, "s"] \arrow[r, equals] & B
+\end{tikzcd}
+\end{center}
+that defines a split fiber homotopy equivalence
+%\[
+%\begin{tikzcd}
+%E + E \arrow[rr, "{(\id_E, sp)}"] \arrow[d, hook] & & E \arrow[d, "p", two heads, "\wr"'] \\ E \times \iso \arrow[r, "\pi"'] \arrow[urr, dashed, "\alpha"] & E \arrow[r, "p", two heads, "\sim"'] & B
+%\end{tikzcd}
+%\]
+\begin{center}
+\begin{tikzcd} E \arrow[r, "\alpha"'] \arrow[rr, end anchor = 165, start anchor = 30, bend left=20, "{(\id_E, sp)}"] \arrow[d, two heads, "p"'] & E^\iso \arrow[d, two heads, "p^\iso"'] \arrow[r, two heads, "{(\ev_0,\ev_1)}"'] & E \times E \\ B \arrow[r, "\Delta"'] & B^\iso
+\end{tikzcd}
+\end{center}
+and conversely any isofibration that defines a split fiber homotopy equivalence is a trivial fibration.
+\end{lem}
+```
+
+:::proof "lem:split-triv-fib"
+If $`p \colon E \trvfib B` is a trivial fibration, then by the stability property of Lemma {bpref "lem:trivial-fib-representability"}[], so is $`p_*\colon\Fun(X,E)\trvfib Fun(X,B)` for any $`\infty`-category $`X`.  By Definition {bpref "defn:qcat-trivial-fibration"}[], we may solve the lifting problem below-left
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} \emptyset=\partial\Delta[0] \arrow[d, hook] \arrow[r] & \Fun(B,E) \arrow[d, two heads, "\sim"', "p_*" pos=.4] & \catone +\catone \arrow[d, hook] \arrow[rr, "{(\id_E,sp)}"] & & \Fun(E,E)  \arrow[d, two heads, "\sim"', "p_*" pos=.4] \\ \catone= \Delta[0] \arrow[ur, dashed, "s"] \arrow[ur, dashed] \arrow[r, "\id_B"'] & \Fun(B,B) & \iso \arrow[r, "!"'] \arrow[urr, dashed, "\alpha"] & \catone \arrow[r, "p"'] & \Fun(E,B)
+\end{tikzcd}
+\end{center}
+```
+
+to find a map $`s \colon B \to E` so that $`ps = \id_B`, and then solve the lifting problem above-right to construct the desired fibered homotopy. The converse is immediate from Lemma {bpref "lem:equiv-htpy-equiv"}[].
+:::
+```tex "lem:split-triv-fib" (slot := proof)
+\begin{proof}
+If $p \colon E \trvfib B$ is a trivial fibration, then by the stability property of Lemma \ref{lem:trivial-fib-representability}, so is $p_*\colon\Fun(X,E)\trvfib Fun(X,B)$ for any $\infty$-category $X$.  By Definition \ref{defn:qcat-trivial-fibration}, we may solve the lifting problem below-left
+\begin{center}
+\begin{tikzcd} \emptyset=\partial\Delta[0] \arrow[d, hook] \arrow[r] & \Fun(B,E) \arrow[d, two heads, "\sim"', "p_*" pos=.4] & \catone +\catone \arrow[d, hook] \arrow[rr, "{(\id_E,sp)}"] & & \Fun(E,E)  \arrow[d, two heads, "\sim"', "p_*" pos=.4] \\ \catone= \Delta[0] \arrow[ur, dashed, "s"] \arrow[ur, dashed] \arrow[r, "\id_B"'] & \Fun(B,B) & \iso \arrow[r, "!"'] \arrow[urr, dashed, "\alpha"] & \catone \arrow[r, "p"'] & \Fun(E,B)
+\end{tikzcd}
+\end{center}
+to find a map $s \colon B \to E$ so that $ps = \id_B$, and then solve the lifting problem above-right to construct the desired fibered homotopy. The converse is immediate from Lemma \ref{lem:equiv-htpy-equiv}.
+\end{proof}
+```
+
+A classical construction in abstract homotopy theory proves the following:
+
+```tex
+A classical construction in abstract homotopy theory proves the following:
+```
+
+:::lemma_ "lem:brown-fact" (uses := "defn:cosmos, defn:equivalence, defn:trivial-fibration")
+*Brown factorization lemma.*
+
+Any functor $`f\colon A \to B` in an $`\infty`-cosmos may be factored as an equivalence followed by an isofibration, where this equivalence is constructed as a section of a trivial fibration.
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+& Pf \arrow[dr, two heads, "p"] \arrow[dl, two heads, bend right, start anchor=190, end anchor=70, "q"'] & \\ A \arrow[rr, "f"'] \arrow[ur, bend right=25, start anchor=30, end anchor=230, "\sim", "s"' pos = 0.6] & & B
+\end{tikzcd}
+\end{center}
+```
+
+Moreover, $`f` is an equivalence if and only if the isofibration $`p` is a trivial fibration.
+:::
+```tex "lem:brown-fact" (slot := statement)
+\begin{lemma}[Brown factorization lemma]\label{lem:brown-fact}
+  \uses{defn:cosmos, defn:equivalence, defn:trivial-fibration}
+  Any functor $f\colon A \to B$ in an $\infty$-cosmos may be factored as an equivalence followed by an isofibration, where this equivalence is constructed as a section of a trivial fibration.
+\begin{center}
+\begin{tikzcd}
+  & Pf \arrow[dr, two heads, "p"] \arrow[dl, two heads, bend right, start anchor=190, end anchor=70, "q"'] & \\ A \arrow[rr, "f"'] \arrow[ur, bend right=25, start anchor=30, end anchor=230, "\sim", "s"' pos = 0.6] & & B
+\end{tikzcd}
+\end{center}
+Moreover, $f$ is an equivalence if and only if the isofibration $p$ is a trivial fibration.
+\end{lemma}
+```
+
+:::proof "lem:brown-fact"
+The displayed factorization is constructed by the pullback of an isofibration formed by the simplicial cotensor of the inclusion $`\catone+\catone\inc\iso` into the $`\infty`-category $`B`.
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+& A^\iso \arrow[dr, "f^\iso"] & \\
+A \arrow[r, "\sim", "s"'] \arrow[ur, "\Delta"] \arrow[dr, "{(A,f)}"'] &  Pf \arrow[r] \arrow[d, two heads, "{(q,p)}"' pos=.4] \arrow[dr, phantom, "\lrcorner" very near start] & B^\iso \arrow[d, two heads, "{(\ev_0,\ev_1)}"] \\  & A \times B \arrow[r, "f \times B"'] & B \times B
+\end{tikzcd}
+\end{center}
+```
+
+Note the map $`q` is a pullback of the trivial fibration $`\ev_0 \colon B^\iso \trvfib B` and is hence a trivial fibration. Its section $`s`, constructed by applying the universal property of the pullback to the displayed cone with summit $`A`, is thus an equivalence by the 2-of-3 property. Again by 2-of-3, it follows that $`f` is an equivalence if and only if $`p` is.
+:::
+```tex "lem:brown-fact" (slot := proof)
+\begin{proof}
+The displayed factorization is constructed by the pullback of an isofibration formed by the simplicial cotensor of the inclusion $\catone+\catone\inc\iso$ into the $\infty$-category $B$.
+\begin{center}
+\begin{tikzcd}
+& A^\iso \arrow[dr, "f^\iso"] & \\
+A \arrow[r, "\sim", "s"'] \arrow[ur, "\Delta"] \arrow[dr, "{(A,f)}"'] &  Pf \arrow[r] \arrow[d, two heads, "{(q,p)}"' pos=.4] \arrow[dr, phantom, "\lrcorner" very near start] & B^\iso \arrow[d, two heads, "{(\ev_0,\ev_1)}"] \\  & A \times B \arrow[r, "f \times B"'] & B \times B
+\end{tikzcd}
+\end{center}
+Note the map $q$ is a pullback of the trivial fibration $\ev_0 \colon B^\iso \trvfib B$ and is hence a trivial fibration. Its section $s$, constructed by applying the universal property of the pullback to the displayed cone with summit $A$, is thus an equivalence by the 2-of-3 property. Again by 2-of-3, it follows that $f$ is an equivalence if and only if $p$ is.
+\end{proof}
+```
+
+:::proposition "rmk:2-of-6"
+*equivalences satisfy the 2-of-6 property.*
+
+In fact the equivalences in any $`\infty`-cosmos satisfy the stronger *2-of-6 property*: for any composable triple of functors
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+& B \arrow[dr, "hg", "\sim"'] \\ A \arrow[ur, "f"] \arrow[dr, "gf"',"\sim"] \arrow[rr, "hgf" near start] & & D \\ & C\arrow[from = uu, crossing over, "g" near end] \arrow[ur, "h"']
+\end{tikzcd}
+\end{center}
+```
+
+if $`gf` and $`hg` are equivalences then $`f`, $`g`, $`h`, and $`hgf` are too. An argument of Blumberg and Mandell {Informal.citep "BlumbergMandell:2011ak"}[6.4] uses Lemmas {bpref "lem:equivalence-2-of-3"}[], {bpref "lem:split-triv-fib"}[], and {bpref "lem:brown-fact"}[] to prove that the equivalences have the 2-of-6 property.
+:::
+```tex "rmk:2-of-6" (slot := statement)
+\begin{rmk}[equivalences satisfy the 2-of-6 property]\label{rmk:2-of-6}
+In fact the equivalences in any $\infty$-cosmos satisfy the stronger \textbf{2-of-6 property}: for any composable triple of functors
+\begin{center}
+\begin{tikzcd}
+& B \arrow[dr, "hg", "\sim"'] \\ A \arrow[ur, "f"] \arrow[dr, "gf"',"\sim"] \arrow[rr, "hgf" near start] & & D \\ & C\arrow[from = uu, crossing over, "g" near end] \arrow[ur, "h"']
+\end{tikzcd}
+\end{center}
+if $gf$ and $hg$ are equivalences then $f$, $g$, $h$, and $hgf$ are too. An argument of Blumberg and Mandell \cite[6.4]{BlumbergMandell:2011ak} uses Lemmas \ref{lem:equivalence-2-of-3}, \ref{lem:split-triv-fib}, and \ref{lem:brown-fact} to prove that the equivalences have the 2-of-6 property.
+\end{rmk}
+```
+
+# Change of base
+
+*Legacy section label:* `sec:change-of-base`
+
+“Change of base,” first considered by Eilenberg and Kelly in {Informal.citep "EilenbergKelly:1966cc"}[], refers to a systematic procedure by which enrichment over one category $`\cV` is converted into enrichment over another category $`\cW`.  This will be applied in § “The homotopy 2-category” to convert an $`\infty`-cosmos into a simpler structure.
+For a cartesian closed category $`\cV`, there is a 2-category $`\eCat{\cV}` of $`\cV`-categories, $`\cV`-functors, and $`\cV`-natural transformations. The first main result, appearing as Proposition {bpref "prop:change-of-base"}[], gives conditions under which a functor $`T \colon \cV \to \cW` between cartesian closed categories induces a change-of-base 2-functor $`T_* \colon \eCat{\cV} \to \eCat{\cW}`.
+
+As the context we are working in here is less general than the one considered by Eilenberg and Kelly — our base categories are cartesian closed while theirs are closed symmetric monoidal — we take a shortcut which covers all of our examples and is easier to explain.  In general, all that is needed to produce a change of base 2-functor is a lax monoidal functor between symmetric monoidal categories, but the lax monoidal functors we encounter between cartesian closed categories are in fact finite-product-preserving, so we content ourselves with explicating the results in that case instead.
+
+However, lax monoidal functors exist in Mathlib already, so we briefly recall the definition.
+
+```tex
+``Change of base,'' first considered by Eilenberg and Kelly in \cite{EilenbergKelly:1966cc}, refers to a systematic procedure by which enrichment over one category $\cV$ is converted into enrichment over another category $\cW$.  This will be applied in \S\ref{sec:htpy-2-cat} to convert an $\infty$-cosmos into a simpler structure.
+%Corollary \ref{cor:V-cat-2-cat} notes that
+For a cartesian closed category $\cV$, there is a 2-category $\eCat{\cV}$ of $\cV$-categories, $\cV$-functors, and $\cV$-natural transformations. The first main result, appearing as Proposition \ref{prop:change-of-base}, gives conditions under which a functor $T \colon \cV \to \cW$ between cartesian closed categories induces a change-of-base 2-functor $T_* \colon \eCat{\cV} \to \eCat{\cW}$.
+
+As the context we are working in here is less general than the one considered by Eilenberg and Kelly --- our base categories are cartesian closed while theirs are closed symmetric monoidal --- we take a shortcut which covers all of our examples and is easier to explain.  In general, all that is needed to produce a change of base 2-functor is a \emph{lax monoidal} functor between symmetric monoidal categories, but the lax monoidal functors we encounter between cartesian closed categories are in fact finite-product-preserving, so we content ourselves with explicating the results in that case instead.
+
+However, lax monoidal functors exist in Mathlib already, so we briefly recall the definition.
+```
+
+:::definition "defn:lax-monoidal-functor" (lean := "CategoryTheory.LaxMonoidalFunctor")
+A *(lax) monoidal functor* between cartesian closed categories $`\cV` and $`\cW` is a
+functor $`T \colon \cV \to \cW` equipped with natural transformations
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} \cV \times \cV \arrow[r, "T\times T"] \arrow[dr, phantom,
+"\scriptstyle\Downarrow\phi"] \arrow[d, "\times"'] & \cW \times \cW \arrow[d, "\times"] & \catone
+\arrow[r, "1"] \arrow[dr, "1"'] & \cV \arrow[d, "T"] \\ \cV \arrow[r, "T"'] & \cW  &\arrow[ur,
+phantom, "\scriptstyle\Uparrow\phi_0" pos=.85] & \cW
+\end{tikzcd}
+\end{center}
+```
+
+so that the evident associativity and unit diagrams commute.
+:::
+```tex "defn:lax-monoidal-functor" (slot := statement)
+A \textbf{(lax) monoidal functor} between cartesian closed categories $\cV$ and $\cW$ is a
+   functor $T \colon \cV \to \cW$ equipped with natural transformations
+  \begin{center}
+  \begin{tikzcd} \cV \times \cV \arrow[r, "T\times T"] \arrow[dr, phantom,
+  "\scriptstyle\Downarrow\phi"] \arrow[d, "\times"'] & \cW \times \cW \arrow[d, "\times"] & \catone
+  \arrow[r, "1"] \arrow[dr, "1"'] & \cV \arrow[d, "T"] \\ \cV \arrow[r, "T"'] & \cW  &\arrow[ur,
+  phantom, "\scriptstyle\Uparrow\phi_0" pos=.85] & \cW
+  \end{tikzcd}
+  \end{center}
+  so that the evident associativity and unit diagrams commute.
+```
+
+Except in a special case that we now introduce, the maps $`\phi` and $`\phi_0` are to be regarded as part of the structure of a lax monoidal functor, rather than a property the functor $`T` enjoys.
+
+Recall that a functor $`T \colon \cV \to \cW` between cartesian closed categories *preserves finite products* just when the natural maps defined for any $`u,v \in \cV`
+$$`T(u \times v) \isoto Tu \times Tv \qquad and \qquad T1 \isoto 1`
+are isomorphisms. These maps satisfy the duals of the coherence conditions mentioned in Definition {bpref "defn:lax-monoidal-functor"}[] and  make $`T` into a *strong monoidal functor* between the cartesian closed categories $`\cV` and $`\cW`. The inverse isomorphisms then provide the structure maps of Definition {bpref "defn:lax-monoidal-functor"}[].
+
+For example:
+
+```tex
+%\begin{definition} A \textbf{(lax) monoidal natural transformation} between monoidal functors between cartesian closed categories $T,U \colon \cV \to \cW$ is given by a natural transformation $\theta \colon T \To U$ so that the pasting diagrams commute
+%\begin{center}
+%\begin{tikzcd}[row sep=large, column sep=2.3em] \cV \times \cV \arrow[r, "T\times T", bend left] \arrow[r, "U \times U"', bend right] \arrow[r, phantom, "\scriptstyle\Downarrow\theta\times\theta"] \arrow[dr, phantom, "\scriptstyle\Downarrow\phi\quad" pos=.7] \arrow[d, "\times"'] & \cW \times \cW \arrow[d, "\times"] \arrow[dr, phantom, "="] & \cV \times \cV \arrow[r, "T\times T"] \arrow[dr, phantom, "\scriptstyle\quad\Downarrow\phi" pos=.3] \arrow[d, "\times"'] & \cW \times \cW \arrow[d, "\times"] & \catone \arrow[r, "1"] \arrow[dr, bend right, "1"'] & \cV \arrow[d, bend right, "T"'] \arrow[d, bend left, "U"] \arrow[d, phantom, "\scriptstyle\To" pos=.6, "\scriptstyle\theta" pos=.4] \arrow[dr, phantom, "="] &  \catone \arrow[r, "1"] \arrow[dr, "1"'] & \arrow[d, "U"] \cV \\ \cV \arrow[r, "U"']  & \cW & \cV \arrow[r, "T", bend left] \arrow[r, "U"', bend right] \arrow[r, phantom, "\scriptstyle\Downarrow\theta"] & \cW  &\arrow[ur, phantom, "\scriptstyle\Uparrow\phi_0\quad\quad" pos=.75] & \cW &~\arrow[ur, phantom, "\scriptstyle\Uparrow\phi_0" pos=.85]  & \cW
+%\end{tikzcd}
+%\end{center}
+%\end{definition}
+
+Except in a special case that we now introduce, the maps $\phi$ and $\phi_0$ are to be regarded as part of the structure of a lax monoidal functor, rather than a property the functor $T$ enjoys.
+
+Recall that a functor $T \colon \cV \to \cW$ between cartesian closed categories \textbf{preserves finite products} just when the natural maps defined for any $u,v \in \cV$
+\[ T(u \times v) \isoto Tu \times Tv \qquad \text{and} \qquad T1 \isoto 1\]
+are isomorphisms. These maps satisfy the duals of the coherence conditions mentioned in Definition \ref{defn:lax-monoidal-functor} and  make $T$ into a \textbf{strong monoidal functor} between the cartesian closed categories $\cV$ and $\cW$. The inverse isomorphisms then provide the structure maps of Definition \ref{defn:lax-monoidal-functor}. %Moreover, any natural transformation between product-preserving functors is automatically a monoidal natural transformation.
+
+For example:
+```
+
+:::definition "ex:lax-u-set"
+Since representable functors preserve products, for any cartesian closed category $`\cV`, the underlying set functor $`(-)_0 \colon \cV \to \Set` is product-preserving
+:::
+```tex "ex:lax-u-set" (slot := statement)
+\begin{ex}\label{ex:lax-u-set} Since representable functors preserve products, for any cartesian closed category $\cV$, the underlying set functor $(-)_0 \colon \cV \to \Set$ is product-preserving
+\end{ex}
+```
+
+:::definition "ex:strong-free"
+In a cartesian closed category $`\cV`, finite products distribute over arbitrary coproducts. In particular, for any sets $`X` and $`Y` there is an isomorphism
+$$`\amalg_{X \times Y} 1 \cong (\amalg_X 1) \times (\amalg_Y 1)` between coproducts of the terminal object $`1`, which proves that the functor
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} \mathcal{S}et \arrow[r, "{\amalg_{-} 1}"] & \cV
+\end{tikzcd}
+\end{center}
+```
+
+is finite-product-preserving.
+:::
+```tex "ex:strong-free" (slot := statement)
+\begin{ex}\label{ex:strong-free} In a cartesian closed category $\cV$, finite products distribute over arbitrary coproducts. In particular, for any sets $X$ and $Y$ there is an isomorphism
+\[ \amalg_{X \times Y} 1 \cong (\amalg_X 1) \times (\amalg_Y 1)\] between coproducts of the terminal object $1$, which proves that the functor
+\begin{center}
+\begin{tikzcd} \mathcal{S}et \arrow[r, "{\amalg_{-} 1}"] & \cV
+\end{tikzcd}
+\end{center} is finite-product-preserving.
+\end{ex}
+```
+
+A finite-product-preserving functor may be used to change the base as follows:
+
+```tex
+A finite-product-preserving functor may be used to change the base as follows:
+```
+
+:::proposition "prop:change-of-base" (lean := "CategoryTheory.instEnrichedCategoryTransportEnrichment")
+A finite-product-preserving functor $`T \colon \cV \to \cW` between cartesian closed categories
+induces a change-of-base 2-functor
+
+```tex (display := source)
+\begin{center} \begin{tikzcd} {\cV}\text{-}\mathcal{C}at
+\arrow[r, "T_*"] & {\cW}\text{-}\mathcal{C}at\, . \end{tikzcd}\end{center}
+```
+:::
+```tex "prop:change-of-base" (slot := statement)
+A finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories
+  induces a change-of-base 2-functor \begin{center} \begin{tikzcd} {\cV}\text{-}\mathcal{C}at
+  \arrow[r, "T_*"] & {\cW}\text{-}\mathcal{C}at\, . \end{tikzcd}\end{center}
+```
+:::proof "prop:change-of-base"
+Let $`\cC` be a $`\cV`-category and define a $`\cW`-category $`T_*\cC` to have the same objects
+and to have mapping objects $`T_*\cC(x,y) \coloneq T\cC(x,y)`. The composition and identity
+maps are given by the composites
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=small] T\cC(y,z)\times T\cC(x,y) \arrow[r, "\cong"] & T(\cC(y,z) \times
+\cC(x,y)) \arrow[r, "T\circ"] & T\cC(x,z) & 1 \arrow[r, "\cong"] & T1 \arrow[r, "T\id_x"] &
+T\cC(x,x)
+\end{tikzcd}
+\end{center}
+```
+
+which make use of the inverses of the natural maps that arise when a finite-product-preserving
+functor is applied to a finite product. A straightforward diagram chase verifies that $`T_*\cC` is
+a $`\cW`-category.
+
+If $`F \colon \cC \to \cD` is a $`\cV`-functor, then we define a $`\cW`-functor $`T_*F \colon T_*\cC
+\to T_*\cD` to act on objects by $`c \in\cC \mapsto Fc \in \cD` and with internal action on arrows
+defined by
+
+```tex (display := source)
+\begin{center} \begin{tikzcd} T\cC(x,y) \arrow[r, "TF_{x,y}"] & T\cD(Fx,Fy) \end{tikzcd}
+\end{center}
+```
+
+Again, a straightforward diagram chase verifies that $`T_*F` is $`\cW`-functorial. It is evident
+from this definition that $`T_*(GF) = T_*G \cdot T_*F`.
+
+Finally, let $`\alpha \colon F \To G` be a $`\cV`-natural transformation between $`\cV`-functors $`F,G
+\colon \cC\to \cD` and define a $`\cW`-natural transformation $`T_*\alpha \colon T_* F \To T_*G` to
+have components
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} 1 \arrow[r, "\cong"] & T1 \arrow[r, "T\alpha_c"] & T\cD(Fc, Gc)\end{tikzcd}
+\end{center}
+```
+
+Another straightforward diagram chase verifies that $`T_*\alpha` is $`\cW`-natural.
+
+It remains to verify this assignment is functorial for both horizontal and vertical composition of
+enriched natural transformations.
+The component of $`T_*(\beta\cdot\alpha)` is defined by the top-horizontal composite below while
+the component of the vertical composite of $`T_*\alpha` with $`T_*\beta \colon T_*G \To T_*H` is
+defined by the bottom composite:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} 1 \arrow[r, "\cong"] \arrow[dr, "\cong"'] & T1 \arrow[r, "T(\beta_c\times
+\alpha_c)"] & T(\cD(Gc, Hc) \times \cD(Fc, Gc)) \arrow[r, "T\circ"] & T\cD(Fc,Hc) \\ & T1 \times
+T1 \arrow[u, "\cong"'] \arrow[r, "T\beta_c \times T\alpha_c"'] & T\cD(Gc,Hc) \times T\cD(Fc,Gc)
+\arrow[u, "\cong"']  \end{tikzcd}
+\end{center}
+```
+
+The square commutates by the naturality of the isomorphism $`T(u \times v) \cong Tu \times Tv`,
+while the triangle commutes because 1 is terminal, so the inverses of the displayed isomorphisms
+form a commutative triangle. The argument for functoriality of horizontal composites is similar.
+:::
+```tex "prop:change-of-base" (slot := proof)
+Let $\cC$ be a $\cV$-category and define a $\cW$-category $T_*\cC$ to have the same objects
+      and to have mapping objects $T_*\cC(x,y) \coloneq T\cC(x,y)$. The composition and identity
+      maps are given by the composites
+  \begin{center}
+  \begin{tikzcd}[column sep=small] T\cC(y,z)\times T\cC(x,y) \arrow[r, "\cong"] & T(\cC(y,z) \times
+  \cC(x,y)) \arrow[r, "T\circ"] & T\cC(x,z) & 1 \arrow[r, "\cong"] & T1 \arrow[r, "T\id_x"] &
+  T\cC(x,x)
+  \end{tikzcd}
+  \end{center}
+  which make use of the inverses of the natural maps that arise when a finite-product-preserving
+  functor is applied to a finite product. A straightforward diagram chase verifies that $T_*\cC$ is
+  a $\cW$-category.
+
+  If $F \colon \cC \to \cD$ is a $\cV$-functor, then we define a $\cW$-functor $T_*F \colon T_*\cC
+  \to T_*\cD$ to act on objects by $c \in\cC \mapsto Fc \in \cD$ and with internal action on arrows
+  defined by
+  \begin{center} \begin{tikzcd} T\cC(x,y) \arrow[r, "TF_{x,y}"] & T\cD(Fx,Fy) \end{tikzcd}
+  \end{center}
+  Again, a straightforward diagram chase verifies that $T_*F$ is $\cW$-functorial. It is evident
+  from this definition that $T_*(GF) = T_*G \cdot T_*F$.
+
+  Finally, let $\alpha \colon F \To G$ be a $\cV$-natural transformation between $\cV$-functors $F,G
+  \colon \cC\to \cD$ and define a $\cW$-natural transformation $T_*\alpha \colon T_* F \To T_*G$ to
+  have components
+  \begin{center}
+  \begin{tikzcd} 1 \arrow[r, "\cong"] & T1 \arrow[r, "T\alpha_c"] & T\cD(Fc, Gc)\end{tikzcd}
+  \end{center}
+  Another straightforward diagram chase verifies that $T_*\alpha$ is $\cW$-natural.
+
+  It remains to verify this assignment is functorial for both horizontal and vertical composition of
+  enriched natural transformations. %Consulting Definition \ref{defn:V-cat-2-cat}, we see that
+  The component of $T_*(\beta\cdot\alpha)$ is defined by the top-horizontal composite below while
+  the component of the vertical composite of $T_*\alpha$ with $T_*\beta \colon T_*G \To T_*H$ is
+  defined by the bottom composite: \begin{center}
+  \begin{tikzcd} 1 \arrow[r, "\cong"] \arrow[dr, "\cong"'] & T1 \arrow[r, "T(\beta_c\times
+  \alpha_c)"] & T(\cD(Gc, Hc) \times \cD(Fc, Gc)) \arrow[r, "T\circ"] & T\cD(Fc,Hc) \\ & T1 \times
+  T1 \arrow[u, "\cong"'] \arrow[r, "T\beta_c \times T\alpha_c"'] & T\cD(Gc,Hc) \times T\cD(Fc,Gc)
+  \arrow[u, "\cong"']  \end{tikzcd}
+  \end{center}
+  The square commutates by the naturality of the isomorphism $T(u \times v) \cong Tu \times Tv$,
+  while the triangle commutes because 1 is terminal, so the inverses of the displayed isomorphisms
+  form a commutative triangle. The argument for functoriality of horizontal composites is similar.
+```
+
+An early observation along these lines was first stated as {Informal.citep "EilenbergKelly:1966cc"}[II.6.3], with the proof left to the reader. We adopt the same tactic and leave the diagram chases to the reader or to {Informal.citep "Cruttwell:2008rr"}[4.2.4] and instead just give the construction of the change-of-base 2-functor, which is the important thing. The construction of a $`\cW`-category $`T_*\cC` from a $`\cV`-category $`\cC` exists in Mathlib in the more general setting of a lax monoidal functor $`T`, but change of base for enriched functors or natural transformations has not been formalized.
+
+```tex
+An early observation along these lines was first stated as \cite[II.6.3]{EilenbergKelly:1966cc}, with the proof left to the reader. We adopt the same tactic and leave the diagram chases to the reader or to \cite[4.2.4]{Cruttwell:2008rr} and instead just give the construction of the change-of-base 2-functor, which is the important thing. The construction of a $\cW$-category $T_*\cC$ from a $\cV$-category $\cC$ exists in Mathlib in the more general setting of a lax monoidal functor $T$, but change of base for enriched functors or natural transformations has not been formalized.
+```
+
+:::proposition "rmk:change-of-base-2-fun"
+In fact, the “change of base” procedure $`\cV \mapsto \eCat{\cV}` is itself a 2-functor from the 2-category of cartesian closed categories, finite-product-preserving functors, and natural transformations to the 2-category of 2-categories, 2-functors, and 2-natural transformations. See {Informal.citep "Cruttwell:2008rr"}[§ 4.3] for a discussion and proof.
+:::
+```tex "rmk:change-of-base-2-fun" (slot := statement)
+\begin{rmk}\label{rmk:change-of-base-2-fun} In fact, the ``change of base'' procedure $\cV \mapsto \eCat{\cV}$ is \emph{itself} a 2-functor from the 2-category of cartesian closed categories, finite-product-preserving functors, and natural transformations to the 2-category of 2-cat\-e\-go\-ries, 2-functors, and 2-natural transformations. See \cite[\S 4.3]{Cruttwell:2008rr} for a discussion and proof.
+\end{rmk}
+```
+
+As an immediate consequence of the 2-functoriality of Remark {bpref "rmk:change-of-base-2-fun"}[]:
+
+```tex
+As an immediate consequence of the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}:
+```
+
+:::proposition "prop:change-of-base-adjunction" (uses := "defn:lax-monoidal-functor, prop:change-of-base")
+Any adjunction between cartesian closed categories whose left adjoint preserves finite products induces a change-of-base 2-adjunction
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"] \arrow[r, phantom, "\rightsquigarrow"] & {\cV}\text{-}\mathcal{C}at \arrow[r, bend left=20, start anchor=10, end anchor=170,  "F_*"] \arrow[r, phantom, "\bot"] & {\cW}\text{-}\mathcal{C}at \arrow[l, bend left=20, start anchor=190, end anchor=-10,  "U_*"]
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "prop:change-of-base-adjunction" (slot := statement)
+\begin{proposition}\label{prop:change-of-base-adjunction}
+  \uses{defn:lax-monoidal-functor, prop:change-of-base}
+  Any adjunction between cartesian closed categories whose left adjoint preserves finite products induces a change-of-base 2-adjunction
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"] \arrow[r, phantom, "\rightsquigarrow"] & {\cV}\text{-}\mathcal{C}at \arrow[r, bend left=20, start anchor=10, end anchor=170,  "F_*"] \arrow[r, phantom, "\bot"] & {\cW}\text{-}\mathcal{C}at \arrow[l, bend left=20, start anchor=190, end anchor=-10,  "U_*"]
+\end{tikzcd}
+\end{center}
+\end{proposition}
+```
+
+:::proof "prop:change-of-base-adjunction"
+Of course right adjoints always preserve products, so the adjoint pair of functors $`F \dashv U` defines an adjunction in the 2-category of cartesian closed categories and finite-product-preserving functors described in Remark {bpref "rmk:change-of-base-2-fun"}[]. The 2-functor $`\cV \mapsto \eCat{\cV}` then carries the adjunction displayed on the left to the adjunction displayed on the right.
+:::
+```tex "prop:change-of-base-adjunction" (slot := proof)
+\begin{proof}
+Of course right adjoints always preserve products, so the adjoint pair of functors $F \dashv U$ defines an adjunction in the 2-category of cartesian closed categories and finite-product-preserving functors described in Remark \ref{rmk:change-of-base-2-fun}. The 2-functor $\cV \mapsto \eCat{\cV}$ then carries the adjunction displayed on the left to the adjunction displayed on the right.
+\end{proof}
+```
+
+As a special case we have a free-forgetful adjunction between $`\Cat` and $`\eCat{\cV}`. Some pieces of this are in the enriched categories folder of Mathlib.
+
+```tex
+As a special case we have a free-forgetful adjunction between $\Cat$ and $\eCat{\cV}$. Some pieces of this are in the enriched categories folder of Mathlib.
+```
+
+:::corollary "cor:free-underlying-2-adj" (uses := "prop:change-of-base-adjunction")
+For any cartesian closed category $`\cV` with coproducts, the underlying category construction and free category construction define  adjoint 2-functors
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\mathcal{C}at \arrow[r, bend left=20, hook, start anchor=10, end anchor=170] \arrow[r, phantom, "\bot"] & {\cV}\text{-}\mathcal{C}at \arrow[l, bend left=20, start anchor=190, end anchor=-10, "(-)_0"]
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "cor:free-underlying-2-adj" (slot := statement)
+\begin{corollary}\label{cor:free-underlying-2-adj}
+  \uses{prop:change-of-base-adjunction}
+ For any cartesian closed category $\cV$ with coproducts, the underlying category construction and free category construction define  adjoint 2-functors
+\begin{center}
+\begin{tikzcd}[column sep=large]
+  \mathcal{C}at \arrow[r, bend left=20, hook, start anchor=10, end anchor=170] \arrow[r, phantom, "\bot"] & {\cV}\text{-}\mathcal{C}at \arrow[l, bend left=20, start anchor=190, end anchor=-10, "(-)_0"]
+\end{tikzcd}
+\end{center}
+\end{corollary}
+```
+
+In light of Proposition {bpref "prop:change-of-base-adjunction"}[] and results to follow, an adjunction between cartesian closed categories whose left adjoint preserves finite products provides a *change-of-base adjunction*. While Proposition {bpref "prop:change-of-base-adjunction"}[] permits the change of base along either adjoint of a finite-product-preserving adjunction, the next series of results reveal that change of base along the right adjoint is somewhat better behaved.
+
+```tex
+In light of Proposition \ref{prop:change-of-base-adjunction} and results to follow, an adjunction between cartesian closed categories whose left adjoint preserves finite products provides a \textbf{change-of-base adjunction}. While Proposition \ref{prop:change-of-base-adjunction} permits the change of base along either adjoint of a finite-product-preserving adjunction, the next series of results reveal that change of base along the right adjoint is somewhat better behaved.
+```
+
+:::lemma_ "lem:enriched-cob-adjunction" (uses := "prop:change-of-base-adjunction")
+Any adjunction comprised of finite-product-preserving functors between cartesian closed categories
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]  \arrow[r, phantom, "\rightsquigarrow"] & \cV \arrow[r, bend left=20, start anchor=20, end anchor=170, "F"] \arrow[r, phantom, "\bot"] & U_*\cW \arrow[l, bend left=20, start anchor=190, end anchor=-15, "U"]  \end{tikzcd}
+\end{center}
+```
+
+defines a $`\cV`-enriched adjunction between the $`\cV`-categories $`\cV` and $`U_*\cW`; i.e., there exists a $`\cV`-natural isomorphism $`U\cW(Fv,w) \cong \cV(v,Uw)`.
+:::
+```tex "lem:enriched-cob-adjunction" (slot := statement)
+\begin{lemma}\label{lem:enriched-cob-adjunction}
+  \uses{prop:change-of-base-adjunction}
+Any adjunction comprised of finite-product-preserving functors between cartesian closed categories
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]  \arrow[r, phantom, "\rightsquigarrow"] & \cV \arrow[r, bend left=20, start anchor=20, end anchor=170, "F"] \arrow[r, phantom, "\bot"] & U_*\cW \arrow[l, bend left=20, start anchor=190, end anchor=-15, "U"]  \end{tikzcd}
+\end{center}
+defines a $\cV$-enriched adjunction between the $\cV$-categories $\cV$ and $U_*\cW$; i.e., there exists a $\cV$-natural isomorphism $U\cW(Fv,w) \cong \cV(v,Uw)$.
+\end{lemma}
+```
+
+:::proof "lem:enriched-cob-adjunction"
+The internal action $`U_{a,b} \colon U\cW(a,b) \to \cV(Ua,Ub)` of the $`\cV`-functor $`U \colon U_*\cW \to \cV` is defined by the transpose of the map $`U\ev \colon U\cW(a,b) \times Ua \to Ub` defined by applying $`U` to the counit of the cartesian closure adjunction of $`\cW`. The $`\cV`-functoriality of this map follows from naturality of evaluation in a cartesian closed category.
+
+By the $`\cV`-functoriality of $`U \colon U_*\cW \to \cV`, the map
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} U\cW(Fv,w) \arrow[r, "U_{Fv,w}"] & \cV(UFv,Uw) \arrow[r, "{- \circ \eta_v}"] & \cV(v,Uw)
+\end{tikzcd}
+\end{center}
+```
+
+is $`\cV`-natural in $`w \in U_*\cW` for all $`v \in \cV`. By a general result about enriching adjoints,
+to construct a compatible $`\cV`-enrichment of $`F`, we need only demonstrate that this map in an isomorphism in $`\cV`.
+
+We do this by constructing an explicit inverse, namely
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+\cV(v,Uw) \arrow[r, "\eta"] & UF\cV(v,Uw) \arrow[r, "U(F_{v,Uw})"] & U\cW(Fv,FUw) \arrow[r, "\epsilon_w \circ -"] & U\cW(Fv,w)
+\end{tikzcd}
+\end{center}
+```
+
+where the middle map is defined by applying the unenriched functor $`U` to the action map from the $`\cW`-functor $`F \colon F_*\cV \to \cW`, which is defined similarly to the $`\cV`-functor $`U \colon U_*\cW \to \cV`.
+
+The proof that these maps are inverses involves a pair of diagram chases, the first of which demonstrates that the top-right composite reduces to the left-bottom composite, which is the identity:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+\cV(v,Uw) \arrow[r, "\eta"] \arrow[ddrr, "\eta_{Uw}\circ-"'] & UF\cV(v,Uw) \arrow[r, "U(F_{v,Uw})"] \arrow[dr, "UF_{v, Uw}" description] & U\cW(Fv,FUw) \arrow[r, "\epsilon_w \circ -"] \arrow[d, "U_{Fv,FUw}"] & U\cW(Fv,w) \arrow[d, "U_{Fv,w}"] \\ & & \cV(UFv,UFUw) \arrow[r, "U\epsilon_w \circ -"]  \arrow[d, "-\circ \eta_v"]& \cV(UFv,Uw) \arrow[d, "-\circ \eta_v"] \\ & & \cV(v,UFUw) \arrow[r, "U\epsilon_w\circ-"] & \cV(v,Uw)
+\end{tikzcd}
+\end{center}
+```
+
+The only subtle point is the commutativity of the trapezoidal region, which expresses the fact that $`\eta \colon \id_\cV \To UF` is a closed natural transformation between product-preserving functors between cartesian closed categories. This region commutes because the transposed diagram does:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} \cV(v,Uw) \times v\arrow[d, "\eta \times \eta_v"'] \arrow[r, equals] &  \cV(v,Uw) \times v \arrow[d, "\eta"']  \arrow[r, "\ev"] & Uw \arrow[d, "\eta_{Uw}"] \\  UF\cV(v,Uw)\times UFv  \arrow[r, "\cong"] & UF(\cV(v,UW)\times v) \arrow[r, "UF\ev"] & UFUw
+\end{tikzcd}
+\end{center}
+```
+
+the right-hand square by naturality, and the left-hand square because any naturally transformation between product-preserving functors is automatically a monoidal natural transformation.
+The other diagram chase is similar.
+:::
+```tex "lem:enriched-cob-adjunction" (slot := proof)
+\begin{proof}
+The internal action $U_{a,b} \colon U\cW(a,b) \to \cV(Ua,Ub)$ of the $\cV$-functor $U \colon U_*\cW \to \cV$ is defined by the transpose of the map $U\ev \colon U\cW(a,b) \times Ua \to Ub$ defined by applying $U$ to the counit of the cartesian closure adjunction of $\cW$. The $\cV$-functoriality of this map follows from naturality of evaluation in a cartesian closed category.
+%\eqref{eq:ev-ev-square}
+
+
+By the $\cV$-functoriality of $U \colon U_*\cW \to \cV$, the map
+\begin{center}
+\begin{tikzcd} U\cW(Fv,w) \arrow[r, "U_{Fv,w}"] & \cV(UFv,Uw) \arrow[r, "{- \circ \eta_v}"] & \cV(v,Uw)
+\end{tikzcd}
+\end{center}
+is $\cV$-natural in $w \in U_*\cW$ for all $v \in \cV$. By a general result about enriching adjoints,  % Remark \ref{rmk:enriching-adjoints},
+to construct a compatible $\cV$-enrichment of $F$, we need only demonstrate that this map in an isomorphism in $\cV$.
+
+We do this by constructing an explicit inverse, namely
+\begin{center}
+\begin{tikzcd}
+\cV(v,Uw) \arrow[r, "\eta"] & UF\cV(v,Uw) \arrow[r, "U(F_{v,Uw})"] & U\cW(Fv,FUw) \arrow[r, "\epsilon_w \circ -"] & U\cW(Fv,w)
+\end{tikzcd}
+\end{center}
+where the middle map is defined by applying the unenriched functor $U$ to the action map from the $\cW$-functor $F \colon F_*\cV \to \cW$, which is defined similarly to the $\cV$-functor $U \colon U_*\cW \to \cV$.
+
+The proof that these maps are inverses involves a pair of diagram chases, the first of which demonstrates that the top-right composite reduces to the left-bottom composite, which is the identity:
+\begin{center}
+\begin{tikzcd}
+\cV(v,Uw) \arrow[r, "\eta"] \arrow[ddrr, "\eta_{Uw}\circ-"'] & UF\cV(v,Uw) \arrow[r, "U(F_{v,Uw})"] \arrow[dr, "UF_{v, Uw}" description] & U\cW(Fv,FUw) \arrow[r, "\epsilon_w \circ -"] \arrow[d, "U_{Fv,FUw}"] & U\cW(Fv,w) \arrow[d, "U_{Fv,w}"] \\ & & \cV(UFv,UFUw) \arrow[r, "U\epsilon_w \circ -"]  \arrow[d, "-\circ \eta_v"]& \cV(UFv,Uw) \arrow[d, "-\circ \eta_v"] \\ & & \cV(v,UFUw) \arrow[r, "U\epsilon_w\circ-"] & \cV(v,Uw)
+\end{tikzcd}
+\end{center}
+The only subtle point is the commutativity of the trapezoidal region, which expresses the fact that $\eta \colon \id_\cV \To UF$ is a \emph{closed natural transformation} between product-preserving functors between cartesian closed categories. This region commutes because the transposed diagram does:
+\begin{center}
+\begin{tikzcd} \cV(v,Uw) \times v\arrow[d, "\eta \times \eta_v"'] \arrow[r, equals] &  \cV(v,Uw) \times v \arrow[d, "\eta"']  \arrow[r, "\ev"] & Uw \arrow[d, "\eta_{Uw}"] \\  UF\cV(v,Uw)\times UFv  \arrow[r, "\cong"] & UF(\cV(v,UW)\times v) \arrow[r, "UF\ev"] & UFUw
+\end{tikzcd}
+\end{center}
+the right-hand square by naturality, and the left-hand square because any naturally transformation between product-preserving functors is automatically a monoidal natural transformation. % (see Exercise \ref{exc:product-preservation-is-monoidal}).
+  The other diagram chase is similar.
+\end{proof}
+```
+
+:::proposition "prop:cob-adjunction" (uses := "prop:change-of-base-adjunction, defn:simplicial-cotensors")
+Given an adjunction between cartesian closed categories
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]   \end{tikzcd}
+\end{center}
+```
+
+whose left adjoint preserves finite products then if $`\cC` is co/tensored as a $`\cW`-category,  $`U_*\cC` is co/tensored as $`\cV`-category with the co/tensor of $`c \in \cC` by $`v \in \cV` defined by
+$$`v \otimes c \coloneq Fv \otimes c \qquad and \qquad c^v \coloneq c^{Fv}.`
+:::
+```tex "prop:cob-adjunction" (slot := statement)
+\begin{proposition}\label{prop:cob-adjunction}
+  \uses{prop:change-of-base-adjunction, defn:simplicial-cotensors}
+Given an adjunction between cartesian closed categories
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]   \end{tikzcd}
+\end{center}
+whose left adjoint preserves finite products then if $\cC$ is co/tensored as a $\cW$-cat\-e\-gory,  $U_*\cC$ is co/tensored as $\cV$-category with the co/tensor of $c \in \cC$ by $v \in \cV$ defined by
+\[ v \otimes c \coloneq Fv \otimes c \qquad \text{and} \qquad c^v \coloneq c^{Fv}.\]
+\end{proposition}
+```
+
+:::proof "prop:cob-adjunction"
+Suppose $`\cC` admits cotensors as a $`\cW`-category. To verify that $`U_*\cC` admits cotensors as a $`\cV`-category we must supply an isomorphism
+$$`U\cC(x,c^{Fv}) \cong (U\cC(x,c))^v` in $`\cV` that is $`\cV`-natural in $`x`. By the enriched Yoneda lemma, we can extract this isomorphism from an isomorphism $$`\cV(u,U\cC(x,c^{Fv})) \cong \cV(u,(U\cC(x,c))^v)` that is $`\cV`-natural in $`u \in \cV`. To that end, by composing the $`\cV`-natural isomorphisms of Lemma {bpref "lem:enriched-cob-adjunction"}[], the enriched natural isomorphisms arising from the cartesian closed structure on $`\cV` and on $`U_*\cW`, and the isomorphisms that characterize the cotensor on $`\cC` and express the fact that $`F` preserves binary products, we have:
+
+```tex (display := source)
+\begin{align*} \cV(u,U\cC(x,c^{Fv})) &\cong U\cW(Fu, \cC(x,c^{Fv})) \cong U\cW(Fu, \cC(x,c)^{Fv}) \\ &\cong U\cW(Fu \times Fv, \cC(x,c))  \cong U\cW(F(u \times v), \cC(x,c)) \\ &\cong \cV(u \times v, U\cC(x,c)) \cong \cV(u, (U\cC(x,c))^v). \qedhere\end{align*}
+```
+:::
+```tex "prop:cob-adjunction" (slot := proof)
+\begin{proof}
+Suppose $\cC$ admits cotensors as a $\cW$-category. To verify that $U_*\cC$ admits cotensors as a $\cV$-category we must supply an isomorphism
+\[ U\cC(x,c^{Fv}) \cong (U\cC(x,c))^v\] in $\cV$ that is $\cV$-natural in $x$. By the enriched Yoneda lemma, we can extract this isomorphism from an isomorphism \[ \cV(u,U\cC(x,c^{Fv})) \cong \cV(u,(U\cC(x,c))^v)\] that is $\cV$-natural in $u \in \cV$. To that end, by composing the $\cV$-natural isomorphisms of Lemma \ref{lem:enriched-cob-adjunction}, the enriched natural isomorphisms arising from the cartesian closed structure on $\cV$ and on $U_*\cW$, and the isomorphisms that characterize the cotensor on $\cC$ and express the fact that $F$ preserves binary products, we have:
+\begin{align*} \cV(u,U\cC(x,c^{Fv})) &\cong U\cW(Fu, \cC(x,c^{Fv})) \cong U\cW(Fu, \cC(x,c)^{Fv}) \\ &\cong U\cW(Fu \times Fv, \cC(x,c))  \cong U\cW(F(u \times v), \cC(x,c)) \\ &\cong \cV(u \times v, U\cC(x,c)) \cong \cV(u, (U\cC(x,c))^v). \qedhere\end{align*}
+\end{proof}
+```
+
+This theory of change of base is all well and good from the compound noun perspective on enriched categories, but an additional concern arises from the adjectival point of view. If the finite-product-preserving functor $`T \colon \cV \to \cW` commutes with the underlying set functors for $`\cV` and $`\cW` up to natural isomorphism, then by the 2-functoriality of Remark {bpref "rmk:change-of-base-2-fun"}[], the change-of-base 2-functor $`T_* \colon \eCat{\cV} \to \eCat{\cW}` also preserves the underlying categories up to natural isomorphism. This happens in particular in the following setting.
+
+```tex
+This theory of change of base is all well and good from the compound noun perspective on enriched categories, but an additional concern arises from the adjectival point of view. If the finite-product-preserving functor $T \colon \cV \to \cW$ commutes with the underlying set functors for $\cV$ and $\cW$ up to natural isomorphism, then by the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}, the change-of-base 2-functor $T_* \colon \eCat{\cV} \to \eCat{\cW}$ also preserves the underlying categories up to natural isomorphism. This happens in particular in the following setting.
+```
+
+:::lemma_ "lem:pro-normal-monoidal"
+The change-of-base 2-functor induced by a finite-product-preserving functor $`T \colon \cV \to \cW` between cartesian closed categories preserves underlying categories, if and only if, for each $`v \in \cV` the composite function on hom-sets
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} \cV(1,v)_0 \arrow[r, "T"] & \cW(T1,Tv)_0 \arrow[r, "- \circ \cong"] & \cW(1,Tv)_0
+\end{tikzcd}
+\end{center}
+```
+
+is a bijection.
+:::
+```tex "lem:pro-normal-monoidal" (slot := statement)
+\begin{lemma}\label{lem:pro-normal-monoidal} The change-of-base 2-functor induced by a finite-product-preserving functor $T \colon \cV \to \cW$ between cartesian closed categories preserves underlying categories, if and only if, for each $v \in \cV$ the composite function on hom-sets
+\begin{center}
+\begin{tikzcd} \cV(1,v)_0 \arrow[r, "T"] & \cW(T1,Tv)_0 \arrow[r, "- \circ \cong"] & \cW(1,Tv)_0
+\end{tikzcd}
+\end{center} is a bijection.
+\end{lemma}
+```
+
+:::proof "lem:pro-normal-monoidal"
+The displayed function defines the component at $`v \in \cV` of the unique monoidal natural transformation from the underlying set-functor for $`\cV` to the composite of $`T` with the underlying set functor for $`\cW`. By the 2-functoriality of Remark {bpref "rmk:change-of-base-2-fun"}[], if it defines a monoidal natural isomorphism, then it induces a 2-natural isomorphism between the underlying category 2-functor $`(-)_0 \colon \eCat{\cV} \to \Cat` and the composite of the change-of-base 2-functor $`T_* \colon \eCat{\cV} \to\eCat{\cW}` with the underlying category 2-functor $`(-)_0 \colon \eCat{\cW} \to \Cat`.
+
+Conversely, this condition is necessary for the underlying category of the $`\cW`-category $`T_*\cV` to coincide with the underlying category of the cartesian closed category $`\cV`.
+:::
+```tex "lem:pro-normal-monoidal" (slot := proof)
+\begin{proof}
+The displayed function defines the component at $v \in \cV$ of the unique monoidal natural transformation from the underlying set-functor for $\cV$ to the composite of $T$ with the underlying set functor for $\cW$. By the 2-functoriality of Remark \ref{rmk:change-of-base-2-fun}, if it defines a monoidal natural isomorphism, then it induces a 2-natural isomorphism between the underlying category 2-functor $(-)_0 \colon \eCat{\cV} \to \Cat$ and the composite of the change-of-base 2-functor $T_* \colon \eCat{\cV} \to\eCat{\cW}$ with the underlying category 2-functor $(-)_0 \colon \eCat{\cW} \to \Cat$.
+
+Conversely, this condition is necessary for the underlying category of the $\cW$-category $T_*\cV$ to coincide with the underlying category of the cartesian closed category $\cV$.
+\end{proof}
+```
+
+One situation in which the condition of Lemma {bpref "lem:pro-normal-monoidal"}[] is automatic is when the lax monoidal functor is the right adjoint of a monoidal adjunction. The proof, originally given in {Informal.citep "Kelly:1974da"}[], is by a short diagram chase.
+
+```tex
+One situation in which the condition of Lemma \ref{lem:pro-normal-monoidal} is automatic is when the lax monoidal functor is the right adjoint of a monoidal adjunction. The proof, originally given in \cite{Kelly:1974da}, is by a short diagram chase.
+```
+
+:::lemma_ "lem:right-of-monoidal-adj-ucats" (uses := "prop:change-of-base-adjunction")
+Consider a finite-product-preserving adjunction between cartesian closed categories:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]   \end{tikzcd}
+\end{center}
+```
+
+Then change of base along the right adjoint respects the underlying categories:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[sep=1.5 em] {\cW}\text{-}\mathcal{C}at \arrow[rr, "U_*"] \arrow[dr, "{(-)_0}"'] & & {\cV}\text{-}\mathcal{C}at \arrow[dl, "(-)_0"] \\ & \mathcal{C}at
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "lem:right-of-monoidal-adj-ucats" (slot := statement)
+\begin{lemma}\label{lem:right-of-monoidal-adj-ucats}
+  \uses{prop:change-of-base-adjunction} Consider a finite-product-preserving adjunction between cartesian closed categories:
+\begin{center}
+\begin{tikzcd}[column sep=large]
+\cV \arrow[r, bend left=20, "F"] \arrow[r, phantom, "\bot"] & \cW \arrow[l, bend left=20, "U"]   \end{tikzcd}
+\end{center}
+Then change of base along the right adjoint respects the underlying categories:
+\begin{center}
+\begin{tikzcd}[sep=1.5 em] {\cW}\text{-}\mathcal{C}at \arrow[rr, "U_*"] \arrow[dr, "{(-)_0}"'] & & {\cV}\text{-}\mathcal{C}at \arrow[dl, "(-)_0"] \\ & \mathcal{C}at
+\end{tikzcd}
+\end{center}
+\end{lemma}
+```
+
+:::proof "lem:right-of-monoidal-adj-ucats"
+Let $`\cC` be a $`\cW` category. Then the hom-set in the underlying category of $`U_*\cC` from $`x` to $`y` is isomorphic to the corresponding hom-set
+$$`U_*\cC(x,y)_0 \cong \cV(1, U\cC(x,y))_0 \cong \cW(F1,\cC(x,y))_0 \cong \cW(1,\cC(x,y))_0 \cong \cC(x,y)_0`
+in the underlying category of $`\cC` and moreover this isomorphism respects the composition and identities in the underlying categories. Thus $`\cC_0 \cong U\cC_0`. A similar argument shows that change of base along $`U` respects underlying functors and natural transformations.
+:::
+```tex "lem:right-of-monoidal-adj-ucats" (slot := proof)
+\begin{proof}
+Let $\cC$ be a $\cW$ category. Then the hom-set in the underlying category of $U_*\cC$ from $x$ to $y$ is isomorphic to the corresponding hom-set
+\[ U_*\cC(x,y)_0 \cong \cV(1, U\cC(x,y))_0 \cong \cW(F1,\cC(x,y))_0 \cong \cW(1,\cC(x,y))_0 \cong \cC(x,y)_0\]
+in the underlying category of $\cC$ and moreover this isomorphism respects the composition and identities in the underlying categories. Thus $\cC_0 \cong U\cC_0$. A similar argument shows that change of base along $U$ respects underlying functors and natural transformations.
+\end{proof}
+```
+
+The general theory of change-of-base will be applied in the following case the next section.
+
+```tex
+The general theory of change-of-base will be applied in the following case the next section.
+```
+
+:::definition "ex:nerve-ho-change-of-base" (uses := "prop:change-of-base-adjunction, lem:ho-preserves-finite-products")
+Both adjoints of the adjunction
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=large]
+s\mathcal{S}et \arrow[r, bend left=20, start anchor=10, end anchor=170, "\ho"] \arrow[r, phantom, "\bot"] & \mathcal{C}at \arrow[l, bend left=20, start anchor=190, end anchor=-10, hook']
+\end{tikzcd}
+\end{center}
+```
+
+of Proposition {bpref "prop:ho-nerve-adjunction"}[] preserve finite products. Hence, Proposition {bpref "prop:change-of-base-adjunction"}[] induces a change-of-base adjunction defined by the 2-functors
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=large]
+s\mathcal{C}at  \arrow[r, bend left=20, start anchor=7, end anchor=170, "\ho_*"] \arrow[r, phantom, "\bot"] &2\text{-}\mathcal{C}at\arrow[l, bend left=20, start anchor=190, end anchor=-5, hook']
+\end{tikzcd}
+\end{center}
+```
+
+that act identically on objects and act by applying the homotopy category functor or nerve functor, respectively, on homs.
+The right adjoint, which builds a simplicially enriched category from a 2-category, respects the underlying category: the underlying category of objects and 1-cells is identified with the underlying category of objects and 0-arrows. In this case, the functor $`\ho \colon \sSet \to \Cat` commutes with the underlying set functors, so in fact both adjoints preserve underlying categories, as is evident from direct computation. In particular, the homotopy 2-category of an $`\infty`-cosmos has the same underlying 1-category. Since the nerve embedding is fully faithful, 2-categories can be identified as a full subcategory comprised of those simplicial categories whose hom spaces are nerves of categories.
+:::
+```tex "ex:nerve-ho-change-of-base" (slot := statement)
+\begin{example}\label{ex:nerve-ho-change-of-base}
+  \uses{prop:change-of-base-adjunction, lem:ho-preserves-finite-products}
+Both adjoints of the adjunction
+\begin{center}
+\begin{tikzcd}[column sep=large]
+s\mathcal{S}et \arrow[r, bend left=20, start anchor=10, end anchor=170, "\ho"] \arrow[r, phantom, "\bot"] & \mathcal{C}at \arrow[l, bend left=20, start anchor=190, end anchor=-10, hook']
+\end{tikzcd}
+\end{center} of Proposition \ref{prop:ho-nerve-adjunction} preserve finite products. Hence, Proposition \ref{prop:change-of-base-adjunction} induces a change-of-base adjunction defined by the 2-functors
+\begin{center}
+\begin{tikzcd}[column sep=large]
+s\mathcal{C}at  \arrow[r, bend left=20, start anchor=7, end anchor=170, "\ho_*"] \arrow[r, phantom, "\bot"] &2\text{-}\mathcal{C}at\arrow[l, bend left=20, start anchor=190, end anchor=-5, hook']
+\end{tikzcd}
+\end{center}
+that act identically on objects and act by applying the homotopy category functor or nerve functor, respectively, on homs. %By Lemma \ref{lem:right-of-monoidal-adj-ucats},
+  The right adjoint, which builds a simplicially enriched category from a 2-category, respects the underlying category: the underlying category of objects and 1-cells is identified with the underlying category of objects and 0-arrows. In this case, the functor $\ho \colon \sSet \to \Cat$ commutes with the underlying set functors, so in fact both adjoints preserve underlying categories, as is evident from direct computation. In particular, the homotopy 2-category of an $\infty$-cosmos has the same underlying 1-category. Since the nerve embedding is fully faithful, 2-categories can be identified as a full subcategory comprised of those simplicial categories whose hom spaces are nerves of categories.
+\end{example}
+```
+
+# Examples of infinity-cosmoi
+
+*Legacy section label:* `sec:examples`
+
+We briefly tour a few examples of $`\infty`-cosmoi.
+The following theorem should be quite difficult to formalize:
+
+```tex
+We briefly tour a few examples of $\infty$-cosmoi. %While the most important example, for our purposes, is the $\infty$-cosmos of quasi-categories, we devote more attention (for now) to the construction of the $\infty$-cosmos of categories, which should be easier to formalize.
+The following theorem should be quite difficult to formalize:
+```
+
+:::proposition "prop:qcat-cosmos" (uses := "defn:cosmos, defn:quasi-category, defn:equivalence, defn:trivial-fibration, defn:qcat-equivalence, defn:qcat-trivial-fibration")
+*the $`\infty`-cosmos of quasi-categories.*
+
+The full subcategory $`\qCat\subset\sSet` of quasi-categories defines an $`\infty`-cosmos in which the isofibrations, equivalences, and trivial fibrations coincide with the classes  already bearing these names.
+:::
+```tex "prop:qcat-cosmos" (slot := statement)
+\begin{proposition}[the $\infty$-cosmos of quasi-categories]\label{prop:qcat-cosmos}
+  \uses{defn:cosmos, defn:quasi-category, defn:equivalence, defn:trivial-fibration, defn:qcat-equivalence, defn:qcat-trivial-fibration}
+  The full subcategory $\qCat\subset\sSet$ of quasi-categories defines an $\infty$-cosmos in which the isofibrations, equivalences, and trivial fibrations coincide with the classes  already bearing these names.
+\end{proposition}
+```
+
+:::proof "prop:qcat-cosmos" (uses := "defn:qcat-isofibration")
+The proof requires myriad combinatorial results about the class of isofibrations between quasi-categories. See {Informal.citep "RiehlVerity:2022eo"}[§ D].
+:::
+```tex "prop:qcat-cosmos" (slot := proof)
+\begin{proof}
+\uses{defn:qcat-isofibration} The proof requires myriad combinatorial results about the class of isofibrations between quasi-categories. See \cite[\S D]{RiehlVerity:2022eo}.
+\end{proof}
+```
+
+Two further examples fit into a common paradigm: both arise as full subcategories of the $`\infty`-cosmos of quasi-categories and inherit their $`\infty`-cosmos structures from this inclusion (see Lemma {Informal.citep "RiehlVerity:2022eo"}[6.1.4]), but it is also instructive, and ultimately takes less work, to describe the resulting $`\infty`-cosmos structures directly.
+
+```tex
+Two further examples fit into a common paradigm: both arise as full subcategories of the $\infty$-cosmos of quasi-categories and inherit their $\infty$-cosmos structures from this inclusion (see Lemma \cite[6.1.4]{RiehlVerity:2022eo}), but it is also instructive, and ultimately takes less work, to describe the resulting $\infty$-cosmos structures directly.
+```
+
+:::definition "defn:cat-isofibration"
+*isofibrations of categories.*
+
+An *isofibration* between categories is a functor $`f \colon A \fib B` satisfying the displayed right lifting property for the inclusion of both endpoints of the free-living isomorphism:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+\catone \arrow[d, hook] \arrow[r] & A \arrow[d, "f", two heads] \\ \iso \arrow[r] \arrow[ur, dashed] & B
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "defn:cat-isofibration" (slot := statement)
+\begin{definition}[isofibrations of categories]\label{defn:cat-isofibration}
+An \textbf{isofibration} between categories is a functor $f \colon A \fib B$ satisfying the displayed right lifting property for the inclusion of both endpoints of the free-living isomorphism:
+\begin{center}
+  \begin{tikzcd}
+  \catone \arrow[d, hook] \arrow[r] & A \arrow[d, "f", two heads] \\ \iso \arrow[r] \arrow[ur, dashed] & B
+  \end{tikzcd}
+  \end{center}
+\end{definition}
+```
+
+As the inclusion the domain of the free-living isomorphism is a retract of the inclusion of the codomain, and vice versa, lifting against either endpoints implies lifting against both endpoints.
+
+```tex
+As the inclusion the domain of the free-living isomorphism is a retract of the inclusion of the codomain, and vice versa, lifting against either endpoints implies lifting against both endpoints.
+```
+
+:::proposition "prop:cat-cosmos" (uses := "defn:cosmos, defn:equivalence, defn:trivial-fibration, defn:cat-isofibration")
+*the $`\infty`-cosmos of categories.*
+
+The category $`\Cat` of 1-categories defines an $`\infty`-cosmos whose isofibrations are the isofibrations.
+The equivalences are the equivalences of categories and the trivial fibrations are *surjective equivalences*: equivalences of categories that are also surjective on objects.
+:::
+```tex "prop:cat-cosmos" (slot := statement)
+\begin{proposition}[the $\infty$-cosmos of categories]\label{prop:cat-cosmos}
+\uses{defn:cosmos, defn:equivalence, defn:trivial-fibration, defn:cat-isofibration}
+ The category $\Cat$ of 1-cat\-e\-go\-ri\-es defines an $\infty$-cosmos whose isofibrations are the isofibrations.
+The equivalences are the equivalences of categories and the trivial fibrations are \textbf{surjective equivalences}: equivalences of categories that are also surjective on objects.
+\end{proposition}
+```
+
+:::proof "prop:cat-cosmos"
+It is well-known that the 2-category of categories is complete (and in fact also cocomplete) as a $`\Cat`-enriched category (see
+{Informal.citep "Kelly:1989eo"}[]). The categorically enriched category of categories becomes a quasi-categorically enriched category by applying the nerve functor to the hom-categories (see § “Change of base”). Since the nerve functor is a right adjoint, it follows formally that these 2-categorical limits become simplicially enriched limits. In particular, as proscribed in Proposition {bpref "prop:cob-adjunction"}[], the cotensor of a category $`A` by a simplicial set $`U` is defined to be the functor category $`A^{\ho{U}}`. This completes the verification of axiom item `itm:cosmos-limits`.
+
+Since the class of isofibrations is characterized by a right lifting property,
+the isofibrations are closed under all of the limit constructions of  {bpref "defn:cosmos"}[]item `itm:cosmos-isofib` except for the last two.
+For these, the Leibniz closure subsumes the closure under exponentiation.
+
+To verify that isofibrations of categories $`f \colon A \fib B` are stable under forming Leibniz cotensors with monomorphisms of simplicial sets $`i \colon U \inc V`, we must solve the lifting problem below-left
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} \catone \arrow[r, "s"] \arrow[d, hook, "j"'] & A^{\ho{V}} \arrow[d, "{\widehat{\{\ho{i}, f\}}}"] \arrow[dr, phantom, "\leftrightsquigarrow"] & \ho{U} \times \iso \cup_{\ho{U}} \ho{V} \arrow[r, "{\langle \alpha, s\rangle}"] \arrow[d, hook, "\ho{i} \leib\times j"'] & A \arrow[d, two heads, "f"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "{\langle \beta, \alpha \rangle}"'] & B^{\ho V} \times_{B^{\ho U}} A^{\ho U} & \ho{V} \times \iso \arrow[r, "\beta"'] \arrow[ur, dashed, "\gamma"'] & B
+\end{tikzcd}
+\end{center}
+```
+
+which transposes to the lifting problem above-right, which we can solve by hand. Here the map $`\beta` defines a natural isomorphism between $`fs \colon \ho{V} \to B` and a second functor. Our task is to lift this to a natural isomorphism $`\gamma` from $`s` to another functor that extends the natural isomorphism $`\alpha` along $`\ho{i} \colon \ho{U} \to \ho{V}`. Note this functor $`\ho{i}` need not be an inclusion, but it is injective on objects, which is enough.
+
+We define the components of $`\gamma` by cases. If an object $`v \in \ho{V}` is equal to $`i(u)` for some $`u \in \ho{U}` define $`\gamma_{i(u)} \coloneq \alpha_u`; otherwise, use the fact that $`f` is an isofibration to define $`\gamma_v` to be any lift of the isomorphism $`\beta_v` to an isomorphism in $`A` with domain $`s(v)`. The data of the map $`\gamma \colon \ho{V} \times \iso \to A` also entails the specification of the functor $`\ho{V} \to A` that is the codomain of the natural isomorphism $`\gamma`. On objects, this functor is given by $`v \mapsto \cod(\gamma_v)`. On morphisms, this functor defined in the unique way that makes $`\gamma` into a natural transformation:
+$$`(k \colon v \to v') \mapsto  \gamma_{v'} \circ s(k) \circ \gamma_v^{-1}.`
+
+This completes the proof that $`\Cat` defines an $`\infty`-cosmos. Since the nerve of a functor category, such as $`A^\iso`, is isomorphic to the exponential between their nerves, the equivalences of categories coincide with the equivalences of Definition {bpref "defn:qcat-equivalence"}[]. It follows that the equivalences in the $`\infty`-cosmos of categories coincide with equivalences of categories, and since the surjective equivalences are the intersection of the equivalences and the isofibrations, this completes the proof.
+:::
+```tex "prop:cat-cosmos" (slot := proof)
+\begin{proof}
+It is well-known that the 2-category of categories is complete (and in fact also cocomplete) as a $\Cat$-enriched category (see %Definition \ref{defn:enriched-completeness} or
+  \cite{Kelly:1989eo}). The categorically enriched category of categories becomes a quasi-categorically enriched category by applying the nerve functor to the hom-categories (see \S\ref{sec:change-of-base}). Since the nerve functor is a right adjoint, it follows formally that these 2-categorical limits become simplicially enriched limits. In particular, as proscribed in Proposition \ref{prop:cob-adjunction}, the cotensor of a category $A$ by a simplicial set $U$ is defined to be the functor category $A^{\ho{U}}$. This completes the verification of axiom \ref{itm:cosmos-limits}.
+
+Since the class of isofibrations is characterized by a right lifting property, %Lemma \ref{lem:fib-closure} implies that
+  the isofibrations are closed under all of the limit constructions of  \ref{defn:cosmos}\ref{itm:cosmos-isofib} except for the last two. %and by Exercise \ref{exc:degenerate-leibniz},
+  For these, the Leibniz closure subsumes the closure under exponentiation.
+
+To verify that isofibrations of categories $f \colon A \fib B$ are stable under forming Leibniz cotensors with monomorphisms of simplicial sets $i \colon U \inc V$, we must solve the lifting problem below-left
+\begin{center}
+\begin{tikzcd} \catone \arrow[r, "s"] \arrow[d, hook, "j"'] & A^{\ho{V}} \arrow[d, "{\widehat{\{\ho{i}, f\}}}"] \arrow[dr, phantom, "\leftrightsquigarrow"] & \ho{U} \times \iso \cup_{\ho{U}} \ho{V} \arrow[r, "{\langle \alpha, s\rangle}"] \arrow[d, hook, "\ho{i} \leib\times j"'] & A \arrow[d, two heads, "f"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "{\langle \beta, \alpha \rangle}"'] & B^{\ho V} \times_{B^{\ho U}} A^{\ho U} & \ho{V} \times \iso \arrow[r, "\beta"'] \arrow[ur, dashed, "\gamma"'] & B
+\end{tikzcd}
+\end{center}
+which transposes to the lifting problem above-right, which we can solve by hand. Here the map $\beta$ defines a natural isomorphism between $fs \colon \ho{V} \to B$ and a second functor. Our task is to lift this to a natural isomorphism $\gamma$ from $s$ to another functor that extends the natural isomorphism $\alpha$ along $\ho{i} \colon \ho{U} \to \ho{V}$. Note this functor $\ho{i}$ need not be an inclusion, but it is injective on objects, which is enough.
+
+We define the components of $\gamma$ by cases. If an object $v \in \ho{V}$ is equal to $i(u)$ for some $u \in \ho{U}$ define $\gamma_{i(u)} \coloneq \alpha_u$; otherwise, use the fact that $f$ is an isofibration to define $\gamma_v$ to be any lift of the isomorphism $\beta_v$ to an isomorphism in $A$ with domain $s(v)$. The data of the map $\gamma \colon \ho{V} \times \iso \to A$ also entails the specification of the functor $\ho{V} \to A$ that is the codomain of the natural isomorphism $\gamma$. On objects, this functor is given by $v \mapsto \cod(\gamma_v)$. On morphisms, this functor defined in the unique way that makes $\gamma$ into a natural transformation:
+\[ (k \colon v \to v') \mapsto  \gamma_{v'} \circ s(k) \circ \gamma_v^{-1}.\]
+
+This completes the proof that $\Cat$ defines an $\infty$-cosmos. Since the nerve of a functor category, such as $A^\iso$, is isomorphic to the exponential between their nerves, the equivalences of categories coincide with the equivalences of Definition \ref{defn:qcat-equivalence}. It follows that the equivalences in the $\infty$-cosmos of categories coincide with equivalences of categories, and since the surjective equivalences are the intersection of the equivalences and the isofibrations, this completes the proof.
+\end{proof}
+```
+
+Similarly:
+
+```tex
+Similarly:
+```
+
+:::proposition "prop:kan-cosmos" (uses := "defn:cosmos, defn:kan-complex, defn:equivalence, defn:trivial-fibration")
+*the $`\infty`-cosmos of Kan complexes.*
+
+The category $`\Kan` of Kan complexes defines an $`\infty`-cosmos whose isofibrations are the *Kan fibrations*: maps that lift against all horn inclusions $`\Lambda^k[n] \inc \Delta[n]` for $`n \geq 1` and $`0 \leq k \leq n`.
+:::
+```tex "prop:kan-cosmos" (slot := statement)
+\begin{proposition}[the $\infty$-cosmos of Kan complexes]\label{prop:kan-cosmos}
+  \uses{defn:cosmos, defn:kan-complex, defn:equivalence, defn:trivial-fibration} The category $\Kan$ of Kan complexes defines an $\infty$-cosmos whose isofibrations are the \textbf{Kan fibrations}: maps that lift against all horn inclusions $\Lambda^k[n] \inc \Delta[n]$ for $n \geq 1$ and $0 \leq k \leq n$.
+\end{proposition}
+```
+
+One of the key advantages of the $`\infty`-cosmological approach to abstract category theory is that there are a myriad varieties of “fibered” $`\infty`-cosmoi that can be built from a given $`\infty`-cosmos, which means that any theorem proven in this axiomatic framework specializes and generalizes to those contexts. The most basic of these derived $`\infty`-cosmoi is the $`\infty`-cosmos of isofibrations over a fixed base, which we introduce now.
+
+```tex
+One of the key advantages of the $\infty$-cosmological approach to abstract category theory is that there are a myriad varieties of ``fibered'' $\infty$-cosmoi that can be built from a given $\infty$-cosmos, which means that any theorem proven in this axiomatic framework specializes and generalizes to those contexts. The most basic of these derived $\infty$-cosmoi is the $\infty$-cosmos of isofibrations over a fixed base, which we introduce now. %Other examples of $\infty$-cosmoi are developed in Chapter \ref{ch:new-cosmoi}, once we have a deeper understanding of the cosmological limits of axiom \ref{defn:cosmos}\ref{itm:cosmos-limits}.
+```
+
+:::proposition "prop:sliced-cosmoi" (uses := "defn:cosmos")
+*sliced $`\infty`-cosmoi.*
+
+For any $`\infty`-cosmos $`\cK` and any $`\infty`-category $`B \in \cK` there is an *$`\infty`-cosmos $`\cK_{/B}` of isofibrations over $`B`* whose
+
+-  `{#itm:sliced-objects}` objects are isofibrations $`p \colon E \fib B` with codomain $`B`
+-  `{#itm:sliced-functor-space}` functor spaces, say from $`p \colon E \fib B` to $`q \colon F \fib B`, are defined by pullback
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=small] \Fun_B(p \colon E \fib B,q\colon F\fib B) \arrow[r] \arrow[d, two heads] \arrow[dr, phantom, "\lrcorner" very near start] & \Fun(E,F) \arrow[d, two heads, "{q_*}"] \\ \catone \arrow[r, "p"] & \Fun(E,B)
+\end{tikzcd}
+\end{center}
+```
+
+and abbreviated to $`\Fun_B(E,F)` when the specified isofibrations are clear from context
+-  `{#itm:sliced-isofibrations}` isofibrations are commutative triangles of isofibrations over $`B`
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+E \arrow[rr,two heads, "r"] \arrow[dr, two heads, "p"'] & & F \arrow[dl, two heads, "q"] \\ & B
+\end{tikzcd}
+\end{center}
+```
+
+-  `{#itm:sliced-products}` terminal object is $`\id \colon B \fib B` and products are defined by the pullback along the diagonal
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} \times^B_i E_i \arrow[r] \arrow[d, two heads] \arrow[dr, phantom, "\lrcorner" very near start] & \prod_i E_i \arrow[d, two heads, "\prod_i p_i"] \\ B \arrow[r, "\Delta"] & \prod_i B
+\end{tikzcd}
+\end{center}
+```
+
+-  `{#itm:sliced-pullbacks}` pullbacks and limits of towers of isofibrations are created by the forgetful functor $`\cK_{/B} \to \cK`
+-  `{#itm:sliced-cotensors}` simplicial cotensor of $`p \colon E \fib B` with $`U \in \sSet` is constructed by the pullback
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} U \pwr_B p \arrow[d, two heads] \arrow[r] \arrow[dr, phantom, "\lrcorner" very near start] & E^U \arrow[d, two heads, "p^U"] \\ B \arrow[r, "\Delta"] & B^U
+\end{tikzcd}
+\end{center}
+```
+
+-  `{#itm:fibered-equivalence}` and in which a map over $`B`
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+E \arrow[rr, "f"] \arrow[dr, two heads, "p"'] & & F \arrow[dl, two heads, "q"] \\ & B
+\end{tikzcd}
+\end{center}
+```
+
+is an equivalence in the $`\infty`-cosmos $`\cK_{/B}` if and only if $`f` is an equivalence in $`\cK`.
+:::
+```tex "prop:sliced-cosmoi" (slot := statement)
+\begin{proposition}[sliced $\infty$-cosmoi]\label{prop:sliced-cosmoi} \uses{defn:cosmos}
+  For any $\infty$-cosmos $\cK$ and any $\infty$-cat\-e\-gory $B \in \cK$ there is an \textbf{$\infty$-cosmos $\cK_{/B}$ of isofibrations over $B$} whose
+\begin{enumerate}
+\item\label{itm:sliced-objects} objects are isofibrations $p \colon E \fib B$ with codomain $B$
+\item\label{itm:sliced-functor-space} functor spaces, say from $p \colon E \fib B$ to $q \colon F \fib B$, are defined by pullback
+\begin{center}
+\begin{tikzcd}[column sep=small] \Fun_B(p \colon E \fib B,q\colon F\fib B) \arrow[r] \arrow[d, two heads] \arrow[dr, phantom, "\lrcorner" very near start] & \Fun(E,F) \arrow[d, two heads, "{q_*}"] \\ \catone \arrow[r, "p"] & \Fun(E,B)
+\end{tikzcd}
+\end{center}
+and abbreviated to $\Fun_B(E,F)$ when the specified isofibrations are clear from context
+\item\label{itm:sliced-isofibrations} isofibrations are commutative triangles of isofibrations over $B$
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+E \arrow[rr,two heads, "r"] \arrow[dr, two heads, "p"'] & & F \arrow[dl, two heads, "q"] \\ & B
+\end{tikzcd}
+\end{center}
+\item\label{itm:sliced-products} terminal object is $\id \colon B \fib B$ and products are defined by the pullback along the diagonal
+\begin{center}
+\begin{tikzcd} \times^B_i E_i \arrow[r] \arrow[d, two heads] \arrow[dr, phantom, "\lrcorner" very near start] & \prod_i E_i \arrow[d, two heads, "\prod_i p_i"] \\ B \arrow[r, "\Delta"] & \prod_i B
+\end{tikzcd}
+\end{center}
+\item\label{itm:sliced-pullbacks} pullbacks and limits of towers of isofibrations are created by the forgetful functor $\cK_{/B} \to \cK$
+\item\label{itm:sliced-cotensors} simplicial cotensor of $p \colon E \fib B$ with $U \in \sSet$ is constructed by the pullback
+\begin{center}
+\begin{tikzcd} U \pwr_B p \arrow[d, two heads] \arrow[r] \arrow[dr, phantom, "\lrcorner" very near start] & E^U \arrow[d, two heads, "p^U"] \\ B \arrow[r, "\Delta"] & B^U
+\end{tikzcd}
+\end{center}
+\item\label{itm:fibered-equivalence} and in which a map over $B$
+\begin{center}
+\begin{tikzcd}[row sep=small, column sep=small]
+E \arrow[rr, "f"] \arrow[dr, two heads, "p"'] & & F \arrow[dl, two heads, "q"] \\ & B
+\end{tikzcd}
+\end{center}
+is an equivalence in the $\infty$-cosmos $\cK_{/B}$ if and only if $f$ is an equivalence in $\cK$.
+\end{enumerate}
+\end{proposition}
+```
+
+:::proof "prop:sliced-cosmoi" (uses := "lem:trivial-fib-conical, lem:brown-fact")
+The functor spaces are quasi-categories since axiom {bpref "defn:cosmos"}[]item `itm:cosmos-isofib` asserts that for any isofibration $`q \colon F \fib B` in $`\cK` the map $`q_* \colon \Fun(E,F) \fib \Fun(E,B)` is an isofibration of quasi-categories. Other parts of this axiom imply that each of the limit constructions — such as the products and cotensors constructed in item `itm:sliced-products` and item `itm:sliced-cotensors` — define isofibrations over $`B`. The closure properties of the isofibrations in $`\cK_{/B}` follow from the corresponding ones in $`\cK`. The most complicated of these is the Leibniz cotensor stability of the isofibrations in $`\cK_{/B}`, which follows from the corresponding property in $`\cK`, since for a monomorphism of simplicial sets $`i \colon X\inc Y` and an isofibration $`r` over $`B` as in item `itm:sliced-isofibrations` above, the map $`i \leib{\pwr_B} r` is constructed by pulling back $`\widehat{\{i , r\}}` along $`\Delta \colon B \to B^Y`.
+
+The fact that the above constructions define simplicially enriched limits in a simplicially enriched slice category are standard from enriched category theory. It remains only to verify that the equivalences in the $`\infty`-cosmos of isofibrations are created by the forgetful functor $`\cK_{/B} \to \cK`. Suppose first that the map $`f` displayed in item `itm:fibered-equivalence` defines an equivalence in $`\cK`. Then for any isofibration $`s \colon A \fib B` the induced map on functor spaces in $`\cK_{/B}` is defined by the pullback:
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+\Fun_B(A,E) \arrow[dr, "{f_*}", dashed, "\sim"'] \arrow[dd, two heads] \arrow[ddr, phantom, "\lrcorner" pos=.001] \arrow[rr] & & \Fun(A,E) \arrow[dd, two heads, "{p_*}"' near start] \arrow[dr, "{f_*}", "\sim"'] \\ & \Fun_B(A,F) \arrow[dl, two heads] \arrow[dr, phantom, "\lrcorner" very near start] \arrow[rr, crossing over] & & \Fun(A,F) \arrow[dl, two heads, "{q_*}"] \\ \catone \arrow[rr, "s"'] & ~& \Fun(A,B)
+\end{tikzcd}
+\end{center}
+```
+
+Since $`f` is an equivalence in $`\cK`, the map $`f_* \colon \Fun(A,E) \to \Fun(A,F)` is an equivalence, and so it follows that the induced map on fibers over $`s` is an equivalence as well. (Note: The stability of equivalences between isofibrations under pullback can be proven either as a consequence of Lemmas {bpref "lem:trivial-fib-conical"}[] and {bpref "lem:brown-fact"}[] using standard techniques from simplicial homotopy theory
+or by arguing 2-categorically.)
+
+For the converse implication, we appeal to  Lemma {bpref "lem:equiv-htpy-equiv"}[]. If $`f \colon E \to F` is an equivalence in $`\cK_{/B}` then it admits a homotopy inverse in $`\cK_{/B}`. The inverse equivalence $`g \colon F \to E` also defines an inverse equivalence in $`\cK` and the required simplicial homotopies in $`\cK`
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+E \arrow[r, "\alpha"] & \iso\pwr_Bp \arrow[r] & E^\iso & F \arrow[r, "\beta"] & \iso \pwr_Bq \to F^\iso
+\end{tikzcd}
+\end{center}
+```
+
+are defined by composing with the top horizontal leg of the pullback defining the cotensor in $`\cK_{/B}`.
+:::
+```tex "prop:sliced-cosmoi" (slot := proof)
+\begin{proof}
+  \uses{lem:trivial-fib-conical, lem:brown-fact}
+The functor spaces are quasi-categories since axiom \ref{defn:cosmos}\ref{itm:cosmos-isofib} asserts that for any isofibration $q \colon F \fib B$ in $\cK$ the map $q_* \colon \Fun(E,F) \fib \Fun(E,B)$ is an isofibration of quasi-categories. Other parts of this axiom imply that each of the limit constructions --- such as the products and cotensors constructed in \ref{itm:sliced-products} and \ref{itm:sliced-cotensors} --- define isofibrations over $B$. The closure properties of the isofibrations in $\cK_{/B}$ follow from the corresponding ones in $\cK$. The most complicated of these is the Leibniz cotensor stability of the isofibrations in $\cK_{/B}$, which follows from the corresponding property in $\cK$, since for a monomorphism of simplicial sets $i \colon X\inc Y$ and an isofibration $r$ over $B$ as in \ref{itm:sliced-isofibrations} above, the map $i \leib{\pwr_B} r$ is constructed by pulling back $\widehat{\{i , r\}}$ along $\Delta \colon B \to B^Y$.
+
+The fact that the above constructions define simplicially enriched limits in a simplicially enriched slice category are standard from enriched category theory. It remains only to verify that the equivalences in the $\infty$-cosmos of isofibrations are created by the forgetful functor $\cK_{/B} \to \cK$. Suppose first that the map $f$ displayed in \ref{itm:fibered-equivalence} defines an equivalence in $\cK$. Then for any isofibration $s \colon A \fib B$ the induced map on functor spaces in $\cK_{/B}$ is defined by the pullback:
+\begin{center}
+\begin{tikzcd}
+\Fun_B(A,E) \arrow[dr, "{f_*}", dashed, "\sim"'] \arrow[dd, two heads] \arrow[ddr, phantom, "\lrcorner" pos=.001] \arrow[rr] & & \Fun(A,E) \arrow[dd, two heads, "{p_*}"' near start] \arrow[dr, "{f_*}", "\sim"'] \\ & \Fun_B(A,F) \arrow[dl, two heads] \arrow[dr, phantom, "\lrcorner" very near start] \arrow[rr, crossing over] & & \Fun(A,F) \arrow[dl, two heads, "{q_*}"] \\ \catone \arrow[rr, "s"'] & ~& \Fun(A,B)
+\end{tikzcd}
+\end{center}
+Since $f$ is an equivalence in $\cK$, the map $f_* \colon \Fun(A,E) \to \Fun(A,F)$ is an equivalence, and so it follows that the induced map on fibers over $s$ is an equivalence as well.\footnote{The stability of equivalences between isofibrations under pullback can be proven either as a consequence of Lemmas \ref{lem:trivial-fib-conical} and \ref{lem:brown-fact} using standard techniques from simplicial homotopy theory %(see Lemma \ref{lem:pullback-of-fibered-equiv})
+ or by arguing 2-categorically.} %(see Proposition \ref{prop:dual-gluing-lemma}).}
+
+For the converse implication, we appeal to  Lemma \ref{lem:equiv-htpy-equiv}. If $f \colon E \to F$ is an equivalence in $\cK_{/B}$ then it admits a homotopy inverse in $\cK_{/B}$. The inverse equivalence $g \colon F \to E$ also defines an inverse equivalence in $\cK$ and the required simplicial homotopies in $\cK$
+\begin{center}
+\begin{tikzcd}
+E \arrow[r, "\alpha"] & \iso\pwr_Bp \arrow[r] & E^\iso & F \arrow[r, "\beta"] & \iso \pwr_Bq \to F^\iso
+\end{tikzcd}
+\end{center}
+are defined by composing with the top horizontal leg of the pullback defining the cotensor in $\cK_{/B}$.
+\end{proof}
+```
+
+Many, though not all, of the $`\infty`-cosmoi we encounter “in the wild” satisfy an additional axiom: (Note: Note, however, that this axiom is not inherited by the sliced $`\infty`-cosmoi of Proposition {bpref "prop:sliced-cosmoi"}[], which is one of the reasons it was not included in Definition {bpref "defn:cosmos"}[].)
+
+```tex
+Many, though not all, of the $\infty$-cosmoi we encounter ``in the wild'' satisfy an additional axiom:\footnote{Note, however, that this axiom is not inherited by the sliced $\infty$-cosmoi of Proposition \ref{prop:sliced-cosmoi}, which is one of the reasons it was not included in Definition \ref{defn:cosmos}.}
+```
+
+:::definition "defn:closed-cosmos" (uses := "defn:cosmos")
+*cartesian closed $`\infty`-cosmoi.*
+
+An $`\infty`-cosmos $`\cK` is *cartesian closed* if the product bifunctor
+$`- \times -\colon \cK \times \cK \to \cK` extends to a simplicially enriched two-variable adjunction
+$$`\Fun(A \times B,C) \cong \Fun(A,C^B) \cong \Fun(B,C^A)`
+in which the right adjoints $`(-)^A \colon \cK \to \cK` preserve isofibrations for all $`A \in \cK`.
+:::
+```tex "defn:closed-cosmos" (slot := statement)
+\begin{definition}[cartesian closed $\infty$-cosmoi]\label{defn:closed-cosmos}
+  \uses{defn:cosmos} An $\infty$-cosmos $\cK$ is \textbf{cartesian closed} if the product bifunctor
+$- \times -\colon \cK \times \cK \to \cK$ extends to a simplicially enriched two-variable adjunction
+\[ \Fun(A \times B,C) \cong \Fun(A,C^B) \cong \Fun(B,C^A)\]
+in which the right adjoints $(-)^A \colon \cK \to \cK$ preserve isofibrations for all $A \in \cK$.
+\end{definition}
+```
+
+For instance, the $`\infty`-cosmos of quasi-categories is cartesian closed, with the exponentials defined as (special cases of) simplicial cotensors. This is one of the reasons that we use the same notation for cotensor and for exponential. Note in this case the functor spaces and the exponentials coincide. The same is true for the cartesian closed $`\infty`-cosmoi of categories and of Kan complexes. In general, the functor space from $`A` to $`B` is the “underlying quasi-category” of the exponential $`B^A` whenever it exists.
+
+```tex
+For instance, the $\infty$-cosmos of quasi-categories is cartesian closed, with the exponentials defined as (special cases of) simplicial cotensors. This is one of the reasons that we use the same notation for cotensor and for exponential. Note in this case the functor spaces and the exponentials coincide. The same is true for the cartesian closed $\infty$-cosmoi of categories and of Kan complexes. In general, the functor space from $A$ to $B$ is the ``underlying quasi-category'' of the exponential $B^A$ whenever it exists. % (see Remark \ref{rmk:underlying-internal-hom}).
+```
+
+# The homotopy 2-category
+
+*Legacy section label:* `sec:htpy-2-cat`
+
+Small 1-categories define the objects of a strict 2-category $`\Cat` of categories, functors, and natural transformations. Many basic categorical notions — those defined in terms of categories, functors, and natural transformations — can be defined internally to the 2-category $`\Cat`. This suggests a natural avenue for generalization: reinterpreting these same definitions in a generic 2-category using its objects in place of small categories, its 1-cells in place of functors, and its 2-cells in place of natural transformations.
+
+A significant portion of the theory of $`\infty`-categories in any fixed $`\infty`-cosmos can be developed by following exactly this outline, working internally to a 2-category that we refer to as the homotopy 2-category that we associate to any $`\infty`-cosmos. The homotopy 2-category of an $`\infty`-cosmos is a quotient of the full $`\infty`-cosmos, replacing each quasi-categorical functor space by its homotopy category. Surprisingly, this rather destructive quotienting operation preserves quite a lot of information.  This said, we caution the reader against becoming overly seduced by homotopy 2-categories, which are more of a technical convenience for reducing the complexity of our arguments than a fundamental notion of $`\infty`-category theory.
+
+Paralleling our discussion of simplicial categories in Definition {bpref "defn:simplicial-category"}[] and Digression {bpref "dig:simplicial-cat"}[], there are two perspectives on the notion of a 2-category, which can be understood equally as:
+
+-  `{#itm:strict-bicategory}` “two-dimensional” categories, with objects; *1-cells*, whose boundary are given by a pair of objects; and *2-cells*, whose boundary are given by a parallel pair of 1-cells between a pair of objects — together with partially defined composition operations governed by this boundary data
+- or as categories enriched over $`\Cat`.
+
+Both notions exist in Mathlib in some form. The notion item `itm:strict-bicategory` is called a strict bicategory and is defined as a special case of a bicategory, in which the associators and unitors are identities (converted into 2-cells). The general notion of enriched category can be specialized to the case of enriching over the cartesian monoidal category of categories, but the connection between these notions remains to be explored.
+
+```tex
+Small 1-categories define the objects of a strict 2-category $\Cat$ of categories, functors, and natural transformations. Many basic categorical notions --- those defined in terms of categories, functors, and natural transformations --- can be defined internally to the 2-category $\Cat$. This suggests a natural avenue for generalization: reinterpreting these same definitions in a generic 2-category using its objects in place of small categories, its 1-cells in place of functors, and its 2-cells in place of natural transformations.
+
+A significant portion of the theory of $\infty$-cat\-e\-go\-ries in any fixed $\infty$-cosmos can be developed by following exactly this outline, working internally to a 2-category that we refer to as the \emph{homotopy 2-category} that we associate to any $\infty$-cosmos. The homotopy 2-category of an $\infty$-cosmos is a quotient of the full $\infty$-cosmos, replacing each quasi-categorical functor space by its homotopy category. Surprisingly, this rather destructive quotienting operation preserves quite a lot of information.  This said, we caution the reader against becoming overly seduced by homotopy 2-categories, which are more of a technical convenience for reducing the complexity of our arguments than a fundamental notion of $\infty$-category theory.
+
+Paralleling our discussion of simplicial categories in Definition \ref{defn:simplicial-category} and Digression \ref{dig:simplicial-cat}, there are two perspectives on the notion of a 2-category, which can be understood equally as:
+\begin{enumerate}
+\item\label{itm:strict-bicategory}  ``two-dimensional'' categories, with objects; \textbf{1-cells}, whose boundary are given by a pair of objects; and \textbf{2-cells}, whose boundary are given by a parallel pair of 1-cells between a pair of objects --- together with partially defined composition operations governed by this boundary data
+\item or as categories enriched over $\Cat$.
+\end{enumerate}
+
+Both notions exist in Mathlib in some form. The notion \ref{itm:strict-bicategory} is called a \emph{strict bicategory} and is defined as a special case of a bicategory, in which the associators and unitors are identities (converted into 2-cells). The general notion of enriched category can be specialized to the case of enriching over the cartesian monoidal category of categories, but the connection between these notions remains to be explored.
+```
+
+:::proposition "prop:2-cat-as-cat-enriched"
+There is an equivalence between categories enriched in categories and strict bicategories. In particular, each can be converted into the other.
+:::
+```tex "prop:2-cat-as-cat-enriched" (slot := statement)
+\begin{proposition}\label{prop:2-cat-as-cat-enriched} There is an equivalence between categories enriched in categories and strict bicategories. In particular, each can be converted into the other.
+\end{proposition}
+```
+
+The homotopy 2-category is most efficiently defined as a category enriched in $`\Cat` by applying the theory of change-of-base developed in § “Change of base”. The homotopy 2-category for the $`\infty`-cosmos of quasi-categories was first introduced by Joyal in his work on the foundations of quasi-category theory {Informal.citep "Joyal:2008tq"}[].
+
+```tex
+The homotopy 2-category is most efficiently defined as a category enriched in $\Cat$ by applying the theory of change-of-base developed in \S\ref{sec:change-of-base}. The homotopy 2-category for the $\infty$-cosmos of quasi-categories was first introduced by Joyal in his work on the foundations of quasi-category theory \cite{Joyal:2008tq}.
+```
+
+:::definition "defn:homotopy-2-cat" (uses := "defn:cosmos, defn:homotopy-cat, ex:nerve-ho-change-of-base, prop:2-cat-as-cat-enriched")
+*homotopy 2-category.*
+
+Let $`\cK` be an $`\infty`-cosmos. Its *homotopy 2-category* is the 2-category $`\h\cK` whose
+
+- objects are the objects $`A, B` of $`\cK`, i.e., the $`\infty`-categories;\item 1-cells $`f \colon A \to B` are the 0-arrows in the functor space $`\Fun(A,B)`, i.e., the $`\infty`-functors; and
+- 2-cells
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "{\scriptstyle\Downarrow \alpha}"] & B\end{tikzcd}
+\end{center}
+```
+
+are homotopy classes of 1-simplices in $`\Fun(A,B)`, which we call *$`\infty`-natural transformations*.
+
+Put another way $`\h\cK` is the 2-category with the same objects as $`\cK` and with hom-categories defined by
+$$`\hFun(A,B)   \coloneq \ho(\Fun(A,B)),`
+that is, $`\hFun(A,B)` is the homotopy category of the quasi-category $`\Fun(A,B)`.
+:::
+```tex "defn:homotopy-2-cat" (slot := statement)
+\begin{definition}[homotopy 2-category]\label{defn:homotopy-2-cat}
+  \uses{defn:cosmos, defn:homotopy-cat, ex:nerve-ho-change-of-base, prop:2-cat-as-cat-enriched} Let $\cK$ be an $\infty$-cosmos. Its \textbf{homotopy 2-category} is the 2-category $\h\cK$ whose
+\begin{itemize}
+\item objects are the objects $A, B$ of $\cK$, i.e., the $\infty$-categories;\item 1-cells $f \colon A \to B$ are the 0-arrows in the functor space $\Fun(A,B)$, i.e., the $\infty$-functors; and
+\item 2-cells
+\begin{center}
+\begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "{\scriptstyle\Downarrow \alpha}"] & B\end{tikzcd}
+\end{center}
+ are homotopy classes of 1-simplices in $\Fun(A,B)$, which we call \textbf{$\infty$-natural transformations}.
+\end{itemize}
+Put another way $\h\cK$ is the 2-category with the same objects as $\cK$ and with hom-categories defined by
+\[ \hFun(A,B)   \coloneq \ho(\Fun(A,B)),\]
+that is, $\hFun(A,B)$ is the homotopy category of the quasi-category $\Fun(A,B)$.
+\end{definition}
+```
+
+:::definition "defn:underlying-cat-of-2cat"
+*underlying category of a 2-category.*
+
+The *underlying category* of a 2-category is defined by simply forgetting its 2-cells. Note that an $`\infty`-cosmos $`\cK` and its homotopy 2-category $`\h\cK` share the same underlying category $`\cK_0` of $`\infty`-categories and $`\infty`-functors in $`\cK`.
+:::
+```tex "defn:underlying-cat-of-2cat" (slot := statement)
+\begin{definition}[underlying category of a 2-category]\label{defn:underlying-cat-of-2cat}
+The \textbf{underlying category} of a 2-category is defined by simply forgetting its 2-cells. Note that an $\infty$-cosmos $\cK$ and its homotopy 2-category $\h\cK$ share the same underlying category $\cK_0$ of $\infty$-categories and $\infty$-functors in $\cK$.
+\end{definition}
+```
+
+:::lemma_ "lem:underlying-cat-iso" (uses := "defn:underlying-cat-of-2cat, defn:underlying-cat, defn:homotopy-2-cat")
+The underlying category of the homotopy 2-category of an $`\infty`-cosmos is isomorphic to the underlying category of the $`\infty`-cosmos.
+:::
+```tex "lem:underlying-cat-iso" (slot := statement)
+\begin{lemma}\label{lem:underlying-cat-iso}
+  \uses{defn:underlying-cat-of-2cat, defn:underlying-cat, defn:homotopy-2-cat}
+  The underlying category of the homotopy 2-category of an $\infty$-cosmos is isomorphic to the underlying category of the $\infty$-cosmos.
+\end{lemma}
+```
+
+We elaborate on the connection between data in the homotopy 2-category and data in the $`\infty`-cosmos.
+
+```tex
+We elaborate on the connection between data in the homotopy 2-category and data in the $\infty$-cosmos.
+```
+
+:::lemma_ "lem:invertible-2-cell" (uses := "defn:homotopy-2-cat, lem:qcat-1-simplex-htpy, prop:coherent-iso")
+$`\quad`
+
+
+-  `{#itm:2-cell-as-functor}` Every 2-cell
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "\scriptstyle\Downarrow\alpha"] & B \end{tikzcd}
+\end{center}
+```
+
+in the homotopy 2-category of an $`\infty`-cosmos is represented by a map of quasi-categories as below-left or equivalently by a functor as below-right
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[sep=small] & \catone+\catone \arrow[dl, hook'] \arrow[dr, "{(f,g)}"] & &  & ~ &  A \arrow[rr, "\name{\alpha}"] \arrow[dr, "{(g,f)}"'] & & B^\cattwo \arrow[dl, "{(p_1,p_0)}", two heads] \\ \cattwo \arrow[rr, "{\alpha}"'] && \Fun(A,B) &\arrow[ur, phantom, "\leftrightsquigarrow"] &  && B \times B
+\end{tikzcd}
+\end{center}
+```
+
+and two such maps represent the same 2-cell if and only if they are homotopic as 1-simplices in $`\Fun(A,B)`.
+-  `{#itm:2-iso-as-functor}` Every invertible 2-cell
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=large] A \arrow[r, start anchor=18, end anchor=162, bend left=20, "f"] \arrow[r,  start anchor=342, end anchor=198, bend right=20, "g"'] \arrow[r, phantom, "\scriptstyle\cong\Downarrow\alpha"] & B \end{tikzcd}
+\end{center}
+```
+
+in the homotopy 2-category of an $`\infty`-cosmos is represented by a map of quasi-categories  as below-left or equivalently by a functor as below-right
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[sep=small] & \catone+\catone \arrow[dl, hook'] \arrow[dr, "{(f,g)}"] & &  & ~ &  A \arrow[rr, "\name{\alpha}"] \arrow[dr, "{(g,f)}"'] & & B^\iso \arrow[dl, "{(p_1,p_0)}", two heads] \\ \iso \arrow[rr, "{\alpha}"'] && \Fun(A,B) &\arrow[ur, phantom, "\leftrightsquigarrow"] &  && B \times B
+\end{tikzcd}
+\end{center}
+```
+
+and two such maps represent the same invertible 2-cell if and only if their common restrictions along $`\cattwo \inc \iso` are homotopic as 1-simplices in $`\Fun(A,B)`.
+:::
+```tex "lem:invertible-2-cell" (slot := statement)
+\begin{lemma}\label{lem:invertible-2-cell}$\quad$
+  \uses{defn:homotopy-2-cat, lem:qcat-1-simplex-htpy, prop:coherent-iso}
+  \begin{enumerate}
+  \item\label{itm:2-cell-as-functor} Every 2-cell
+  \begin{center}
+  \begin{tikzcd} A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, "g"'] \arrow[r, phantom, "\scriptstyle\Downarrow\alpha"] & B \end{tikzcd}
+  \end{center}  in the homotopy 2-category of an $\infty$-cosmos is represented by a map of quasi-categories as below-left or equivalently by a functor as below-right
+  \begin{center}
+  \begin{tikzcd}[sep=small] & \catone+\catone \arrow[dl, hook'] \arrow[dr, "{(f,g)}"] & &  & ~ &  A \arrow[rr, "\name{\alpha}"] \arrow[dr, "{(g,f)}"'] & & B^\cattwo \arrow[dl, "{(p_1,p_0)}", two heads] \\ \cattwo \arrow[rr, "{\alpha}"'] && \Fun(A,B) &\arrow[ur, phantom, "\leftrightsquigarrow"] &  && B \times B
+  \end{tikzcd}
+  \end{center}
+  and two such maps represent the same 2-cell if and only if they are homotopic as 1-simplices in $\Fun(A,B)$.
+  \item\label{itm:2-iso-as-functor} Every invertible 2-cell
+  \begin{center}
+  \begin{tikzcd}[column sep=large] A \arrow[r, start anchor=18, end anchor=162, bend left=20, "f"] \arrow[r,  start anchor=342, end anchor=198, bend right=20, "g"'] \arrow[r, phantom, "\scriptstyle\cong\Downarrow\alpha"] & B \end{tikzcd}
+  \end{center}
+  in the homotopy 2-category of an $\infty$-cosmos is represented by a map of quasi-categories  as below-left or equivalently by a functor as below-right
+  \begin{center}
+  \begin{tikzcd}[sep=small] & \catone+\catone \arrow[dl, hook'] \arrow[dr, "{(f,g)}"] & &  & ~ &  A \arrow[rr, "\name{\alpha}"] \arrow[dr, "{(g,f)}"'] & & B^\iso \arrow[dl, "{(p_1,p_0)}", two heads] \\ \iso \arrow[rr, "{\alpha}"'] && \Fun(A,B) &\arrow[ur, phantom, "\leftrightsquigarrow"] &  && B \times B
+  \end{tikzcd}
+  \end{center} and two such maps represent the same invertible 2-cell if and only if their common restrictions along $\cattwo \inc \iso$ are homotopic as 1-simplices in $\Fun(A,B)$.
+  \end{enumerate}
+  \end{lemma}
+```
+
+The notion of homotopic 1-simplices referenced here is defined in Lemma {bpref "lem:qcat-1-simplex-htpy"}[]. Since the 2-cells in the homotopy 2-category are referred to as $`\infty`-natural transformations, we refer to the invertible 2-cells in the homotopy 2-category as *$`\infty`-natural isomorphisms*.
+
+```tex
+The notion of homotopic 1-simplices referenced here is defined in Lemma \ref{lem:qcat-1-simplex-htpy}. Since the 2-cells in the homotopy 2-category are referred to as $\infty$-natural transformations, we refer to the invertible 2-cells in the homotopy 2-category as \textbf{$\infty$-natural isomorphisms}.
+```
+
+:::proof "lem:invertible-2-cell"
+The statement item `itm:2-cell-as-functor` records the definition of the 2-cells in the homotopy 2-category and the universal property equation `eq:cotensor-defn` of the simplicial cotensor.  For item `itm:2-iso-as-functor`, a 2-cell in the homotopy 2-category is *invertible* if and only if it defines an isomorphism in the appropriate hom-category $`\hFun(A,B)`. By Proposition {bpref "prop:coherent-iso"}[] it follows that each invertible 2-cell $`\alpha` is represented by a homotopy coherent isomorphism $`{\alpha} \colon \iso \to \Fun(A,B)`, which similarly internalizes to define a functor $`\name{\alpha} \colon A \to B^\iso`.
+:::
+```tex "lem:invertible-2-cell" (slot := proof)
+\begin{proof}
+  The statement \ref{itm:2-cell-as-functor} records the definition of the 2-cells in the homotopy 2-category and the universal property \eqref{eq:cotensor-defn} of the simplicial cotensor.  For \ref{itm:2-iso-as-functor}, a 2-cell in the homotopy 2-category is \textbf{invertible} if and only if it defines an isomorphism in the appropriate hom-category $\hFun(A,B)$. By Proposition \ref{prop:coherent-iso} it follows that each invertible 2-cell $\alpha$ is represented by a homotopy coherent isomorphism ${\alpha} \colon \iso \to \Fun(A,B)$, which similarly internalizes to define a functor $\name{\alpha} \colon A \to B^\iso$.
+  \end{proof}
+```
+
+We now begin to relate the simplicially enriched structures of an $`\infty`-cosmos to the 2-categorical structures in its homotopy 2-category by proving that homotopy 2-categories inherit products from their $`\infty`-cosmoi that satisfy a 2-categorical universal property. To illustrate, recall that the terminal $`\infty`-category $`1 \in \cK` has the universal property $`\Fun(X,1) \cong \catone` for all $`X \in \cK`. Applying the homotopy category functor we see that $`1 \in \h\cK` has the universal property $`\hFun(X,1) \cong \catone` for all $`X \in \h\cK`, which is expressed by saying that the $`\infty`-category $`1` defines a *2-terminal object* in the homotopy 2-category. This 2-categorical universal property has both a 1-dimensional and a 2-dimensional aspect. Since $`\hFun(X,1)\cong \catone` is a category with a single object, there exists a unique morphism $`X \to 1` in $`\cK`, and since $`\hFun(X,1)\cong\catone` has only a single morphism,  the only 2-cells in $`\h\cK` with codomain 1 are identities.
+
+```tex
+%Change of base is an operation that applies to enriched functors as well as enriched categories, as can be directly verified in the case of greatest interest.
+
+%  \begin{lemma}\label{lem:cosmological-2-fun} Any simplicial functor $F \colon \cK \to \cL$ between $\infty$-cosmoi induces a 2-functor $F \colon \h\cK \to \h\cL$ between their homotopy 2-categories.
+% \end{lemma}
+  %\begin{proof}
+% The action of  the induced 2-functor $F \colon \h\cK \to \h\cL$ on objects and 1-cells is given by the corresponding action of $F \colon \cK \to \cL$; recall an $\infty$-cosmos and its homotopy 2-category have the same underlying 1-category. Each 2-cell in $\h\cK$ is represented by a 1-simplex  in $\Fun(A,B)$ which is mapped via
+% \begin{center}
+%   \begin{tikzcd}[column sep=large, inner sep=0pt] \Fun(A,B) \arrow[r, "F"]  & \Fun(FA,FB)
+%   \end{tikzcd}
+% \end{center}
+  %\vspace{-4ex}
+  %\begin{center}
+  % \begin{tikzcd}[column sep=large, inner sep=0pt] A \arrow[r, start anchor=15, end anchor=165, bend left, "f"] \arrow[r, start anchor=345, end anchor=195, bend right, bend right, "g"'] \arrow[r, phantom, "{\scriptstyle\Downarrow \alpha}"] & B\arrow[r, maps to] &  FA \arrow[r, start anchor=15, end anchor=165, bend left, "Ff"] \arrow[r, start anchor=345, end anchor=195, bend right, bend right, "Fg"'] \arrow[r, phantom, "{\scriptstyle\Downarrow F\alpha}"] & FB
+  % \end{tikzcd}
+  %\end{center}
+  % to a 1-simplex representing a 2-cell  in $\h\cL$. Since the action $F \colon \Fun(A,B) \to \Fun(FA,FB)$ on functor spaces defines a morphism of simplicial sets, it preserves faces and degeneracies. In particular, homotopic 1-simplices in $\Fun(A,B)$ are carried to homotopic 1-simplices in $\Fun(FA,FB)$ so the action on 2-cells just described is well-defined.  The 2-functoriality of these mappings follows from the simplicial functoriality of the original mapping.
+  %\end{proof}
+
+  We now begin to relate the simplicially enriched structures of an $\infty$-cosmos to the 2-cat\-e\-go\-ri\-cal structures in its homotopy 2-category by proving that homotopy 2-categories inherit products from their $\infty$-cosmoi that satisfy a 2-cat\-e\-go\-ri\-cal universal property. To illustrate, recall that the terminal $\infty$-category $1 \in \cK$ has the universal property $\Fun(X,1) \cong \catone$ for all $X \in \cK$. Applying the homotopy category functor we see that $1 \in \h\cK$ has the universal property $\hFun(X,1) \cong \catone$ for all $X \in \h\cK$, which is expressed by saying that the $\infty$-category $1$ defines a \textbf{2-terminal object} in the homotopy 2-category. This 2-categorical universal property has both a 1-dimensional and a 2-dimensional aspect. Since $\hFun(X,1)\cong \catone$ is a category with a single object, there exists a unique morphism $X \to 1$ in $\cK$, and since $\hFun(X,1)\cong\catone$ has only a single morphism,  the only 2-cells in $\h\cK$ with codomain 1 are identities.
+```
+
+:::proposition "prop:htpy-2-cat-closure" (uses := "defn:cosmos, defn:closed-cosmos")
+*cartesian (closure).*
+
+$`\quad`
+
+- The homotopy 2-category of any $`\infty`-cosmos has 2-categorical products.
+-  `{#itm:cart-closed}` The homotopy 2-category of a cartesian closed $`\infty`-cosmos is cartesian closed as a 2-category.
+:::
+```tex "prop:htpy-2-cat-closure" (slot := statement)
+\begin{proposition}[cartesian (closure)]\label{prop:htpy-2-cat-closure}
+    \uses{defn:cosmos, defn:closed-cosmos}
+  $\quad$
+  \begin{enumerate}
+  \item The homotopy 2-category of any $\infty$-cosmos has 2-categorical products.
+  \item\label{itm:cart-closed} The homotopy 2-category of a cartesian closed $\infty$-cosmos is cartesian closed as a 2-category.
+  \end{enumerate}
+  \end{proposition}
+```
+
+:::proof "prop:htpy-2-cat-closure" (uses := "lem:ho-preserves-finite-products")
+While the functor $`\ho\colon\sSet \to \Cat` only preserves finite products, the restricted functor $`\ho\colon\qCat\to\Cat` preserves all products on account of the simplified description of the homotopy category of a quasi-category given in Lemma {bpref "lem:htpy-cat-of-qcat"}[]. Thus for any set $`I` and family of $`\infty`-categories $`(A_i)_{i \in I}` in $`\cK`, the homotopy category functor carries the isomorphism of functor spaces  to an isomorphism of hom-categories
+
+```tex (display := source)
+\begin{center} \begin{tikzcd}[column sep=small] \Fun(X,\prod_{i \in I} A_i) \arrow[r, "\cong"] & \prod_{i \in I} \Fun(X,A_i) & \arrow[r, maps to, "\ho"] & ~ & \hFun(X,\prod_{i \in I} A_i) \arrow[r, "\cong"] & \prod_{i \in I} \hFun(X,A_i).
+\end{tikzcd}
+\end{center}
+```
+
+This proves that the homotopy 2-category $`\h\cK` has products whose universal properties have both a 1- and 2-dimensional component, as described in the empty case for terminal objects above.
+
+If $`\cK` is a cartesian closed $`\infty`-cosmos, then for any triple of $`\infty`-categories $`A,B,C \in \cK` there exist exponential objects $`C^A, C^B \in \cK` characterized by natural isomorphisms
+$$`\Fun(A \times B, C) \cong \Fun(A, C^B) \cong \Fun(B,C^A).` Passing to homotopy categories we have natural isomorphisms
+$$`\hFun(A \times B, C) \cong \hFun(A, C^B) \cong \hFun(B,C^A),` which demonstrates that $`\h\cK` is cartesian closed as a 2-category: functors $`A \times B \to C` transpose to define functors $`A \to C^B` and $`B \to C^A`, and natural transformations transpose similarly.
+:::
+```tex "prop:htpy-2-cat-closure" (slot := proof)
+\begin{proof}
+    \uses{lem:ho-preserves-finite-products}
+  While the functor $\ho\colon\sSet \to \Cat$ only preserves finite products, the restricted functor $\ho\colon\qCat\to\Cat$ preserves \emph{all} products on account of the simplified description of the homotopy category of a quasi-category given in Lemma \ref{lem:htpy-cat-of-qcat}. Thus for any set $I$ and family of $\infty$-categories $(A_i)_{i \in I}$ in $\cK$, the homotopy category functor carries the isomorphism of functor spaces  to an isomorphism of hom-categories
+  \begin{center} \begin{tikzcd}[column sep=small] \Fun(X,\prod_{i \in I} A_i) \arrow[r, "\cong"] & \prod_{i \in I} \Fun(X,A_i) & \arrow[r, maps to, "\ho"] & ~ & \hFun(X,\prod_{i \in I} A_i) \arrow[r, "\cong"] & \prod_{i \in I} \hFun(X,A_i).
+  \end{tikzcd}
+  \end{center}
+  This proves that the homotopy 2-category $\h\cK$ has products whose universal properties have both a 1- and 2-dimensional component, as described in the empty case for terminal objects above.
+
+  If $\cK$ is a cartesian closed $\infty$-cosmos, then for any triple of $\infty$-categories $A,B,C \in \cK$ there exist exponential objects $C^A, C^B \in \cK$ characterized by natural isomorphisms
+  \[ \Fun(A \times B, C) \cong \Fun(A, C^B) \cong \Fun(B,C^A).\] Passing to homotopy categories we have natural isomorphisms
+  \[ \hFun(A \times B, C) \cong \hFun(A, C^B) \cong \hFun(B,C^A),\] which demonstrates that $\h\cK$ is cartesian closed as a 2-category: functors $A \times B \to C$ transpose to define functors $A \to C^B$ and $B \to C^A$, and natural transformations transpose similarly.
+  \end{proof}
+```
+
+There is a standard definition of isomorphism between two objects in any 1-category, preserved by any functor. Similarly, there is a standard definition of equivalence between two objects in any 2-category, preserved by any 2-functor:
+
+```tex
+There is a standard definition of \emph{isomorphism} between two objects in any 1-category, preserved by any functor. Similarly, there is a standard definition of \emph{equivalence} between two objects in any 2-category, preserved by any 2-functor:
+```
+
+:::definition "defn:2-cat-equivalence"
+*equivalence.*
+
+An *equivalence* in a 2-category is given by
+
+- a pair of objects $`A` and $`B`;
+- a pair of 1-cells $`f \colon A \to B` and $`g \colon B \to A`; and
+- a pair of invertible 2-cells
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}[column sep=large]
+A \arrow[r, bend left=25, equals] \arrow[r, bend right=25, "gf"'] \arrow[r, phantom, "{\scriptstyle\cong\Downarrow\alpha}"] & A & \text{and} & B \arrow[r, bend right=25, equals] \arrow[r, bend left=25, "fg"] \arrow[r, phantom, "{\scriptstyle\cong\Downarrow\beta}"] & B
+\end{tikzcd}
+\end{center}
+```
+
+When $`A` and $`B` are *equivalent*, we write $`A \simeq B` and refer to the 1-cells $`f` and $`g` as *equivalences*, denoted by “$`\we`.”
+:::
+```tex "defn:2-cat-equivalence" (slot := statement)
+\begin{definition}[equivalence]\label{defn:2-cat-equivalence} An \textbf{equivalence} in a 2-category is given by
+  \begin{itemize}
+  \item a pair of objects $A$ and $B$;
+  \item a pair of 1-cells $f \colon A \to B$ and $g \colon B \to A$; and
+  \item a pair of invertible 2-cells
+  \begin{center}
+  \begin{tikzcd}[column sep=large]
+  A \arrow[r, bend left=25, equals] \arrow[r, bend right=25, "gf"'] \arrow[r, phantom, "{\scriptstyle\cong\Downarrow\alpha}"] & A & \text{and} & B \arrow[r, bend right=25, equals] \arrow[r, bend left=25, "fg"] \arrow[r, phantom, "{\scriptstyle\cong\Downarrow\beta}"] & B
+  \end{tikzcd}
+  \end{center}
+  \end{itemize}
+  When $A$ and $B$ are \textbf{equivalent}, we write $A \simeq B$ and refer to the 1-cells $f$ and $g$ as \textbf{equivalences}, denoted by ``$\we$.''
+  \end{definition}
+```
+
+In the case of the homotopy 2-category of an $`\infty`-cosmos we have a competing definition of equivalence from {bpref "defn:cosmos"}[]: namely a 1-cell $`f \colon A \we B` that induces an equivalence $`f_* \colon \Fun(X,A) \we \Fun(X,B)` on functor spaces — or equivalently, by Lemma {bpref "lem:equiv-htpy-equiv"}[], a homotopy equivalence defined relative to the interval $`\iso`. Crucially, all three notions of equivalence coincide:
+
+```tex
+In the case of the homotopy 2-category of an $\infty$-cosmos we have a competing definition of equivalence from \ref{defn:cosmos}: namely a 1-cell $f \colon A \we B$ that induces an equivalence $f_* \colon \Fun(X,A) \we \Fun(X,B)$ on functor spaces --- or equivalently, by Lemma \ref{lem:equiv-htpy-equiv}, a homotopy equivalence defined relative to the interval $\iso$. Crucially, all three notions of equivalence coincide:
+```
+
+:::theorem "thm:equiv-are-equiv" (uses := "defn:cosmos, defn:equivalence, defn:2-cat-equivalence, defn:homotopy-2-cat")
+*equivalences are equivalences.*
+
+In any $`\infty`-cosmos $`\cK`, the following are equivalent and characterize what it means for a functor $`f \colon A \to B` between $`\infty`-categories to define an *equivalence*.
+
+-  `{#itm:rep-equiv}` For all $`X \in \cK`, the post-composition map $`f_* \colon \Fun(X,A) \we \Fun(X,B)` defines an equivalence of quasi-categories.
+-  `{#itm:2cat-equiv}` There exists a functor $`g \colon B \to A` and natural isomorphisms $`\alpha \colon \id_A \cong gf` and $`\beta \colon fg \cong \id_B` in the homotopy 2-category.
+-  `{#itm:htpy-equiv}` There exists a functor $`g \colon B \to A` and maps
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso  \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] &\text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] \\ & A & &  & B
+\end{tikzcd}
+\end{center}
+```
+
+in the $`\infty`-cosmos $`\cK`.
+:::
+```tex "thm:equiv-are-equiv" (slot := statement)
+\begin{theorem}[equivalences are equivalences]\label{thm:equiv-are-equiv}
+    \uses{defn:cosmos, defn:equivalence, defn:2-cat-equivalence, defn:homotopy-2-cat} In any $\infty$-cosmos $\cK$, the following are equivalent and characterize what it means for a functor $f \colon A \to B$ between $\infty$-categories to define an \textbf{equivalence}.
+  \begin{enumerate}
+  \item\label{itm:rep-equiv} For all $X \in \cK$, the post-composition map $f_* \colon \Fun(X,A) \we \Fun(X,B)$ defines an equivalence of quasi-categories.
+  \item\label{itm:2cat-equiv} There exists a functor $g \colon B \to A$ and natural isomorphisms $\alpha \colon \id_A \cong gf$ and $\beta \colon fg \cong \id_B$ in the homotopy 2-category.
+  \item\label{itm:htpy-equiv} There exists a functor $g \colon B \to A$ and maps
+  \begin{center}
+  \begin{tikzcd} & A & &  & B \\ A \arrow[ur, equals] \arrow[dr, "gf"'] \arrow[r, "\alpha"] & A^\iso  \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] &\text{and} &  B \arrow[dr, equals] \arrow[r, "\beta"] \arrow[ur, "fg"] & B^\iso \arrow[u, two heads, "\sim", "\ev_0"'] \arrow[d, two heads, "\sim"', "\ev_1"] \\ & A & &  & B
+  \end{tikzcd}
+  \end{center} in the $\infty$-cosmos $\cK$.
+  \end{enumerate}
+  \end{theorem}
+```
+
+As an illustrative comparison of 2-categorical and quasi-categorical techniques, rather than appealing to Lemma {bpref "lem:equiv-htpy-equiv"}[] to prove item `itm:rep-equiv`$`\Leftrightarrow`item `itm:htpy-equiv`, we re-prove it.
+
+```tex
+As an illustrative comparison of 2-categorical and quasi-categorical techniques, rather than appealing to Lemma \ref{lem:equiv-htpy-equiv} to prove \ref{itm:rep-equiv}$\Leftrightarrow$\ref{itm:htpy-equiv}, we re-prove it.
+```
+
+:::proof "thm:equiv-are-equiv"
+For item `itm:rep-equiv`$`\To`item `itm:2cat-equiv`, if the induced map $`f_* \colon \Fun(X,A) \we \Fun(X,B)`  defines an equivalence of quasi-categories then the functor $`f_* \colon \hFun(X,A) \we \hFun(X,B)` defines an equivalence of categories, by Lemma {bpref "lem:qcat-htpy-cat-equiv"}[]. In particular, the equivalence $`f_* \colon \hFun(B,A) \we \hFun(B,B)` is essentially surjective so there exists $`g \in \hFun(B,A)` and an isomorphism $`\beta \colon fg \cong \id_B \in \hFun(B,B)`. Now since $`f_* \colon \hFun(A,A) \we \hFun(A,B)` is fully faithful, the isomorphism $`\beta f \colon fgf \cong f \in \hFun(A,B)` can be lifted to define an isomorphism $`\alpha^{-1} \colon gf \cong \id_A \in \hFun(A,A)`. This defines the data of a 2-categorical equivalence in Definition {bpref "defn:2-cat-equivalence"}[].
+
+To see that item `itm:2cat-equiv`$`\To`item `itm:htpy-equiv` recall from Lemma {bpref "lem:invertible-2-cell"}[] that the natural isomorphisms $`\alpha \colon \id_A \cong gf` and $`\beta \colon fg \cong \id_B` in $`\h\cK` are represented by maps $`\alpha \colon A \to A^\iso` and $`\beta \colon B \to B^\iso` in $`\cK` as in Lemma {bpref "lem:equiv-htpy-equiv"}[].
+
+Finally, item `itm:htpy-equiv`$`\To`item `itm:rep-equiv` since $`\Fun(X,-)` carries the data of item `itm:htpy-equiv` to the data of an equivalence of quasi-categories as in  Definition {bpref "defn:qcat-equivalence"}[].
+:::
+```tex "thm:equiv-are-equiv" (slot := proof)
+\begin{proof}
+    For \ref{itm:rep-equiv}$\To$\ref{itm:2cat-equiv}, if the induced map $f_* \colon \Fun(X,A) \we \Fun(X,B)$  defines an equivalence of quasi-categories then the functor $f_* \colon \hFun(X,A) \we \hFun(X,B)$ defines an equivalence of categories, by Lemma \ref{lem:qcat-htpy-cat-equiv}. In particular, the equivalence $f_* \colon \hFun(B,A) \we \hFun(B,B)$ is essentially surjective so there exists $g \in \hFun(B,A)$ and an isomorphism $\beta \colon fg \cong \id_B \in \hFun(B,B)$. Now since $f_* \colon \hFun(A,A) \we \hFun(A,B)$ is fully faithful, the isomorphism $\beta f \colon fgf \cong f \in \hFun(A,B)$ can be lifted to define an isomorphism $\alpha^{-1} \colon gf \cong \id_A \in \hFun(A,A)$. This defines the data of a 2-categorical equivalence in Definition \ref{defn:2-cat-equivalence}.
+
+  To see that \ref{itm:2cat-equiv}$\To$\ref{itm:htpy-equiv} recall from Lemma \ref{lem:invertible-2-cell} that the natural isomorphisms $\alpha \colon \id_A \cong gf$ and $\beta \colon fg \cong \id_B$ in $\h\cK$ are represented by maps $\alpha \colon A \to A^\iso$ and $\beta \colon B \to B^\iso$ in $\cK$ as in Lemma \ref{lem:equiv-htpy-equiv}.
+
+  Finally, \ref{itm:htpy-equiv}$\To$\ref{itm:rep-equiv} since $\Fun(X,-)$ carries the data of \ref{itm:htpy-equiv} to the data of an equivalence of quasi-categories as in  Definition \ref{defn:qcat-equivalence}.
+  \end{proof}
+```
+
+It is hard to overstate the importance of Theorem {bpref "thm:equiv-are-equiv"}[] for the work that follows. The categorical constructions that we introduce for $`\infty`-categories, $`\infty`-functors, and $`\infty`-natural transformations are invariant under 2-categorical equivalence in the homotopy 2-category and the universal properties we develop similarly characterize 2-categorical equivalence classes of $`\infty`-categories. Theorem {bpref "thm:equiv-are-equiv"}[] then asserts that such constructions are “homotopically correct”: both invariant under equivalence in the $`\infty`-cosmos and precisely identifying equivalence classes of objects.
+
+The equivalence invariance of the functor space in the codomain variable is axiomatic, but equivalence invariance in the domain variable is not. (Note: The functor $`\Fun(A,-)` is a cosmological functor, preserving all of the structure of Definition {bpref "defn:cosmos"}[]. Cosmological functors then preserve a large class of cosmological notions, including equivalences. These results, however,
+do not apply to $`\Fun(-,B)` since this functor is not cosmological.) Nor is it evident how this could be proven from either item `itm:rep-equiv` or item `itm:htpy-equiv` of Theorem {bpref "thm:equiv-are-equiv"}[]. But using item `itm:2cat-equiv` and 2-categorical techniques, there is now a short proof.
+
+```tex
+It is hard to overstate the importance of Theorem \ref{thm:equiv-are-equiv} for the work that follows. The categorical constructions that we introduce for $\infty$-categories, $\infty$-func\-tors, and $\infty$-natural transformations are invariant under 2-cat\-e\-go\-ri\-cal equivalence in the homotopy 2-category and the universal properties we develop similarly characterize 2-categorical equivalence classes of $\infty$-cat\-e\-go\-ries. Theorem \ref{thm:equiv-are-equiv} then asserts that such constructions are ``homotopically correct'': both invariant under equivalence in the $\infty$-cosmos and precisely identifying equivalence classes of objects.
+
+
+  The equivalence invariance of the functor space in the codomain variable is axiomatic, but equivalence invariance in the domain variable is not.\footnote{The functor $\Fun(A,-)$ is a \emph{cosmological functor}, preserving all of the structure of Definition \ref{defn:cosmos}. Cosmological functors then preserve a large class of cosmological notions, including equivalences. These results, however, %Lemma \ref{lem:cosmoi-functors-pres-equiv} does
+  do not apply to $\Fun(-,B)$ since this functor is not cosmological.} Nor is it evident how this could be proven from either \ref{itm:rep-equiv} or \ref{itm:htpy-equiv} of Theorem \ref{thm:equiv-are-equiv}. But using \ref{itm:2cat-equiv} and 2-categorical techniques, there is now a short proof.
+```
+
+:::corollary "cor:equiv-invar-fun" (uses := "defn:cosmos")
+Equivalences of $`\infty`-categories $`A' \we A` and $`B \we B'` induce an equivalence of functor spaces $`\Fun(A,B) \we \Fun(A',B')`.
+:::
+```tex "cor:equiv-invar-fun" (slot := statement)
+\begin{corollary}\label{cor:equiv-invar-fun}
+    \uses{defn:cosmos} Equivalences of $\infty$-categories $A' \we A$ and $B \we B'$ induce an equivalence of functor spaces $\Fun(A,B) \we \Fun(A',B')$.
+  \end{corollary}
+```
+
+:::proof "cor:equiv-invar-fun" (uses := "thm:equiv-are-equiv")
+The representable simplicial functors $`\Fun(A,-)\colon \cK \to \qCat` and $`\Fun(-,B)\colon \cK\op \to \qCat` induce 2-functors $`\Fun(A,-)\colon\h\cK\to\h\qCat` and $`\Fun(-,B)\colon\h\cK\op\to\h\qCat`, which preserve the 2-categorical equivalences of Definition {bpref "defn:2-cat-equivalence"}[]. By Theorem {bpref "thm:equiv-are-equiv"}[] this is what we wanted to show.
+:::
+```tex "cor:equiv-invar-fun" (slot := proof)
+\begin{proof}
+    \uses{thm:equiv-are-equiv}
+  The representable simplicial functors $\Fun(A,-)\colon \cK \to \qCat$ and $\Fun(-,B)\colon \cK\op \to \qCat$ induce 2-functors $\Fun(A,-)\colon\h\cK\to\h\qCat$ and $\Fun(-,B)\colon\h\cK\op\to\h\qCat$, which preserve the 2-cat\-e\-go\-ri\-cal equivalences of Definition \ref{defn:2-cat-equivalence}. By Theorem \ref{thm:equiv-are-equiv} this is what we wanted to show.
+  \end{proof}
+```
+
+There is also a standard 2-categorical notion of an isofibration, defined in the statement of Proposition {bpref "prop:isofib-define-isofib"}[].
+We now show that any isofibration in an $`\infty`-cosmos defines an isofibration in its homotopy 2-category.
+
+```tex
+There is also a standard 2-categorical notion of an isofibration, defined in the statement of Proposition \ref{prop:isofib-define-isofib}. %and elaborated upon in Definition \ref{defn:2cat-isofibration}.
+  We now show that any isofibration in an $\infty$-cosmos defines an isofibration in its homotopy 2-category.
+```
+
+:::proposition "prop:isofib-define-isofib" (uses := "defn:cosmos")
+*isofibrations are isofibrations.*
+
+An isofibration $`p \colon E \fib B`  in an $`\infty`-cosmos $`\cK` also defines an *isofibration* in the homotopy 2-category $`\h\cK`: given any invertible 2-cell as displayed below-left abutting to $`B` with a specified lift of one of its boundary 1-cells through $`p`, there exists an invertible 2-cell abutting to $`E` with this boundary 1-cell as displayed below-right that whiskers with $`p` to the original 2-cell.
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd} X \arrow[r, "e"] \arrow[dr, bend right, "b"'] & E \arrow[d, two heads, "p"] \arrow[dl, phantom, "{\scriptstyle\cong\Downarrow\beta}" near start] &\arrow[d, phantom, "="] & X \arrow[rr, start anchor=15, end anchor=165, bend left=20, "e"] \arrow[rr, start anchor=345, end anchor=195, bend right=20, "\bar{e}"', dashed] \arrow[rr, phantom, "{\scriptstyle\cong\Downarrow\gamma}"] && E \arrow[d, two heads, "p"] \\ ~ & B & ~ & & & B
+\end{tikzcd}
+\end{center}
+```
+:::
+```tex "prop:isofib-define-isofib" (slot := statement)
+\begin{proposition}[isofibrations are isofibrations]\label{prop:isofib-define-isofib}
+    \uses{defn:cosmos} An isofibration $p \colon E \fib B$  in an $\infty$-cosmos $\cK$ also defines an \textbf{isofibration} in the homotopy 2-category $\h\cK$: given any invertible 2-cell as displayed below-left abutting to $B$ with a specified lift of one of its boundary 1-cells through $p$, there exists an invertible 2-cell abutting to $E$ with this boundary 1-cell as displayed below-right that whiskers with $p$ to the original 2-cell.
+  \begin{center}
+    \begin{tikzcd} X \arrow[r, "e"] \arrow[dr, bend right, "b"'] & E \arrow[d, two heads, "p"] \arrow[dl, phantom, "{\scriptstyle\cong\Downarrow\beta}" near start] &\arrow[d, phantom, "="] & X \arrow[rr, start anchor=15, end anchor=165, bend left=20, "e"] \arrow[rr, start anchor=345, end anchor=195, bend right=20, "\bar{e}"', dashed] \arrow[rr, phantom, "{\scriptstyle\cong\Downarrow\gamma}"] && E \arrow[d, two heads, "p"] \\ ~ & B & ~ & & & B
+  \end{tikzcd}
+  \end{center}
+  \end{proposition}
+```
+
+:::proof "prop:isofib-define-isofib"
+The universal property of the statement says that the functor $$`p_* \colon \hFun(X,E) \fib \hFun(X,B)` is an isofibration of categories in the sense defined in Proposition {bpref "prop:cat-cosmos"}[]. By axiom {bpref "defn:cosmos"}[]item `itm:cosmos-isofib`, since $`p \colon E \fib B` is an isofibration in $`\cK`, the induced map $`p_* \colon \Fun(X,E) \fib \Fun(X,B)` is an isofibration of quasi-categories. So it suffices to show that the functor $`\ho \colon \qCat\to \Cat` carries isofibrations of quasi-categories to isofibrations of categories.
+
+So let us now consider an isofibration $`p \colon E \fib B` between quasi-categories. By Proposition {bpref "prop:coherent-iso"}[], every isomorphism $`\beta` in the homotopy category $`\ho{B}` of the quasi-category $`B` is represented by a simplicial map $`\beta \colon \iso \to B`. By Definition {bpref "defn:qcat-isofibration"}[], the lifting problem
+
+```tex (display := source)
+\begin{center}
+\begin{tikzcd}
+\catone \arrow[r, "e"] \arrow[d, hook] & E \arrow[d, two heads, "p"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "\beta"'] & B
+\end{tikzcd}
+\end{center}
+```
+
+can be solved, and the map $`\gamma \colon \iso \to E` so produced represents a lift of the isomorphism from $`\ho{B}` to an isomorphism in $`\ho{E}` with domain $`e`.
+:::
+```tex "prop:isofib-define-isofib" (slot := proof)
+\begin{proof} The universal property of the statement says that the functor \[p_* \colon \hFun(X,E) \fib \hFun(X,B)\] is an isofibration of categories in the sense defined in Proposition \ref{prop:cat-cosmos}. By axiom \ref{defn:cosmos}\ref{itm:cosmos-isofib}, since $p \colon E \fib B$ is an isofibration in $\cK$, the induced map $p_* \colon \Fun(X,E) \fib \Fun(X,B)$ is an isofibration of quasi-categories. So it suffices to show that the functor $\ho \colon \qCat\to \Cat$ carries isofibrations of quasi-categories to isofibrations of categories.
+
+  So let us now consider an isofibration $p \colon E \fib B$ between quasi-categories. By Proposition \ref{prop:coherent-iso}, every isomorphism $\beta$ in the homotopy category $\ho{B}$ of the quasi-category $B$ is represented by a simplicial map $\beta \colon \iso \to B$. By Definition \ref{defn:qcat-isofibration}, the lifting problem
+  \begin{center}
+  \begin{tikzcd}
+  \catone \arrow[r, "e"] \arrow[d, hook] & E \arrow[d, two heads, "p"] \\ \iso \arrow[ur, dashed, "\gamma"] \arrow[r, "\beta"'] & B
+  \end{tikzcd}
+  \end{center}
+  can be solved, and the map $\gamma \colon \iso \to E$ so produced represents a lift of the isomorphism from $\ho{B}$ to an isomorphism in $\ho{E}$ with domain $e$.
+  \end{proof}
+```
+
+*Convention.* *on isofibrations in homotopy 2-categories.*
+
+Since the converse to Proposition {bpref "prop:isofib-define-isofib"}[] does not hold, there is a potential ambiguity when using the term “isofibration” to refer to a map in the homotopy 2-category of an $`\infty`-cosmos. We adopt the convention that when we declare  a map in $`\h\cK` to be an isofibration we always mean this is the stronger sense of defining an isofibration in $`\cK`. This stronger condition gives us access to the 2-categorical lifting property of Proposition {bpref "prop:isofib-define-isofib"}[] and also to homotopical properties axiomatized in Definition {bpref "defn:cosmos"}[], which ensure that the strictly defined limits of {bpref "defn:cosmos"}[]item `itm:cosmos-limits` are automatically equivalence invariant constructions (see {Informal.citep "RiehlVerity:2022eo"}[6.2.8,§ C.1]).
+
+```tex
+\begin{con}[on isofibrations in homotopy 2-categories] Since the converse to Proposition \ref{prop:isofib-define-isofib} does not hold, there is a potential ambiguity when using the term ``isofibration'' to refer to a map in the homotopy 2-category of an $\infty$-cosmos. We adopt the convention that when we declare  a map in $\h\cK$ to be an isofibration we always mean this is the stronger sense of defining an isofibration in $\cK$. This stronger condition gives us access to the 2-categorical lifting property of Proposition \ref{prop:isofib-define-isofib} and also to homotopical properties axiomatized in Definition \ref{defn:cosmos}, which ensure that the strictly defined limits of \ref{defn:cosmos}\ref{itm:cosmos-limits} are automatically equivalence invariant constructions (see \cite[6.2.8,\S C.1]{RiehlVerity:2022eo}). %\S\ref{sec:fib-obj} and Proposition \ref{prop:flexible-homotopical}).
+  \end{con}
+```
+
+We conclude this chapter with a final definition that can be extracted from the homotopy 2-category of an $`\infty`-cosmos. The 1- and 2-cells in the homotopy 2-category from the terminal $`\infty`-category $`1 \in \cK` to a generic $`\infty`-category $`A \in \cK` define the objects and morphisms in the homotopy category of the $`\infty`-category $`A`.
+
+```tex
+We conclude this chapter with a final definition that can be extracted from the homotopy 2-category of an $\infty$-cosmos. The 1- and 2-cells in the homotopy 2-category from the terminal $\infty$-category $1 \in \cK$ to a generic $\infty$-category $A \in \cK$ define the objects and morphisms in the homotopy category of the $\infty$-category $A$.
+```
+
+:::definition "defn:htpy-cat-of-infinity-cat" (uses := "defn:cosmos, defn:homotopy-cat")
+*homotopy category of an $`\infty`-category.*
+
+The *homotopy category* of an $`\infty`-category $`A` in an $`\infty`-cosmos $`\cK` is defined to be the homotopy category of its underlying quasi-category, that is:
+$$`\ho A \coloneq \hFun(1,A) \coloneq \ho(\Fun(1,A)).`
+:::
+```tex "defn:htpy-cat-of-infinity-cat" (slot := statement)
+\begin{definition}[homotopy category of an $\infty$-category]\label{defn:htpy-cat-of-infinity-cat}
+  \uses{defn:cosmos, defn:homotopy-cat}
+    The \textbf{homotopy category} of an $\infty$-category $A$ in an $\infty$-cosmos $\cK$ is defined to be the homotopy category of its underlying quasi-category, that is:
+  \[ \ho A \coloneq \hFun(1,A) \coloneq \ho(\Fun(1,A)).\]
+  \end{definition}
+```
+
+As we shall discover, homotopy categories generally inherit “derived” analogues of structures present at the level of $`\infty`-categories.
+
+```tex
+As we shall discover, homotopy categories generally inherit ``derived'' analogues of structures present at the level of $\infty$-categories. %An early example of this appears in Proposition \ref{prop:induced-adjunctions}\ref{itm:adj-htpy-cat}.
+```

@@ -1,4 +1,3 @@
-import Architect
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
 import Mathlib.AlgebraicTopology.SimplicialSet.Basic
 
@@ -6,29 +5,6 @@ open CategoryTheory Simplicial SimplexCategory SimplexCategory.Truncated
     SimplexCategory.Truncated.Hom
 
 namespace SSet.Truncated
-
-attribute [blueprint
-  "defn:sset-category"
-  (title := "the category of simplicial sets")
-  (statement := /--
-  The category of \textbf{simplicial sets} is the category $\sSet \coloneq \Set^{\Del\op}$ of
-  pre\-sheaves on the simplex category.
-  -/)]
-  Functor.category
-
-attribute [blueprint
-  "cor:sset-cat-limits"
-  (statement := /-- The category of simplicial sets is complete. -/)
-  (proof := /-- Presheaf categories are complete. -/)
-  (latexEnv := "corollary")]
-  SimplicialObject.instHasLimits
-
-attribute [blueprint
-  "cor:sset-cat-colimits"
-  (statement := /-- The category of simplicial sets is cocomplete. -/)
-  (proof := /-- Presheaf categories are cocomplete. -/)
-  (latexEnv := "corollary")]
-  SimplicialObject.instHasColimits
 
 /--
 The idea behind this trivial equivalence and `trunc_map`, `trunc_map'`

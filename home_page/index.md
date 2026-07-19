@@ -11,5 +11,5 @@ Useful links:
 * [Zulip chat for Lean](https://leanprover.zulipchat.com/#narrow/stream/455414-Infinity-Cosmos/) for coordination
 * [Blueprint]({{ site.url }}/blueprint/)
 * [Blueprint as pdf]({{ site.url }}/blueprint.pdf)
-* [Dependency graph]({{ site.url }}/blueprint/dep_graph_document.html)
+* [Dependency graph]({{ site.url }}/blueprint/Dependency-graph/)
 * [Doc pages for this repository]({{ site.url }}/docs/)

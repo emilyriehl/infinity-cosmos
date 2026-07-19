@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johns Hopkins Category Theory Seminar
 -/
 
-import Architect
 import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
 import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
 import Mathlib.AlgebraicTopology.SimplicialSet.CoherentIso
@@ -17,13 +16,6 @@ open CategoryTheory
 namespace SSet
 
 open Simplicial Edge
-
-attribute [blueprint
-  "defn:coherent-isomorphism"
-  (statement := /--
-  The \textbf{homotopy coherent isomorphism} $\iso$, is the nerve of the free-living isomorphism. Its n-simplices are sequences of arrows in WalkingIso.
-  -/)]
-  coherentIso
 
 namespace coherentIso
 
