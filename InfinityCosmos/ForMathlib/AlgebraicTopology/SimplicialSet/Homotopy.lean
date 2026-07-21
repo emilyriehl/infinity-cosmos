@@ -5,9 +5,10 @@ Authors: Johns Hopkins Category Theory Seminar
 -/
 
 import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 import Mathlib.CategoryTheory.Monoidal.Closed.Cartesian
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
 
@@ -29,8 +30,8 @@ instance arrowInterval : Interval Δ[1] where
 
 /-- The interval relevant to the theory of quasi-categories. -/
 instance isoInterval : Interval coherentIso where
-  src := coherentIso.src
-  tgt := coherentIso.tgt
+  src := yonedaEquiv.symm (coherentIso.x₀)
+  tgt := yonedaEquiv.symm (coherentIso.x₁)
 
 open MonoidalCategory
 noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=
@@ -75,7 +76,7 @@ noncomputable def srcContraction : coherentIso ⊗ coherentIso ⟶ coherentIso w
       cases n using Opposite.rec
       refine coherentIso.equivFun.symm ?_
       intro i
-      exact if coherentIso.equivFun x.1 i = 0 then 0 else coherentIso.equivFun x.2 i)
+      exact if (coherentIso.equivFun x.1 i).as.down then coherentIso.equivFun x.2 i else WalkingIso.zero)
   naturality := by
     intro n m α
     ext x
@@ -105,7 +106,7 @@ end coherentIso
 @[simp]
 lemma coherentIso_src_app_equivFun_zero {n : SimplexCategoryᵒᵖ}
     (x : (Δ[0] : SSet.{u}).obj n) :
-    coherentIso.equivFun ((coherentIso.src.app n) x) = fun _ => 0 := by
+    coherentIso.equivFun ((coherentIso.src.app n) x) = fun _ => WalkingIso.zero := by
   exact coherentIso.mem_range_src_const ⟨x, rfl⟩
 
 /-- If the path variable is fixed at the source vertex, the source contraction stays at the
@@ -113,40 +114,13 @@ source vertex. -/
 lemma coherentIso_srcContraction_path_src :
     (coherentIso ◁ coherentIso.src) ≫ coherentIso.srcContraction =
       CartesianMonoidalCategory.snd coherentIso (Δ[0] : SSet.{u}) ≫ coherentIso.src := by
+  have hsymm : ∀ {m : ℕ} (g : Fin (m + 1) → WalkingIso.{u}) (j : Fin (m + 1)),
+      (coherentIso.equivFun.symm g).obj j = g j := fun _ _ => rfl
   ext n x
   cases n using Opposite.rec with
   | op n =>
-  apply coherentIso.equivFun.injective
-  ext i
-  by_cases h : coherentIso.equivFun
-      ((ConcreteCategory.hom (coherentIso.obj (Opposite.op n) ◁
-        coherentIso.src.app (Opposite.op n))) x).1 i = 0
-  · have hR : coherentIso.equivFun
-        ((ConcreteCategory.hom (coherentIso.src.app (Opposite.op n)))
-          ((ConcreteCategory.hom
-              (SemiCartesianMonoidalCategory.snd (coherentIso.obj (Opposite.op n))
-                (Δ[0].obj (Opposite.op n)))) x)) i = 0 := by
-      simpa using congrFun (coherentIso_src_app_equivFun_zero
-        ((ConcreteCategory.hom
-          (SemiCartesianMonoidalCategory.snd (coherentIso.obj (Opposite.op n))
-            (Δ[0].obj (Opposite.op n)))) x)) i
-    simp [coherentIso.srcContraction, h, hR]
-  · have hL : coherentIso.equivFun
-        ((ConcreteCategory.hom (coherentIso.obj (Opposite.op n) ◁
-          coherentIso.src.app (Opposite.op n))) x).2 i = 0 := by
-      change coherentIso.equivFun
-        ((ConcreteCategory.hom (coherentIso.src.app (Opposite.op n))) x.2) i = 0
-      simpa using congrFun (coherentIso_src_app_equivFun_zero x.2) i
-    have hR : coherentIso.equivFun
-        ((ConcreteCategory.hom (coherentIso.src.app (Opposite.op n)))
-          ((ConcreteCategory.hom
-              (SemiCartesianMonoidalCategory.snd (coherentIso.obj (Opposite.op n))
-                (Δ[0].obj (Opposite.op n)))) x)) i = 0 := by
-      simpa using congrFun (coherentIso_src_app_equivFun_zero
-        ((ConcreteCategory.hom
-          (SemiCartesianMonoidalCategory.snd (coherentIso.obj (Opposite.op n))
-            (Δ[0].obj (Opposite.op n)))) x)) i
-    simp [coherentIso.srcContraction, h, hL, hR]
+    simp [coherentIso.srcContraction, hsymm]
+    split <;> rfl
 
 open MonoidalClosed
 
@@ -362,18 +336,13 @@ private lemma srcContraction_path_src_aux (P : SSet.{u}) :
         (coherentIso.srcContraction ▷ P) =
       CartesianMonoidalCategory.snd coherentIso P ≫
         (λ_ P).inv ≫ ((SSet.pointIsUnit.inv ≫ coherentIso.src) ▷ P) := by
+  have hsymm : ∀ {m : ℕ} (g : Fin (m + 1) → WalkingIso.{u}) (j : Fin (m + 1)),
+      (coherentIso.equivFun.symm g).obj j = g j := fun _ _ => rfl
   ext n x
   · cases n using Opposite.rec with
     | op n =>
-      apply coherentIso.equivFun.injective
-      ext i
-      simp [coherentIso.srcContraction]
-      split
-      · exact congrArg Fin.val (congrFun (coherentIso.mem_range_src_const ⟨
-          ((ConcreteCategory.hom (SSet.pointIsUnit.inv.app (Opposite.op n)))
-            ((ConcreteCategory.hom
-              ((SemiCartesianMonoidalCategory.toUnit (coherentIso ⊗ P)).app (Opposite.op n))) x)), rfl⟩) i).symm
-      · aesop_cat
+      simp [coherentIso.srcContraction, hsymm]
+      split <;> rfl
   · aesop_cat
 
 /-- Evaluating the source contraction of `coherentIso` on paths in `X`. -/

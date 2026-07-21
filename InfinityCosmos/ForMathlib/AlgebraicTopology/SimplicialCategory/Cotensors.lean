@@ -121,7 +121,6 @@ lemma homEquiv'_comp {X Y Z : K} (f : X ⟶ Y) (g : Y ⟶ Z) :
   simp [homEquiv', sHomWhiskerRight, eHomEquiv_comp, eHomWhiskerRight, SSet.unitHomEquiv]
   rfl
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Ordinary composition in the right variable, transported to enriched morphisms. -/
 lemma eHomEquiv_comp_eHomWhiskerRight {X Y Z : K} (f : X ⟶ Y) (g : Y ⟶ Z) :
     eHomEquiv SSet g ≫ eHomWhiskerRight SSet f Z = eHomEquiv SSet (f ≫ g) := by
@@ -129,14 +128,6 @@ lemma eHomEquiv_comp_eHomWhiskerRight {X Y Z : K} (f : X ⟶ Y) (g : Y ⟶ Z) :
   change ((sHomWhiskerRight f Z).app (Opposite.op (SimplexCategory.mk 0)))
       (homEquiv' Y Z g) = homEquiv' X Z (f ≫ g)
   rw [homEquiv'_comp]
-
-set_option backward.isDefEq.respectTransparency false in
-/-- Enriched composition is natural in its middle variable. -/
-lemma eComp_eHomWhisker_middle {X Y Y' Z : K} (g : Y ⟶ Y') :
-    eHomWhiskerLeft SSet X g ▷ sHom Y' Z ≫ eComp SSet X Y' Z =
-      sHom X Y ◁ eHomWhiskerRight SSet g Z ≫ eComp SSet X Y Z := by
-  dsimp [eHomWhiskerLeft, eHomWhiskerRight]
-  simp [e_assoc]
 
 /-- The identity morphism, transported to zero-simplices of the enriched hom. -/
 lemma homEquiv'_id (X : K) :
@@ -179,7 +170,6 @@ lemma cotensor_coneNatTrans_naturality_left {U : SSet.{v}} {A X Y : K}
   rw [← whisker_exchange_assoc]
   rw [← eComp_eHomWhiskerRight]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- Evaluating a cotensor cone at the identity of its representing object recovers the cone. -/
 lemma cotensor_coneNatTrans_eId {U : SSet.{v}} {A : K} (ux : Cotensor U A) :
     eId SSet ux.obj ≫ ux.coneNatTrans ux.obj = curry' ux.cone := by
@@ -288,99 +278,6 @@ lemma cotensor_contraMap_cone {U V : SSet.{v}} (i : U ⟶ V) (A : K) :
         (Cotensor.EhomPrecompose_coneNatTrans_eq SSet (getCotensor U A) (getCotensor V A)))
   rw [hpre]
   rfl
-
-set_option backward.isDefEq.respectTransparency false in
-/-- The chosen cotensor cone is natural with respect to covariant cotensor maps. -/
-lemma cotensorPostcompose_cone {U : SSet.{v}} {A B : K} (f : A ⟶ B) :
-    (getCotensor U B).cone ≫
-      eHomWhiskerRight SSet
-        (cotensorPostcompose (getCotensor U A) (getCotensor U B) f) B =
-        (getCotensor U A).cone ≫
-          eHomWhiskerLeft SSet (getCotensor U A).obj f := by
-  calc
-    (getCotensor U B).cone ≫
-        eHomWhiskerRight SSet
-          (cotensorPostcompose (getCotensor U A) (getCotensor U B) f) B =
-      (λ_ U).inv ≫ ((eHomEquiv SSet) f ▷ U) ≫
-        (Cotensor.postcompose SSet (getCotensor U A) (getCotensor U B) ▷ U) ≫
-        (_ ◁ (getCotensor U B).cone) ≫
-        eComp SSet (getCotensor U A).obj (getCotensor U B).obj B := by
-        dsimp [eHomWhiskerRight]
-        rw [cotensorPostcompose_homEquiv]
-        rw [leftUnitor_inv_naturality_assoc]
-        rw [MonoidalCategory.comp_whiskerRight_assoc]
-        rw [MonoidalCategory.whisker_exchange_assoc]
-        rw [MonoidalCategory.whisker_exchange_assoc]
-    _ = (λ_ U).inv ≫ ((eHomEquiv SSet) f ▷ U) ≫
-        (β_ (A ⟶[SSet] B) U).hom ≫
-        ((getCotensor U A).cone ▷ (A ⟶[SSet] B)) ≫
-        eComp SSet (getCotensor U A).obj A B := by
-        rw [Cotensor.postcompose_selfEval_comp_eq]
-    _ = (getCotensor U A).cone ≫
-        eHomWhiskerLeft SSet (getCotensor U A).obj f := by
-        dsimp [eHomWhiskerLeft]
-        rw [braiding_naturality_left_assoc]
-        rw [braiding_tensorUnit_left_assoc]
-        rw [Iso.inv_hom_id_assoc]
-        rw [MonoidalCategory.whisker_exchange_assoc]
-        rw [← rightUnitor_inv_naturality_assoc]
-
-/-- Naturality of `cotensor.iso` under precomposition in the simplicial-set variable. -/
-lemma cotensor_iso_hom_naturality_precompose {U V : SSet.{v}} (i : U ⟶ V) (A X : K) :
-    eHomWhiskerLeft SSet X (cotensorContraMap i A) ≫ (cotensor.iso U A X).hom =
-      (cotensor.iso V A X).hom ≫ (MonoidalClosed.pre i).app (sHom X A) := by
-  change eHomWhiskerLeft SSet X (cotensorPrecompose (getCotensor U A) (getCotensor V A) i) ≫
-      (getCotensor U A).coneNatTrans X =
-    (getCotensor V A).coneNatTrans X ≫ (MonoidalClosed.pre i).app (sHom X A)
-  apply MonoidalClosed.uncurry_injective
-  rw [MonoidalClosed.uncurry_natural_left]
-  change U ◁ eHomWhiskerLeft SSet X (cotensorPrecompose (getCotensor U A)
-      (getCotensor V A) i) ≫ MonoidalClosed.uncurry ((getCotensor U A).coneNatTrans X) =
-    (i ▷ (X ⟶[SSet] (getCotensor V A).obj)) ≫
-      MonoidalClosed.uncurry ((getCotensor V A).coneNatTrans X)
-  rw [(getCotensor U A).toPrecotensor.coneNatTrans_eq]
-  rw [(getCotensor V A).toPrecotensor.coneNatTrans_eq]
-  rw [braiding_naturality_left_assoc]
-  rw [braiding_naturality_right_assoc]
-  apply (Iso.cancel_iso_hom_left
-    (β_ U (X ⟶[SSet] (getCotensor V A).obj)) _ _).mpr
-  rw [← whisker_exchange_assoc]
-  rw [eComp_eHomWhisker_middle]
-  rw [← MonoidalCategory.whiskerLeft_comp_assoc]
-  change (X ⟶[SSet] (getCotensor V A).obj) ◁
-      ((getCotensor U A).cone ≫ eHomWhiskerRight SSet (cotensorContraMap i A) A) ≫
-    eComp SSet X (getCotensor V A).obj A = _
-  rw [cotensor_contraMap_cone i A]
-  change ((X ⟶[SSet] (getCotensor V A).obj) ◁ i ≫
-      (X ⟶[SSet] (getCotensor V A).obj) ◁ (getCotensor V A).cone) ≫
-    eComp SSet X (getCotensor V A).obj A = _
-  rw [Category.assoc]
-
-set_option backward.isDefEq.respectTransparency false in
-/-- Naturality of `cotensor.iso` under postcomposition in the cotensored object. -/
-lemma cotensor_iso_hom_naturality_postcompose {U : SSet.{v}} {A B : K}
-    (f : A ⟶ B) (X : K) :
-    eHomWhiskerLeft SSet X (cotensorCovMap U f) ≫ (cotensor.iso U B X).hom =
-      (cotensor.iso U A X).hom ≫ (ihom U).map (eHomWhiskerLeft SSet X f) := by
-  change eHomWhiskerLeft SSet X
-      (cotensorPostcompose (getCotensor U A) (getCotensor U B) f) ≫
-      (getCotensor U B).coneNatTrans X =
-    (getCotensor U A).coneNatTrans X ≫
-      (ihom U).map (eHomWhiskerLeft SSet X f)
-  apply MonoidalClosed.uncurry_injective
-  rw [MonoidalClosed.uncurry_natural_left]
-  rw [MonoidalClosed.uncurry_natural_right
-    ((getCotensor U A).coneNatTrans X) (eHomWhiskerLeft SSet X f)]
-  rw [(getCotensor U B).toPrecotensor.coneNatTrans_eq]
-  rw [(getCotensor U A).toPrecotensor.coneNatTrans_eq]
-  rw [braiding_naturality_right_assoc]
-  rw [← whisker_exchange_assoc]
-  simp only [Category.assoc]
-  rw [eComp_eHomWhiskerLeft]
-  rw [eComp_eHomWhisker_middle]
-  rw [← MonoidalCategory.whiskerLeft_comp_assoc]
-  rw [cotensorPostcompose_cone f]
-  rw [MonoidalCategory.whiskerLeft_comp_assoc]
 
 /-- Naturality of `cotensor.iso.underlying` under precomposition in the simplicial-set variable. -/
 lemma cotensor_iso_underlying_precompose {U V : SSet.{v}} (i : U ⟶ V) (A X : K)
