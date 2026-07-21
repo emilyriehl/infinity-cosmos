@@ -7,151 +7,55 @@ Authors: Johns Hopkins Category Theory Seminar
 import Architect
 import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
 import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
-import Mathlib.AlgebraicTopology.Quasicategory.Basic
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CompStruct
+import Mathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.EdgeInvStruct
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 
 universe u v
 
 open CategoryTheory
 
-namespace CategoryTheory
-
-/-- This is the free-living isomorphism as a category with objects called
-`zero` and `one`. Perhaps these should have different names?-/
-def WalkingIso : Type u := ULift (Fin 2)
-
-@[match_pattern]
-def WalkingIso.zero : WalkingIso := ULift.up (0 : Fin 2)
-
-@[match_pattern]
-def WalkingIso.one : WalkingIso := ULift.up (1 : Fin 2)
-
-open WalkingIso
-
-namespace WalkingIso
-
-/-- The free isomorphism is the codiscrete category on two objects. Can we make this a special
-case of the other definition?-/
-instance : Category (WalkingIso) where
-  Hom _ _ := Unit
-  id _ := ⟨⟩
-  comp _ _ := ⟨⟩
-
-section
-
-variable {C : Type u} [Category.{v} C]
-
-/-- Functors out of `WalkingIso` define isomorphisms in the target category.-/
-def toIso  (F : WalkingIso ⥤ C) : (F.obj zero) ≅ (F.obj one) where
-  hom := F.map PUnit.unit
-  inv := F.map PUnit.unit
-  hom_inv_id := by rw [← F.map_comp, ← F.map_id]; rfl
-  inv_hom_id := by rw [← F.map_comp, ← F.map_id]; rfl
-
-/-- From an isomorphism in a category, one can build a functor out of `WalkingIso` to
-that category.-/
-def fromIso {X Y : C} (e : X ≅ Y) : WalkingIso ⥤ C where
-  obj := fun
-    | zero => X
-    | one => Y
-  map := @fun
-    | zero, zero, _ => 𝟙 _
-    | zero, one,  _ => e.hom
-    | one, zero, _ => e.inv
-    | one, one,  _ => 𝟙 _
-  map_comp := by simp [WalkingIso, Quiver.Hom]
-
-/-- An equivalence between the type of `WalkingIso`s in `C` and the type of isomorphisms in `C`. -/
-def equiv : (WalkingIso ⥤ C) ≃ Σ (X : C) (Y : C), (X ≅ Y) where
-  toFun F := ⟨F.obj zero, F.obj one, toIso F⟩
-  invFun p := fromIso p.2.2
-  right_inv := fun ⟨X, Y, e⟩ ↦ rfl
-  left_inv F := by
-    apply Functor.hext
-    · simp [WalkingIso]
-      constructor <;> rfl
-    · simp [WalkingIso]
-      simp only [fromIso, toIso]
-      constructor <;> constructor <;>
-      ( intro ⟨⟩
-        try rfl
-        try (rw [← F.map_id]; rfl) )
-
-end
-
-def coev (i : WalkingIso) : Fin 1 ⥤ WalkingIso := ComposableArrows.mk₀ i
-
-end WalkingIso
-
-end CategoryTheory
-
 namespace SSet
 
 open Simplicial Edge
-open CategoryTheory
 
-@[blueprint
+attribute [blueprint
   "defn:coherent-isomorphism"
   (statement := /--
   The \textbf{homotopy coherent isomorphism} $\iso$, is the nerve of the free-living isomorphism. Its n-simplices are sequences of arrows in WalkingIso.
   -/)]
-def coherentIso : SSet := nerve WalkingIso
+  coherentIso
 
 namespace coherentIso
 
 /-- Since the morphisms in WalkingIso do not carry information, an n-simplex of coherentIso is equivalent to an (n + 1)-vector of the objects of WalkingIso. -/
-def equivFun {n : ℕ} : coherentIso _⦋n⦌ ≃ (Fin (n + 1) → Fin 2) where
-  toFun f := ULift.down ∘ f.obj
-  invFun f := .mk (ULift.up ∘ f) (fun _ ↦ ⟨⟩) (fun _ ↦ rfl) (fun _ _ ↦ rfl)
+def equivFun {n : ℕ} : coherentIso _⦋n⦌ ≃ (Fin (n + 1) → WalkingIso) where
+  toFun f := f.obj
+  invFun f := .mk f (fun _ ↦ ⟨⟩) (fun _ ↦ rfl) (fun _ _ ↦ rfl)
   left_inv _ := rfl
   right_inv _ := rfl
 
-/-- Since Fin 2 has decidable equality, the simplices of coherentIso have decidable equality as well. -/
+/-- Since WalkingIso has decidable equality, the simplices of coherentIso have decidable equality as well. -/
 instance (n : ℕ) : DecidableEq (coherentIso _⦋n⦌) :=
   fun _ _ ↦ decidable_of_iff _ (Equiv.apply_eq_iff_eq coherentIso.equivFun)
 
-/-- The source vertex of `coherentIso`. -/
-def x₀ : coherentIso _⦋0⦌ :=
-  ComposableArrows.mk₀ WalkingIso.zero
+/-- The `Fin 2` presentation of simplices in `coherentIso` used by the special-outer-horn stack. -/
+def equivFin {n : ℕ} : coherentIso _⦋n⦌ ≃ (Fin (n + 1) → Fin 2) where
+  toFun f := fun i => finTwoEquiv.symm (WalkingIso.equivBool (equivFun f i))
+  invFun f := equivFun.symm (fun i => WalkingIso.equivBool.symm (finTwoEquiv (f i)))
+  left_inv f := by
+    apply equivFun.injective
+    funext i
+    simp
+  right_inv f := by
+    funext i
+    simp
 
-/-- The target edge of `coherentIso`. -/
-def x₁ : coherentIso _⦋0⦌ :=
-  ComposableArrows.mk₀ WalkingIso.one
+/-- The forwards edge of `coherentIso` is an isomorphism edge. -/
+def isIsoHom : Edge.IsIso coherentIso.hom :=
+  coherentIso.invStructHom
 
-/-- The forwards edge of `coherentIso`. -/
-def hom : Edge x₀ x₁ where
-  edge := ComposableArrows.mk₁ ⟨⟩
-  src_eq := ComposableArrows.ext₀ rfl
-  tgt_eq := ComposableArrows.ext₀ rfl
-
-/-- The backwards edge of `coherentIso`. -/
-def inv : Edge x₁ x₀ where
-  edge := ComposableArrows.mk₁ ⟨⟩
-  src_eq := ComposableArrows.ext₀ rfl
-  tgt_eq := ComposableArrows.ext₀ rfl
-
-/-- The forwards and backwards edge of `coherentIso` compose to the identity. -/
-def homInvId : Edge.CompStruct hom inv (Edge.id x₀) where
-  simplex := ComposableArrows.mk₂ ⟨⟩ ⟨⟩
-  d₂ := ComposableArrows.ext₁ rfl rfl rfl
-  d₀ := ComposableArrows.ext₁ rfl rfl rfl
-  d₁ := ComposableArrows.ext₁ rfl rfl rfl
-
-/-- The backwards and forwards edge of `coherentIso` compose to the identity. -/
-def invHomId : Edge.CompStruct inv hom (Edge.id x₁) where
-  simplex := ComposableArrows.mk₂ ⟨⟩ ⟨⟩
-  d₂ := ComposableArrows.ext₁ rfl rfl rfl
-  d₀ := ComposableArrows.ext₁ rfl rfl rfl
-  d₁ := ComposableArrows.ext₁ rfl rfl rfl
-
-/-- The forwards edge of `coherentIso` is an isomorphism. -/
-def isIsoHom : Edge.IsIso coherentIso.hom where
-  inv := inv
-  homInvId := homInvId
-  invHomId := invHomId
-
-/-- The image of `hom` under an SSet morphism is an isomorphism. -/
+/-- The image of `hom` under an SSet morphism is an isomorphism edge. -/
 def isIsoMapHom
   {X : SSet}
   (g : coherentIso ⟶ X)
@@ -205,7 +109,7 @@ noncomputable def boundary : coherentIso.Subcomplex :=
 /-- A simplex in the source endpoint subcomplex is constantly the source vertex. -/
 lemma mem_range_src_const {n : SimplexCategoryᵒᵖ} {x : coherentIso.obj n}
     (hx : x ∈ (Subcomplex.range coherentIso.src).obj n) :
-    coherentIso.equivFun x = fun _ => 0 := by
+    coherentIso.equivFin x = fun _ => 0 := by
   rcases hx with ⟨y, rfl⟩
   ext i
   cases n using Opposite.rec
@@ -214,7 +118,7 @@ lemma mem_range_src_const {n : SimplexCategoryᵒᵖ} {x : coherentIso.obj n}
 /-- A simplex in the target endpoint subcomplex is constantly the target vertex. -/
 lemma mem_range_tgt_const {n : SimplexCategoryᵒᵖ} {x : coherentIso.obj n}
     (hx : x ∈ (Subcomplex.range coherentIso.tgt).obj n) :
-    coherentIso.equivFun x = fun _ => 1 := by
+    coherentIso.equivFin x = fun _ => 1 := by
   rcases hx with ⟨y, rfl⟩
   ext i
   cases n using Opposite.rec

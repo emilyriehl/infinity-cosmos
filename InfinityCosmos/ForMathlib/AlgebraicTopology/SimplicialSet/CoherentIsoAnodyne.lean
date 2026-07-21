@@ -15,16 +15,17 @@ universe u
 
 /-- The alternating `n`-simplex of `coherentIso`, starting at the given vertex. -/
 noncomputable def coherentIso.altSimplex (n : ℕ) (start : Fin 2) : coherentIso _⦋n⦌ :=
-  coherentIso.equivFun.symm (fun i => ⟨(start.val + i.val) % 2, Nat.mod_lt _ (by norm_num)⟩)
+  coherentIso.equivFin.symm (fun i => ⟨(start.val + i.val) % 2, Nat.mod_lt _ (by norm_num)⟩)
 
 namespace coherentIso
 
 lemma equivFun_homInclusion_app {n : ℕ} (y : (Δ[1] : SSet) _⦋n⦌)
     (j : Fin (n + 1)) :
-    equivFun (homInclusion.app (op ⦋n⦌) y) j = y j := by
+    equivFin (homInclusion.app (op ⦋n⦌) y) j = y j := by
   obtain ⟨f, rfl⟩ := stdSimplex.objEquiv.symm.surjective y
   rw [homInclusion, yonedaEquiv_symm_app_objEquiv_symm]
-  change ULift.down (hom.edge.obj (f.toOrderHom j)) = f.toOrderHom j
+  change finTwoEquiv.symm (WalkingIso.equivBool (hom.edge.obj (f.toOrderHom j))) =
+    f.toOrderHom j
   by_cases h : f.toOrderHom j = 0
   · rw [h]
     rfl
@@ -32,7 +33,7 @@ lemma equivFun_homInclusion_app {n : ℕ} (y : (Δ[1] : SSet) _⦋n⦌)
     rfl
 
 lemma mem_range_homInclusion_iff {n : ℕ} {x : coherentIso _⦋n⦌} :
-    x ∈ (Subcomplex.range homInclusion).obj (op ⦋n⦌) ↔ Monotone (equivFun x) := by
+    x ∈ (Subcomplex.range homInclusion).obj (op ⦋n⦌) ↔ Monotone (equivFin x) := by
   constructor
   · rintro ⟨y, rfl⟩
     intro a b h
@@ -40,26 +41,27 @@ lemma mem_range_homInclusion_iff {n : ℕ} {x : coherentIso _⦋n⦌} :
     exact stdSimplex.monotone_apply y h
   · intro hx
     let y : (Δ[1] : SSet) _⦋n⦌ := stdSimplex.objMk (n := ⦋1⦌) (m := op ⦋n⦌)
-      { toFun := equivFun x, monotone' := hx }
+      { toFun := equivFin x, monotone' := hx }
     refine ⟨y, ?_⟩
-    apply equivFun.injective
+    apply equivFin.injective
     funext j
     rw [equivFun_homInclusion_app y j]
     rfl
 
 lemma val_equivFun_altSimplex (n : ℕ) (start : Fin 2) (j : Fin (n + 1)) :
-    (equivFun (altSimplex n start) j).val = (start.val + j.val) % 2 := rfl
+    (equivFin (altSimplex n start) j).val = (start.val + j.val) % 2 := by
+  simp [altSimplex, equivFin]
 
 lemma equivFun_σ {n : ℕ} (i : Fin (n + 1)) (x : coherentIso _⦋n⦌) (j : Fin (n + 2)) :
-    equivFun (coherentIso.σ i x) j = equivFun x (i.predAbove j) := rfl
+    equivFin (coherentIso.σ i x) j = equivFin x (i.predAbove j) := rfl
 
 lemma equivFun_δ {n : ℕ} (i : Fin (n + 2)) (x : coherentIso _⦋n + 1⦌)
     (j : Fin (n + 1)) :
-    equivFun (coherentIso.δ i x) j = equivFun x (i.succAbove j) := rfl
+    equivFin (coherentIso.δ i x) j = equivFin x (i.succAbove j) := rfl
 
 lemma exists_adjacent_eq_of_degenerate {n : ℕ} {x : coherentIso _⦋n + 1⦌}
     (hx : x ∈ coherentIso.degenerate (n + 1)) :
-    ∃ i : Fin (n + 1), equivFun x i.castSucc = equivFun x i.succ := by
+    ∃ i : Fin (n + 1), equivFin x i.castSucc = equivFin x i.succ := by
   rw [degenerate_eq_iUnion_range_σ] at hx
   simp only [Set.mem_iUnion, Set.mem_range] at hx
   obtain ⟨i, y, rfl⟩ := hx
@@ -67,11 +69,11 @@ lemma exists_adjacent_eq_of_degenerate {n : ℕ} {x : coherentIso _⦋n + 1⦌}
     Fin.predAbove_succ_self]⟩
 
 lemma degenerate_of_adjacent_eq {n : ℕ} {x : coherentIso _⦋n + 1⦌} {i : Fin (n + 1)}
-    (h : equivFun x i.castSucc = equivFun x i.succ) :
+    (h : equivFin x i.castSucc = equivFin x i.succ) :
     x ∈ coherentIso.degenerate (n + 1) := by
   rw [degenerate_eq_iUnion_range_σ]
   refine Set.mem_iUnion.2 ⟨i, coherentIso.δ i.castSucc x, ?_⟩
-  apply equivFun.injective
+  apply equivFin.injective
   funext j
   rw [equivFun_σ, equivFun_δ]
   by_cases hj : j = i.castSucc
@@ -82,7 +84,7 @@ lemma degenerate_of_adjacent_eq {n : ℕ} {x : coherentIso _⦋n + 1⦌} {i : Fi
 
 lemma mem_nonDegenerate_iff {n : ℕ} (x : coherentIso _⦋n + 1⦌) :
     x ∈ coherentIso.nonDegenerate (n + 1) ↔
-      ∀ i : Fin (n + 1), equivFun x i.castSucc ≠ equivFun x i.succ := by
+      ∀ i : Fin (n + 1), equivFin x i.castSucc ≠ equivFin x i.succ := by
   rw [mem_nonDegenerate_iff_notMem_degenerate]
   exact ⟨fun hx i hi => hx (degenerate_of_adjacent_eq hi),
     fun hx hdeg => let ⟨i, hi⟩ := exists_adjacent_eq_of_degenerate hdeg; hx i hi⟩
@@ -101,7 +103,7 @@ lemma altSimplex_nonDegenerate (n : ℕ) (start : Fin 2) :
       omega
 
 lemma not_monotone_altSimplex_zero (s : ℕ) :
-    ¬ Monotone (equivFun (altSimplex (s + 2) 0)) := by
+    ¬ Monotone (equivFin (altSimplex (s + 2) 0)) := by
   intro h
   let i : Fin ((s + 2) + 1) := ⟨1, by omega⟩
   let j : Fin ((s + 2) + 1) := ⟨2, by omega⟩
@@ -114,7 +116,7 @@ lemma not_monotone_altSimplex_zero (s : ℕ) :
   norm_num [i, j, val_equivFun_altSimplex] at hv
 
 lemma not_monotone_altSimplex_one (s : ℕ) :
-    ¬ Monotone (equivFun (altSimplex (s + 1) 1)) := by
+    ¬ Monotone (equivFin (altSimplex (s + 1) 1)) := by
   intro h
   let i : Fin ((s + 1) + 1) := ⟨0, by omega⟩
   let j : Fin ((s + 1) + 1) := ⟨1, by omega⟩
@@ -129,34 +131,34 @@ lemma not_monotone_altSimplex_one (s : ℕ) :
 lemma δ_zero_altSimplex (n : ℕ) (start : Fin 2) :
     coherentIso.δ (0 : Fin (n + 2)) (altSimplex (n + 1) start) =
       altSimplex n (start + 1) := by
-  apply equivFun.injective
+  apply equivFin.injective
   ext j
   rw [equivFun_δ, val_equivFun_altSimplex, val_equivFun_altSimplex,
     Fin.succAbove_zero, Fin.val_succ]
   fin_cases start <;> omega
 
 lemma eq_altSimplex_of_alternating {n : ℕ} (x : coherentIso _⦋n⦌)
-    (h : ∀ i : Fin n, equivFun x i.castSucc ≠ equivFun x i.succ) :
-    x = altSimplex n (equivFun x 0) := by
-  apply equivFun.injective
+    (h : ∀ i : Fin n, equivFin x i.castSucc ≠ equivFin x i.succ) :
+    x = altSimplex n (equivFin x 0) := by
+  apply equivFin.injective
   funext j
   apply Fin.val_injective
   rw [val_equivFun_altSimplex]
   induction j using Fin.induction with
   | zero =>
-      simp [Nat.mod_eq_of_lt (equivFun x 0).isLt]
+      simp [Nat.mod_eq_of_lt (equivFin x 0).isLt]
   | succ i ih =>
-      have hv : (equivFun x i.castSucc).val ≠ (equivFun x i.succ).val :=
+      have hv : (equivFin x i.castSucc).val ≠ (equivFin x i.succ).val :=
         fun e => h i (Fin.val_injective e)
-      have b0 := (equivFun x i.succ).isLt
-      have b1 := (equivFun x i.castSucc).isLt
+      have b0 := (equivFin x i.succ).isLt
+      have b1 := (equivFin x i.castSucc).isLt
       rw [Fin.val_castSucc] at ih
       rw [Fin.val_succ]
       omega
 
 lemma eq_altSimplex_of_nonDegenerate {n : ℕ} {x : coherentIso.{u} _⦋n⦌}
     (hx : x ∈ coherentIso.nonDegenerate n) :
-    x = altSimplex n (equivFun x 0) := by
+    x = altSimplex n (equivFin x 0) := by
   cases n with
   | zero =>
       exact eq_altSimplex_of_alternating x (by intro i; exact Fin.elim0 i)
@@ -164,14 +166,14 @@ lemma eq_altSimplex_of_nonDegenerate {n : ℕ} {x : coherentIso.{u} _⦋n⦌}
       exact eq_altSimplex_of_alternating x ((mem_nonDegenerate_iff x).1 hx)
 
 lemma monotone_altSimplex_zero (start : Fin 2) :
-    Monotone (equivFun (altSimplex 0 start : coherentIso.{u} _⦋0⦌)) := by
+    Monotone (equivFin (altSimplex 0 start : coherentIso.{u} _⦋0⦌)) := by
   intro a b h
   fin_cases a
   fin_cases b
   rfl
 
 lemma monotone_altSimplex_one_zero :
-    Monotone (equivFun (altSimplex 1 0 : coherentIso.{u} _⦋1⦌)) := by
+    Monotone (equivFin (altSimplex 1 0 : coherentIso.{u} _⦋1⦌)) := by
   intro a b h
   fin_cases a <;> fin_cases b <;> simp [Fin.le_iff_val_le_val, val_equivFun_altSimplex] at h ⊢
 
@@ -212,17 +214,17 @@ noncomputable def homInclusionRangePairingCore :
     have hx : altSimplex (s + 2) 0 = altSimplex (s + 1 + 1) (0 + 1) := by
       simpa using
         (S.ext_iff (altSimplex (s + 2) 0) (altSimplex (s + 1 + 1) (0 + 1))).1 h
-    have hv := congrArg (fun x => equivFun x 0) hx
+    have hv := congrArg (fun x => equivFin x 0) hx
     have hvv := congrArg Fin.val hv
     norm_num [val_equivFun_altSimplex] at hvv
   surjective' := by
     intro x
     obtain ⟨n, y, hy, hyNot, rfl⟩ := Subcomplex.N.mk_surjective x
     have hyAlt := eq_altSimplex_of_nonDegenerate hy
-    have hnotMono : ¬ Monotone (equivFun y) := by
+    have hnotMono : ¬ Monotone (equivFin y) := by
       intro hmono
       exact hyNot ((mem_range_homInclusion_iff).2 hmono)
-    by_cases hstart : equivFun y 0 = 0
+    by_cases hstart : equivFin y 0 = 0
     · cases n with
       | zero =>
           exfalso
@@ -240,7 +242,7 @@ noncomputable def homInclusionRangePairingCore :
               refine ⟨s, Or.inl ?_⟩
               change S.mk y = S.mk (altSimplex (s + 2) 0)
               rw [hyAlt, hstart]
-    · have hstart1 : equivFun y 0 = 1 := Fin.eq_one_of_ne_zero _ hstart
+    · have hstart1 : equivFin y 0 = 1 := Fin.eq_one_of_ne_zero _ hstart
       cases n with
       | zero =>
           exfalso
@@ -260,7 +262,7 @@ lemma δ_altSimplex_zero_eq_iff (s : ℕ) (i : Fin (s + 1 + 2)) :
   constructor
   · intro hi
     by_contra hi0
-    have hv := congrArg (fun z => equivFun z (0 : Fin (s + 1 + 1))) hi
+    have hv := congrArg (fun z => equivFin z (0 : Fin (s + 1 + 1))) hi
     rw [equivFun_δ, equivFun_δ, Fin.succAbove_ne_zero_zero hi0, Fin.succAbove_zero] at hv
     have hvv := congrArg Fin.val hv
     norm_num [val_equivFun_altSimplex] at hvv
@@ -316,7 +318,7 @@ instance homInclusion_mono : Mono homInclusion.{u} := by
   cases n using SimplexCategory.rec
   rename_i n
   ext j
-  have hf := congrArg (fun x => equivFun x j) h
+  have hf := congrArg (fun x => equivFin x j) h
   rw [equivFun_homInclusion_app y j, equivFun_homInclusion_app z j] at hf
   exact congrArg Fin.val hf
 
