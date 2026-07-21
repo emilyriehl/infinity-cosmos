@@ -5,7 +5,6 @@ import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CompStruct
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Coskeletal
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
@@ -26,6 +25,8 @@ import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTermina
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
 import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Tensors
 import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+import InfinityCosmos.ForMathlib.InfinityCosmos.Constructions.BrownFactorization
+import InfinityCosmos.ForMathlib.InfinityCosmos.CotensorPointIso
 import InfinityCosmos.ForMathlib.InfinityCosmos.Goals
 import InfinityCosmos.ForMathlib.InfinityCosmos.Isofibrations
 import InfinityCosmos.Init
