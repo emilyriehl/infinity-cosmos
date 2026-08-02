@@ -1,5 +1,10 @@
-import Architect
-import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+module
+
+public import Architect
+public import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+
+@[expose] public section
+
 
 open Simplicial SimplexCategory CategoryTheory
 

@@ -1,18 +1,23 @@
+module
+
 /-
 Copyright (c) 2025 Julian Komaromy. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Julian Komaromy
 -/
 
-import Architect
-import Mathlib.AlgebraicTopology.Quasicategory.Basic
-import Mathlib.AlgebraicTopology.Quasicategory.TwoTruncated
-import Mathlib.AlgebraicTopology.SimplicialSet.CompStructTruncated
-import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
-import Mathlib.CategoryTheory.Category.ReflQuiv
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
+public import Architect
+public import Mathlib.AlgebraicTopology.Quasicategory.Basic
+public import Mathlib.AlgebraicTopology.Quasicategory.TwoTruncated
+public import Mathlib.AlgebraicTopology.SimplicialSet.CompStructTruncated
+public import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
+public import Mathlib.CategoryTheory.Category.ReflQuiv
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
+
+@[expose] public section
+
 
 
 open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated

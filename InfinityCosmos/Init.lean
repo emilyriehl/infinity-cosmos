@@ -1,6 +1,11 @@
-import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
-import Mathlib.AlgebraicTopology.Quasicategory.Nerve
+module
+
+public import Architect
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
+public import Mathlib.AlgebraicTopology.Quasicategory.Nerve
+
+@[expose] public section
+
 
 /-!
 This file contains imports and `@[blueprint]` attributes which are needed for the blueprint,

@@ -1,10 +1,15 @@
+module
+
 /-
 Copyright (c) 2024 Daniel Carranza. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Carranza
 -/
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Basic
-import Mathlib.CategoryTheory.Monoidal.Closed.Enrichment
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Basic
+public import Mathlib.CategoryTheory.Monoidal.Closed.Enrichment
+
+@[expose] public section
+
 
 /-!
 

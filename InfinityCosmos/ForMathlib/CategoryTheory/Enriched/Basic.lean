@@ -1,5 +1,10 @@
-import Architect
-import Mathlib.CategoryTheory.Enriched.Basic
+module
+
+public import Architect
+public import Mathlib.CategoryTheory.Enriched.Basic
+
+@[expose] public section
+
 
 open CategoryTheory
 

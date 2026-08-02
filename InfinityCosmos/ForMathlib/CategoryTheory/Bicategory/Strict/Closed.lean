@@ -1,5 +1,10 @@
-import Mathlib.CategoryTheory.Monoidal.Closed.Basic
-import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
+module
+
+public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
+public import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
+
+@[expose] public section
+
 
 universe v u
 

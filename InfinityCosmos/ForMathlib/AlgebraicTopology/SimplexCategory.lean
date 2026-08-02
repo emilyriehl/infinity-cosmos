@@ -1,5 +1,10 @@
-import Architect
-import Mathlib.AlgebraicTopology.SimplexCategory.Basic
+module
+
+public import Architect
+public import Mathlib.AlgebraicTopology.SimplexCategory.Basic
+
+@[expose] public section
+
 
 open CategoryTheory SimplexCategory
 

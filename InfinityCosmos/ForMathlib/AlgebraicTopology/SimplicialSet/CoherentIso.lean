@@ -1,14 +1,19 @@
+module
+
 /-
 Copyright (c) 2024 Johns Hopkins Category Theory Seminar. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johns Hopkins Category Theory Seminar
 -/
 
-import Architect
-import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
-import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
-import Mathlib.AlgebraicTopology.SimplicialSet.CoherentIso
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import Architect
+public import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
+public import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
+public import Mathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
+
+@[expose] public section
+
 
 universe u v
 

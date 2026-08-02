@@ -1,10 +1,15 @@
+module
+
 /-
 Copyright (c) 2024 Joël Riou. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joël Riou
 -/
-import Architect
-import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import Architect
+public import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+
+@[expose] public section
+
 
 /-!
 # Simplicial categories

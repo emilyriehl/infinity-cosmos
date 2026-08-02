@@ -1,10 +1,15 @@
+module
+
 /-
 Copyright (c) 2026 Robert Sneiderman. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Robert Sneiderman
 -/
-import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
+public import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
+
+@[expose] public section
+
 
 open scoped Simplicial
 

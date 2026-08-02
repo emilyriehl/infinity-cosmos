@@ -1,6 +1,11 @@
-import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
-import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+module
+
+public import Architect
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
+public import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+
+@[expose] public section
+
 
 open CategoryTheory Simplicial SimplexCategory SimplexCategory.Truncated
     SimplexCategory.Truncated.Hom

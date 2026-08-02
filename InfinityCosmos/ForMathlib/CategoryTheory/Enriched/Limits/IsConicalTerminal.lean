@@ -1,10 +1,15 @@
+module
+
 /-
 Copyright (c) 2025 Jon Eugster. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
 -/
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalLimit
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalLimit
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
+
+@[expose] public section
+
 
 /-!
 # Conical terminal objects in enriched ordinary categories

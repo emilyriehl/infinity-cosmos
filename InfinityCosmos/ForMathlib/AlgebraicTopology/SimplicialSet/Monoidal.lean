@@ -1,6 +1,11 @@
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
-import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
-import Mathlib.AlgebraicTopology.SimplicialSet.Monoidal
+module
+
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
+public import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+public import Mathlib.AlgebraicTopology.SimplicialSet.Monoidal
+
+@[expose] public section
+
 
 universe u
 
