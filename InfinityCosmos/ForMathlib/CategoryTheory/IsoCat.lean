@@ -1,6 +1,10 @@
-import Mathlib.CategoryTheory.Monoidal.Closed.Basic
-import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
-import Mathlib.CategoryTheory.Bicategory.Functor.StrictPseudofunctor
+module
+
+public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
+public import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
+public import Mathlib.CategoryTheory.Bicategory.Functor.StrictPseudofunctor
+
+@[expose] public section
 
 /-
 Isomorphisms between categories.

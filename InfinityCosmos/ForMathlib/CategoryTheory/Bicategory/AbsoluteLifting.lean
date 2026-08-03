@@ -1,7 +1,11 @@
-import Mathlib.CategoryTheory.Bicategory.Kan.IsKan
-import Mathlib.CategoryTheory.Adjunction.Limits
-import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Terminal
-import Mathlib.Tactic.CategoryTheory.Bicategory.Basic
+module
+
+public import Mathlib.CategoryTheory.Bicategory.Kan.IsKan
+public import Mathlib.CategoryTheory.Adjunction.Limits
+public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Terminal
+public import Mathlib.Tactic.CategoryTheory.Bicategory.Basic
+
+@[expose] public section
 
 /-!
 # Absolute left liftings in bicategories

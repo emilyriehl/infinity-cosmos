@@ -1,8 +1,12 @@
-import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
-import Mathlib.CategoryTheory.Monoidal.Closed.Basic
-import Mathlib.CategoryTheory.Bicategory.Functor.StrictPseudofunctor
-import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Basic
-import InfinityCosmos.ForMathlib.CategoryTheory.IsoCat
+module
+
+public import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
+public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
+public import Mathlib.CategoryTheory.Bicategory.Functor.StrictPseudofunctor
+public import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Basic
+public import InfinityCosmos.ForMathlib.CategoryTheory.IsoCat
+
+@[expose] public section
 
 /-!
 # Cartesian monoidal strict bicategories

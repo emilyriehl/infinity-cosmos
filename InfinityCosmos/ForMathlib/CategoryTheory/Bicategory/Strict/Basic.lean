@@ -1,6 +1,10 @@
-import Mathlib.CategoryTheory.Bicategory.EqToHom
-import Mathlib.CategoryTheory.Category.Cat
-import InfinityCosmos.ForMathlib.CategoryTheory.IsoCat
+module
+
+public import Mathlib.CategoryTheory.Bicategory.EqToHom
+public import Mathlib.CategoryTheory.Category.Cat
+public import InfinityCosmos.ForMathlib.CategoryTheory.IsoCat
+
+@[expose] public section
 
 universe w v u
 

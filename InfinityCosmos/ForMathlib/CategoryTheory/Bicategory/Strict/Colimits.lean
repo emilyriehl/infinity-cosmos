@@ -1,6 +1,10 @@
-import Mathlib.CategoryTheory.Bicategory.Kan.Adjunction
-import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.AbsoluteLifting
-import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Closed
+module
+
+public import Mathlib.CategoryTheory.Bicategory.Kan.Adjunction
+public import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.AbsoluteLifting
+public import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Closed
+
+@[expose] public section
 
 /-!
 # Colimits in a cartesian closed strict bicategory
