@@ -17,6 +17,7 @@ public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Morphism
 public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
 public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
 public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.TrivialFibration
 public import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Closed
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Basic
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
