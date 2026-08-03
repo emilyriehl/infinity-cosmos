@@ -1,7 +1,7 @@
 module
 
-public import Architect
-public import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
+import Architect
+import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
 
 @[expose] public section
 

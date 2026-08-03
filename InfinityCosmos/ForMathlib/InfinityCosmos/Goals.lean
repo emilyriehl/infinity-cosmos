@@ -6,9 +6,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Emily Riehl
 -/
 
-public import Mathlib.AlgebraicTopology.Quasicategory.StrictBicategory
+import Mathlib.AlgebraicTopology.Quasicategory.StrictBicategory
 public import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
 public import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+public import Mathlib.AlgebraicTopology.Quasicategory.Basic
+public import Mathlib.CategoryTheory.Category.Basic
 
 @[expose] public section
 

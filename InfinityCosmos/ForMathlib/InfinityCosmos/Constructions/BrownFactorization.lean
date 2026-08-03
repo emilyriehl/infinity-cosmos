@@ -7,8 +7,10 @@ Authors: Robert Sneiderman
 -/
 public import InfinityCosmos.ForMathlib.InfinityCosmos.Isofibrations
 public import InfinityCosmos.ForMathlib.InfinityCosmos.CotensorPointIso
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
+public import Mathlib.CategoryTheory.Category.Basic
+public import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
 
 @[expose] public section
 

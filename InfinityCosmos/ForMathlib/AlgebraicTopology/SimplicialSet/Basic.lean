@@ -1,8 +1,11 @@
 module
 
-public import Architect
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
+import Architect
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
 public import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+public import Mathlib.AlgebraicTopology.SimplexCategory.Defs
+public import Mathlib.Logic.Equiv.Defs
+public import Mathlib.Combinatorics.Quiver.Basic
 
 @[expose] public section
 

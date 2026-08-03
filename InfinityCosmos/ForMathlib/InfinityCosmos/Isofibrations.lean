@@ -6,6 +6,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: JHU Category Theory Seminar
 -/
 public import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+public import Mathlib.CategoryTheory.Category.Basic
 
 @[expose] public section
 

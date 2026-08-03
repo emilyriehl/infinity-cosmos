@@ -7,6 +7,10 @@ Authors: Dagur Asgeirsson, Jon Eugster, Emily Riehl
 -/
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalLimit
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.CategoryTheory.Monoidal.Category
+public import Mathlib.CategoryTheory.Limits.Shapes.Terminal
+public import Mathlib.CategoryTheory.Enriched.Ordinary.Basic
 
 @[expose] public section
 

@@ -8,6 +8,12 @@ public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Morphism
 public import Mathlib.CategoryTheory.Monoidal.Closed.Cartesian
 public import Mathlib.CategoryTheory.Enriched.Limits.HasConicalPullbacks
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.BicartesianSq
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import Mathlib.AlgebraicTopology.Quasicategory.Basic
+public import Mathlib.AlgebraicTopology.Quasicategory.StrictBicategory
+public import Mathlib.CategoryTheory.Enriched.Limits.HasConicalProducts
+public import Mathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
 
 @[expose] public section
 

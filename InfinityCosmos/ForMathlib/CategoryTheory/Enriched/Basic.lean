@@ -1,7 +1,7 @@
 module
 
-public import Architect
-public import Mathlib.CategoryTheory.Enriched.Basic
+import Architect
+import Mathlib.CategoryTheory.Enriched.Basic
 
 @[expose] public section
 

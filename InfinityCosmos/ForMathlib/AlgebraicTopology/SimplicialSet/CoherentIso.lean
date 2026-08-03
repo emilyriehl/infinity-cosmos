@@ -6,11 +6,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johns Hopkins Category Theory Seminar
 -/
 
-public import Architect
-public import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
-public import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
+import Architect
+import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
+import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
 public import Mathlib.AlgebraicTopology.SimplicialSet.CoherentIso
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import Mathlib.Logic.Equiv.Defs
+public import Mathlib.AlgebraicTopology.SimplicialObject.Basic
+public import Mathlib.Combinatorics.Quiver.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 
 @[expose] public section
 

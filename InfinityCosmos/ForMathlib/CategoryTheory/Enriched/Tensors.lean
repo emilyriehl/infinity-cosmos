@@ -7,8 +7,12 @@ Authors: ? and Arnoud van der Leer
 -/
 
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
-public import Mathlib.CategoryTheory.Enriched.Opposite
-public import Mathlib.CategoryTheory.Monoidal.Closed.Enrichment
+import Mathlib.CategoryTheory.Enriched.Opposite
+import Mathlib.CategoryTheory.Monoidal.Closed.Enrichment
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.CategoryTheory.Monoidal.Category
+public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
+public import Mathlib.CategoryTheory.Enriched.Basic
 
 @[expose] public section
 

@@ -1,9 +1,9 @@
 module
 
-public import Architect
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
-public import Mathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
+import Architect
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
+import Mathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
 
 @[expose] public section
 

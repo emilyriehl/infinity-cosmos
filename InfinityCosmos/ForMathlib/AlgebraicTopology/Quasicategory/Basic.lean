@@ -1,7 +1,7 @@
 module
 
-public import Architect
-public import Mathlib.AlgebraicTopology.Quasicategory.Basic
+import Architect
+import Mathlib.AlgebraicTopology.Quasicategory.Basic
 
 @[expose] public section
 

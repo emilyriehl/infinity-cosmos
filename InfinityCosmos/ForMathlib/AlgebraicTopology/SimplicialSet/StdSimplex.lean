@@ -1,6 +1,6 @@
 module
 
-public import Architect
+import Architect
 public import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 
 @[expose] public section

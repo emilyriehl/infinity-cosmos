@@ -1,7 +1,7 @@
 module
 
-public import Architect
-public import Mathlib.AlgebraicTopology.SimplicialSet.Coskeletal
+import Architect
+import Mathlib.AlgebraicTopology.SimplicialSet.Coskeletal
 
 @[expose] public section
 

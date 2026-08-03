@@ -1,8 +1,9 @@
 module
 
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
-public import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
+import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 public import Mathlib.AlgebraicTopology.SimplicialSet.Monoidal
+public import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 
 @[expose] public section
 

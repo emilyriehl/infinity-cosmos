@@ -5,11 +5,16 @@ Copyright (c) 2024 Jack McKoen. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jack McKoen
 -/
-public import Architect
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+import Architect
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 public import Mathlib.AlgebraicTopology.Quasicategory.StrictBicategory
 public import Mathlib.AlgebraicTopology.SimplicialSet.Basic
 public import Mathlib.AlgebraicTopology.SimplicialSet.Boundary
+public import Mathlib.Combinatorics.Quiver.Basic
+public import Mathlib.CategoryTheory.MorphismProperty.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.Horn
+public import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+public import Mathlib.AlgebraicTopology.SimplicialSet.CoherentIso
 
 @[expose] public section
 

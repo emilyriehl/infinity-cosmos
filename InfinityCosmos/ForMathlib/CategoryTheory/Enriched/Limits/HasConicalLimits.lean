@@ -6,6 +6,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jon Eugster, Dagur Asgeirsson, Emily Riehl
 -/
 public import Mathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.CategoryTheory.Monoidal.Category
+public import Mathlib.CategoryTheory.Enriched.Ordinary.Basic
 
 @[expose] public section
 

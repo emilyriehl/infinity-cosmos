@@ -1,10 +1,10 @@
 module
 
-public import Architect
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
-public import Mathlib.AlgebraicTopology.SimplicialSet.Horn
-public import Mathlib.AlgebraicTopology.SimplicialSet.HornColimits
-public import Mathlib.CategoryTheory.Limits.Shapes.Multiequalizer
+import Architect
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+import Mathlib.AlgebraicTopology.SimplicialSet.Horn
+import Mathlib.AlgebraicTopology.SimplicialSet.HornColimits
+import Mathlib.CategoryTheory.Limits.Shapes.Multiequalizer
 
 @[expose] public section
 

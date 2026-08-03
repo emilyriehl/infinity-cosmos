@@ -7,6 +7,7 @@ Authors: Robert Sneiderman
 -/
 public import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
 public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
+public import Mathlib.CategoryTheory.Category.Basic
 
 @[expose] public section
 

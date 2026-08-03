@@ -1,7 +1,7 @@
 module
 
-public import Architect
-public import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
+import Architect
+import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
 
 @[expose] public section
 

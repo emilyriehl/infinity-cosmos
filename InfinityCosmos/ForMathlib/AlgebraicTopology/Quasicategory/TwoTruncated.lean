@@ -6,15 +6,24 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Julian Komaromy
 -/
 
-public import Architect
+import Architect
 public import Mathlib.AlgebraicTopology.Quasicategory.Basic
 public import Mathlib.AlgebraicTopology.Quasicategory.TwoTruncated
 public import Mathlib.AlgebraicTopology.SimplicialSet.CompStructTruncated
 public import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
 public import Mathlib.CategoryTheory.Category.ReflQuiv
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
-public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
+import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
 public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+public import Mathlib.AlgebraicTopology.SimplicialObject.Basic
+public import Mathlib.Combinatorics.Quiver.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.HornColimits
+public import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
+public import Mathlib.Combinatorics.Quiver.ReflQuiver
+public import Mathlib.CategoryTheory.Quotient
 
 @[expose] public section
 
