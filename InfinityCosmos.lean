@@ -26,6 +26,7 @@ public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConical
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Tensors
+public import InfinityCosmos.ForMathlib.CategoryTheory.Monoidal.Closed.Basic
 public import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
 public import InfinityCosmos.ForMathlib.InfinityCosmos.Constructions.BrownFactorization
 public import InfinityCosmos.ForMathlib.InfinityCosmos.CotensorPointIso
