@@ -1,5 +1,10 @@
+module
+
 import Architect
 import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
+
+@[expose] public section
+
 
 open CategoryTheory SSet
 

@@ -1,6 +1,13 @@
+module
+
 import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+
+@[expose] public section
+
 
 namespace CategoryTheory
 

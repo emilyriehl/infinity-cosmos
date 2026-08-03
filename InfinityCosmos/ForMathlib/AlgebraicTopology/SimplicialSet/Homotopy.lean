@@ -1,15 +1,31 @@
+module
+
 /-
 Copyright (c) 2024 Johns Hopkins Category Theory Seminar. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johns Hopkins Category Theory Seminar
 -/
 
-import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
-import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
-import Mathlib.AlgebraicTopology.Quasicategory.Basic
+public import Architect
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+public import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
+public import Mathlib.AlgebraicTopology.Quasicategory.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+public import Mathlib.Combinatorics.Quiver.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+public import Mathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+public import Mathlib.CategoryTheory.Iso
+public import Mathlib.CategoryTheory.Adjunction.Mates
+public import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import Batteries.Tactic.Lint.Misc
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.KanComplex
+public import Mathlib.AlgebraicTopology.SimplicialObject.Basic
+
+@[expose] public section
+
 
 universe u v w
 

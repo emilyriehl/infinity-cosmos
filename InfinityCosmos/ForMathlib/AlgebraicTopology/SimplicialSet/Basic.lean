@@ -1,6 +1,14 @@
+module
+
 import Architect
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
-import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+public import Mathlib.AlgebraicTopology.SimplexCategory.Defs
+public import Mathlib.Logic.Equiv.Defs
+public import Mathlib.Combinatorics.Quiver.Basic
+
+@[expose] public section
+
 
 open CategoryTheory Simplicial SimplexCategory SimplexCategory.Truncated
     SimplexCategory.Truncated.Hom

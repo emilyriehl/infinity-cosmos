@@ -1,5 +1,10 @@
+module
+
 import Architect
 import Mathlib.AlgebraicTopology.SimplicialSet.Coskeletal
+
+@[expose] public section
+
 
 open CategoryTheory
 

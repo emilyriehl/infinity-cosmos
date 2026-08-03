@@ -1,5 +1,10 @@
+module
+
 import Architect
 import Mathlib.AlgebraicTopology.Quasicategory.Basic
+
+@[expose] public section
+
 
 open SSet
 

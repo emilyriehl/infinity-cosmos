@@ -1,31 +1,34 @@
-import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
-import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.TwoTruncated
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Coskeletal
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
-import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Closed
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Basic
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalLimit
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Tensors
-import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
-import InfinityCosmos.ForMathlib.InfinityCosmos.Constructions.BrownFactorization
-import InfinityCosmos.ForMathlib.InfinityCosmos.CotensorPointIso
-import InfinityCosmos.ForMathlib.InfinityCosmos.Goals
-import InfinityCosmos.ForMathlib.InfinityCosmos.Isofibrations
-import InfinityCosmos.Init
+module
+prelude
+
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.TwoTruncated
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplexCategory
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Basic
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Coskeletal
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Homotopy
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Horn
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+public import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Closed
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Basic
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalLimit
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Tensors
+public import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+public import InfinityCosmos.ForMathlib.InfinityCosmos.Constructions.BrownFactorization
+public import InfinityCosmos.ForMathlib.InfinityCosmos.CotensorPointIso
+public import InfinityCosmos.ForMathlib.InfinityCosmos.Goals
+public import InfinityCosmos.ForMathlib.InfinityCosmos.Isofibrations
+public import InfinityCosmos.Init

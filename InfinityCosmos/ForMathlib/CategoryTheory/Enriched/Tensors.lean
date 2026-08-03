@@ -1,12 +1,21 @@
+module
+
 /-
 Copyright (c) ? All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: ? and Arnoud van der Leer
 -/
 
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
 import Mathlib.CategoryTheory.Enriched.Opposite
 import Mathlib.CategoryTheory.Monoidal.Closed.Enrichment
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.CategoryTheory.Monoidal.Category
+public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
+public import Mathlib.CategoryTheory.Enriched.Basic
+
+@[expose] public section
+
 
 /-!
   # Tensors in an enriched category
