@@ -10,6 +10,7 @@ public import Architect
 public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
 public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
 public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+public import InfinityCosmos.ForMathlib.CategoryTheory.Monoidal.Closed.Basic
 public import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 public import Mathlib.AlgebraicTopology.Quasicategory.Basic
 public import Mathlib.AlgebraicTopology.SimplicialSet.Basic
@@ -70,6 +71,31 @@ noncomputable def expPointNatIso : ihom Δ[0] ≅ 𝟭 SSet := by
   }
 
 noncomputable def expPointIsoSelf (X : SSet) : sHom Δ[0] X ≅ X := expPointNatIso.app X
+
+/-- Evaluating a curried map out of `Δ[0]` agrees with precomposition by the canonical
+`A ⟶ Δ[0] ⊗ A`. -/
+lemma curry_expPointIsoSelf_hom {A B : SSet.{u}} (H : Δ[0] ⊗ A ⟶ B) :
+    MonoidalClosed.curry H ≫ B.expPointIsoSelf.hom =
+      (λ_ A).inv ≫ (SSet.pointIsUnit.inv ▷ A) ≫ H := by
+  change MonoidalClosed.curry H ≫
+      ((MonoidalClosed.pre SSet.pointIsUnit.inv).app B ≫
+        (MonoidalClosed.unitIsoSelf (C := SSet.{u}) (X := B)).hom) =
+      (λ_ A).inv ≫ (SSet.pointIsUnit.inv ▷ A) ≫ H
+  slice_lhs 1 2 => rw [MonoidalClosed.curry_pre_app]
+  exact MonoidalClosed.curry_unitIsoSelf_hom ((SSet.pointIsUnit.inv ▷ A) ≫ H)
+
+/-- Evaluating a curried cylinder `I ⊗ A ⟶ B` at a chosen endpoint of `I` is precomposition by
+that endpoint. This is what turns the endpoint conditions on an uncurried homotopy into the
+`source_eq` and `target_eq` fields of a `Homotopy`. -/
+lemma curry_endpoint_eval {I A B : SSet.{u}} (endpoint : Δ[0] ⟶ I) (H : I ⊗ A ⟶ B) :
+    MonoidalClosed.curry H ≫ (MonoidalClosed.pre endpoint).app B ≫ B.expPointIsoSelf.hom =
+      (λ_ A).inv ≫ (SSet.pointIsUnit.inv ≫ endpoint) ▷ A ≫ H := by
+  rw [← Category.assoc]
+  slice_lhs 1 2 => rw [MonoidalClosed.curry_pre_app]
+  rw [curry_expPointIsoSelf_hom]
+  rw [MonoidalCategory.comp_whiskerRight]
+  rfl
+
 section
 
 variable {I : SSet.{u}} [Interval I]
