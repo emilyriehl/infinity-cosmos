@@ -1,4 +1,5 @@
 module
+prelude
 
 public import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.Basic
 public import InfinityCosmos.ForMathlib.AlgebraicTopology.Quasicategory.TwoTruncated
@@ -31,5 +32,3 @@ public import InfinityCosmos.ForMathlib.InfinityCosmos.CotensorPointIso
 public import InfinityCosmos.ForMathlib.InfinityCosmos.Goals
 public import InfinityCosmos.ForMathlib.InfinityCosmos.Isofibrations
 public import InfinityCosmos.Init
-
-@[expose] public section
