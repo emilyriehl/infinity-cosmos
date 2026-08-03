@@ -1,14 +1,31 @@
+module
+
 /-
 Copyright (c) 2024 Johns Hopkins Category Theory Seminar. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johns Hopkins Category Theory Seminar
 -/
 
-import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
-import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
-import Mathlib.AlgebraicTopology.Quasicategory.Basic
+public import Architect
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Monoidal
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+public import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
+public import Mathlib.AlgebraicTopology.Quasicategory.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+public import Mathlib.Combinatorics.Quiver.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.StdSimplex
+public import Mathlib.AlgebraicTopology.SimplicialSet.CoherentIso
+public import Mathlib.CategoryTheory.Iso
+public import Mathlib.CategoryTheory.Adjunction.Mates
+public import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import Batteries.Tactic.Lint.Misc
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.KanComplex
+public import Mathlib.AlgebraicTopology.SimplicialObject.Basic
+
+@[expose] public section
+
 
 universe u v w
 
@@ -28,8 +45,8 @@ instance arrowInterval : Interval Δ[1] where
 
 /-- The interval relevant to the theory of quasi-categories. -/
 instance isoInterval : Interval coherentIso where
-  src := coherentIso.src
-  tgt := coherentIso.tgt
+  src := yonedaEquiv.symm (coherentIso.x₀)
+  tgt := yonedaEquiv.symm (coherentIso.x₁)
 
 open MonoidalCategory
 noncomputable def pointIsUnit : Δ[0] ≅ (𝟙_ SSet) :=

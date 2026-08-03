@@ -1,5 +1,10 @@
+module
+
 import Architect
 import Mathlib.AlgebraicTopology.SimplicialSet.Nerve
+
+@[expose] public section
+
 
 open CategoryTheory
 

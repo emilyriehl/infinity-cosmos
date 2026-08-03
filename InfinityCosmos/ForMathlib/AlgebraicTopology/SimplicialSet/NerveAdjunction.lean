@@ -1,7 +1,12 @@
+module
+
 import Architect
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
 import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.Nerve
 import Mathlib.AlgebraicTopology.SimplicialSet.NerveAdjunction
+
+@[expose] public section
+
 
 open CategoryTheory SSet
 

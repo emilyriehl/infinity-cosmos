@@ -1,6 +1,16 @@
-import Mathlib.CategoryTheory.Monoidal.Closed.Basic
-import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
-import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.CartesianMonoidal
+module
+
+public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
+public import Mathlib.CategoryTheory.Monoidal.Cartesian.Cat
+public import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
+public import Mathlib.CategoryTheory.Bicategory.Basic
+public import Mathlib.CategoryTheory.Bicategory.Strict.Basic
+public import Mathlib.CategoryTheory.Category.Cat
+public import Mathlib.CategoryTheory.Monoidal.Cartesian.Basic
+public import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.CartesianMonoidal
+
+@[expose] public section
+
 
 /-!
 # Cartesian closed strict bicategories

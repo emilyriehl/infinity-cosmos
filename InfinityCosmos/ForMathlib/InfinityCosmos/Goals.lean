@@ -1,3 +1,5 @@
+module
+
 /-
 Copyright (c) 2025 Emily Riehl. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -5,8 +7,14 @@ Authors: Emily Riehl
 -/
 
 import Mathlib.AlgebraicTopology.Quasicategory.StrictBicategory
-import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
-import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+public import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
+public import InfinityCosmos.ForMathlib.InfinityCosmos.Basic
+public import Mathlib.AlgebraicTopology.SimplicialSet.Basic
+public import Mathlib.AlgebraicTopology.Quasicategory.Basic
+public import Mathlib.CategoryTheory.Category.Basic
+
+@[expose] public section
+
 
 universe v v' u u'
 

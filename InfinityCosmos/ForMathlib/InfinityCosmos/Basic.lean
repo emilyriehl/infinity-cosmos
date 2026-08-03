@@ -1,11 +1,22 @@
-import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
-import Mathlib.CategoryTheory.Monoidal.Closed.Cartesian
-import Mathlib.CategoryTheory.Enriched.Limits.HasConicalPullbacks
-import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.BicartesianSq
+module
+
+public import Architect
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Cotensors
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalTerminal
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.MorphismProperty
+public import Mathlib.CategoryTheory.Monoidal.Closed.Cartesian
+public import Mathlib.CategoryTheory.Enriched.Limits.HasConicalPullbacks
+public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.BicartesianSq
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import Mathlib.AlgebraicTopology.Quasicategory.Basic
+public import Mathlib.AlgebraicTopology.Quasicategory.StrictBicategory
+public import Mathlib.CategoryTheory.Enriched.Limits.HasConicalProducts
+public import Mathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
+
+@[expose] public section
+
 
 namespace CategoryTheory
 

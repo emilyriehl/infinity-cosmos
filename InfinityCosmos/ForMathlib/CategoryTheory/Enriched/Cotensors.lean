@@ -1,6 +1,16 @@
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
-import Mathlib.CategoryTheory.Enriched.Opposite
-import Mathlib.CategoryTheory.Monoidal.Closed.Enrichment
+module
+
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.MonoidalProdCat
+public import Mathlib.CategoryTheory.Enriched.Opposite
+public import Mathlib.CategoryTheory.Monoidal.Closed.Enrichment
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.CategoryTheory.Monoidal.Category
+public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
+public import Mathlib.CategoryTheory.Monoidal.Braided.Basic
+public import Mathlib.CategoryTheory.Enriched.Basic
+
+@[expose] public section
+
 
 universe u u₁ v w
 

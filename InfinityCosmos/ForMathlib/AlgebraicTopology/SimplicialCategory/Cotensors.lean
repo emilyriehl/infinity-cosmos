@@ -1,10 +1,17 @@
+module
+
 import Architect
-import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
-import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
+public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialCategory.Basic
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
+public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
+
+@[expose] public section
+
 
 namespace CategoryTheory
 
-open SimplicialCategory MonoidalCategory BraidedCategory
+open SimplicialCategory MonoidalCategory BraidedCategory MonoidalClosed
 
 universe v v₁ v₂ u u₁ u₂
 
@@ -113,6 +120,112 @@ def cotensor.iso.underlying (U : SSet) (A : K) [HasCotensor U A] (X : K) :
       (cotensor.iso U A X)).toEquiv.trans
         (SimplicialCategory.homEquiv' U (sHom X A)).symm
 
+/-- Ordinary composition, transported to zero-simplices of the enriched hom. -/
+lemma homEquiv'_comp {X Y Z : K} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    homEquiv' X Z (f ≫ g) =
+      ((sHomWhiskerRight f Z).app (Opposite.op (SimplexCategory.mk 0)))
+        (homEquiv' Y Z g) := by
+  simp [homEquiv', sHomWhiskerRight, eHomEquiv_comp, eHomWhiskerRight, SSet.unitHomEquiv]
+  rfl
+
+/-- Ordinary composition in the right variable, transported to enriched morphisms. -/
+lemma eHomEquiv_comp_eHomWhiskerRight {X Y Z : K} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    eHomEquiv SSet g ≫ eHomWhiskerRight SSet f Z = eHomEquiv SSet (f ≫ g) := by
+  apply (SSet.unitHomEquiv (sHom X Z)).injective
+  change ((sHomWhiskerRight f Z).app (Opposite.op (SimplexCategory.mk 0)))
+      (homEquiv' Y Z g) = homEquiv' X Z (f ≫ g)
+  rw [homEquiv'_comp]
+
+/-- The identity morphism, transported to zero-simplices of the enriched hom. -/
+lemma homEquiv'_id (X : K) :
+    homEquiv' X X (𝟙 X) = ((eId SSet X).app ⟨SimplexCategory.mk 0⟩) PUnit.unit := by
+  simp [homEquiv', SSet.unitHomEquiv]
+
+/-- The zero-simplex form of `cotensor.iso.underlying`. -/
+lemma cotensor_underlying_homEquiv (U : SSet.{v}) (A X : K) [HasCotensor U A]
+    (h : X ⟶ U ⋔ A) :
+    homEquiv' U (sHom X A) ((cotensor.iso.underlying U A X) h) =
+      (((evaluation SimplexCategoryᵒᵖ (Type v)).obj ⟨SimplexCategory.mk 0⟩).map
+        (cotensor.iso U A X).hom) (homEquiv' X (U ⋔ A) h) := by
+  change homEquiv' U (sHom X A)
+      ((homEquiv' U (sHom X A)).symm
+        ((((evaluation SimplexCategoryᵒᵖ (Type v)).obj ⟨SimplexCategory.mk 0⟩).mapIso
+          (cotensor.iso U A X)).toEquiv (homEquiv' X (U ⋔ A) h))) =
+      (((evaluation SimplexCategoryᵒᵖ (Type v)).obj ⟨SimplexCategory.mk 0⟩).map
+        (cotensor.iso U A X).hom) (homEquiv' X (U ⋔ A) h)
+  simp
+
+/-- Composition in `SSet`, expressed through the closed structure. -/
+lemma homEquiv'_comp_sset_ihom {U V W : SSet.{v}} (i : U ⟶ V) (f : V ⟶ W) :
+    homEquiv' U W (i ≫ f) =
+      ((eHomEquiv SSet i ≫ (ihom U).map f).app ⟨SimplexCategory.mk 0⟩) PUnit.unit := by
+  change (((curry' (i ≫ f)).app ⟨SimplexCategory.mk 0⟩) PUnit.unit) =
+    (((curry' i ≫ (ihom U).map f).app ⟨SimplexCategory.mk 0⟩) PUnit.unit)
+  rw [curry'_ihom_map]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Naturality of a cotensor cone in the representing object. -/
+lemma cotensor_coneNatTrans_naturality_left {U : SSet.{v}} {A X Y : K}
+    (ux : Cotensor U A) (h : X ⟶ Y) :
+    eHomWhiskerRight SSet h ux.obj ≫ ux.coneNatTrans X =
+      ux.coneNatTrans Y ≫ (ihom U).map (eHomWhiskerRight SSet h A) := by
+  apply uncurry_injective
+  rw [uncurry_natural_left, uncurry_natural_right]
+  rw [ux.coneNatTrans_eq, ux.coneNatTrans_eq]
+  simp only [Category.assoc]
+  rw [braiding_naturality_right_assoc]
+  rw [← whisker_exchange_assoc]
+  rw [← eComp_eHomWhiskerRight]
+
+/-- Evaluating a cotensor cone at the identity of its representing object recovers the cone. -/
+lemma cotensor_coneNatTrans_eId {U : SSet.{v}} {A : K} (ux : Cotensor U A) :
+    eId SSet ux.obj ≫ ux.coneNatTrans ux.obj = curry' ux.cone := by
+  apply uncurry'_injective
+  change (ρ_ U).inv ≫ uncurry (eId SSet ux.obj ≫ ux.coneNatTrans ux.obj) = ux.cone
+  rw [uncurry_natural_left, ux.coneNatTrans_eq]
+  rw [braiding_naturality_right_assoc, braiding_tensorUnit_right_assoc, Iso.inv_hom_id_assoc]
+  rw [← whisker_exchange_assoc, ← leftUnitor_inv_naturality_assoc]
+  rw [e_id_comp, Category.comp_id]
+
+/-- The zero-simplex form of `cotensor_coneNatTrans_eId`. -/
+lemma cotensor_coneNatTrans_id {U : SSet.{v}} (A : K) [HasCotensor U A] :
+    ((getCotensor U A).coneNatTrans (U ⋔ A)).app ⟨SimplexCategory.mk 0⟩
+      (homEquiv' (U ⋔ A) (U ⋔ A) (𝟙 _)) =
+    homEquiv' U (sHom (U ⋔ A) A) (getCotensor U A).cone := by
+  rw [homEquiv'_id]
+  change (((eId SSet (getCotensor U A).obj ≫
+    (getCotensor U A).coneNatTrans (getCotensor U A).obj).app
+    ⟨SimplexCategory.mk 0⟩) PUnit.unit) = _
+  have h := congrArg (fun f : 𝟙_ SSet ⟶ (ihom U).obj (sHom (U ⋔ A) A) =>
+      f.app ⟨SimplexCategory.mk 0⟩ PUnit.unit)
+    (cotensor_coneNatTrans_eId (getCotensor U A))
+  exact h.trans (by rfl)
+
+/-- The underlying map of a cotensor isomorphism is represented by the chosen cotensor cone. -/
+lemma cotensor_iso_underlying_eq_cone {U : SSet.{v}} (A X : K) [HasCotensor U A]
+    (h : X ⟶ U ⋔ A) :
+    (cotensor.iso.underlying U A X) h =
+      (getCotensor U A).cone ≫ eHomWhiskerRight SSet h A := by
+  apply (homEquiv' U (sHom X A)).injective
+  rw [cotensor_underlying_homEquiv]
+  change (((getCotensor U A).coneNatTrans X).app ⟨SimplexCategory.mk 0⟩
+      (homEquiv' X (U ⋔ A) h)) =
+    ((sHomWhiskerLeft U (eHomWhiskerRight SSet h A)).app ⟨SimplexCategory.mk 0⟩)
+      (homEquiv' U (sHom (U ⋔ A) A) (getCotensor U A).cone)
+  conv_lhs => rw [← Category.comp_id h, homEquiv'_comp]
+  rw [← cotensor_coneNatTrans_id]
+  have hn := congrArg
+    (fun f : sHom (U ⋔ A) (U ⋔ A) ⟶ (ihom U).obj (sHom X A) =>
+      f.app ⟨SimplexCategory.mk 0⟩ (homEquiv' (U ⋔ A) (U ⋔ A) (𝟙 _)))
+    (cotensor_coneNatTrans_naturality_left (getCotensor U A) h)
+  change (((eHomWhiskerRight SSet h (getCotensor U A).obj ≫
+      (getCotensor U A).coneNatTrans X).app ⟨SimplexCategory.mk 0⟩)
+      (homEquiv' (U ⋔ A) (U ⋔ A) (𝟙 _))) =
+    (((getCotensor U A).coneNatTrans (U ⋔ A) ≫
+      (ihom U).map (eHomWhiskerRight SSet h A)).app ⟨SimplexCategory.mk 0⟩)
+      (homEquiv' (U ⋔ A) (U ⋔ A) (𝟙 _))
+  exact hn
+
 end
 
 variable (K) in
@@ -138,6 +251,52 @@ noncomputable def cotensorCovMap (U : SSet) {A B : K} (f : A ⟶ B) : U ⋔ A �
 
 noncomputable def cotensorContraMap {U V : SSet} (i : U ⟶ V) (A : K) : V ⋔ A ⟶ U ⋔ A :=
   cotensorPrecompose _ _ i
+
+/-- The zero-simplex corresponding to a contravariant cotensor map. -/
+lemma homEquiv'_cotensorContraMap {U V : SSet.{v}} (i : U ⟶ V) (A : K) :
+    homEquiv' (V ⋔ A) (U ⋔ A) (cotensorContraMap i A) =
+      ((eHomEquiv SSet i ≫
+        Cotensor.EhomPrecompose SSet (getCotensor U A) (getCotensor V A)).app
+        ⟨SimplexCategory.mk 0⟩) PUnit.unit := by
+  change (((eHomEquiv SSet) (cotensorPrecompose (getCotensor U A)
+    (getCotensor V A) i)).app ⟨SimplexCategory.mk 0⟩) PUnit.unit = _
+  rw [cotensorPrecompose_homEquiv]
+
+/-- The chosen cotensor cone is natural with respect to contravariant cotensor maps. -/
+lemma cotensor_contraMap_cone {U V : SSet.{v}} (i : U ⟶ V) (A : K) :
+    (getCotensor U A).cone ≫ eHomWhiskerRight SSet (cotensorContraMap i A) A =
+      i ≫ (getCotensor V A).cone := by
+  rw [← cotensor_iso_underlying_eq_cone]
+  apply (homEquiv' U (sHom (V ⋔ A) A)).injective
+  rw [cotensor_underlying_homEquiv]
+  change (((getCotensor U A).coneNatTrans (V ⋔ A)).app ⟨SimplexCategory.mk 0⟩
+      (homEquiv' (V ⋔ A) (U ⋔ A) (cotensorContraMap i A))) =
+    homEquiv' U (sHom (V ⋔ A) A) (i ≫ (getCotensor V A).cone)
+  rw [homEquiv'_comp_sset_ihom, homEquiv'_cotensorContraMap]
+  change (((eHomEquiv SSet i ≫
+      Cotensor.EhomPrecompose SSet (getCotensor U A) (getCotensor V A) ≫
+      (getCotensor U A).coneNatTrans (V ⋔ A)).app ⟨SimplexCategory.mk 0⟩) PUnit.unit) = _
+  have hpre : eHomEquiv SSet i ≫
+      Cotensor.EhomPrecompose SSet (getCotensor U A) (getCotensor V A) ≫
+      (getCotensor U A).coneNatTrans (V ⋔ A) =
+      eHomEquiv SSet i ≫ (ihom U).map (getCotensor V A).cone :=
+    (Category.assoc _ _ _).trans
+      (whisker_eq (eHomEquiv SSet i)
+        (Cotensor.EhomPrecompose_coneNatTrans_eq SSet (getCotensor U A) (getCotensor V A)))
+  rw [hpre]
+  rfl
+
+/-- Naturality of `cotensor.iso.underlying` under precomposition in the simplicial-set variable. -/
+lemma cotensor_iso_underlying_precompose {U V : SSet.{v}} (i : U ⟶ V) (A X : K)
+    (g : X ⟶ V ⋔ A) :
+    (cotensor.iso.underlying U A X) (g ≫ cotensorContraMap i A) =
+      i ≫ (cotensor.iso.underlying V A X) g := by
+  rw [cotensor_iso_underlying_eq_cone, cotensor_iso_underlying_eq_cone]
+  rw [eHomWhiskerRight_comp]
+  change (((getCotensor U A).cone ≫ eHomWhiskerRight SSet (cotensorContraMap i A) A) ≫
+      eHomWhiskerRight SSet g A) =
+    ((i ≫ (getCotensor V A).cone) ≫ eHomWhiskerRight SSet g A)
+  exact congrArg (fun f => f ≫ eHomWhiskerRight SSet g A) (cotensor_contraMap_cone i A)
 
 
 @[blueprint
