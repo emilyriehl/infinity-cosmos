@@ -79,3 +79,4 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 * [Andrew Yang](https://github.com/erdOne)
 * [Zeyi Zhao](https://github.com/Georjez)
 * [Thomas Zhu](https://github.com/hanwenzhu)
+* [Serhii Khoma](https://github.com/srghma)
