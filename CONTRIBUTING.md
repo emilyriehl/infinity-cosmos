@@ -3,6 +3,23 @@
 Thank you for your interest in contributing to the InfinityCosmos Project!
 This guide provides detailed instructions on how to effectively and efficiently contribute to the project.
 
+## Building the Project Locally
+
+[elan](https://github.com/leanprover/elan) is the only prerequisite. It reads `lean-toolchain` and installs the Lean version named there on the first `lake` command; no separate Lean install is needed.
+
+```bash
+git clone https://github.com/emilyriehl/infinity-cosmos.git
+cd infinity-cosmos
+lake exe cache get   # download Mathlib's prebuilt files
+lake build
+```
+
+Without `lake exe cache get`, `lake build` compiles Mathlib from source, which takes hours. Run it again after any change to `lake-manifest.json`, including a dependency bump pulled from `main`.
+
+`lake build :blueprint` builds the blueprint declarations as well. The `Compile blueprint` workflow runs that target on every pull request.
+
+A first build takes a few minutes and needs about 10 GB: 2.8 GB for the toolchain under `~/.elan`, and 7.6 GB for dependencies and build output under `.lake`.
+
 ## Project Coordination
 
 The project is managed using a [GitHub project dashboard](https://github.com/users/emilyriehl/projects/2),
