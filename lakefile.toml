@@ -14,7 +14,7 @@ rev = "v4.33.0-rc1"
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "3ef2c2e23a8b5a46554fa771969b89287972b616"
+rev = "6f1ef4e5dd604a435bddba4747b13970cd65d2a1"
 
 [[require]]
 name = "checkdecls"
