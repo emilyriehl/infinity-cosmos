@@ -89,6 +89,7 @@ Once you are assigned to an issue, begin working on the corresponding task. You 
 * [Emily Riehl](https://github.com/emilyriehl)
 * [Joël Riou](https://github.com/joelriou)
 * [Robert Sneiderman](https://github.com/Robby955)
+* [Alejandro José Soto Franco](https://github.com/alejandro-soto-franco)
 * [Joseph Tooby-Smith](https://github.com/jstoobysmith)
 * [Adam Topaz](https://github.com/adamtopaz)
 * [Dominic Verity](https://github.com/dom-verity)
