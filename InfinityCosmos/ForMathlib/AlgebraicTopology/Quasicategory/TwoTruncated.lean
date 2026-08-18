@@ -32,6 +32,12 @@ public import Mathlib.CategoryTheory.Quotient
 open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated
   SimplexCategory.Truncated.Hom SimplicialObject SimplicialObject.Truncated
 
+-- The proofs below need these to unfold while `isDefEq` matches implicit arguments.
+-- TODO: upstream. They belong in mathlib carrying `implicit_reducible` at their definition
+-- sites; delete this block then.
+attribute [local implicit_reducible] _root_.HomRel CategoryTheory.Cat.FreeRefl
+  CategoryTheory.Paths SSet.OneTruncation₂
+
 namespace SSet
 namespace Truncated
 
@@ -83,6 +89,10 @@ variable {S : SSet} {x₀ x₁ x₂ : ((truncation 2).obj S) _⦋0⦌₂}
 lemma path_edges_comm :
     stdSimplex.map (SimplexCategory.δ (0 : Fin 2)) ≫ edgeMap e₀₁ =
       stdSimplex.map (SimplexCategory.δ (1 : Fin 2)) ≫ edgeMap e₁₂ := by
+  show stdSimplex.map (SimplexCategory.δ (0 : Fin 2)) ≫
+      yonedaEquiv.symm e₀₁.edge =
+    stdSimplex.map (SimplexCategory.δ (1 : Fin 2)) ≫
+      yonedaEquiv.symm e₁₂.edge
   rw [map_comp_yonedaEquiv_symm, map_comp_yonedaEquiv_symm]
   congr 1
   apply Eq.trans
@@ -647,10 +657,14 @@ lemma unit_app_quotientFunctor : quotientReflPrefunctor₂ =
 
 -- lemma quotientFunctor_obj (x : FreeRefl (OneTruncation₂ A)) : quotientFunctor₂.obj x = x.as := rfl
 
+-- The `dsimp` chain below leaves a `Quot.liftOn` and a `Cat.of` bundling whose implicit
+-- arguments agree only at `default` transparency.
 set_option backward.isDefEq.respectTransparency false in
 lemma qFunctor_map_toPath (x y : FreeRefl.{u} (OneTruncation₂ A))
     (f : Truncated.Edge x.as y.as) :
-    quotientFunctor₂.map.{u} (Quot.mk _ (Quiver.Hom.toPath f)) = quotientReflPrefunctor₂.map f := by
+    quotientFunctor₂.map.{u}
+      ((FreeRefl.quotientFunctor _).map (Quiver.Hom.toPath f)) =
+      quotientReflPrefunctor₂.map f := by
   dsimp [quotientFunctor₂, Adjunction.homEquiv, FreeRefl.lift]
   dsimp [quotientReflPrefunctor₂, FreeRefl.homMk,
     FreeRefl.quotientFunctor, Quotient.functor, ReflQuiv.adj, ReflQuiv.adj.homEquiv,
@@ -675,9 +689,7 @@ theorem qFunctor_respects_horel₂ (x y : FreeRefl.{u} (OneTruncation₂.{u} A))
     (f g : x ⟶ y) (r : OneTruncation₂.HoRel₂ _ f g) :
     quotientFunctor₂.map.{u} f = quotientFunctor₂.map.{u} g := by
   rcases r with @⟨x₀, x₁, x₂, e₀₁, e₁₂, e₀₂, hcs⟩
-  show quotientFunctor₂.map (Quot.mk _ (Quiver.Hom.toPath e₀₁) ≫ Quot.mk _ (Quiver.Hom.toPath e₁₂))
-    = quotientFunctor₂.map (Quot.mk _ (Quiver.Hom.toPath e₀₂))
-  rw [Functor.map_comp, qFunctor_map_toPath, qFunctor_map_toPath, qFunctor_map_toPath]
+  simp only [Functor.map_comp, qFunctor_map_toPath]
   exact hcs.homotopyCategory₂_fac
 
 /--
@@ -752,7 +764,7 @@ theorem lift_unique_rq₂ {C} [ReflQuiver.{u, u} C] (F₁ F₂ : (HomotopyCatego
   · -- `F₁.map`/`F₂.map` lie over defeq-but-distinct objects; compare via `≍`.
     symm
     apply eq_of_heq
-    simp only [eqRec_heq_iff_heq]
+    simp only [eqRec_heq_iff]
     exact (heq_of_eq (ReflPrefunctor.congr_hom h (edgeToHom f))).symm.trans
       (Quiver.homOfEq_heq _ _ _)
 
@@ -792,7 +804,7 @@ lemma is_lift₂ {C : Type*} [Category* C] (F : FreeRefl.{u} (OneTruncation₂.{
   apply FreeRefl.lift_unique'
   refine Paths.ext_functor rfl ?_
   intro x y f
-  simp only [FreeRefl.quotientFunctor, Quotient.functor, lift₂, liftRq₂, Functor.comp_map]
+  simp only [lift₂, liftRq₂, Functor.comp_map]
   rw [qFunctor_map_toPath]
   -- the `eqToHom`s are between defeq objects; pass through `≍`.
   refine (conj_eqToHom_iff_heq' _ _ _ _).mpr ?_
@@ -874,7 +886,10 @@ def isoHomotopyCategories : (Cat.of (HomotopyCategory.{u} A)) ≅ (Cat.of (Homot
           (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h)) ⋙
         CategoryTheory.Quotient.lift _ quotientFunctor₂ qFunctor_respects_horel₂
       = quotientFunctor₂
-    rw [is_lift₂]
+    have hlift : quotientFunctor₂ ⋙ lift₂ (HomotopyCategory.quotientFunctor.{u} A)
+        (fun _ _ _ _ h => CategoryTheory.Quotient.sound _ h) =
+        HomotopyCategory.quotientFunctor.{u} A := is_lift₂ _ _
+    rw [hlift]
     exact hspec
 
 end isomorphism_of_htpy_categories

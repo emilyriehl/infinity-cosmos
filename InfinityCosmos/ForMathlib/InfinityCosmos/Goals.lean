@@ -78,6 +78,7 @@ noncomputable instance catEnrichedOrdinaryCategory : EnrichedOrdinaryCategory Ca
     (fun v ↦ (hoFunctor.unitHomEquiv v).trans (Functor.equivCatHom _ _)) <| by
       intro v f
       simp
+      show (Functor.equivCatHom _ _) ((hoFunctor.unitHomEquiv v) f) = _
       erw [hoFunctor.unitHomEquiv_eq]
       rfl
 
