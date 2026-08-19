@@ -191,47 +191,6 @@ def HomotopyL.refl : HomotopyL f f where
     rw [A.δ_comp_σ_succ' (by simp)]
     rfl
 
--- -- need a better name
--- noncomputable def HomotopyL.ofHomotopyLOfHomotopyL {f g h : A _⦋1⦌}
---   (H₁ : HomotopyL f g) (H₂ : HomotopyL f h) :
---     HomotopyL g h := by
---   let σ : (Λ[3, 1] : SSet.{u}) ⟶ A := sorry
---   let τ : A _⦋3⦌ := sorry
---     -- BUILD FAILS:
---     -- A.yonedaEquiv _ (Classical.choose $ Quasicategory.hornFilling
---     --   (by simp) (by simp [Fin.lt_iff_val_lt_val]) σ)
---   have τ₀ : A.δ 0 τ = (A.δ 0 ≫ A.σ 0≫ A.σ 0) g := sorry
---   have τ₂ : A.δ 2 τ = H₂.simplex := sorry
---   have τ₃ : A.δ 3 τ = H₁.simplex := sorry
---   use A.δ 1 τ
---   . change (A.δ 1 ≫ A.δ 0) _ = _
---     rw [A.δ_comp_δ' (by simp)]; simp [τ₀]
---     change (A.σ 0 ≫ A.δ 0) _ = _
---     rw [A.δ_comp_σ_self' (by simp)]; simp
---   . rw [← H₂.δ₁_eq, ← τ₂]
---     change _ = (A.δ 2 ≫ A.δ 1) _
---     rw [A.δ_comp_δ' (by simp)]; rfl
---   . rw [← H₁.δ₁_eq, ← τ₃]
---     change _ = (A.δ 3 ≫ A.δ 1) _
---     rw [A.δ_comp_δ' (by simp)]; rfl
-
--- lemma HomotopyL.equiv :
---     Equivalence (fun f g : A _⦋1⦌ ↦ HomotopicL f g) where
---   refl f := ⟨HomotopyL.refl f⟩
---   symm := by
---     intro f g ⟨H⟩
---     exact ⟨H.ofHomotopyLOfHomotopyL (HomotopyL.refl f)⟩
---   trans := by
---     intro f g h ⟨H₁⟩ ⟨H₂⟩
---     exact ⟨(H₁.ofHomotopyLOfHomotopyL (HomotopyL.refl f)).ofHomotopyLOfHomotopyL H₂⟩
-
--- lemma homotopicL_iff_homotopicR [Quasicategory A] :
---     HomotopicL f g ↔ HomotopicR f g := sorry
-
--- lemma HomotopyR.equiv [Quasicategory A] :
---     Equivalence (fun f g : A _⦋1⦌ ↦ HomotopicR f g) := by
---   simp [← homotopicL_iff_homotopicR, HomotopyL.equiv]
-
 end
 
 end SSet
