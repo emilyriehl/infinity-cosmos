@@ -94,6 +94,8 @@ noncomputable def getCotensor (U : SSet) (A : K) [HasCotensor U A] : Cotensor U 
 noncomputable section
 
 /-- An arbitrary choice of cotensor obj. -/
+-- Proofs about `⋔` need this to unfold while `isDefEq` matches implicit arguments.
+@[implicit_reducible]
 def cotensor.obj (U : SSet) (A : K) [HasCotensor U A] : K := (getCotensor U A).obj
 
 infixr:60 " ⋔ " => cotensor.obj
@@ -153,7 +155,7 @@ lemma cotensor_underlying_homEquiv (U : SSet.{v}) (A X : K) [HasCotensor U A]
           (cotensor.iso U A X)).toEquiv (homEquiv' X (U ⋔ A) h))) =
       (((evaluation SimplexCategoryᵒᵖ (Type v)).obj ⟨SimplexCategory.mk 0⟩).map
         (cotensor.iso U A X).hom) (homEquiv' X (U ⋔ A) h)
-  simp
+  exact (homEquiv' U (sHom X A)).apply_symm_apply _
 
 /-- Composition in `SSet`, expressed through the closed structure. -/
 lemma homEquiv'_comp_sset_ihom {U V W : SSet.{v}} (i : U ⟶ V) (f : V ⟶ W) :

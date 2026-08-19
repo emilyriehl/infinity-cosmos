@@ -129,7 +129,7 @@ lemma limitComparison_eq_conePointUniqueUpToIso (hc : IsConicalLimit V c) (X : C
 
 /-- `IsConicalLimit.limitComparison` is an isomorphism. -/
 lemma isIso_limitComparison (hc : IsConicalLimit V c) (X : C) : IsIso (limitComparison V c X) := by
-  rw [limitComparison_eq_conePointUniqueUpToIso hc X]; infer_instance
+  rw [limitComparison_eq_conePointUniqueUpToIso hc X]; exact Iso.isIso_hom _
 
 /-- For all `X : C`, the canonical comparison map with the limit in `V` as isomorphism -/
 noncomputable def limitComparisonIso (hc : IsConicalLimit V c) (X : C) :
