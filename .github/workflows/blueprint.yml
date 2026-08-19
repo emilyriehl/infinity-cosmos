@@ -66,7 +66,7 @@ jobs:
           build-args: :blueprint
 
       - name: Compile blueprint and documentation
-        uses: leanprover-community/docgen-action@cc833d262c7b8f179ac444cd20fde412b24b8beb # 2026-01-08
+        uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3 # 2026-06-07
         with:
           blueprint: true
           homepage: home_page
