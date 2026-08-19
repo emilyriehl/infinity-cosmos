@@ -66,7 +66,10 @@ jobs:
           build-args: :blueprint
 
       - name: Compile blueprint and documentation
-        uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3 # 2026-06-07
+        # Held one commit before the tip. The tip bumps the Jekyll step to Ruby 3.4, which
+        # `home_page/Gemfile.lock` cannot satisfy: it pins nokogiri 1.13.6, which needs
+        # Ruby < 3.2. Move to the tip once that lockfile is refreshed.
+        uses: leanprover-community/docgen-action@7b5b9a1822650bd45aaeb4182d94bceba2030f89 # 2026-04-14
         with:
           blueprint: true
           homepage: home_page
