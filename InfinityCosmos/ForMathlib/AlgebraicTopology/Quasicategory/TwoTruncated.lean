@@ -48,7 +48,7 @@ abbrev edgeMap {S : SSet} {y₀ y₁ : ((truncation 2).obj S) _⦋0⦌₂} (e : 
 
 end Edge
 
-open Edge
+open Truncated.Edge
 attribute [blueprint
   "defn:2-truncated-qcat"
   (statement := /--
@@ -375,7 +375,6 @@ instance two_truncatation_of_qc_is_2_trunc_qc {X : SSet} [Quasicategory X] :
 namespace Edge
 
 namespace CompStruct
-open Edge
 
 variable {A : Truncated 2}
 
@@ -385,7 +384,7 @@ end Edge
 
 section homotopy_def
 
-open Edge
+open Truncated.Edge
 
 attribute [blueprint
   "defn:1-simplex-htpy"
@@ -422,6 +421,7 @@ open Edge
 
 variable {A : Truncated 2} [Quasicategory₂ A]
 
+omit [Quasicategory₂ A] in
 /--
 Left homotopy relation is reflexive
 -/
@@ -440,15 +440,15 @@ Left homotopy relation is reflexive
   Each statement follows from a single 3-dimensional horn filling, typically involving degenerate
   simplices.
   -/)
-  (latexEnv := "lemma"), implicit_reducible]
-def HomotopicL.refl {x y : A _⦋0⦌₂} {f : Truncated.Edge x y} :
+  (latexEnv := "lemma")]
+lemma HomotopicL.refl {x y : A _⦋0⦌₂} {f : Truncated.Edge x y} :
     HomotopicL f f := ⟨compId f⟩
 
 /--
 Left homotopy relation is symmetric
 -/
-@[blueprint "lem:2-truncated-qcat-htpy", implicit_reducible]
-def HomotopicL.symm {x y : A _⦋0⦌₂} {f g : Truncated.Edge x y} (hfg : HomotopicL f g) :
+@[blueprint "lem:2-truncated-qcat-htpy"]
+lemma HomotopicL.symm {x y : A _⦋0⦌₂} {f g : Truncated.Edge x y} (hfg : HomotopicL f g) :
     HomotopicL g f := by
   rcases hfg with ⟨hfg⟩
   exact Quasicategory₂.fill31 hfg (idCompId y) (compId f)
@@ -456,25 +456,26 @@ def HomotopicL.symm {x y : A _⦋0⦌₂} {f g : Truncated.Edge x y} (hfg : Homo
 /--
 Left homotopy relation is transitive
 -/
-@[blueprint "lem:2-truncated-qcat-htpy", implicit_reducible]
-def HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Truncated.Edge x y} (hfg : HomotopicL f g)
+@[blueprint "lem:2-truncated-qcat-htpy"]
+lemma HomotopicL.trans {x y : A _⦋0⦌₂} {f g h : Truncated.Edge x y} (hfg : HomotopicL f g)
     (hgh : HomotopicL g h) :
     HomotopicL f h := by
   rcases hfg with ⟨hfg⟩
   rcases hgh with ⟨hgh⟩
   exact Quasicategory₂.fill32 hfg (idCompId y) hgh
 
+omit [Quasicategory₂ A] in
 /--
 Right homotopy relation is reflexive
 -/
-@[blueprint "lem:2-truncated-qcat-htpy", implicit_reducible]
-def HomotopicR.refl  {x y : A _⦋0⦌₂} {f : Truncated.Edge x y} : HomotopicR f f := ⟨idComp f⟩
+@[blueprint "lem:2-truncated-qcat-htpy"]
+lemma HomotopicR.refl  {x y : A _⦋0⦌₂} {f : Truncated.Edge x y} : HomotopicR f f := ⟨idComp f⟩
 
 /--
 Right homotopy relation is symmetric
 -/
-@[blueprint "lem:2-truncated-qcat-htpy", implicit_reducible]
-def HomotopicR.symm {x y : A _⦋0⦌₂} {f g : Truncated.Edge x y} (hfg : HomotopicR f g) :
+@[blueprint "lem:2-truncated-qcat-htpy"]
+lemma HomotopicR.symm {x y : A _⦋0⦌₂} {f g : Truncated.Edge x y} (hfg : HomotopicR f g) :
     HomotopicR g f := by
   rcases hfg with ⟨hfg⟩
   exact Quasicategory₂.fill32 (idCompId x) hfg (idComp f)
@@ -482,8 +483,8 @@ def HomotopicR.symm {x y : A _⦋0⦌₂} {f g : Truncated.Edge x y} (hfg : Homo
 /--
 Right homotopy relation is transitive
 -/
-@[blueprint "lem:2-truncated-qcat-htpy", implicit_reducible]
-def HomotopicR.trans {x y : A _⦋0⦌₂} {f g h : Truncated.Edge x y} (hfg : HomotopicR f g)
+@[blueprint "lem:2-truncated-qcat-htpy"]
+lemma HomotopicR.trans {x y : A _⦋0⦌₂} {f g h : Truncated.Edge x y} (hfg : HomotopicR f g)
     (hgh : HomotopicR g h) :
     HomotopicR f h := by
   rcases hfg with ⟨hfg⟩
