@@ -6,6 +6,13 @@ pp.unicode.fun = true
 autoImplicit = false
 relaxedAutoImplicit = false
 
+#  Fail a module upon warnings:
+warningAsError = true
+
+# Do not emit warnings when encountering sorry
+# The blueprint tracks this anyways
+warn.sorry = false
+
 [[require]]
 name = "LeanArchitect"
 scope = "hanwenzhu"
