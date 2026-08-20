@@ -8,6 +8,8 @@ Authors: Joël Riou
 import Architect
 public import Mathlib.AlgebraicTopology.SimplicialCategory.Basic
 public import Mathlib.CategoryTheory.Category.Basic
+public import Mathlib.CategoryTheory.Functor.FunctorHom
+public import Mathlib.CategoryTheory.Monoidal.Closed.FunctorToTypes
 
 @[expose] public section
 

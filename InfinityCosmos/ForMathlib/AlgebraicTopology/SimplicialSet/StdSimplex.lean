@@ -87,7 +87,7 @@ Another version of `map_yonedaEquiv`, but at the level of functions `Δ[n] ⟶ X
 lemma map_comp_yonedaEquiv_symm {n m : ℕ} {X : SSet} (f : ⦋n⦌ ⟶ ⦋m⦌)
     (s : X.obj (.op ⦋m⦌)) :
     stdSimplex.map f ≫ yonedaEquiv.symm s = yonedaEquiv.symm (X.map f.op s) := by
-  apply yonedaEquiv.apply_eq_iff_eq_symm_apply.1
+  apply yonedaEquiv.eq_symm_apply.2
   let s' := yonedaEquiv.symm s
   have : s = yonedaEquiv s' := (Equiv.symm_apply_eq yonedaEquiv).mp rfl
   rw [this, map_yonedaEquiv, yonedaEquiv_comp, Equiv.apply_symm_apply yonedaEquiv _,
@@ -98,7 +98,7 @@ lemma yonedaEquiv_symm_naturality
   {X : SSet} {m n : SimplexCategory} (f : m ⟶ n) (g : X.obj (Opposite.op n))
   : stdSimplex.map f ≫ yonedaEquiv.symm g = yonedaEquiv.symm (X.map f.op g)
   := by
-    rw [← yonedaEquiv.apply_eq_iff_eq_symm_apply]
+    rw [yonedaEquiv.eq_symm_apply]
     rw [← yonedaEquiv_naturality]
     rw [yonedaEquiv.apply_symm_apply]
 

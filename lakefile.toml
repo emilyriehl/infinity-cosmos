@@ -6,6 +6,13 @@ pp.unicode.fun = true
 autoImplicit = false
 relaxedAutoImplicit = false
 
+#  Fail a module upon warnings:
+warningAsError = true
+
+# Do not emit warnings when encountering sorry
+# The blueprint tracks this anyways
+warn.sorry = false
+
 [[require]]
 name = "LeanArchitect"
 scope = "hanwenzhu"
@@ -14,7 +21,7 @@ rev = "v4.33.0-rc1"
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "v4.33.0"
+rev = "1fe0a51a5ecdee23c424b6e29ecb1d40eb35316d"
 
 [[require]]
 name = "checkdecls"

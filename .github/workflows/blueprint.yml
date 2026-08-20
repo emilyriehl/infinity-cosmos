@@ -63,7 +63,9 @@ jobs:
         uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9 # v1.5.0
         with:
           use-github-cache: false
-          build-args: :blueprint
+          # --wfail: warnings fail the build. Not --iofail; the blueprint target
+          # logs `info: Blueprint indexing`, which --iofail counts as a failure.
+          build-args: :blueprint --wfail
 
       - name: Compile blueprint and documentation
         uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3 # 2026-06-07
