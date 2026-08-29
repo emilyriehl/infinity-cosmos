@@ -93,6 +93,54 @@ structure Homotopy {A B : SSet.{u}} (f g : A ⟶ B) : Type u
   source_eq : homotopy ≫ pathSpace.src B = f
   target_eq : homotopy ≫ pathSpace.tgt B = g
 
+/-- The unique map to the point, obtained from the terminal object of `SSet`. -/
+noncomputable def toPoint (X : SSet.{u}) : X ⟶ Δ[0] :=
+  CartesianMonoidalCategory.toUnit X ≫ pointIsUnit.inv
+
+@[simp]
+lemma comp_toPoint {X : SSet.{u}} (f : Δ[0] ⟶ X) : f ≫ toPoint X = 𝟙 Δ[0] := by
+  rw [toPoint, ← Category.assoc,
+    CartesianMonoidalCategory.toUnit_unique (f ≫ CartesianMonoidalCategory.toUnit X)
+      pointIsUnit.hom, pointIsUnit.hom_inv_id]
+
+/-- The constant path on an object: the image of a point under the map that ignores the
+interval coordinate. -/
+noncomputable def constPath (B : SSet.{u}) : B ⟶ pathSpace (I := I) B :=
+  B.expPointIsoSelf.inv ≫ (MonoidalClosed.pre (toPoint I)).app B
+
+omit [Interval I] in
+@[reassoc (attr := simp)]
+lemma pre_toPoint_comp_pre (g : Δ[0] ⟶ I) (B : SSet.{u}) :
+    (MonoidalClosed.pre (toPoint I)).app B ≫ (MonoidalClosed.pre g).app B = 𝟙 _ := by
+  rw [← NatTrans.comp_app, ← MonoidalClosed.pre_map, comp_toPoint, MonoidalClosed.pre_id,
+    NatTrans.id_app]
+
+@[simp]
+lemma constPath_comp_src (B : SSet.{u}) :
+    constPath (I := I) B ≫ pathSpace.src B = 𝟙 B := by
+  rw [constPath, pathSpace.src]
+  slice_lhs 2 3 => erw [pre_toPoint_comp_pre]
+  erw [Category.id_comp]
+  exact B.expPointIsoSelf.inv_hom_id
+
+@[simp]
+lemma constPath_comp_tgt (B : SSet.{u}) :
+    constPath (I := I) B ≫ pathSpace.tgt B = 𝟙 B := by
+  rw [constPath, pathSpace.tgt]
+  slice_lhs 2 3 => erw [pre_toPoint_comp_pre]
+  erw [Category.id_comp]
+  exact B.expPointIsoSelf.inv_hom_id
+
+/-- The constant homotopy from a map to itself. -/
+noncomputable def Homotopy.refl {A B : SSet.{u}} (f : A ⟶ B) : Homotopy (I := I) f f where
+  homotopy := f ≫ constPath (I := I) B
+  source_eq := by
+    show (f ≫ constPath (I := I) B) ≫ pathSpace.src (I := I) B = f
+    rw [Category.assoc, constPath_comp_src, Category.comp_id]
+  target_eq := by
+    show (f ≫ constPath (I := I) B) ≫ pathSpace.tgt (I := I) B = f
+    rw [Category.assoc, constPath_comp_tgt, Category.comp_id]
+
 /-- For the correct interval, this defines a good notion of equivalences for both Kan complexes and quasi-categories.-/
 structure Equiv (A B : SSet.{u}) : Type u where
   toFun : A ⟶ B
