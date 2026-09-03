@@ -66,13 +66,8 @@ lemma coneNatTrans_naturality {v : V} {x : C} (vx : Pretensor v x) {y y' : C} (g
       vx.coneNatTrans y ≫ (ihom v).map (eHomWhiskerLeft V x g) := by
   apply uncurry_injective
   rw [uncurry_natural_right, Pretensor.uncurry_coneNatTrans,
-    uncurry_natural_left, Pretensor.uncurry_coneNatTrans]
-  conv_rhs => rw [← Pretensor.uncurry_coneNatTrans]
-  simp only [eHomWhiskerLeft, MonoidalCategory.whiskerLeft_comp, Category.assoc]
-  rw [whisker_exchange_assoc, ← e_assoc, associator_inv_naturality_left_assoc,
-    ← comp_whiskerRight_assoc, ← Pretensor.uncurry_coneNatTrans,
-    rightUnitor_inv_naturality_assoc, ← whisker_exchange_assoc]
-  simp
+    uncurry_natural_left, Pretensor.uncurry_coneNatTrans,
+    Category.assoc, eComp_eHomWhiskerLeft, ← whisker_exchange_assoc]
 
 /-- The tensor `v ⊗ X` represents `V(v, X ⟶[V] -)`, naturally in the second argument. -/
 noncomputable def tensorHomEquiv (v : V) (X Y : C) :
