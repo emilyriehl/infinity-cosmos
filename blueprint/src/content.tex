@@ -209,7 +209,13 @@ These results now combine to justify the following definition:
 
 In other words, the hom-types are quotients of the hom-types of the underlying reflexive quiver of Definition \ref{defn:one-truncation} of a 2-truncated simplicial set, where the additional quotienting is by the homotopy relation, which is an equivalence relation by Lemma \ref{lem:2-truncated-qcat-htpy}. Composition is defined by (2,1)-horn filling and is well-defined by Lemma \ref{lem:2-truncated-qcat-htpy-comp}.
 
-   \inputleannode{lem:htpy-cat-of-qcat}
+\inputleannode{lem:htpy-cat-of-qcat}
+
+\inputleannode{lem:qcat-products}
+
+\inputleannode{lem:product-1-simplex-htpy}
+
+\inputleannode{lem:2-truncated-qcat-htpy-products}
 
 
 Later we will require either of the following results:
@@ -217,14 +223,7 @@ Later we will require either of the following results:
 \inputleannode{lem:ho-preserves-finite-products}
 
 
-\begin{lemma}\label{lem:ho-preserves-small-products}
-  \uses{defn:homotopy-cat}
-   The functor $\ho \colon \sSet \to \Cat$ preserves finite products.
- \end{lemma}
-\begin{proof}
-  \uses{lem:htpy-cat-of-qcat, prop:nerve-reflective, defn:2-truncated-qcat-htpy-cat}
-  We have a canonical comparison functor from the homotopy category of the products to the product of the homotopy categories. It follows from Definition \ref{defn:2-truncated-qcat-htpy-cat} and Lemma \ref{lem:htpy-cat-of-qcat} that this is an isomorphism on underlying quivers, which suffices.
-\end{proof}
+\inputleannode{lem:ho-preserves-small-products}
 
 
    \begin{definition}[isomorphism in a quasi-category]\label{defn:isomorphism}
