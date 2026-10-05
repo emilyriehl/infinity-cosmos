@@ -8,6 +8,7 @@ Authors: Julian Komaromy
 
 import Architect
 public import Mathlib.AlgebraicTopology.Quasicategory.Basic
+public import Mathlib.AlgebraicTopology.Quasicategory.StrictBicategory
 public import Mathlib.AlgebraicTopology.Quasicategory.TwoTruncated
 public import Mathlib.AlgebraicTopology.SimplicialSet.CompStructTruncated
 public import Mathlib.AlgebraicTopology.SimplicialSet.HomotopyCat
@@ -24,10 +25,15 @@ public import Mathlib.AlgebraicTopology.SimplicialSet.HornColimits
 public import Mathlib.AlgebraicTopology.SimplicialSet.CompStruct
 public import Mathlib.Combinatorics.Quiver.ReflQuiver
 public import Mathlib.CategoryTheory.Quotient
+public import Mathlib.CategoryTheory.Category.Cat.Limit
+public import Mathlib.CategoryTheory.IsoCat
+public import Mathlib.CategoryTheory.Limits.FunctorCategory.Shapes.Products
+public import Mathlib.CategoryTheory.Limits.Shapes.ConcreteCategory
 
 @[expose] public section
 
 
+universe v u
 
 open Simplicial SimplexCategory CategoryTheory SimplexCategory.Truncated
   SimplexCategory.Truncated.Hom SimplicialObject SimplicialObject.Truncated
@@ -42,6 +48,17 @@ namespace SSet
 namespace Truncated
 
 namespace Edge
+
+@[simp]
+lemma comp_map {A B C : Truncated.{u} 2} {x₀ x₁ : A _⦋0⦌₂}
+    (e : Edge x₀ x₁) (F : A ⟶ B) (G : B ⟶ C) :
+    e.map (F ≫ G) = (e.map F).map G := by
+  ext; rfl
+
+@[simp]
+lemma id_map {A : Truncated.{u} 2} {x y : A _⦋0⦌₂} (e : Edge x y) :
+    e.map (𝟙 A) = e := by
+  ext; rfl
 
 abbrev edgeMap {S : SSet} {y₀ y₁ : ((truncation 2).obj S) _⦋0⦌₂} (e : Edge y₀ y₁) : Δ[1] ⟶ S :=
   yonedaEquiv.symm e.edge
@@ -413,6 +430,11 @@ end homotopy_def
 
 end Truncated
 
+/-- The full subcategory of 2-truncated simplicial sets that are quasicategories. -/
+abbrev QCat₂ := ObjectProperty.FullSubcategory Truncated.Quasicategory₂.{u}
+
+instance QCat₂.quasicategory₂ {A : QCat₂} : Truncated.Quasicategory₂ A.obj := A.property
+
 namespace Quasicategory₂
 open Truncated Edge.CompStruct
 
@@ -617,7 +639,6 @@ section isomorphism_of_htpy_categories
 open Cat (FreeRefl)
 open Edge
 
-universe u
 variable {A : Truncated.{u} 2} [Quasicategory₂ A]
 
 /--
@@ -896,6 +917,514 @@ def isoHomotopyCategories :
 
 end isomorphism_of_htpy_categories
 
+section Functoriality
+
+open Truncated.Edge
+
+variable {A B C : Truncated.{u} 2}
+
+lemma homotopicL_map (F : A ⟶ B)
+    {x y : A _⦋0⦌₂} {f f' : Truncated.Edge x y} (h : HomotopicL f f') :
+    HomotopicL (f.map F) (f'.map F) := by
+  rcases h with ⟨h⟩
+  exact ⟨by simpa only [Truncated.Edge.map_id] using h.map F⟩
+
+variable [A.Quasicategory₂] [B.Quasicategory₂] [C.Quasicategory₂]
+
+lemma homotopicL_map_comp (F : A ⟶ B) {x y z : A _⦋0⦌₂}
+    (f : Truncated.Edge x y) (g : Truncated.Edge y z) :
+    HomotopicL ((f.comp g).map F) ((f.map F).comp (g.map F)) :=
+  composeEdges_unique ((f.compStruct g).map F)
+
+namespace mapHomotopyCategory₂
+
+/-- The map on homotopy classes induced by a simplicial map. -/
+def map (F : A ⟶ B) {X Y : HomotopyCategory₂ A} (f : X ⟶ Y) :
+    HomotopyCategory₂.mk (F.app _ X.pt) ⟶ HomotopyCategory₂.mk (F.app _ Y.pt) :=
+  Quotient.liftOn f (fun e ↦ HomotopyCategory₂.homMk (e.map F))
+    (fun _ _ h ↦ Quotient.sound (homotopicL_map F h))
+
+lemma map_homMk (F : A ⟶ B) {x y : A _⦋0⦌₂} (e : Truncated.Edge x y) :
+    map F (HomotopyCategory₂.homMk e) = HomotopyCategory₂.homMk (e.map F) :=
+  rfl
+
+lemma id_map {X Y : HomotopyCategory₂ A} (f : X ⟶ Y) :
+    map (𝟙 A) f = f := by
+  obtain ⟨f, rfl⟩ := HomotopyCategory₂.homMk_surjective f
+  simp only [map_homMk, Truncated.Edge.id_map]
+
+lemma map_id (F : A ⟶ B) (X : HomotopyCategory₂ A) :
+    map F (𝟙 X) = 𝟙 (HomotopyCategory₂.mk (F.app _ X.pt)) := by
+  rw [← HomotopyCategory₂.homMk_id X, map_homMk, Truncated.Edge.map_id]
+  rfl
+
+lemma comp_map (F : A ⟶ B) (G : B ⟶ C)
+    {X Y : HomotopyCategory₂ A} (f : X ⟶ Y) :
+    map (F ≫ G) f = map G (map F f) := by
+  obtain ⟨f, rfl⟩ := HomotopyCategory₂.homMk_surjective f
+  simp only [map_homMk, Truncated.Edge.comp_map]
+
+lemma map_comp (F : A ⟶ B)
+    {X Y Z : HomotopyCategory₂ A} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    map F (f ≫ g) = map F f ≫ map F g :=
+  Quotient.inductionOn₂ f g (fun f g ↦ Quotient.sound (homotopicL_map_comp F f g))
+
+end mapHomotopyCategory₂
+
+/-- The functor on homotopy categories induced by a map of 2-truncated quasicategories. -/
+def mapHomotopyCategory₂ (F : A ⟶ B) :
+    HomotopyCategory₂ A ⥤ HomotopyCategory₂ B where
+  obj X := ⟨F.app _ X.pt⟩
+  map := mapHomotopyCategory₂.map F
+  map_id := mapHomotopyCategory₂.map_id F
+  map_comp := mapHomotopyCategory₂.map_comp F
+
+@[simp]
+lemma mapHomotopyCategory₂_obj (F : A ⟶ B) (x : A _⦋0⦌₂) :
+    (mapHomotopyCategory₂ F).obj (HomotopyCategory₂.mk x) = HomotopyCategory₂.mk (F.app _ x) :=
+  rfl
+
+@[simp]
+lemma mapHomotopyCategory₂_homMk (F : A ⟶ B) {x y : A _⦋0⦌₂} (e : Truncated.Edge x y) :
+    (mapHomotopyCategory₂ F).map (HomotopyCategory₂.homMk e) = HomotopyCategory₂.homMk (e.map F) :=
+  rfl
+
+variable (A) in
+lemma mapHomotopyCategory₂_id :
+    mapHomotopyCategory₂ (𝟙 A) = 𝟭 (HomotopyCategory₂ A) := by
+  apply CategoryTheory.Functor.hext
+  · intro _
+    rfl
+  · intro _ _ _
+    exact heq_of_eq (mapHomotopyCategory₂.id_map _)
+
+lemma mapHomotopyCategory₂_comp (F : A ⟶ B) (G : B ⟶ C) :
+    mapHomotopyCategory₂ (F ≫ G) = mapHomotopyCategory₂ F ⋙ mapHomotopyCategory₂ G := by
+  apply CategoryTheory.Functor.hext
+  · intro _
+    rfl
+  · intro _ _ _
+    exact heq_of_eq (mapHomotopyCategory₂.comp_map _ _ _)
+
+/-- The homotopy category functor on 2-truncated quasicategories. -/
+noncomputable def homotopyCategory₂Functor : QCat₂.{u} ⥤ Cat.{u, u} where
+  obj A := Cat.of (HomotopyCategory₂ A.obj)
+  map F := (mapHomotopyCategory₂ F.hom).toCatHom
+  map_id A := Cat.Hom.ext (mapHomotopyCategory₂_id A.obj)
+  map_comp F G := Cat.Hom.ext (mapHomotopyCategory₂_comp F.hom G.hom)
+
+end Functoriality
+
+section Comparison
+
+variable {A B : Truncated.{u} 2} [A.Quasicategory₂] [B.Quasicategory₂]
+
+@[simp]
+lemma isoHomotopyCategories_hom_obj (x : A _⦋0⦌₂) :
+    isoHomotopyCategories.hom.toFunctor.obj (Truncated.HomotopyCategory.mk x) =
+      HomotopyCategory₂.mk x :=
+  rfl
+
+@[simp]
+lemma isoHomotopyCategories_hom_map_homMk {x y : A _⦋0⦌₂} (e : Truncated.Edge x y) :
+    isoHomotopyCategories.hom.toFunctor.map (Truncated.HomotopyCategory.homMk e) =
+      HomotopyCategory₂.homMk e :=
+  qFunctor_map_toPath _ _ _
+
+/-- The comparison between the two homotopy category constructions is natural. -/
+lemma isoHomotopyCategories_naturality (f : A ⟶ B) :
+    (Truncated.mapHomotopyCategory f).toCatHom ≫ isoHomotopyCategories.hom =
+      isoHomotopyCategories.hom ≫ (mapHomotopyCategory₂ f).toCatHom := by
+  apply Cat.Hom.ext
+  change Truncated.mapHomotopyCategory f ⋙ _ = _ ⋙ _
+  refine Truncated.HomotopyCategory.functor_ext (fun _ ↦ rfl) ?_
+  intro _ _ e
+  apply (conj_eqToHom_iff_heq' _ _ _ _).mpr
+  simp only [Functor.comp_map, Truncated.mapHomotopyCategory_homMk,
+    isoHomotopyCategories_hom_map_homMk]
+  exact (heq_of_eq (isoHomotopyCategories_hom_map_homMk (e.map f))).trans (by rfl)
+
+/-- The homotopy category functor on 2-truncated quasicategories agrees naturally with
+the restriction of the homotopy category functor on all 2-truncated simplicial sets. -/
+@[blueprint "lem:htpy-cat-of-qcat" (hasProof := true) (latexEnv := "lemma")]
+noncomputable def homotopyCategory₂FunctorIso :
+    ObjectProperty.ι Quasicategory₂.{u} ⋙ Truncated.hoFunctor₂ ≅ homotopyCategory₂Functor :=
+  NatIso.ofComponents (fun A ↦ isoHomotopyCategories (A := A.obj))
+    (fun f ↦ isoHomotopyCategories_naturality f.hom)
+
+end Comparison
+
 end Quasicategory₂
+
+end SSet
+
+open CategoryTheory Limits SimplicialObject.Truncated
+
+namespace SSet.Truncated
+
+variable {J : Type u} {F : J → Truncated.{u} 2} {x y z : (∏ᶜ F) _⦋0⦌₂}
+
+/-- Projecting a simplex assembled from a family recovers its component. -/
+@[simp]
+lemma pi_π_app_piObjIso_inv (n : (SimplexCategory.Truncated 2)ᵒᵖ)
+    (s : ∀ j, (F j).obj n) (j : J) :
+    (Pi.π F j).app n ((piObjIso F n).inv ((Types.productIso _).inv s)) = s j := by
+  have hπ := ConcreteCategory.congr_hom (piObjIso_inv_comp_π F n j)
+  dsimp only [types_comp_apply] at hπ
+  rw [hπ, Types.productIso_inv_comp_π_apply]
+
+namespace Edge
+
+/-- Assemble edges with the specified coordinatewise endpoints. -/
+noncomputable def pi (e : ∀ j, Edge ((Pi.π F j).app _ x) ((Pi.π F j).app _ y)) :
+    Edge x y := by
+  refine {
+    edge := (piObjIso F _).inv ((Types.productIso _).inv (fun j ↦ (e j).edge))
+    src_eq := ?_
+    tgt_eq := ?_ }
+  all_goals
+    apply Concrete.Pi.map_ext F ((evaluation _ _).obj _)
+    intro j
+    rw [evaluation_obj_map, NatTrans.naturality_apply, pi_π_app_piObjIso_inv]
+  · exact (e _).src_eq
+  · exact (e _).tgt_eq
+
+@[simp]
+lemma pi_map_π (e : ∀ j, Edge ((Pi.π F j).app _ x) ((Pi.π F j).app _ y)) (j : J) :
+    (pi e).map (Pi.π F j) = e j := by
+  ext
+  dsimp only [map, pi]
+  rw [pi_π_app_piObjIso_inv]
+
+@[simp]
+lemma pi_eta (e : Edge x y) :
+    pi (fun j ↦ e.map (Pi.π F j)) = e := by
+  ext
+  apply Concrete.Pi.map_ext F ((evaluation _ _).obj _)
+  intro j
+  dsimp only [evaluation_obj_map, map, pi]
+  rw [pi_π_app_piObjIso_inv]
+
+/-- Assemble composition triangles in a product. -/
+noncomputable def CompStruct.pi {e₀₁ : Edge x y} {e₁₂ : Edge y z} {e₀₂ : Edge x z}
+    (s : ∀ j, CompStruct (e₀₁.map (Pi.π F j)) (e₁₂.map (Pi.π F j))
+      (e₀₂.map (Pi.π F j))) : CompStruct e₀₁ e₁₂ e₀₂ := by
+  refine {
+    simplex := (piObjIso F _).inv ((Types.productIso _).inv (fun j ↦ (s j).simplex))
+    d₂ := ?_
+    d₀ := ?_
+    d₁ := ?_ }
+  all_goals
+    apply Concrete.Pi.map_ext F ((evaluation _ _).obj _)
+    intro j
+    rw [evaluation_obj_map, NatTrans.naturality_apply, pi_π_app_piObjIso_inv]
+  · exact (s _).d₂
+  · exact (s _).d₀
+  · exact (s _).d₁
+
+end Edge
+
+/-- Products of 2-truncated quasicategories are 2-truncated quasicategories. -/
+@[blueprint "lem:qcat-products"
+  (title := "products of quasi-categories")
+  (statement := /-- Quasi-categories are closed under small products, as are 2-truncated
+    quasi-categories. -/)
+  (proof := /-- A horn in the product can be filled by choosing a filler in each factor.
+    The three filling conditions in Definition \ref{defn:2-truncated-qcat} are checked in
+    the same way. -/)
+  (latexEnv := "lemma")]
+instance quasicategory₂_pi [∀ j, (F j).Quasicategory₂] : (∏ᶜ F).Quasicategory₂ where
+  fill21 e₀₁ e₁₂ := by
+    let s j := (Quasicategory₂.fill21 (e₀₁.map (Pi.π F j)) (e₁₂.map (Pi.π F j))).some
+    refine ⟨⟨Edge.pi (fun j ↦ (s j).1), Edge.CompStruct.pi (fun j ↦ ?_)⟩⟩
+    convert (s j).2
+    exact Edge.pi_map_π (fun j ↦ (s j).1) j
+  fill31 f₃ f₀ f₂ :=
+    ⟨Edge.CompStruct.pi (fun j ↦ (Quasicategory₂.fill31 (f₃.map (Pi.π F j)) (f₀.map (Pi.π F j))
+      (f₂.map (Pi.π F j))).some)⟩
+  fill32 f₃ f₀ f₁ :=
+    ⟨Edge.CompStruct.pi (fun j ↦ (Quasicategory₂.fill32 (f₃.map (Pi.π F j)) (f₀.map (Pi.π F j))
+      (f₁.map (Pi.π F j))).some)⟩
+
+/-- Homotopies in a product are exactly coordinatewise homotopies. -/
+@[blueprint "lem:product-1-simplex-htpy"
+  (title := "homotopies in products")
+  (statement := /-- Two parallel 1-simplices in a small product of 2-truncated simplicial sets
+    are left homotopic if and only if their projections to each factor are left homotopic. -/)
+  (proof := /-- A 2-simplex in the product is a tuple of 2-simplices, and has the required
+    boundary precisely when each component does. -/)
+  (latexEnv := "lemma")]
+lemma homotopicL_pi_iff (e f : Edge x y) :
+    HomotopicL e f ↔ ∀ j, HomotopicL (e.map (Pi.π F j)) (f.map (Pi.π F j)) := by
+  constructor
+  · rintro ⟨s⟩ j
+    exact ⟨by simpa only [Edge.map_id] using s.map (Pi.π F j)⟩
+  · intro h
+    exact ⟨Edge.CompStruct.pi (fun j ↦ by simpa only [Edge.map_id] using (h j).some)⟩
+
+end SSet.Truncated
+
+namespace SSet.QCat₂
+
+open Truncated
+
+section
+
+variable {J : Type u} {F : J → QCat₂.{u}}
+
+/-- The inclusion creates products of 2-truncated quasicategories. -/
+noncomputable instance inclusionCreatesProduct :
+    CreatesLimit (Discrete.functor F) (ObjectProperty.ι Truncated.Quasicategory₂) :=
+  createsLimitFullSubcategoryInclusion' _
+    ((IsLimit.postcomposeInvEquiv (Discrete.compNatIsoDiscrete F _) _).symm (productIsProduct _))
+      (quasicategory₂_pi (F := fun j ↦ (F j).obj))
+
+instance hasProduct : HasProduct F :=
+  hasLimit_of_created _ (ObjectProperty.ι Quasicategory₂)
+
+end
+
+variable {J : Type v} [Small.{u} J]
+
+noncomputable instance inclusionCreatesProducts :
+    CreatesLimitsOfShape (Discrete J) (ObjectProperty.ι Quasicategory₂.{u}) := by
+  have : CreatesLimitsOfShape (Discrete (Shrink.{u} J)) (ObjectProperty.ι Quasicategory₂) :=
+    ⟨createsLimitOfIsoDiagram _ Discrete.natIsoFunctor.symm⟩
+  exact createsLimitsOfShapeOfEquiv (Discrete.equivalence (equivShrink.{u} J).symm) _
+
+instance hasProductsOfShape : HasLimitsOfShape (Discrete J) QCat₂.{u} :=
+  hasLimitsOfShape_of_hasLimitsOfShape_createsLimitsOfShape (ObjectProperty.ι Quasicategory₂)
+
+instance hasFiniteProducts : HasFiniteProducts QCat₂.{u} :=
+  hasFiniteProducts_of_hasProducts.{u} _
+
+end SSet.QCat₂
+
+namespace SSet.Quasicategory₂
+
+open Truncated
+
+section HomotopyCategoryProducts
+
+variable {J : Type u} (F : J → Truncated.{u} 2) [∀ j, (F j).Quasicategory₂]
+
+/-- The comparison with the category of families of objects and morphisms. -/
+noncomputable def homotopyCategoryPi :
+    HomotopyCategory₂ (∏ᶜ F) ⥤ ∀ j, HomotopyCategory₂ (F j) :=
+  Functor.pi' (fun _ ↦ mapHomotopyCategory₂ (Pi.π F _))
+
+variable {F} in
+instance isIso_homotopyCategoryPi : (homotopyCategoryPi F).IsIso where
+  faithful := by
+    constructor
+    intro _ _ f g h
+    induction f, g using Quotient.inductionOn₂ with
+    | h f g =>
+      apply Quotient.sound
+      apply (homotopicL_pi_iff _ _).mpr
+      intro _
+      exact Quotient.exact (congrFun h _)
+  full := by
+    constructor
+    intro _ _ f
+    refine ⟨HomotopyCategory₂.homMk (Edge.pi (fun j ↦ (f j).out)), ?_⟩
+    funext j
+    refine (mapHomotopyCategory₂_homMk (Pi.π F j) _).trans ?_
+    rw [Edge.pi_map_π (fun j ↦ (f j).out) j]
+    exact Quotient.out_eq (f j)
+  bijective_obj := by
+    constructor
+    · rintro ⟨_⟩ ⟨_⟩ h
+      congr 1
+      apply Concrete.Pi.map_ext F ((evaluation _ _).obj _)
+      intro _
+      exact congrArg HomotopyCategory₂.pt (congrFun h _)
+    · intro x
+      refine ⟨⟨(piObjIso F _).inv ((Types.productIso _).inv (fun j ↦ (x j).pt))⟩, ?_⟩
+      funext j
+      apply congrArg HomotopyCategory₂.mk
+      rw [pi_π_app_piObjIso_inv]
+
+/-- The homotopy category of a product is the product category. -/
+@[blueprint "lem:2-truncated-qcat-htpy-products"
+  (title := "homotopy categories of products")
+  (statement := /-- Let $(A_j)_{j\in J}$ be a small family of 2-truncated quasi-categories.
+    The product projections induce an isomorphism
+    \[
+      \ho{\left(\prod_{j\in J} A_j\right)} \xrightarrow{\cong} \prod_{j\in J}\ho{A_j}.
+    \] -/)
+  (proof := /-- Vertices of a product are tuples of vertices, so the comparison is bijective
+    on objects. It is full because a choice of representative 1-simplex in each factor gives
+    a 1-simplex in the product, and faithful by Lemma \ref{lem:product-1-simplex-htpy}. -/)
+  (latexEnv := "lemma")]
+noncomputable def homotopyCategoryPiIso :
+    Cat.of (HomotopyCategory₂ (∏ᶜ F)) ≅ Cat.of (∀ j, HomotopyCategory₂ (F j)) where
+  hom := (homotopyCategoryPi _).toCatHom
+  inv := (homotopyCategoryPi _).strictInv.toCatHom
+  hom_inv_id := Cat.Hom.ext (homotopyCategoryPi _).asIsomorphism.unit_eq.symm
+  inv_hom_id := Cat.Hom.ext (homotopyCategoryPi _).asIsomorphism.counit_eq
+
+/-- The comparison to the categorical product of the homotopy categories. -/
+noncomputable def homotopyCategoryProductComparison :
+    Cat.of (HomotopyCategory₂ (∏ᶜ F)) ⟶ ∏ᶜ (fun j ↦ Cat.of (HomotopyCategory₂ (F j))) :=
+  Pi.lift (fun _ ↦ (mapHomotopyCategory₂ (Pi.π _ _)).toCatHom)
+
+variable {F} in
+instance isIso_homotopyCategoryProductComparison :
+    IsIso (homotopyCategoryProductComparison F) := by
+  apply (Fan.nonempty_isLimit_iff_isIso_piLift
+    (Fan.mk _ (fun j ↦ (mapHomotopyCategory₂ _).toCatHom))).mp
+  let hc : IsLimit (Fan.mk (Cat.of (∀ j, HomotopyCategory₂ (F j)))
+      (fun j ↦ (CategoryTheory.Pi.eval _ j).toCatHom)) := by
+    refine Fan.IsLimit.mk _ ?_ ?_ ?_
+    · intro s
+      exact (Functor.pi' (fun j ↦ (s.proj j).toFunctor)).toCatHom
+    · intro _ _
+      rfl
+    · intro _ _ h
+      apply Cat.Hom.ext
+      apply Functor.pi_ext
+      intro _
+      exact congrArg Cat.Hom.toFunctor (h _)
+  exact hc.nonempty_isLimit_iff_isIso_lift.mpr (homotopyCategoryPiIso F).isIso_hom
+
+end HomotopyCategoryProducts
+
+section PreservesProducts
+
+instance homotopyCategory₂Functor_preservesProduct {J : Type u}
+    {F : J → QCat₂.{u}} :
+    PreservesLimit (Discrete.functor F) homotopyCategory₂Functor := by
+  let c : Fan F := Fan.mk ⟨∏ᶜ (fun j ↦ (F j).obj), inferInstance⟩
+    (fun j ↦ ObjectProperty.homMk (Pi.π (fun j ↦ (F j).obj) j))
+  have hc : IsLimit c := by
+    apply isLimitOfReflects (ObjectProperty.ι Quasicategory₂)
+    apply (isLimitMapConeFanMkEquiv _ _ _).symm _
+    exact productIsProduct _
+  apply preservesLimit_of_preserves_limit_cone hc
+  apply (isLimitMapConeFanMkEquiv homotopyCategory₂Functor F _).symm _
+  exact Fan.isLimitOfIsIsoPiLift _ (hc := isIso_homotopyCategoryProductComparison)
+
+variable {J : Type v} [Small.{u} J]
+
+instance homotopyCategory₂Functor_preservesProducts :
+    PreservesLimitsOfShape (Discrete J) homotopyCategory₂Functor.{u} := by
+  have : PreservesLimitsOfShape (Discrete (Shrink.{u} J)) homotopyCategory₂Functor.{u} :=
+    ⟨preservesLimit_of_iso_diagram homotopyCategory₂Functor Discrete.natIsoFunctor.symm⟩
+  exact preservesLimitsOfShape_of_equiv (Discrete.equivalence (equivShrink.{u} J).symm) _
+
+instance homotopyCategory₂Functor_preservesFiniteProducts :
+    PreservesFiniteProducts homotopyCategory₂Functor.{u} where
+  preserves _ := inferInstance
+
+end PreservesProducts
+
+end SSet.Quasicategory₂
+
+namespace SSet.Truncated
+
+/-- The ordinary homotopy category functor preserves products of 2-truncated quasicategories. -/
+instance hoFunctor₂_preservesProduct {J : Type v} [Small.{u} J] {F : J → Truncated.{u} 2}
+    [∀ j, (F j).Quasicategory₂] : PreservesLimit (Discrete.functor F) hoFunctor₂ := by
+  have : PreservesLimit (Discrete.functor (fun j ↦ ⟨F j, inferInstance⟩))
+      (ObjectProperty.ι Quasicategory₂ ⋙ hoFunctor₂) :=
+    preservesLimit_of_natIso _ SSet.Quasicategory₂.homotopyCategory₂FunctorIso.symm
+  exact preservesLimit_of_iso_diagram hoFunctor₂
+    (Discrete.compNatIsoDiscrete (fun j ↦ ⟨F j, inferInstance⟩) (ObjectProperty.ι Quasicategory₂))
+
+end SSet.Truncated
+
+namespace SSet
+
+section PreservesProducts
+
+variable {J : Type v} [Small.{u} J] {F : J → SSet.{u}} [∀ j, Quasicategory (F j)]
+
+/-- The homotopy category functor preserves any small product of quasicategories. -/
+@[blueprint "lem:ho-preserves-small-products"
+  (title := "preservation of small products")
+  (uses := ["defn:homotopy-cat"])
+  (statement := /-- The functor $\ho \colon \qCat \to \Cat$ preserves small products. -/)
+  (proof := /-- By Lemma \ref{lem:htpy-cat-of-qcat}, we may compute homotopy categories using
+    the 2-truncations. Since truncation preserves products, the result follows from
+    Lemma \ref{lem:2-truncated-qcat-htpy-products}. -/)
+  (latexEnv := "lemma")]
+instance hoFunctor_preservesProduct : PreservesLimit (Discrete.functor F) hoFunctor := by
+  change PreservesLimit _ (truncation 2 ⋙ Truncated.hoFunctor₂)
+  have : PreservesLimit (Discrete.functor F ⋙ truncation 2) Truncated.hoFunctor₂ :=
+    (preservesLimit_iff_of_iso_diagram _ (Discrete.compNatIsoDiscrete _ _)).mpr
+      (Truncated.hoFunctor₂_preservesProduct (F := fun j ↦ (truncation 2).obj (F j)))
+  dsimp only [truncation, SimplicialObject.truncation] at this ⊢
+  infer_instance
+
+end PreservesProducts
+
+/-- Products of quasicategories are quasicategories, by coordinatewise horn filling. -/
+@[blueprint "lem:qcat-products" (hasProof := true) (latexEnv := "lemma")]
+instance quasicategory_pi {J : Type v} {F : J → SSet.{u}} [HasProduct F]
+    [∀ j, Quasicategory (F j)] : Quasicategory (∏ᶜ F) where
+  hornFilling' _ _ f h₀ hₙ := by
+    choose g hg using fun j ↦ Quasicategory.hornFilling h₀ hₙ (f ≫ Limits.Pi.π F j)
+    refine ⟨Limits.Pi.lift g, ?_⟩
+    apply Limits.Pi.hom_ext
+    intro
+    simpa only [Category.assoc, Pi.lift_π] using hg _
+
+namespace QCat
+
+variable {J : Type v} {F : J → QCat.{u}}
+
+section
+
+variable [HasProduct (fun j ↦ (F j).obj)]
+
+/-- The inclusion creates products of quasicategories. -/
+noncomputable instance inclusionCreatesProduct :
+    CreatesLimit (Discrete.functor F) (ObjectProperty.ι Quasicategory) := by
+  have : ∀ j, Quasicategory (F j).obj := fun j ↦ (F j).property
+  exact createsLimitFullSubcategoryInclusion' _
+    ((IsLimit.postcomposeInvEquiv
+      (Discrete.compNatIsoDiscrete F (ObjectProperty.ι Quasicategory)) _).symm
+        (productIsProduct (fun j ↦ (F j).obj))) (quasicategory_pi (F := fun j ↦ (F j).obj))
+
+instance hasProduct : HasProduct F := by
+  have : HasLimit (Discrete.functor F ⋙ ObjectProperty.ι Quasicategory) :=
+    (hasLimit_iff_of_iso (Discrete.compNatIsoDiscrete F (ObjectProperty.ι Quasicategory))).mpr
+      ‹HasProduct (fun j ↦ (F j).obj)›
+  exact hasLimit_of_created (Discrete.functor F) (ObjectProperty.ι Quasicategory)
+
+end
+
+variable [Small.{u} J]
+
+instance hasProductsOfShape : HasLimitsOfShape (Discrete J) QCat.{u} where
+  has_limit D := hasLimit_of_iso (Discrete.natIsoFunctor (F := D)).symm
+
+instance hasFiniteProducts : HasFiniteProducts QCat.{u} :=
+  hasFiniteProducts_of_hasProducts.{u} _
+
+instance inclusion_preservesProducts :
+    PreservesLimitsOfShape (Discrete J) (ObjectProperty.ι Quasicategory.{u}) where
+  preservesLimit := preservesLimit_of_iso_diagram _ Discrete.natIsoFunctor.symm
+
+instance hoFunctor_preservesProduct :
+    PreservesLimit (Discrete.functor F) (ObjectProperty.ι Quasicategory ⋙ hoFunctor) := by
+  have : ∀ j, Quasicategory (F j).obj := fun j ↦ (F j).property
+  have : PreservesLimit (Discrete.functor F ⋙ ObjectProperty.ι Quasicategory) hoFunctor :=
+    (preservesLimit_iff_of_iso_diagram _ (Discrete.compNatIsoDiscrete _ _)).mpr
+      (SSet.hoFunctor_preservesProduct (F := fun j ↦ (F j).obj))
+  infer_instance
+
+/-- The homotopy category functor restricted to quasicategories preserves small products. -/
+@[blueprint "lem:ho-preserves-small-products" (hasProof := true) (latexEnv := "lemma")]
+instance hoFunctor_preservesProducts :
+    PreservesLimitsOfShape (Discrete J) (ObjectProperty.ι Quasicategory.{u} ⋙ hoFunctor) where
+  preservesLimit := preservesLimit_of_iso_diagram _ Discrete.natIsoFunctor.symm
+
+instance hoFunctor_preservesFiniteProducts :
+    PreservesFiniteProducts (ObjectProperty.ι Quasicategory.{u} ⋙ hoFunctor) where
+  preserves _ := inferInstance
+
+end QCat
 
 end SSet
