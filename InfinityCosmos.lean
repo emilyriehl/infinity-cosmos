@@ -20,6 +20,7 @@ public import InfinityCosmos.ForMathlib.AlgebraicTopology.SimplicialSet.StdSimpl
 public import InfinityCosmos.ForMathlib.CategoryTheory.Bicategory.Strict.Closed
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Basic
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Cotensors
+public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.ConicalLimitsFromTensors
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalLimits
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.HasConicalTerminal
 public import InfinityCosmos.ForMathlib.CategoryTheory.Enriched.Limits.IsConicalLimit
